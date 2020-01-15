@@ -1,5 +1,6 @@
 #! /bin/csh
-cd
+set datafolder=/Volumes/WD_D/allsub
+cd ${datafolder}
 if ( $# > 0 ) then
 # set b=`echo \'\\\[${abc}22\\\]\'`
 # 3dROIstats -mask S22.OdorValence.lateralAmyPU.t196+tlrc -nzmean S22.analysis.+tlrc`echo \\\[${abc}22\\\]`
@@ -9,8 +10,9 @@ if ( $# > 0 ) then
 # echo "hello1-`echo hello2-echo hello4\\\``"
 # foreach subj (`echo $*`)
 # foreach subj (`ls -d S*`)
-foreach subj (S22)
+foreach subj (S03)
 #S22 S23 S24 S25 S26 S27 S28
+# set subj = $1
 
 cd *${subj}
 #mkdir analysis
@@ -51,73 +53,6 @@ cd analysis
  -bucket ${subj}.analysis.tent
 
  @auto_tlrc -apar ${subj}.str_al+tlrc. -input ${subj}.analysis.tent+orig.
-
-mkdir ../../ana4/tent_odorPU_lateral
-mkdir ../../ana4/tent_odorPU_medial
-mkdir ../../ana4/tent_odorPU_all
-# OdorValence pleasant-unpleasant lateral amygdala
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 1 2 20`21]" > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_FPI.txt
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 24 2 43`44]"  > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_FPV.txt
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 47 2 66`67]"  > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_FUI.txt
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 70 2 89`90]"  > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_FUV.txt
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 93 2 112`113]"  > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_HPI.txt
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 116 2 135`136]"  > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_HPV.txt
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 139 2 158`159]"  > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_HUI.txt
-3dROIstats -mask ${subj}.OdorValence.lateralAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 162 2 181`182]"  > ../../ana4/tent_odorPU_lateral/${subj}.OdorValence.lateralAmyPU.t196_HUV.txt
-
-# OdorValence pleasant-unpleasant lateral amygdala
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 1 2 20`21]" > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_FPI.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 24 2 43`44]"  > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_FPV.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 47 2 66`67]"  > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_FUI.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 70 2 89`90]"  > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_FUV.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 93 2 112`113]"  > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_HPI.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 116 2 135`136]"  > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_HPV.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 139 2 158`159]"  > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_HUI.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 162 2 181`182]"  > ../../ana4/tent_odorPU_medial/${subj}.OdorValence.medialAmyPU.t196_HUV.txt
-
-# OdorValence pleasant-unpleasant lateral amygdala
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 1 2 20`21]" > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_FPI.txt
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 24 2 43`44]"  > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_FPV.txt
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 47 2 66`67]"  > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_FUI.txt
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 70 2 89`90]"  > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_FUV.txt
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 93 2 112`113]"  > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_HPI.txt
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 116 2 135`136]"  > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_HPV.txt
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 139 2 158`159]"  > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_HUI.txt
-3dROIstats -mask ${subj}.OdorValence.AmyPU.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 162 2 181`182]"  > ../../ana4/tent_odorPU_all/${subj}.OdorValence.AmyPU.t196_HUV.txt
-####################################################################################################################################################################################################################################
-
-
-3dROIstats -mask ${subj}.FaceValence.lateralAmyHF.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.FaceValence.lateralAmyHF.t196.txt
-3dROIstats -mask ${subj}.FaceValence.medialAmyHF.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.FaceValence.medialAmyHF.t196.txt
-3dROIstats -mask ${subj}.FaceValence.AmyHF.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.FaceValence.AmyHF.t196.txt
-##################
-
-3dROIstats -mask ${subj}.OdorValence.lateralAmyUP.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.OdorValence.lateralAmyUP.t196.txt
-3dROIstats -mask ${subj}.OdorValence.medialAmyUP.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.OdorValence.medialAmyUP.t196.txt
-3dROIstats -mask ${subj}.OdorValence.AmyUP.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.OdorValence.AmyUP.t196.txt
-
-3dROIstats -mask ${subj}.FaceValence.lateralAmyFH.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.FaceValence.lateralAmyFH.t196.txt
-3dROIstats -mask ${subj}.FaceValence.medialAmyFH.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.FaceValence.medialAmyFH.t196.txt
-3dROIstats -mask ${subj}.FaceValence.AmyFH.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.FaceValence.AmyFH.t196.txt
-
-
-
-
-
-
-
-
-
-
-
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_HappyUnpleaVis_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_HappyUnpleaVis_OdorValence_TimeCourse.txt
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_HappyUnpleaInv_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_HappyUnpleaInv_OdorValence_TimeCourse.txt
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_HappyPleaVis_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_HappyPleaVis_OdorValence_TimeCourse.txt
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_HappyPleaInv_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_HappyPleaInv_OdorValence_TimeCourse.txt
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_FearUnpleaVis_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_FearUnpleaVis_OdorValence_TimeCourse.txt
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_FearUnpleaInv_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_FearUnpleaInv_OdorValence_TimeCourse.txt
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_FearPleaVis_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_FearPleaVis_OdorValence_TimeCourse.txt
- 3dROIstats -mask {$subj}.MaskforOdorValence.t1.64.TT+tlrc -nzmean {$subj}_FearPleaInv_irf+tlrc'[0,1,2,3,4,5,6,7,8,9,10]' > {$subj}_FearPleaInv_OdorValence_TimeCourse.txt
 
 cd ..
 cd ..

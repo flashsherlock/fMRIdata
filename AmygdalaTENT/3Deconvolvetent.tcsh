@@ -10,11 +10,11 @@ if ( $# > 0 ) then
 # echo "hello1-`echo hello2-echo hello4\\\``"
 # foreach subj (`echo $*`)
 # foreach subj (`ls -d S*`)
-foreach subj (S03)
+# foreach subj (S03)
 #S22 S23 S24 S25 S26 S27 S28
-# set subj = $1
+set subj = $1
 
-cd *${subj}
+cd ${subj}
 #mkdir analysis
 cd analysis
 
@@ -57,7 +57,7 @@ cd analysis
 cd ..
 cd ..
 
-end
+# end
 
 else
  echo "Usage: $0 <Subjname>"

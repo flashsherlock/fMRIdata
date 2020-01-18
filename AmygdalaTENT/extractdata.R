@@ -37,7 +37,7 @@ for (workingpath in folder) {
   getwd()
   # a <- a+1
   # 每个txt循环
-  txtfile <- dir(pattern = "2")
+  txtfile <- dir(pattern = "20subj_.*txt")
   for (name in txtfile) {
     #名字中去掉最后的.txt
     result <- substring(name,1,nchar(name)-4)

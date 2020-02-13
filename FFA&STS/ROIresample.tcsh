@@ -1,7 +1,7 @@
 #! /bin/csh
-set datafolder=/Volumes/WD_D/allsub
+set datafolder=/Volumes/WD_D/allsub/BN_atlas
 cd ${datafolder}
-
-3dresample -master MNI152_T1_2009c+tlrc -prefix BN_Amyg -input ./nonresample/BN_Amyg+tlrc
-3dresample -master MNI152_T1_2009c+tlrc -prefix lAmyg -input ./nonresample/lAmyg+tlrc
-3dresample -master MNI152_T1_2009c+tlrc -prefix mAmyg -input ./nonresample/mAmyg+tlrc
+# whereami -mask_atlas_region Brainnetome_1.0::A37lv_right
+# whereami -mask_atlas_region Brainnetome_1.0::rpsts_right
+3dresample -master MNI152_T1_2009c+tlrc -prefix FFA_right -input ./nonresample/Brainnetome_1.0.A_lv_right+tlrc
+3dresample -master MNI152_T1_2009c+tlrc -prefix STS_right -input ./nonresample/Brainnetome_1.0.rpsts_right+tlrc

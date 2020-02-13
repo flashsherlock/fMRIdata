@@ -55,10 +55,10 @@ set last=`ls FMRI*.HEAD | awk 'END {print}' | cut -c1-9`
 # rm FMRI.*_mean_r+orig*
 # rm FMRI.*_s+orig*
 
-#align epi to anat -partial_axial
+# # align epi to anat -partial_axial
 # align_epi_anat.py -AddEdge -big_move -volreg_method '3dvolreg' -Allineate_opts '-warp shift_rotate' -anat ${subj}.str+orig -epi ${subj}_WB_EPI+orig. -epi_base 0
 # align_epi_anat.py -AddEdge -big_move -volreg_method '3dvolreg' -Allineate_opts '-warp shift_rotate' -anat ${subj}.str+orig -epi ${last}_r_bs1+orig. -epi_base 0
-#align to tlrc_icbn452
+# # align to MNI152_T1_2009c+tlrc
 # @auto_tlrc -no_ss -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input ${subj}.str_al+orig.
 # @AddEdge ${last}_r_bs1+orig. ${subj}.str_al+orig.
 @AddEdge -auto_record

@@ -2,13 +2,13 @@
 set datafolder=/Volumes/WD_D/allsub
 cd ${datafolder}
 
-if ( $# > 0 ) then
-
+# if ( $# > 0 ) then
+foreach subj (`ls -d S*`)
 # foreach subj (S03)
 #S22 S23 S24 S25 S26 S27 S28
-set subj = $1
+# set subj = $1
 
-cd *${subj}
+cd ${subj}
 #mkdir analysis
 cd analysis
 
@@ -153,9 +153,9 @@ cd analysis
 3dROIstats -mask ${subj}.FaceValence.AmyFH.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 139 2 158`159]"  > ../../ana4/tent_faceFH_all/${subj}.FaceValence.AmyFH.t196_HUI.txt
 3dROIstats -mask ${subj}.FaceValence.AmyFH.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 162 2 181`182]"  > ../../ana4/tent_faceFH_all/${subj}.FaceValence.AmyFH.t196_HUV.txt
 
-# end
+end
 
-else
- echo "Usage: $0 <Subjname>"
-
-endif
+# else
+#  echo "Usage: $0 <Subjname>"
+#
+# endif

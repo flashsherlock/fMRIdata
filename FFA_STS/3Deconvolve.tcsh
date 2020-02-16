@@ -9,7 +9,7 @@ if ( $# > 0 ) then
 set subj = $1
 
 
-cd *${subj}
+cd ${subj}
 #mkdir analysis
 cd analysis
 
@@ -41,7 +41,7 @@ cd analysis
         -glt_label 2 InvFaceValenceF_H -gltsym 'SYM: FearUnpleaInv +FearPleaInv -HappUnpleaInv -HappPleaInv'   \
 		    -glt_label 3 InvOlfacValenceU_P -gltsym 'SYM: FearUnpleaInv +HappUnpleaInv -FearPleaInv -HappPleaInv'   \
  -full_first -fout -tout         \
- -fitts fitts.${subj}.         \
+ -fitts fittsSF.${subj}.         \
  -bucket ${subj}.analysisSF.     \
 
  @auto_tlrc -apar ${subj}.str_al+tlrc. -input ${subj}.analysisSF.+orig.

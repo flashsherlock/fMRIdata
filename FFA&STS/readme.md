@@ -2,8 +2,8 @@
 ## 3Deconvolve
 use 3dDeconvolve to get these results and align to structural image
 * Visible > Invisible
-* Fearful > Happy
-* Unpleasant > Pleasant
+* InvisibleFearful > InvisibleHappy
+* InvisibleUnpleasant > InvisiblePleasant
 ## makeROI05
 use 3dcalc to generate masks and use 3dROIstats to print the mean value to txt files
 

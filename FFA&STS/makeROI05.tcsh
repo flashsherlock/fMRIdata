@@ -1,22 +1,23 @@
 #! /bin/csh
-# if ( $# > 0 ) then
+set datafolder=/Volumes/WD_D/allsub
+cd ${datafolder}
+if ( $# > 0 ) then
 # t=1.96  生成对可见反应显著的FFA和STS并看激活
 # foreach subj (`echo $*`)
 # foreach subj (S29)
-foreach subj (`ls -d S*`)
+# foreach subj (`ls -d S*`)
 #S22 S23 S24 S25 S26 S27 S28
+set subj = $1
 
 cd ${subj}
 #mkdir analysis
 cd analysis
  # 26U_P 29F_H 32VisU_P 35VisF_H Tstatis
- 3dcalc -a ${subj}.analysis.+tlrc'[32]' -b ../../BN_atlas/lAmyg+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.OdorValence.lateralAmy.t196
- 3dcalc -a ${subj}.analysis.+tlrc'[32]' -b ../../BN_atlas/mAmyg+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.OdorValence.medialAmy.t196
- 3dcalc -a ${subj}.analysis.+tlrc'[32]' -b ../../BN_atlas/BN_Amyg+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.OdorValence.Amy.t196
+ 3dcalc -a ${subj}.analysis.+tlrc'[32]' -b ../../BN_atlas/FFA_right+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.OdorValence.lateralAmy.t196
+ 3dcalc -a ${subj}.analysis.+tlrc'[32]' -b ../../BN_atlas/STS_right+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.OdorValence.medialAmy.t196
 
- 3dcalc -a ${subj}.analysis.+tlrc'[35]' -b ../../BN_atlas/lAmyg+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.FaceValence.lateralAmy.t196
- 3dcalc -a ${subj}.analysis.+tlrc'[35]' -b ../../BN_atlas/mAmyg+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.FaceValence.medialAmy.t196
- 3dcalc -a ${subj}.analysis.+tlrc'[35]' -b ../../BN_atlas/BN_Amyg+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.FaceValence.Amy.t196
+ 3dcalc -a ${subj}.analysis.+tlrc'[35]' -b ../../BN_atlas/FFA_rightlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.FaceValence.lateralAmy.t196
+ 3dcalc -a ${subj}.analysis.+tlrc'[35]' -b ../../BN_atlas/STS_right+tlrc -expr '(step(a-1.96)+step(-a-1.96))*b' -prefix ${subj}.FaceValence.medialAmy.t196
 
 
  3dROIstats -mask ${subj}.OdorValence.lateralAmy.t196+tlrc -nzmean -nzvoxels ${subj}.analysis.+tlrc'[1,4,7,10,13,16,19,22]' > ../../ana4/${subj}.OdorValence.lateralAmy.t196.txt

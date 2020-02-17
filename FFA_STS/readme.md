@@ -17,3 +17,10 @@ get the same results as 3Deconvolve but use tent function -->
 
 ## ROIstatent
 use 3dROIstats to print the mean value to txt files
+
+## extract_block
+get data from the txt file.
+Because the structures of data generated from tent and block function are different, extract_block.R can not be used here.
+
+## analyzeR
+analyze data stored in RData file

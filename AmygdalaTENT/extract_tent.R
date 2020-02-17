@@ -45,6 +45,7 @@ for (workingpath in folder) {
     assign(result,extractdata(name))
     results <- get(result)
     meanbeta <- apply(results[2:12],2,mean)
+    #保存图片为eps
     setEPS()
     postscript(paste(result,"eps",sep="."))
     showtext_begin()
@@ -55,7 +56,7 @@ for (workingpath in folder) {
     dev.off()
   }
 }
-
+rm(results)
 # #保存图片为eps
 # require(showtext)
 # for (data in txtfile) {
@@ -70,4 +71,3 @@ for (workingpath in folder) {
 #   showtext_end()
 #   dev.off()
 # }
-

@@ -31,7 +31,7 @@ return(data1)
 setwd("/Volumes/WD_D/allsub/ana4")
 require(showtext)
 # a <- 0
-folder <- dir(pattern = "tent")
+folder <- dir(pattern = "tent.*l")
 for (workingpath in folder) {
   setwd(paste("/Volumes/WD_D/allsub/ana4",workingpath,sep="/"))
   getwd()
@@ -39,8 +39,9 @@ for (workingpath in folder) {
   # 每个txt循环
   txtfile <- dir(pattern = "20subj_.*txt")
   for (name in txtfile) {
-    #名字中去掉最后的.txt
+    # 名字中去掉最后的.txt
     result <- substring(name,1,nchar(name)-4)
+    # 将得到的结果的数据框重命名
     assign(result,extractdata(name))
     results <- get(result)
     meanbeta <- apply(results[2:12],2,mean)

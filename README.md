@@ -1,5 +1,6 @@
 # Scripts for fMRI data analysis
 This repository stores the Scripts for fMRI data analysis by AFNI
+
 ## AmygdalaBlOCK
 The analysis of Amygdala using BlOCK function
 

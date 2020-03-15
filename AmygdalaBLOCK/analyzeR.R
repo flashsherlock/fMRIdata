@@ -91,7 +91,7 @@ rm(list=allobj[which (allobj != "all" &
                       allobj != "sedata"&
                       allobj != "meandata")])
 rm(allobj)
-save(list = ls(),file = "All.rdata")
+save(list = ls(),file = "All.RData")
 
 # 建立空的数据框
 # meandata <- data.frame(FPI=0,FPV=0,FUI=0,FUV=0,HPI=0,HPV=0,HUI=0,HUV=0,Count=0)

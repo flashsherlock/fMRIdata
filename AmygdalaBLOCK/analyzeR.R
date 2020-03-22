@@ -1,5 +1,5 @@
-# 求标准误的函数
 rm(list = ls())
+# 求标准误的函数
 se <- function(x,na.omit=FALSE){
   if (na.omit)
     x <- x[!is.na(x)]

@@ -1,0 +1,309 @@
+---
+title: "Amygdala"
+author: "GuFei"
+date: '2020-03-25'
+output:
+  html_document:
+  df_print: paged
+---
+```{r include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE)
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+```
+
+# 汇总数据
+```{r}
+
+rm(list = ls())
+load("All.RData")
+all_block <- all
+load("../AmygdalaTENT/Alltent.RData")
+
+# 分组统计
+analyze <- describeBy(all_block[2:14],list(all_block$position,all_block$condition),mat = TRUE)
+# 把vars列中的数字替换为名称
+varnames <- row.names(analyze)
+tempstr <- strsplit(varnames,"[0-9]")
+varnames <- sapply(tempstr,'[',1)
+analyze$vars <- as.factor(varnames)
+
+# TENT的数据
+analyze_tent <- describeBy(all[2:12],list(all$position,all$condition,all$stimuli),mat = TRUE)
+# 把vars列中的数字替换为TR名称
+varnames <- row.names(analyze_tent)
+varnames <- substr(varnames,1,4)
+analyze_tent$vars <- as.factor(varnames)
+
+# 备份 把是odor还是face作为一个变量
+# library(psych)
+# analyze <- describeBy(all_block[2:14],list(all_block$valance,all_block$position,all_block$condition),mat = TRUE)
+# analyze <- na.omit(analyze)
+# varnames <- row.names(analyze)
+# tempstr <- strsplit(varnames,"[0-9]")
+# varnames <- sapply(tempstr,'[',1)
+# analyze$vars <- as.factor(varnames)
+# 提取需要画图的部分
+# datachosen <- subset(analyze,group1=="Face" & group2=="Amy" & vars%in%c('FP','FU','HP','HU'),select = c(mean,se,vars,group3))
+```
+
+# 分析
+## 统计voxel的数量
+```{r fig.height=4, fig.width=6}
+# 画图时的字体大小
+WORD_SIZE = 15
+
+for (val in unique(all_block$valance)) {
+voxel <- subset(all_block,valance==val & position%in%c("medialAmy","lateralAmy"),
+                select = c(Sub,Count,position,condition))
+#long format data
+MANOVA(voxel,subID = 'Sub',dv='Count',within = c("position","condition"))
+
+# 绘图
+ggthemr('fresh',layout = "clean")
+# face或者odor对应的条件
+condition <- unique(subset(all_block,valance==val)$condition)
+# 图的标题
+title <- val
+# 提取需要画图的部分
+datachosen <- subset(analyze,group1%in%c("medialAmy","lateralAmy")
+                     & group2%in%condition
+                     & vars=='Count',select = c(mean,se,vars,group1,group2))
+# Error bars represent standard error of the mean
+figure <- ggplot(datachosen, aes(x=group1, y=mean, fill=group2)) +
+  #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+  labs(title = title ,x='Position',y='Voxel Count',fill='Preference')+#设置坐标轴
+  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+        axis.text.y = element_text(size=WORD_SIZE),
+        axis.title.x = element_text(size=WORD_SIZE),
+        axis.title.y = element_text(size=WORD_SIZE),
+        legend.title = element_text(size=WORD_SIZE),
+        legend.text = element_text(size=WORD_SIZE),
+        plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(breaks=waiver(),expand = c(0,0))+
+  geom_bar(position="dodge", stat="identity") +
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_fill_brewer(palette = "Set2",direction = -1)+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
+                width=.2,color='black',      # Width of the error bars
+                position=position_dodge(.9))
+print(figure)
+
+
+}
+```
+
+
+## 方差分析和画图
+
+```{r fig.height=12, fig.width=16}
+# 颜色
+gf_color <- c("#A1D99B","#41AB5D","#9ECAE1","#4292C6","#FDAE6B","#F16913","#BCBDDC","#807DBA")
+# 绘图
+ggthemr('fresh',layout = "clean")
+# layout(matrix(c(1,1,2,3),2,2,byrow=T))
+
+# 4个选取ROI的方式,这里是先选出是face还是odor
+for (val in unique(all_block$valance)) {
+# 3个杏仁核的位置
+  for (pos in unique(all_block$position)) {
+
+    cat("\n作差并取绝对值之后\n")
+    # 进行方差分析
+    # 选择对应的数据
+    data_anova <- subset(all_block,position==pos & valance==val,select = c(1:14,16))
+    data_anova$condition <- paste0('condition_',data_anova$condition)
+    #更改变量名称
+    name <- paste(rep(c('Face_F','Face_H'),each=4),
+                  rep(c('Odor_P','Odor_U'),each=2,times=2),
+                  rep(c('Visi_I','Visi_V'),times=4),
+                  sep = '_')
+    name2 <- paste(rep(c('Face_F','Face_H'),each=2),rep(c('Odor_P','Odor_U'),times=2),sep = '_')
+    #重命名
+    names(data_anova) <- c('Sub',name,'Count',name2,'condition')
+
+
+
+
+    # 处理没有做差的部分
+    data_anova4 <- data_anova[c(1,11:15)]
+    #更换数据格式
+    data_anova4 <- melt(data_anova4,c('Sub','condition'))
+    data_anova4 <- dcast(data_anova4,Sub~condition+variable)
+
+    #方差分析
+    MANOVA(data_anova4,dvs =names(data_anova4[-1]),
+           dvs.pattern ='condition_(..)_Face_(.)_Odor_(.)',
+           within=c('Condition','Face','Odor'))
+    # %>%
+    # EMMEANS("Odor", by="Face")
+    # 简单效应
+    # MANOVA(data_anova4[seq(2,9,2)],dvs =names(data_anova4[seq(2,9,2)]),
+    #        dvs.pattern ='condition_(..)_Face_(.)',
+    #        within=c('Condition','Face'))
+    #
+
+
+
+    cat("\n全部8个条件\n")
+    # 进行方差分析
+    # 选择对应的数据没有做差的部分
+    print(paste0(pos, val))
+    data_anova8 <- data_anova[c(1:9,15)]
+    #更换数据格式
+    data_anova8 <- melt(data_anova8,c('Sub','condition'))
+    data_anova8 <- dcast(data_anova8,Sub~condition+variable)
+
+    #方差分析
+    MANOVA(data_anova8,dvs =names(data_anova8[-1]),
+           dvs.pattern ='condition_(..)_Face_(.)_Odor_(.)_Visi_(.)',
+           within=c('Condition','Face','Odor','Visi'))
+
+
+
+
+    cat("\n绘图\n")
+
+    # face或者odor对应的条件
+    condition <- unique(subset(all_block,valance==val)$condition)
+    # 图的标题
+    title <- paste0(pos, val)
+    # 提取需要画图的部分
+    datachosen <- subset(analyze,group1==pos & group2%in%condition
+                         & vars%in%c('FP','FU','HP','HU'),select = c(mean,se,vars,group2))
+    # Error bars represent standard error of the mean
+    figure_4 <- ggplot(datachosen, aes(x=vars, y=mean, fill=group2)) +
+      #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+      labs(title = title ,x='Condition',y='Mean β',fill='ROI')+#设置坐标轴
+      theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+            axis.text.y = element_text(size=WORD_SIZE),
+            axis.title.x = element_text(size=WORD_SIZE),
+            axis.title.y = element_text(size=WORD_SIZE),
+            legend.title = element_text(size=WORD_SIZE),
+            legend.text = element_text(size=WORD_SIZE),
+            plot.title = element_text(hjust = 0.5)) +
+      scale_y_continuous(expand = c(0,0))+
+      geom_bar(position="dodge", stat="identity") +
+      # scale_fill_manual(values = colors[1:2])+ #颜色
+      scale_fill_brewer(palette = "Set2",direction = -1)+ #颜色
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
+                    width=.2,color='black',      # Width of the error bars
+                    position=position_dodge(.9))
+
+
+
+    # 8个条件没有作差的
+    datachosen <- subset(analyze,group1==pos & group2%in%condition
+                         & vars%in%c('FPI','FPV','FUI','FUV','HPI','HPV','HUI','HUV'),
+                         select = c(mean,se,vars,group2))
+    # Error bars represent standard error of the mean
+    figure_8 <- ggplot(datachosen, aes(x=vars, y=mean, fill=group2)) +
+      coord_cartesian(ylim=c(-0.5,0.5)) +  # 设置y轴坐标范围
+      labs(title = title ,x='Condition',y='Mean β',fill='ROI')+#设置坐标轴
+      theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+            axis.text.y = element_text(size=WORD_SIZE),
+            axis.title.x = element_text(size=WORD_SIZE),
+            axis.title.y = element_text(size=WORD_SIZE),
+            legend.title = element_text(size=WORD_SIZE),
+            legend.text = element_text(size=WORD_SIZE),
+            plot.title = element_text(hjust = 0.5)) +
+      scale_y_continuous(expand = c(0,0))+
+      geom_bar(position="dodge", stat="identity") +
+      # scale_fill_manual(values = colors[1:2])+ #颜色
+      scale_fill_brewer(palette = "Set2",direction = -1)+ #颜色
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
+                    width=.2,color='black',      # Width of the error bars
+                    position=position_dodge(.9))
+
+    # TENT
+    # 选择数据
+    # datachosen <- subset(all,position==pos & valance==val,select = c(1:12,14,16))
+    # 作差之后的结果
+    pd <- position_dodge(0.9)
+    datachosen <- subset(analyze_tent,group1==pos & group2%in%condition
+                         & group3%in%c('FP','FU','HP','HU'),
+                         select = c(mean,se,vars,group2,group3))
+    figtent_4 <- ggplot(datachosen, aes(x=vars, y=mean,
+                           group=interaction(group2,group3),color=group3)) +
+      labs(x='TR',y='Mean β',color='Condition')+#设置坐标轴,linetype='ROI'
+      # scale_color_brewer(palette = "Set2",direction = -1)+ #颜色
+      scale_color_manual(values = gf_color[seq(2,8,2)])+ #自选颜色
+      # scale_linetype_manual(values=c("solid", "longdash"))+
+      facet_wrap(~group2,ncol = 1,scales="free")+#分面 +facet_wrap(~cyl,ncol-1,scales="free")
+      theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+            axis.text.y = element_text(size=WORD_SIZE),
+            axis.title.x = element_text(size=WORD_SIZE),
+            axis.title.y = element_text(size=WORD_SIZE),
+            legend.title = element_text(size=WORD_SIZE),
+            legend.text = element_text(size=WORD_SIZE),
+            text = element_text(size=WORD_SIZE),
+            plot.title = element_text(hjust = 0.5))+
+      scale_x_discrete(labels=as.character(0:10),expand = c(0,0))+
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+      geom_line(position = pd) +
+      geom_point(position = pd)
+    # 没有作差的结果
+    datachosen <- subset(analyze_tent,group1==pos & group2%in%condition
+                         & group3%in%c('FPI','FPV','FUI','FUV','HPI','HPV','HUI','HUV'),
+                         select = c(mean,se,vars,group2,group3))
+
+    figtent_8 <- ggplot(datachosen, aes(x=vars, y=mean,
+                                        group=interaction(group2,group3),color=group3)) +
+      labs(x='TR',y='Mean β',color='Condition')+#设置坐标轴,linetype='ROI'
+      # scale_color_brewer(palette = "Set2",direction = -1)+ #颜色
+      scale_color_manual(values = gf_color)+ #自选颜色
+      # scale_linetype_manual(values=c("solid", "longdash"))+
+      facet_wrap(~group2,ncol = 1,scales="free")+#分面 +facet_wrap(~cyl,ncol-1,scales="free")
+      theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+            axis.text.y = element_text(size=WORD_SIZE),
+            axis.title.x = element_text(size=WORD_SIZE),
+            axis.title.y = element_text(size=WORD_SIZE),
+            legend.title = element_text(size=WORD_SIZE),
+            legend.text = element_text(size=WORD_SIZE),
+            text = element_text(size=WORD_SIZE),
+            plot.title = element_text(hjust = 0.5))+
+      scale_x_discrete(labels=as.character(0:10),expand = c(0,0))+
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+      geom_line(position = pd) +
+      geom_point(position = pd)
+
+    # 合并几个图到一个里面
+    # ggarrange(p2,ggarrange(p1,p3,ncol=2,labels=c("B","C")),nrow=2,labels="A")
+    block <- ggarrange(figure_4,figure_8,ncol = 2,labels=c("A","B"),widths = c(3,4))
+    tent <- ggarrange(figtent_4,figtent_8,ncol = 2,labels=c("C","D"))
+    print(ggarrange(block,tent,nrow = 2,heights = c(1,3)))
+    # 测试保存图片
+    # jpeg(file="myplot.jpeg",width = 1920,height = 1080)
+    # ggarrange(figure_4,figure_8,ncol = 2,labels=c("A","B"),widths = c(1,2))
+    # dev.off()
+  }
+}
+# # 可以查看对应主题的颜色
+# colour_plot(swatch())
+# colour_plot(ggthemr("pale"))
+# colour_plot(ggthemr("greyscale"))
+# colour_plot(ggthemr("solarized"))
+# # colorbrewer选择颜色，生成颜色
+# display.brewer.all_block()
+# display.brewer.all()
+# colors <- brewer.pal(8,"Set2")
+# colour_plot(colors)
+# # colors是自带颜色函数
+# colors()
+# 一些可以选择的颜色
+# gf_color <- c("#FF7F00","#56B4E9","#E84646","#009E73","#984EA3","#0072B2","#F0E442","#65DAC2","#CC79A7","#D55E00","#377EB8")
+# gf_color <- c("#FF7F00","#56B4E9","#E84646","#009E73","#984EA3","#0072B2","#F0E442","#2352e4","#CC79A7","#D55E00","#377EB8")
+# all_color <- c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00","#FFFF33","#A65628","#F781BF"
+# "#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"
+# "#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#8C2D04"
+# "#F7FBFF","#DEEBF7","#C6DBEF","#9ECAE1","#6BAED6","#4292C6","#2171B5","#084594"
+# "#F7FCF0","#E0F3DB","#CCEBC5","#A8DDB5","#7BCCC4","#4EB3D3","#2B8CBE","#08589E"
+# "#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#005A32"
+# "#FCFBFD","#EFEDF5","#DADAEB","#BCBDDC","#9E9AC8","#807DBA","#6A51A3","#4A1486"
+# "#F7F4F9","#E7E1EF","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#91003F")
+# gf_color <- c("#A1D99B","#41AB5D","#9ECAE1","#4292C6","#FDAE6B","#F16913","#BCBDDC","#807DBA")
+```

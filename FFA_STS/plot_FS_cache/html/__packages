@@ -1,0 +1,14 @@
+base
+rio
+dplyr
+data.table
+psych
+stringr
+lubridate
+performance
+ggplot2
+bruceR
+ggthemr
+RColorBrewer
+magrittr
+ggpubr

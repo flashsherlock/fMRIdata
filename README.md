@@ -10,6 +10,9 @@ The analysis of Amygdala using TENT function.
 ## FFA_STS
 The analysis of right STS and right FFA, including scripts using BlOCK and TENT function.
 
+## PPI
+Analyze the connectivity between amygdala and FFA/STS
+
 ## learning
 Stores some of the files and notes during learning.
 

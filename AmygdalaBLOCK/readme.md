@@ -64,6 +64,9 @@ Make masks for amygdala that activity significantly (t>1.65) in Upleasant >&< Pl
 ### makeROI05
 Make masks for amygdala that activity significantly (t>1.96) in Upleasant >&< Pleasant or Fearful >&< Happy (merge two directions)
 
+### copy
+Copy first 12 subjects' images to new folder S0XX
+
 ### rename
 Change the data folder name from S0XX to SXX so that it can match the name of the data files
 

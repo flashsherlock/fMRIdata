@@ -1,0 +1,79 @@
+---
+title: "generTiming"
+output: html_document
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE)
+```
+
+通过1D文件生成txt格式的timing文件。
+
+后来的8个被试的
+```{bash}
+cd /Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/Timings
+ls *Invis.1D
+ls *.Vis.1D
+echo 1D文件的样例
+head S22.Invis.1D
+#复制并重命名为Sxx.Invisible.1D
+for name in `ls *Invis.1D`
+do  echo ${name}
+    cp ${name} /Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/timingtxt_two/${name:0:4}Invisible.1D
+done
+#复制并重命名为Sxx.Visible.1D
+for name in `ls *.Vis.1D`
+do  echo ${name}
+    cp ${name} /Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/timingtxt_two/${name:0:4}Visible.1D
+done
+```
+
+原来的16个被试的
+```{bash}
+cd  /Volumes/WD_D/Exp_odor_face/program\&data/ROI_analysis/Timings
+#ls *Invisible.1D
+#ls *.Visible.1D
+
+#复制并重命名为Sxx.Invisible.1D
+for name in `ls *Invisible.1D`
+do  echo ${name} S${name:1:3}Invisible.1D
+    cp ${name} /Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/timingtxt_two/S${name:1:3}Invisible.1D
+done
+#复制并重命名为Sxx.Visible.1D
+for name in `ls *.Visible.1D`
+do  echo ${name} S${name:1:3}Visible.1D
+    cp ${name} /Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/timingtxt_two/S${name:1:3}Visible.1D
+done
+
+```
+
+也可以使用tcsh，将用到的20个被试挑出来
+
+```{tcsh}
+#set hello="hello world"
+#echo $hello
+cd /Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/timingtxt_two
+mkdir 20sub
+foreach sub (S03 S04 S05 S06 S07 S08 S11 S14 S15 S16 S19 S21 S22 S23 S24 S25 S26 S27 S28 S29)
+mv ${sub}* ./20sub/
+end
+```
+
+移动到最终的文件夹
+```{bash}
+cd /Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/timingtxt_two/20sub
+# 显示数目
+ls *.1D | wc -l
+ls *.txt | wc -l
+# 移动文件
+mv *.1D /Volumes/WD_D/allsub/timing/
+mv *.txt /Volumes/WD_D/allsub/timingtxt/
+```
+
+
+用r语言也可以调用系统命令。
+
+```{r}
+system("ls",intern = TRUE)
+```
+

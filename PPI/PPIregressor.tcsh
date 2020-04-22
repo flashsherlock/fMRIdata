@@ -46,7 +46,7 @@ foreach run (`count -digits 1 1 $nruns`)
    3dTfitter -RHS Seed_ts${run}${mask}.1D -FALTUNG GammaHR.1D Seed_Neur${run}${mask} 012 -1
 
    foreach cond ($condList)
-      1deval -a Seed_Neur${run}${mask}.1D\' -b ${subj}_${cond}_run${run}.1D -expr 'a*b' > Inter_neu${cond}${run}${mask}.1D
+      1deval -a Seed_Neur${run}${mask}.1D\' -b /Volumes/WD_D/allsub/timing5run/${subj}.${cond}_run${run}.1D -expr 'a*b' > Inter_neu${cond}${run}${mask}.1D
       waver -GAM -peak 1 -TR 2 -input Inter_neu${cond}${run}${mask}.1D -numout ${n_tp} > Inter_ts${cond}${run}${mask}.1D
    end
 
@@ -59,19 +59,20 @@ cat Inter_tsInvisible?${mask}.1D > Inter_Invisible_${mask}.1D
 cat Inter_tsVisible?${mask}.1D > Inter_Visible_${mask}.1D
 
 # 把mask放回去
-mv *Amy* ../analysis/
+mv *Amy*+tlrc* ../analysis/
 
 #############################   3dDeconvolve  ###########################
 # 移动需要的文件
 mv ../analysis/${subj}_func_s+orig* ./
 mv ../analysis/*.str_al+tlrc* ./
+mv ../analysis/func_s.mot ./
 
 3dDeconvolve -input ${subj}_func_s+orig.                \
      -polort A                                     \
      -num_stimts 11                                \
-     -stim_times 1 ../../timingtxt/${subj}.Invisible.1D 'BLOCK(10,1)'  \
+     -stim_times 1 ../../timingtxt/${subj}.Invisible.txt 'BLOCK(10,1)'  \
      -stim_label 1 Invisible                               \
-     -stim_times 2 ../../timingtxt/${subj}.Visible.1D 'BLOCK(10,1)'    \
+     -stim_times 2 ../../timingtxt/${subj}.Visible.txt 'BLOCK(10,1)'    \
      -stim_label 2 Visible                                 \
      -stim_file 3 func_s.mot'[1]' \
      -stim_file 4 func_s.mot'[2]' \
@@ -89,14 +90,15 @@ mv ../analysis/*.str_al+tlrc* ./
      -stim_file 10 Inter_Invisible_${mask}.1D -stim_label 10 InvisiblePPI    \
      -stim_file 11 Inter_Visible_${mask}.1D -stim_label 11 VisiblePPI        \
      -rout -tout                                                               \
-     -bucket ${subj}.${mask}PPI
+     -bucket ${subj}.${mask}_PPI
 
 # 对齐到标准空间的结构像
-@auto_tlrc -apar ${subj}.str_al+tlrc. -input ${subj}.${mask}PPI+orig
+@auto_tlrc -apar ${subj}.str_al+tlrc. -input ${subj}.${mask}_PPI+orig
 
 # 放回文件
 mv ${subj}_func_s+orig* ../analysis/
 mv *.str_al+tlrc* ../analysis/
+mv func_s.mot ../analysis/
 
 cd ..
 cd ..

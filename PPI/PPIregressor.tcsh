@@ -1,6 +1,8 @@
 #! /bin/csh
-#set datafolder=/Volumes/WD_D/allsub
-set datafolder=/Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/
+set datafolder=/Volumes/WD_D/allsub
+# set datafolder=/Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/
+# 存放timing文件的目录的上一级
+set timingfolder=/Volumes/WD_D/allsub
 # 双引号避免空格路径问题
 cd "${datafolder}"
 
@@ -12,7 +14,7 @@ if ( $# > 0 ) then
 #S22 S23 S24 S25 S26 S27 S28
 set subj = $1
 
-cd *${subj}
+cd ${subj}
 cd ppi
 #############################   generate_regressors  ###########################
 # 把mask移动过来
@@ -35,18 +37,25 @@ set TR = 2
 set condList = (Invisible Visible)
 
 # create Gamma impulse response function
+# 1@1 represent a single impulse
 waver -dt 2 -GAM -peak 1 -inline 1@1 > GammaHR.1D
 
 # for each run, extract seed time series, run deconvolution, and create interaction regressor
 foreach run (`count -digits 1 1 $nruns`)
+   # 提取ROI位置的平均信号
    3dmaskave -mask ${subj}.${valance}.${mask}.t196+tlrc -quiet ${subj}_run${run}+tlrc > Seed${run}${mask}.1D
+   # 去掉线性漂移，由于接受的是row，所以后面要加上\'
    3dDetrend -polort 3 -prefix SeedR${run}${mask} Seed${run}${mask}.1D\'
+   # 转置成为一列，去掉没有转置的
    1dtranspose SeedR${run}${mask}.1D Seed_ts${run}${mask}.1D
-   rm -f SeedR${run}${mask}.1D
+   rm SeedR${run}${mask}.1D
+   # 用FALTUNG指定的核函数deconvolve，输出是行结构的文件，所以下面需要转置
    3dTfitter -RHS Seed_ts${run}${mask}.1D -FALTUNG GammaHR.1D Seed_Neur${run}${mask} 012 -1
 
    foreach cond ($condList)
-      1deval -a Seed_Neur${run}${mask}.1D\' -b /Volumes/WD_D/allsub/timing5run/${subj}.${cond}_run${run}.1D -expr 'a*b' > Inter_neu${cond}${run}${mask}.1D
+      # 和相应条件的timing相乘
+      1deval -a Seed_Neur${run}${mask}.1D\' -b ${timingfolder}/timing5run/${subj}.${cond}_run${run}.1D -expr 'a*b' > Inter_neu${cond}${run}${mask}.1D
+      # 再卷积上gamma函数
       waver -GAM -peak 1 -TR 2 -input Inter_neu${cond}${run}${mask}.1D -numout ${n_tp} > Inter_ts${cond}${run}${mask}.1D
    end
 
@@ -67,12 +76,13 @@ mv ../analysis/${subj}_func_s+orig* ./
 mv ../analysis/*.str_al+tlrc* ./
 mv ../analysis/func_s.mot ./
 
-3dDeconvolve -input ${subj}_func_s+orig.                \
+3dDeconvolve -input ${subj}_func_s+orig.           \
+     -jobs 2                                       \
      -polort A                                     \
      -num_stimts 11                                \
-     -stim_times 1 ../../timingtxt/${subj}.Invisible.txt 'BLOCK(10,1)'  \
+     -stim_times 1 ${timingfolder}/timingtxt/${subj}.Invisible.txt 'BLOCK(10,1)'  \
      -stim_label 1 Invisible                               \
-     -stim_times 2 ../../timingtxt/${subj}.Visible.txt 'BLOCK(10,1)'    \
+     -stim_times 2 ${timingfolder}/timingtxt/${subj}.Visible.txt 'BLOCK(10,1)'    \
      -stim_label 2 Visible                                 \
      -stim_file 3 func_s.mot'[1]' \
      -stim_file 4 func_s.mot'[2]' \

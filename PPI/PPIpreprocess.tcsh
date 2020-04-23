@@ -1,6 +1,6 @@
 #! /bin/csh
-#set datafolder=/Volumes/WD_D/allsub
-set datafolder=/Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/
+set datafolder=/Volumes/WD_D/allsub
+# set datafolder=/Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/
 # 双引号避免空格路径问题
 cd "${datafolder}"
 
@@ -12,7 +12,29 @@ if ( $# > 0 ) then
 #S22 S23 S24 S25 S26 S27 S28
 set subj = $1
 
-cd *${subj}
+cd ${subj}
+
+cd analysis
+
+# 需要重新做几步预处理，原来的被删除了……
+foreach scan (`ls FMRI*_r_bs1+orig.HEAD | cut -c1-9`)
+    3dTsmooth -prefix ${scan}_f  ${scan}_r_bs1+orig
+
+    3dmerge -1blur_fwhm 2.5 -doall -prefix ${scan}_merge ${scan}_f+orig
+
+    3dTstat -prefix ${scan}_mean_r ${scan}_merge+orig
+
+    3dcalc -a ${scan}_merge+orig -b ${scan}_mean_r+orig -expr "(a/b * 100)" -prefix ${scan}_s
+
+    # rm ${scan}_r_bs1+orig*
+    rm ${scan}_f+orig*
+    rm ${scan}_merge+orig*
+    rm ${scan}_mean_r+orig*
+
+end
+
+# 返回上层开始PPI
+cd ..
 
 mkdir ppi
 # 移动过来需要的文件

@@ -20,9 +20,8 @@ tp <- sapply(tp,"[",1)
 data$TimePoints <- tp
 data$NZmean <- as.numeric(data$NZmean)
 
-require(data.table)
-data1 <- melt(data,id=c("Sub","TimePoints"))
-data1 <- dcast(data1,Sub~TimePoints)
+data1 <- reshape2::melt(data,id=c("Sub","TimePoints"))
+data1 <- reshape2::dcast(data1,Sub~TimePoints)
 
 return(data1)
 }

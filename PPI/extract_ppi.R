@@ -23,7 +23,7 @@ tp <- sapply(tp,"[",1)
 data$Conditions <- tp
 data$NZmean <- as.numeric(data$NZmean)
 # 把count单独放出来
-Count <- data$Count[seq(1,8*20,8)]
+Count <- data$Count[seq(1,4*20,4)]
 data <- data[c(-4)]
 
 data1 <- reshape2::melt(data,id=c("Sub","Conditions"))
@@ -36,11 +36,9 @@ return(data1)
 setwd("/Volumes/WD_D/allsub/ana4")
 require(showtext)
 # a <- 0
-folder <- dir(pattern = "STS_FFA")
+folder <- dir(pattern = "PPI")
 for (workingpath in folder) {
   setwd(paste("/Volumes/WD_D/allsub/ana4",workingpath,sep="/"))
-  getwd()
-  # a <- a+1
   # 每个txt循环
   txtfile <- dir(pattern = "20subj_.*txt")
   for (name in txtfile) {
@@ -49,29 +47,9 @@ for (workingpath in folder) {
     # 将得到的结果的数据框重命名
     assign(result,extractdata(name))
     results <- get(result)
-    meanbeta <- apply(results[2:10],2,mean)
-    # setEPS()
-    # postscript(paste(result,"eps",sep="."))
-    # showtext_begin()
-    # plot(meanbeta,xaxt='n',xlab="TimePoint",ylab="Beta",type = 'b', lty = 3)
-    # axis(1,0:10)
-    # title(result)
-    # showtext_end()
-    # dev.off()
+
   }
 }
-rm(results)
-# #保存图片为eps
-# require(showtext)
-# for (data in txtfile) {
-#   result <- get(data)
-#   meanbeta <- apply(result[2:12],2,mean)
-#   setEPS()
-#   postscript(paste(data,"eps",sep="."))
-#   showtext_begin()
-#   plot(meanbeta,xaxt='n',xlab="TimePoint",ylab="Beta",type = 'b', lty = 3)
-#   axis(1,0:10)
-#   title(data)
-#   showtext_end()
-#   dev.off()
-# }
+# save data
+setwd("~/Documents/GitHub/fMRIdata/PPI")
+save(list = ls(pattern = "20subj.*"), file = "PPI.RData")

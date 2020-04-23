@@ -36,5 +36,5 @@ foreach subj (`ls -d S*`)
 end
 
 cd ana4/PPI/
-cat S*.${mask}.aSTS.txt > 20subj.${mask}.aSTS.txt
-cat S*.${mask}.FFA.txt > 20subj.${mask}.FFA.txt
+cat S*.${mask}.aSTS.txt > 20subj_${mask}.aSTS.txt
+cat S*.${mask}.FFA.txt > 20subj_${mask}.FFA.txt

@@ -25,9 +25,10 @@ mv ../analysis/*Amy* ./
 # ls *Amy{.t196,+tlrc}* | wc -l
 
 rm *Amy{.t196,+tlrc}*
+# set OdorValence FaceValence
+set valance=OdorValence
 # 设置mask条件 Amy lateralAmy medialAmt FH HF UP PU
-set valance=FaceValence
-set mask=AmyFH
+set mask=AmyPU
 # there are 5 runs
 set nruns = 5
 # number of time points per run in TR
@@ -67,8 +68,8 @@ cat Seed_ts?${mask}.1D > Seed_${mask}.1D
 cat Inter_tsInvisible?${mask}.1D > Inter_Invisible_${mask}.1D
 cat Inter_tsVisible?${mask}.1D > Inter_Visible_${mask}.1D
 
-# 把mask放回去
-mv *Amy*+tlrc* ../analysis/
+# 把mask放回去, avoid moving the Amy_PPI+tlrc
+mv *Amy*.t196+tlrc* ../analysis/
 
 #############################   3dDeconvolve  ###########################
 # 移动需要的文件

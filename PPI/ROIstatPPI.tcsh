@@ -1,5 +1,5 @@
 #! /bin/csh
-set mask=AmyFH
+set mask=AmyPU
 set datafolder=/Volumes/WD_D/allsub
 # set datafolder=/Volumes/WD_D/Exp_odor_face/fMRI\ data_supplemental/
 # 双引号避免空格路径问题

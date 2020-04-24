@@ -95,7 +95,7 @@ ggthemr('fresh',layout = "clean")
     cat("\n作差之后\n")
     # 进行方差分析
     # 选择对应的数据
-    data_anova <- subset(all_block,select = c(1:14))
+    data_anova <- subset(all_block,position==pos,select = c(1:14))
     #更改变量名称
     name <- paste(rep(c('Face_F','Face_H'),each=4),
                   rep(c('Odor_P','Odor_U'),each=2,times=2),

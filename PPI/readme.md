@@ -21,16 +21,16 @@ Generate PPI regressors for a certain condition
 Use `3dDeconvolve` to get PPI results, which are stored in `${subj}.${mask}_PPI+tlrc`
 
 Change these parameters to analyze different conditions and masks
-`set valance=OdorValence`
+* `set valance=OdorValence`
 [OdorValence FaceValence]
-`set mask=AmyPU`
+* `set mask=AmyPU`
 [Amy lateralAmy medialAmy] + [FH HF UP PU]
 
 ## ROIstatPPI
 Use `3dROIstats` to print mean $\beta$ values and *t* values to txt files
 
 Change this parameter to use different masks the same as PPIregressor
-`set mask=AmyPU`
+* `set mask=AmyPU`
 [Amy lateralAmy medialAmy] + [FH HF UP PU]
 
 ## extract_ppi

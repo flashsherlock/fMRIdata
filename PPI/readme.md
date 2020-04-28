@@ -16,7 +16,7 @@ Prepocess 5 runs and align to anatomical image.
 Generate PPI regressors for a certain condition
 * `Seed_${mask}.1D`
 * `Inter_Invisible_${mask}.1D`
-* `Inter_Visible_${mask}.1D`)
+* `Inter_Visible_${mask}.1D`
 
 Use `3dDeconvolve` to get PPI results, which are stored in `${subj}.${mask}_PPI+tlrc`
 

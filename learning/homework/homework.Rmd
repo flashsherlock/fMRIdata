@@ -65,7 +65,7 @@ log <- mutate(log,fixation=Text1.Onset-Fixation.Onset)
 log <- mutate(log, word.length=ifelse(log$fixation>2900 & 
                    log$fixation<3100, 6, 9))
 # 计算正确率
-acc=100*tapply(log$Corre.Response,
+acc <- 100*tapply(log$Corre.Response,
             list(log$Subjectindex, 
                  log$Audio.Onset, 
                  log$word.length),
@@ -140,14 +140,14 @@ kable(head(rt_correct,10),
 
 ```{r }
 # 每名被试平均反应时（所有反应的）
-meanrt_all= tapply(rt_all$response.time,
+meanrt_all <- tapply(rt_all$response.time,
                    list(rt_all$Subjectindex, 
                         rt_all$Audio.Onset, 
                         rt_all$word.length),
                    mean)
 
 # 所有人的平均
-mean_all= tapply(rt_all$response.time,
+mean_all <- tapply(rt_all$response.time,
                  list(rt_all$Audio.Onset, 
                       rt_all$word.length),
                  mean)
@@ -157,14 +157,14 @@ mean_all= tapply(rt_all$response.time,
 
 ```{r}
 # 平均反应时（正确反应的）
-meanrt_correct= tapply(rt_correct$response.time,
+meanrt_correct <- tapply(rt_correct$response.time,
                    list(rt_correct$Subjectindex, 
                         rt_correct$Audio.Onset, 
                         rt_correct$word.length),
                    mean)
 
 # 所有人的平均
-mean_correct= tapply(rt_correct$response.time,
+mean_correct <- tapply(rt_correct$response.time,
                      list(rt_correct$Audio.Onset, 
                           rt_correct$word.length),
                      mean)

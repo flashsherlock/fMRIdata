@@ -53,7 +53,7 @@ Analyze data stored in tent.RData file and generate Alltent.RData
 
 ## plot_Amy
 Analyze data stored in All.RData and ../AmygdalaTENT/Alltent.RData, then generate a html file with plots
-![avatar](plot_Amy_files/figure-html/unnamed-chunk-4-1.png)
+![plot](plot_Amy_files/figure-html/unnamed-chunk-4-1.png)
 
 ## Other files
 These files have been used but are not crucial in data analysis

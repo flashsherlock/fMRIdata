@@ -42,4 +42,4 @@ Analyze data stored in RData file and generate All.RData
 
 ## plot_PPI
 Analyze data stored in All.RData, then generate a html file with plots
-![avatar](plot_PPI_files/figure-html/unnamed-chunk-4-5.png)
+![plot](plot_PPI_files/figure-html/unnamed-chunk-4-5.png)

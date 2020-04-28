@@ -41,4 +41,4 @@ Analyze data stored in tent.RData file and generate Alltent.RData
 
 ## plot_FS
 Analyze data stored in All.RData and Alltent.RData, then generate a html file with plots
-![avatar](plot_FS_files/figure-html/unnamed-chunk-4-2.png)
+![plot](plot_FS_files/figure-html/unnamed-chunk-4-2.png)

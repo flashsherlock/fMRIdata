@@ -1,7 +1,7 @@
 # These are the scripts for FFA&STS analysis
 
 ## 3Deconvolve
-Use 3dDeconvolve (BLOCK function 'BLOCK(10,1)') to get these results and align to structural image
+Use `3dDeconvolve` (BLOCK function 'BLOCK(10,1)') to get these results and align to structural image
 * Visible > Invisible
 * InvisibleFearful > InvisibleHappy
 * InvisibleUnpleasant > InvisiblePleasant

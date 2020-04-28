@@ -27,7 +27,7 @@ mv ../analysis/*Amy* ./
 rm *Amy{.t196,+tlrc}*
 # set OdorValence FaceValence
 set valance=OdorValence
-# 设置mask条件 Amy lateralAmy medialAmt FH HF UP PU
+# 设置mask条件 Amy lateralAmy medialAmy FH HF UP PU
 set mask=AmyPU
 # there are 5 runs
 set nruns = 5

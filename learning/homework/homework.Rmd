@@ -1,0 +1,375 @@
+---
+title: "计算编程在心理学研究中的应用课程作业"
+author: "谷菲 201928012503005"
+date: '2020-04-26'
+documentclass: ctexart
+geometry: "left=2.5cm,right=2cm,top=3cm,bottom=2.5cm"
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+classoption: "hyperref"
+---
+# 前言
+
+鉴于老师说过可以使用其它软件，并且我发现对于本次作业来说使用R会很方便快捷，尤其是可以用Rmarkdown很方便地将代码和结果整合到一个文档中，所以决定使用R来完成本次作业。
+
+```{r include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(showtext)
+rm(list = ls())
+# showtext::showtext_begin()#为了正常显示中文
+# showtext::showtext_end()
+```
+
+# 作业1
+
+## 提取每名被试每个trial的时长
+提取结果到数据框log里，这里展示了一下前10行
+```{r}
+# 读取数据
+log <- read.table("log.txt",header = TRUE)
+# 计算trial时长放到trial_time列
+# trial时长是Text2.Onset-Fixation.Onset+5000，即反应前的加反应阶段的5s
+log <- mutate(log,trial_time=Text2.Onset-Fixation.Onset+5000)
+```
+\clearpage
+```{r echo=FALSE}
+# 展示一下前几个
+kable(head(log[c("Subjectindex","trial_time")],10),
+      align="c",
+      booktabs = TRUE,
+      longtable = TRUE,
+      caption = "被试每个试次的时长（部分）")
+```
+
+
+## 计算每名被试在4个条件下的正确率
+
+```{r}
+# 将反应是否正确转换为数值
+log$Corre.Response <- as.numeric(log$Corre.Response)
+# 计算fixation的时长
+log <- mutate(log,fixation=Text1.Onset-Fixation.Onset)
+# 根据fixation时长判断字母长度,3000对应6
+log <- mutate(log, word.length=ifelse(log$fixation>2900 & 
+                   log$fixation<3100, 6, 9))
+# 计算正确率
+acc=100*tapply(log$Corre.Response,
+            list(log$Subjectindex, 
+                 log$Audio.Onset, 
+                 log$word.length),
+            mean)
+```
+\clearpage
+```{r echo=FALSE}
+# 输出表格
+kable(acc,
+      format="latex",
+      digits=2,
+      align="c",
+      booktabs = TRUE,
+      row.names = TRUE,
+      longtable = TRUE,
+      col.names = c("6字母-无干扰","6字母-有干扰",
+                    "9字母-无干扰","9字母-有干扰"),
+      caption = "被试在四种条件下的正确率（\\%）"
+)
+```
+\clearpage
+## 提取4个条件下被试的反应时和正确反应的反应时
+
+提取全部反应的反应时，通过If.Response等于TRUE进行提取，这里展示了提取结果的前10行。
+```{r}
+# 计算反应时
+log <- mutate(log,response.time=Response.Onset-Text2.Onset)
+# 提取全部有反应的反应时
+rt_all <- subset(log,If.Response==TRUE,
+                 select = c("Subjectindex",
+                            "Audio.Onset",
+                            "word.length",
+                            "response.time"))
+```
+
+```{r echo=FALSE}
+# 展示一下前几个
+kable(head(rt_all,10),
+      align="c",
+      booktabs = TRUE,
+      row.names = FALSE,
+      longtable = TRUE,
+      caption = "全部反应的反应时（部分）")
+```
+
+
+接着是正确反应的反应时，通过Corre.Response等于1进行提取，这里展示了提取结果的前10行。
+```{r}
+# 提取正确反应的反应时
+rt_correct <- subset(log,Corre.Response==1,
+                 select = c("Subjectindex",
+                            "Audio.Onset",
+                            "word.length",
+                            "response.time"))
+```
+\clearpage
+```{r echo=FALSE}
+# 展示一下前几个
+kable(head(rt_correct,10),
+      align="c",
+      booktabs = TRUE,
+      row.names = FALSE,
+      longtable = TRUE,
+      caption = "正确反应的反应时（部分）")
+
+```
+
+
+## 计算4个条件下被试的平均反应时和正确反应的平均反应时
+
+计算4个条件每名被试所有反应的平均反应时。
+
+```{r }
+# 每名被试平均反应时（所有反应的）
+meanrt_all= tapply(rt_all$response.time,
+                   list(rt_all$Subjectindex, 
+                        rt_all$Audio.Onset, 
+                        rt_all$word.length),
+                   mean)
+
+# 所有人的平均
+mean_all= tapply(rt_all$response.time,
+                 list(rt_all$Audio.Onset, 
+                      rt_all$word.length),
+                 mean)
+```
+
+计算4个条件每名被试正确反应的平均反应时。
+
+```{r}
+# 平均反应时（正确反应的）
+meanrt_correct= tapply(rt_correct$response.time,
+                   list(rt_correct$Subjectindex, 
+                        rt_correct$Audio.Onset, 
+                        rt_correct$word.length),
+                   mean)
+
+# 所有人的平均
+mean_correct= tapply(rt_correct$response.time,
+                     list(rt_correct$Audio.Onset, 
+                          rt_correct$word.length),
+                     mean)
+```
+
+首先将所有被试的平均结果输出，然后是每名被试的平均结果。
+```{r echo=FALSE}
+all <- data.frame(rbind(as.vector(mean_all),as.vector(mean_correct)),row.names = c("全部反应","正确反应"))
+# 输出表格
+kable(all,
+      format="latex",
+      digits=2,
+      align="c",
+      booktabs = TRUE,
+      row.names = TRUE,
+      longtable = TRUE,
+      col.names = c("6字母-无干扰","6字母-有干扰",
+                    "9字母-无干扰","9字母-有干扰"),
+      caption = "四种条件下的平均反应时（ms）"
+)
+```
+
+\clearpage
+
+\clearpage
+```{r echo=FALSE}
+# 输出表格
+kable(meanrt_all,
+      format="latex",
+      digits=2,
+      align="c",
+      booktabs = TRUE,
+      row.names = TRUE,
+      longtable = TRUE,
+      col.names = c("6字母-无干扰","6字母-有干扰",
+                    "9字母-无干扰","9字母-有干扰"),
+      caption = "被试在四种条件下全部反应的反应时（ms）"
+)
+
+```
+\clearpage
+```{r echo=FALSE}
+# 输出表格
+kable(meanrt_correct,
+      format="latex",
+      digits=2,
+      align="c",
+      booktabs = TRUE,
+      row.names = TRUE,
+      longtable = TRUE,
+      col.names = c("6字母-无干扰","6字母-有干扰",
+                    "9字母-无干扰","9字母-有干扰"),
+      caption = "被试在四种条件下正确反应的反应时（ms）"
+)
+
+```
+\clearpage
+
+
+# 作业2
+
+## 描述统计
+分别计算男、女被试在前、后测中，反应时的最大值、最小值、中位数、均值、标准差
+```{r}
+# 读取数据
+matlab_data <- read.table("matlab_data.txt",header = TRUE)
+# 分类统计
+analyze <- describeBy(matlab_data[c("Pre","Post")],list(matlab_data$Gender),mat = TRUE)
+# 转换一下名称
+analyze$vars <- factor(analyze$vars,levels = c(1,2),labels = c("前测","后测"))
+analyze$group1 <- factor(analyze$group1,
+                         levels = c("Female","Male"),
+                         labels = c("女","男"))
+# 提取数据
+result <- analyze[c("vars","group1","max","min","median","mean","sd")]
+
+```
+
+```{r echo=FALSE}
+# 输出表格
+kable(result,
+      format="latex",
+      digits=2,
+      align="c",
+      booktabs = TRUE,
+      row.names = FALSE,
+      longtable = TRUE,
+      col.names = c("测试阶段","性别","最大值","最小值","中位数","平均数","标准差"),
+      caption = "描述统计结果"
+)
+
+```
+
+## 假设检验
+
+### 检验是否符合正态分布
+通过Kolmogorov-Smirnov检验发现前测和后测反应时都是符合正态分布的，Q-Q图也可以看出是符合的。
+```{r fig.height=2, fig.width=6}
+cat("前测")
+# Kolmogorov-Smirnov 检验
+ks.test(scale(matlab_data$Pre),pnorm)
+# 绘图主题
+ggthemr('fresh',layout = "clean")
+plot_pre <- ggplot(matlab_data, aes(sample = Pre)) +
+  labs(title = "前测")+#设置坐标轴
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_qq() +
+  geom_qq_line()
+cat("后测")
+# Kolmogorov-Smirnov 检验
+ks.test(scale(matlab_data$Post),pnorm)
+plot_post <- ggplot(matlab_data, aes(sample = Post)) +
+  labs(title = "后测")+#设置坐标轴
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  geom_qq() +
+  geom_qq_line()
+# 组合两个Q-Q图
+ggarrange(plot_pre,plot_post,ncol = 2,labels = c("A","B"))
+```
+
+### 前测与后测的反应时是否显著差异
+通过配对样本t检验发现前测和后测的反应时没有显著差异。
+```{r}
+t.test(matlab_data$Pre,matlab_data$Post,paired = TRUE)
+```
+
+### 前测任务反应时上是否存在显著的性别差异
+
+通过独立样本t检验发现前测反应时没有显著的性别差异。
+```{r}
+t.test(data=matlab_data,Pre~Gender,var.equal=T)
+```
+
+### 认知训练的效果是否存在显著的性别差异
+
+计算后测和前测的差值作为训练效果的度量，通过独立样本t检验发现认知训练的效果有显著性别差异。
+```{r}
+# 计算差值
+matlab_data <- mutate(matlab_data,effect=Post-Pre)
+t.test(data=matlab_data,effect~Gender,var.equal=T)
+```
+
+## 数据可视化
+
+### 男女在前后测任务中反应时的直方图
+
+```{r results="hold",fig.show="hold"}
+# 画图时的字体大小
+WORD_SIZE = 14
+# 绘图主题
+ggthemr('fresh',layout = "clean")
+# 转换数据格式
+plot_data <- reshape2::melt(matlab_data[1:4],
+                            measure.vars=c("Pre","Post"))
+plot_data$variable <- factor(plot_data$variable,
+                             levels = c("Pre","Post"),
+                             labels = c("前测","后测"))
+plot_data$Gender <- factor(plot_data$Gender,
+                           levels = c("Female","Male"),
+                           labels = c("女","男"))
+# 循环画图再拼接
+i <- 1
+figurelist <- list()
+for (gen in c("女","男")) {
+  for (test in c("前测","后测")){
+    # 图的标题
+    plottitle=paste0(test,'-',gen)
+    # 取出画图的数据
+    ploti <- subset(plot_data,Gender==gen&variable==test)
+    figurelist[[i]] <- ggplot(ploti, aes(x=value)) +
+      geom_histogram(binwidth=5, alpha=0.5, color="black",position="identity")+
+      labs(title = plottitle ,x='RT(ms)',y='频数')+#设置坐标轴
+      coord_cartesian(ylim=c(0,12)) +  # 设置y轴坐标范围
+      theme(axis.text.y = element_text(size=WORD_SIZE), 
+            axis.title.x = element_text(size=WORD_SIZE), 
+            axis.title.y = element_text(size=WORD_SIZE),
+            legend.title = element_text(size=WORD_SIZE),
+            legend.text = element_text(size=WORD_SIZE),
+            plot.title = element_text(hjust = 0.5)) + 
+      scale_y_continuous(expand = c(0,0))
+    
+      i <- i+1
+  }
+}
+# 组合四个图
+ggarrange(plotlist = figurelist,nrow = 2,ncol = 2,labels=c("A","B","C","D"))
+```
+
+### 男女在前后测任务中反应时的条形图
+
+```{r results="hold",fig.show="hold",fig.height=3, fig.width=4.5}
+ggplot(analyze, aes(x=vars, y=mean,fill=group1)) + 
+  labs(title = "反应时条形图" ,x='测试阶段',y='RT(ms)',fill='性别')+#设置坐标轴
+  coord_cartesian(ylim=c(200,350)) +  # 设置y轴坐标范围
+  theme(axis.text.y = element_text(size=WORD_SIZE), 
+        axis.title.x = element_text(size=WORD_SIZE), 
+        axis.title.y = element_text(size=WORD_SIZE),
+        legend.title = element_text(size=WORD_SIZE),
+        legend.text = element_text(size=WORD_SIZE),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(expand = c(0,0))+
+  geom_bar(position="dodge", stat="identity") +
+  scale_fill_brewer(palette = "Set1",direction = 1)+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
+                width=.2,color='black',      # 误差线
+                position=position_dodge(.9))
+```
+

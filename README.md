@@ -1,4 +1,7 @@
 # Scripts for fMRI data analysis
+[![commits](https://badgen.net/badge/IPCAS/Human%20Olfaction%20Lab/blue)](http://zhouw.psych.ac.cn/)
+![commits](https://badgen.net/github/commits/flashsherlock/fMRIdata)
+
 This repository stores the Scripts for fMRI data analysis by AFNI.
 
 ## AmygdalaBlOCK

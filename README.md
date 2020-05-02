@@ -20,6 +20,6 @@ Analyze the connectivity between amygdala and FFA/STS
 Stores some of the files and notes during learning.
 
 ## monkey
-Monkey olfaction experitment.
+Some files for olfaction experitments on monkeys.
 
 2020.1.15

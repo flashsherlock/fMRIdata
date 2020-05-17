@@ -148,11 +148,20 @@ ggthemr('fresh',layout = "clean")
     data_anova8 <- data_anova[c(1:9)]
 
     #方差分析
+    #三个因素的方差分析
     MANOVA(data_anova8,dvs =names(data_anova8[-1]),
            dvs.pattern ='Face_(.)_Odor_(.)_Visi_(.)',
            within=c('Face','Odor','Visi'))
-
-
+    
+    #可见不可见分开
+    cat("\nVisible\n")
+    MANOVA(data_anova8[seq(2,9,2)],dvs =names(data_anova8[seq(2,9,2)]),
+           dvs.pattern ='Face_(.)_Odor_(.)',
+           within=c('Face','Odor'))
+    cat("\nInvisible\n")
+    MANOVA(data_anova8[seq(3,9,2)],dvs =names(data_anova8[seq(3,9,2)]),
+           dvs.pattern ='Face_(.)_Odor_(.)',
+           within=c('Face','Odor'))
 
 
     cat("\n绘图\n")

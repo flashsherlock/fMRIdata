@@ -174,8 +174,8 @@ for (val in unique(all_block$valance)) {
     print(paste0(pos, val))
     data_anova8 <- data_anova[c(1:9,15)]
     #更换数据格式
-    data_anova8 <- melt(data_anova8,c('Sub','Preference'))
-    data_anova8 <- dcast(data_anova8,Sub~Preference+variable)
+    data_anova8 <- reshape2::melt(data_anova8,c('Sub','Preference'))
+    data_anova8 <- reshape2::dcast(data_anova8,Sub~Preference+variable)
     
     #方差分析
     #全部四个因素的方差分析
@@ -194,9 +194,26 @@ for (val in unique(all_block$valance)) {
     MANOVA(data_anova8[seq(2,17,2)],dvs =names(data_anova8[seq(2,17,2)]),
            dvs.pattern ='Preference_(..)_Face_(.)_Odor_(.)',
            within=c('Preference','Face','Odor')) 
+    
     #两个因素的方差分析 把不同的偏好分开看
     cat("\n两个因素的方差分析 把不同的偏好分开看\n")
-    
+    cat("\nVisible-1\n")
+    MANOVA(data_anova8[seq(3,9,2)],dvs =names(data_anova8[seq(3,9,2)]),
+           dvs.pattern ='.*_Face_(.)_Odor_(.)',
+           within=c('Face','Odor')) 
+    cat("\nVisible-2\n")
+    MANOVA(data_anova8[seq(11,17,2)],dvs =names(data_anova8[seq(11,17,2)]),
+           dvs.pattern ='.*_Face_(.)_Odor_(.)',
+           within=c('Face','Odor')) 
+    #Invisible
+    cat("\nInvisible-1\n")
+    MANOVA(data_anova8[seq(2,9,2)],dvs =names(data_anova8[seq(2,9,2)]),
+           dvs.pattern ='.*_Face_(.)_Odor_(.)',
+           within=c('Face','Odor')) 
+    cat("\nInvisible-2\n")
+    MANOVA(data_anova8[seq(10,17,2)],dvs =names(data_anova8[seq(10,17,2)]),
+           dvs.pattern ='.*_Face_(.)_Odor_(.)',
+           within=c('Face','Odor')) 
     
     cat("\n绘图\n")
     
@@ -366,6 +383,9 @@ for (val in unique(all_block$valance)) {
     print(figbox_8)
   }
 }
+```
+
+```{r eval=FALSE, include=TRUE}
 # # 可以查看对应主题的颜色
 # colour_plot(swatch())
 # colour_plot(ggthemr("pale"))
@@ -391,7 +411,3 @@ for (val in unique(all_block$valance)) {
 # "#F7F4F9","#E7E1EF","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#91003F")
 # gf_color <- c("#A1D99B","#41AB5D","#9ECAE1","#4292C6","#FDAE6B","#F16913","#BCBDDC","#807DBA")
 ```
-
-
-
-

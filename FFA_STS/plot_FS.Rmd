@@ -14,6 +14,7 @@ library(ggplot2)
 library(ggthemr)
 library(RColorBrewer)
 library(ggpubr)
+library(ggrepel)
 ```
 
 # 汇总数据
@@ -77,6 +78,21 @@ figure <- ggplot(datachosen, aes(x=group1, y=mean)) +
                 position=position_dodge(.9))
 print(figure)
 
+# 箱线图和散点
+figure <- ggplot(voxel,aes(x=position,y=Count)) +
+  geom_boxplot()+
+  # coord_cartesian(ylim=c(-10,5200)) +  # 设置y轴坐标范围
+  labs(title = title ,x='Position',y='Voxel Count')+#设置坐标轴
+  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+        axis.text.y = element_text(size=WORD_SIZE),
+        axis.title.x = element_text(size=WORD_SIZE),
+        axis.title.y = element_text(size=WORD_SIZE),
+        legend.title = element_text(size=WORD_SIZE),
+        legend.text = element_text(size=WORD_SIZE),
+        plot.title = element_text(hjust = 0.5)) +
+  geom_point(col=2,pch=16,cex=1)+
+  geom_text_repel(aes(label=Sub),size=2)
+print(figure)
 ```
 
 
@@ -149,7 +165,7 @@ ggthemr('fresh',layout = "clean")
     # Error bars represent standard error of the mean
     figure_4 <- ggplot(datachosen, aes(x=vars, y=mean)) +
       #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
-      labs(title = title ,x='Condition',y='Mean β',fill='ROI')+#设置坐标轴
+      labs(title = title ,x='Condition',y='Mean β')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
             axis.text.y = element_text(size=WORD_SIZE),
             axis.title.x = element_text(size=WORD_SIZE),
@@ -165,7 +181,24 @@ ggthemr('fresh',layout = "clean")
                     width=.2,color='black',      # Width of the error bars
                     position=position_dodge(.9))
 
-
+    # 4个条件的箱线图
+    datachosen <- subset(all_block,position==pos, select = c(1,11:14))
+    datachosen <- reshape2::melt(datachosen,c("Sub"))
+    # Error bars represent standard error of the mean
+    figbox_4 <- ggplot(datachosen, aes(x=variable, y=value)) + 
+      labs(title = title ,x='Condition',y='Mean β')+#设置坐标轴
+      theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+            axis.text.y = element_text(size=WORD_SIZE), 
+            axis.title.x = element_text(size=WORD_SIZE), 
+            axis.title.y = element_text(size=WORD_SIZE),
+            legend.title = element_text(size=WORD_SIZE),
+            legend.text = element_text(size=WORD_SIZE),
+            plot.title = element_text(hjust = 0.5)) + 
+      geom_boxplot() +
+      # scale_fill_manual(values = colors[1:2])+ #颜色
+      scale_fill_brewer(palette = "Set2",direction = -1)+ #颜色
+      geom_point(col=2,pch=21,cex=1)+
+      geom_text(aes(label=Sub),size = 2,hjust=-0.2)
 
     # 8个条件没有作差的
     datachosen <- subset(analyze,group1==pos
@@ -174,7 +207,7 @@ ggthemr('fresh',layout = "clean")
     # Error bars represent standard error of the mean
     figure_8 <- ggplot(datachosen, aes(x=vars, y=mean)) +
       # coord_cartesian(ylim=c(-0.5,0.5)) +  # 设置y轴坐标范围
-      labs(title = title ,x='Condition',y='Mean β',fill='ROI')+#设置坐标轴
+      labs(title = title ,x='Condition',y='Mean β')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
             axis.text.y = element_text(size=WORD_SIZE),
             axis.title.x = element_text(size=WORD_SIZE),
@@ -189,6 +222,25 @@ ggthemr('fresh',layout = "clean")
       geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
                     width=.2,color='black',      # Width of the error bars
                     position=position_dodge(.9))
+    
+    # 8个条件的箱线图
+    datachosen <- subset(all_block,position==pos, select = c(1:9))
+    datachosen <- reshape2::melt(datachosen,c("Sub"))
+    # Error bars represent standard error of the mean
+    figbox_8 <- ggplot(datachosen, aes(x=variable, y=value)) + 
+      labs(title = title ,x='Condition',y='Mean β')+#设置坐标轴
+      theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+            axis.text.y = element_text(size=WORD_SIZE), 
+            axis.title.x = element_text(size=WORD_SIZE), 
+            axis.title.y = element_text(size=WORD_SIZE),
+            legend.title = element_text(size=WORD_SIZE),
+            legend.text = element_text(size=WORD_SIZE),
+            plot.title = element_text(hjust = 0.5)) + 
+      geom_boxplot() +
+      # scale_fill_manual(values = colors[1:2])+ #颜色
+      scale_fill_brewer(palette = "Set2",direction = -1)+ #颜色
+      geom_point(col=2,pch=21,cex=1)+
+      geom_text(aes(label=Sub),size = 2,hjust=-0.2)
 
     # TENT
     # 选择数据
@@ -249,6 +301,11 @@ ggthemr('fresh',layout = "clean")
     # jpeg(file="myplot.jpeg",width = 1920,height = 1080)
     # ggarrange(figure_4,figure_8,ncol = 2,labels=c("A","B"),widths = c(1,2))
     # dev.off()
+    
+    #画4个条件的箱线图
+    print(figbox_4)
+    #画全部8个条件的箱线图
+    print(figbox_8)
 }
 # # 可以查看对应主题的颜色
 # colour_plot(swatch())

@@ -83,7 +83,7 @@ figure <- ggplot(voxel,aes(x=position,y=Count)) +
         legend.text = element_text(size=WORD_SIZE),
         plot.title = element_text(hjust = 0.5)) +
   geom_point(col=2,pch=16,cex=1)+
-  geom_text_repel(aes(label=Sub))
+  geom_text_repel(aes(label=Sub),size=2)
 print(figure)
 
 ```
@@ -144,9 +144,11 @@ for (croi in unique(all$roi)) {
     # 图的标题
     title <- paste0(croi,'_',con)
     # 提取需要画图的部分
-    datachosen <- subset(analyze,group2==con & group3==croi & vars%in%c('Inv','Vis'),select = c(mean,se,vars,group1))
+    datachosen <- subset(analyze,group2==con & group3==croi & vars%in%c('Inv','Vis'),
+                         select = c(mean,se,vars,group1))
     # Error bars represent standard error of the mean
-    figurelist[[i]] <- ggplot(datachosen, aes(x=group1, y=mean,fill=factor(vars,levels = c("Vis","Inv")))) +
+    figurelist[[i]] <- ggplot(datachosen, aes(x=group1, y=mean,
+                                              fill=factor(vars,levels = c("Vis","Inv")))) +
       #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
       labs(title = title ,x='Position',y='Mean β',fill='Condition')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
@@ -202,7 +204,8 @@ for (croi in unique(all$roi)) {
     # 提取需要画图的部分
     datachosen <- data_anova
     # Error bars represent standard error of the mean
-    figurelist[[i]] <- ggplot(datachosen, aes(x=position, y=value,group=interaction(position,variable),fill=variable)) +
+    figurelist[[i]] <- ggplot(datachosen, aes(x=position, y=value,
+                                              group=interaction(position,variable),fill=variable)) +
       labs(title = title ,x='Position',y='Mean β',fill='Condition')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
             axis.text.y = element_text(size=WORD_SIZE),
@@ -215,8 +218,10 @@ for (croi in unique(all$roi)) {
       geom_boxplot() +
       # scale_fill_manual(values = colors[1:2])+ #颜色
       scale_fill_brewer(palette = "Set2",direction = -1)+ #颜色
-      geom_point(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),col=2,pch=21,cex=1)+
-      geom_text_repel(aes(label=Sub),position=position_jitterdodge(jitter.width = 0, jitter.height = 0))
+      geom_point(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
+                 col=2,pch=21,cex=1)+
+      geom_text_repel(aes(label=Sub),size=2,
+                      position=position_jitterdodge(jitter.width = 0, jitter.height = 0))
     
     print(figurelist[[i]])
     i <- i+1

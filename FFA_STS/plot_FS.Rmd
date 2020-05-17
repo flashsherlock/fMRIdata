@@ -15,6 +15,7 @@ library(ggthemr)
 library(RColorBrewer)
 library(ggpubr)
 library(ggrepel)
+library(plotly)
 ```
 
 # 汇总数据
@@ -79,7 +80,7 @@ figure <- ggplot(datachosen, aes(x=group1, y=mean)) +
 print(figure)
 
 # 箱线图和散点
-figure <- ggplot(voxel,aes(x=position,y=Count)) +
+figure <- ggplot(voxel,aes(x=position,y=Count,label=Sub)) +
   geom_boxplot()+
   # coord_cartesian(ylim=c(-10,5200)) +  # 设置y轴坐标范围
   labs(title = title ,x='Position',y='Voxel Count')+#设置坐标轴
@@ -91,8 +92,10 @@ figure <- ggplot(voxel,aes(x=position,y=Count)) +
         legend.text = element_text(size=WORD_SIZE),
         plot.title = element_text(hjust = 0.5)) +
   geom_point(col=2,pch=16,cex=1)+
-  geom_text_repel(aes(label=Sub),size=2)
+  geom_text_repel(size=2)
 print(figure)
+# 交互式画图
+ggplotly(figure,tooltip = c("label","y"))
 ```
 
 
@@ -106,7 +109,11 @@ ggthemr('fresh',layout = "clean")
 # layout(matrix(c(1,1,2,3),2,2,byrow=T))
 
 # 2个位置
-  for (pos in unique(all_block$position)) {
+
+# 建立一个list保存plotyly的结果
+plotly_plots <- htmltools::tagList()
+  
+for (pos in unique(all_block$position)) {
 
     cat("\n作差之后\n")
     # 进行方差分析
@@ -194,7 +201,7 @@ ggthemr('fresh',layout = "clean")
     datachosen <- subset(all_block,position==pos, select = c(1,11:14))
     datachosen <- reshape2::melt(datachosen,c("Sub"))
     # Error bars represent standard error of the mean
-    figbox_4 <- ggplot(datachosen, aes(x=variable, y=value)) + 
+    figbox_4 <- ggplot(datachosen, aes(x=variable, y=value,label=Sub)) + 
       labs(title = title ,x='Condition',y='Mean β')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
             axis.text.y = element_text(size=WORD_SIZE), 
@@ -236,7 +243,7 @@ ggthemr('fresh',layout = "clean")
     datachosen <- subset(all_block,position==pos, select = c(1:9))
     datachosen <- reshape2::melt(datachosen,c("Sub"))
     # Error bars represent standard error of the mean
-    figbox_8 <- ggplot(datachosen, aes(x=variable, y=value)) + 
+    figbox_8 <- ggplot(datachosen, aes(x=variable, y=value,label=Sub)) + 
       labs(title = title ,x='Condition',y='Mean β')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
             axis.text.y = element_text(size=WORD_SIZE), 
@@ -313,9 +320,13 @@ ggthemr('fresh',layout = "clean")
     
     #画4个条件的箱线图
     print(figbox_4)
+    plotly_plots[[pos]][[1]] <- ggplotly(figbox_4,tooltip = c("label","y"))%>%layout(boxmode = "group")
     #画全部8个条件的箱线图
     print(figbox_8)
+    plotly_plots[[pos]][[2]] <- ggplotly(figbox_8,tooltip = c("label","y"))%>%layout(boxmode = "group")
 }
+#输出交互式绘图的结果
+plotly_plots
 # # 可以查看对应主题的颜色
 # colour_plot(swatch())
 # colour_plot(ggthemr("pale"))

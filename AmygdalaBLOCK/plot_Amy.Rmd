@@ -15,6 +15,7 @@ library(ggthemr)
 library(RColorBrewer)
 library(ggpubr)
 library(ggrepel)
+library(plotly)
 ```
 
 # 汇总数据
@@ -58,6 +59,10 @@ analyze_tent$vars <- as.factor(varnames)
 # 画图时的字体大小
 WORD_SIZE = 15
 
+# 建立一个list保存plotyly的结果
+plotly_plots <- htmltools::tagList()
+
+# 循环valance，face还是odor
 for (val in unique(all_block$valance)) {
 voxel <- subset(all_block,valance==val & position%in%c("medialAmy","lateralAmy"),
                 select = c(Sub,Count,position,condition))
@@ -95,9 +100,9 @@ figure <- ggplot(datachosen, aes(x=group1, y=mean, fill=group2)) +
                 position=position_dodge(.9))
 print(figure)
 
-
 # 箱线图
-figure <- ggplot(voxel, aes(x=position, y=Count, fill=preference,group=interaction(position,preference))) + 
+figure <- ggplot(voxel, aes(x=position, y=Count, label=Sub,
+                            fill=preference,group=interaction(position,preference))) + 
   #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
   labs(title = title ,x='Position',y='Voxel Count',fill='Preference')+#设置坐标轴
   theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
@@ -114,7 +119,11 @@ figure <- ggplot(voxel, aes(x=position, y=Count, fill=preference,group=interacti
   geom_text(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
                   aes(label=Sub),hjust=-0.3,size=2)
 print(figure)
+# 互动式的图
+plotly_plots[[val]] <- ggplotly(figure,tooltip = c("label","y"))%>%layout(boxmode = "group")
 }
+#输出交互式绘图的结果
+plotly_plots
 ```
 
 
@@ -126,6 +135,9 @@ gf_color <- c("#A1D99B","#41AB5D","#9ECAE1","#4292C6","#FDAE6B","#F16913","#BCBD
 # 绘图
 ggthemr('fresh',layout = "clean")
 # layout(matrix(c(1,1,2,3),2,2,byrow=T))
+
+# 建立一个list保存plotyly的结果
+plotly_plots <- htmltools::tagList()
 
 # 4个选取ROI的方式,这里是先选出是face还是odor
 for (val in unique(all_block$valance)) {
@@ -248,7 +260,7 @@ for (val in unique(all_block$valance)) {
                          select = c(1,11:14,16))
     datachosen <- reshape2::melt(datachosen,c("Sub","condition"))
     # Error bars represent standard error of the mean
-    figbox_4 <- ggplot(datachosen, aes(x=variable, y=value, fill=condition, 
+    figbox_4 <- ggplot(datachosen, aes(x=variable, y=value, fill=condition,label=Sub, 
                                        group=interaction(variable,condition))) + 
       labs(title = title ,x='Condition',y='Mean β',fill='Preference')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
@@ -295,7 +307,7 @@ for (val in unique(all_block$valance)) {
                          select = c(1:9,16))
     datachosen <- reshape2::melt(datachosen,c("Sub","condition"))
     # Error bars represent standard error of the mean
-    figbox_8 <- ggplot(datachosen, aes(x=variable, y=value, fill=condition, 
+    figbox_8 <- ggplot(datachosen, aes(x=variable, y=value, fill=condition,label=Sub,
                                        group=interaction(variable,condition))) + 
       labs(title = title ,x='Condition',y='Mean β',fill='Preference')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
@@ -379,10 +391,14 @@ for (val in unique(all_block$valance)) {
     
     #画4个条件的箱线图
     print(figbox_4)
+    plotly_plots[[val]][[pos]][[1]] <-ggplotly(figbox_4,tooltip = c("label","y"))%>%layout(boxmode = "group")
     #画全部8个条件的箱线图
     print(figbox_8)
+    plotly_plots[[val]][[pos]][[1]] <-ggplotly(figbox_8,tooltip = c("label","y"))%>%layout(boxmode = "group")
   }
 }
+#输出交互式绘图的结果
+plotly_plots
 ```
 
 ```{r eval=FALSE, include=TRUE}

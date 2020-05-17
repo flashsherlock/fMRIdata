@@ -15,6 +15,7 @@ library(ggthemr)
 library(RColorBrewer)
 library(ggpubr)
 library(ggrepel)
+library(plotly)
 ```
 
 # 汇总数据
@@ -71,7 +72,7 @@ figure <- ggplot(datachosen, aes(x=group1, y=mean)) +
 print(figure)
 
 # 箱线图和散点
-figure <- ggplot(voxel,aes(x=position,y=Count)) +
+figure <- ggplot(voxel,aes(x=position,y=Count,label=Sub)) +
   geom_boxplot()+
   # coord_cartesian(ylim=c(-10,5200)) +  # 设置y轴坐标范围
   labs(title = title ,x='Position',y='Voxel Count')+#设置坐标轴
@@ -83,9 +84,10 @@ figure <- ggplot(voxel,aes(x=position,y=Count)) +
         legend.text = element_text(size=WORD_SIZE),
         plot.title = element_text(hjust = 0.5)) +
   geom_point(col=2,pch=16,cex=1)+
-  geom_text_repel(aes(label=Sub),size=2)
+  geom_text_repel(size=2)
 print(figure)
-
+# 交互式绘图
+ggplotly(figure,tooltip = c("label","y"))
 ```
 
 
@@ -191,6 +193,8 @@ for (croi in unique(all$roi)) {
     # figurelist用来保存四个图像
   i=1
   figurelist <- list()
+  # 建立一个list保存plotyly的结果
+  plotly_plots <- htmltools::tagList()
   for (con in unique(all$condition)) {
     string <- sprintf('%s条件下%s的结果',con,croi)
     cat(string)
@@ -204,7 +208,7 @@ for (croi in unique(all$roi)) {
     # 提取需要画图的部分
     datachosen <- data_anova
     # Error bars represent standard error of the mean
-    figurelist[[i]] <- ggplot(datachosen, aes(x=position, y=value,
+    figurelist[[i]] <- ggplot(datachosen, aes(x=position, y=value,label=Sub,
                                               group=interaction(position,variable),fill=variable)) +
       labs(title = title ,x='Position',y='Mean β',fill='Condition')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
@@ -220,21 +224,26 @@ for (croi in unique(all$roi)) {
       scale_fill_brewer(palette = "Set2",direction = -1)+ #颜色
       geom_point(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
                  col=2,pch=21,cex=1)+
-      geom_text_repel(aes(label=Sub),size=2,
+      geom_text_repel(size=2,
                       position=position_jitterdodge(jitter.width = 0, jitter.height = 0))
     
     print(figurelist[[i]])
+    # 交互式绘图
+    plotly_plots[[croi]][[i]] <- ggplotly(figurelist[[i]],tooltip = c("label","y"))%>%layout(boxmode = "group")
     i <- i+1
   }#四种相减方式的循环结束
     # 合并几个图到一个里面
     ppi <- ggarrange(plotlist = figurelist,nrow = 2,ncol = 2,labels=c("A","B","C","D"))
     print(ppi)
+    
     # 测试保存图片
     # jpeg(file="myplot.jpeg",width = 1920,height = 1080)
     # ggarrange(figure_4,figure_8,ncol = 2,labels=c("A","B"),widths = c(1,2))
     # dev.off()
 
 }
+#输出交互式绘图的结果
+plotly_plots
 # # 可以查看对应主题的颜色
 # colour_plot(swatch())
 # colour_plot(ggthemr("pale"))

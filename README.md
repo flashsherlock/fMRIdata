@@ -21,6 +21,9 @@ The analysis of right STS and right FFA, including scripts using BlOCK and TENT 
 ## PPI
 Analyze the connectivity between amygdala and FFA/STS
 
+## Cluster
+Restrict the ROI to be continuous and guarantee the activation to stimulus is positive.
+
 ## learning
 Stores some of the files and notes during learning.
 

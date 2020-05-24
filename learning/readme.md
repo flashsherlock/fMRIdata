@@ -12,8 +12,8 @@ Linux commands that have been used.
 ## MCGmodel
 The first script of R, which is about a model of time perception.
 
-## setting.json
-Windows terminal configuration file.
+## mac_settings
+Configuration files for tcsh,zsh, vim, tmux, etc. on mac. 
 
 <!-- $ c = \sqrt{a^{2}+b_{xy}^{2}+e^{x}} $
 $ \frac{1}{2} $

@@ -8,6 +8,7 @@ alias top="htop"
 alias f="fuck"
 alias matlab="matlab -nodesktop -nosplash"
 alias du="ncdu -rr -x --exclude .git --exclude node_modules"
+alias diff="icdiff"
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/mac/.oh-my-zsh"
 export TERM="xterm-256color"

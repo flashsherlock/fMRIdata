@@ -35,7 +35,8 @@ alias mvi mv -i
 alias matlab matlab -nodesktop -nosplash
 alias cat bat
 alias htop top
-alias du="ncdu --color dark -rr -x --exclude .git --exclude node_modules"
+alias du ncdu --color dark -rr -x --exclude .git --exclude node_modules
+alias diff icdiff
 set histfile = ~/.tcsh_history
 set history = 500
 set savehist = 200

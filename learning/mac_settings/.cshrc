@@ -14,7 +14,7 @@ else
   setenv DYLD_LIBRARY_PATH /opt/X11/lib/flat_namespace
 endif
 set filec
-set sautolist
+set autolist
 set nobeep
 alias ls ls -G
 alias ll ls -lG

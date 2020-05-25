@@ -1,10 +1,13 @@
 " Set vundle settings here
 " git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+runtime! plugin/sensible.vim
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
+" set fzf
+set rtp+=/usr/local/opt/fzf
 call vundle#begin()
 " alternatively, pass a path where Vundle should install plugins
 "call vundle#begin('~/some/path/here')
@@ -17,8 +20,11 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'scrooloose/nerdtree'         "https://github.com/scrooloose/nerdtree
 Plugin 'MattesGroeger/vim-bookmarks' "https://github.com/MattesGroeger/vim-bookmarks
 Plugin 'maciakl/vim-neatstatus'      "https://github.com/maciakl/vim-neatstatus
-
+Plugin 'flazz/vim-colorschemes'
+Plugin 'Yggdroot/LeaderF'
+Plugin 'jiangmiao/auto-pairs'
 " All of your Plugins must be added before the following line
+
 call vundle#end()            " required
 filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
@@ -47,6 +53,20 @@ if has("autocmd")
 "filetype on
 "filetype plugin indent on
 endif
+" select color scheme
+"color desert
+colorscheme molokai
+let mapleader = "\<space>"
+"去掉行尾多余空行
+"nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<CR>
+"vim-which-key
+" Define prefix dictionary
+"let g:which_key_map =  {}
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+" By default timeoutlen is 1000 ms
+set timeoutlen=500
+
+"let g:which_key_map =  {}
 
 set number
 set autoindent
@@ -64,15 +84,15 @@ set showcmd          " 命令行显示输入的命令
 set showmode         " 命令行显示vim当前模式
 set incsearch        " 输入字符串就显示匹配点
 set enc=utf-8        " 文件编码
-set spell                                                                   
 set shiftwidth=4
+" set spell
 set cursorline
 set wildmenu
 set paste
 set mouse=a
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
 set laststatus=2
-highlight LineNr ctermfg=gray 
+highlight LineNr ctermfg=white
 set hls
 "highlight CursorLine   cterm=NONE ctermbg=blue ctermfg=white guibg=NONE guifg=NONE
 set backspace=indent,eol,start
@@ -90,5 +110,11 @@ let g:bookmark_center = 1
 let g:bookmark_location_list = 1
 
 " key mapping
-:inoremap { {}<ESC>i
+if empty(mapcheck('<C-W>', 'i'))
+	inoremap <C-U> <C-G>u<C-U>
+endif
+if empty(mapcheck('<C-W>', 'i'))
+	inoremap <C-W> <C-G>u<C-W>
+endif
+":inoremap { {}<ESC>i
 :map <f3> :NERDTreeToggle<CR>

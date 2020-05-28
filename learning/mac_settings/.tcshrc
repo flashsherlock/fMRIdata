@@ -8,7 +8,7 @@ else
 endif
 # <<< conda initialize <<<
 
-set path=($path ~/abin /sw/bin /Applications/MATLAB_R2016b.app/bin/)
+set path=($path ~/abin /sw/bin /Applications/MATLAB_R2016b.app/bin/ /Users/mac/Library/Python/2.7/bin)
 setenv LANG zh_CN.UTF-8
 setenv LC_ALL zh_CN.UTF-8
 #setenv DISPLAY localhost:10.0
@@ -37,14 +37,24 @@ alias cat bat
 alias htop top
 alias du ncdu --color dark -rr -x --exclude .git --exclude node_modules
 alias diff icdiff
+alias tree tree -N -C
 set histfile = ~/.tcsh_history
 set history = 500
 set savehist = 200
 set correct = cmd
 set noclobber
 alias precmd 'history -S; history -M'
+alias precmd 'set prompt="`powerline-shell --shell tcsh $?`"'
 bindkey -e
-#bindkey '\e[3~' delete-char
+bindkey '\e[3~' delete-char            #Delete key
+bindkey '^W' backward-delete-word      # Delete
+if ( $?prompt ) then                                #如果$prompt变量尚未设置，则做如下设置
+     if ( "$uid" == "0" ) then                      #判断用户的uid
+		  set prompt = "%u%T [%~%b]>#> "    #对于root，我们显示#号
+     else
+	      set prompt = "%u%T [%~%b]>%> "    #对于普通用户，显示%号。
+	 endif
+endif
 
 
 # FSL Setup

@@ -1,6 +1,6 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
-export PATH=$PATH:/sw/bin:/Applications/MATLAB_R2016b.app/bin/
+export PATH=$PATH:/sw/bin:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin
 export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 alias cat="bat"
@@ -9,6 +9,8 @@ alias f="fuck"
 alias matlab="matlab -nodesktop -nosplash"
 alias du="ncdu -rr -x --exclude .git --exclude node_modules"
 alias diff="icdiff"
+alias tree="tree -N -C"
+alias v="nvim"
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/mac/.oh-my-zsh"
 export TERM="xterm-256color"

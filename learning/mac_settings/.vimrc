@@ -1,6 +1,5 @@
 " Set vundle settings here
 " git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-runtime! plugin/sensible.vim
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -8,6 +7,14 @@ filetype off                  " required
 set rtp+=~/.vim/bundle/Vundle.vim
 " set fzf
 set rtp+=/usr/local/opt/fzf
+
+call plug#begin('~/.vim/plugged')
+Plug 'tpope/vim-surround'
+"Plug 'ShawnChen1996/vimTermPipe'
+Plug 'KKPMW/vim-sendtowindow'
+Plug 'skywind3000/vim-terminal-help'
+call plug#end()
+
 call vundle#begin()
 " alternatively, pass a path where Vundle should install plugins
 "call vundle#begin('~/some/path/here')
@@ -17,12 +24,12 @@ call vundle#begin()
 Bundle 'Valloric/YouCompleteMe'
 Plugin 'gmarik/Vundle.vim'
 " Custom plugins
+Plugin 'jiangmiao/auto-pairs'
 Plugin 'scrooloose/nerdtree'         "https://github.com/scrooloose/nerdtree
 Plugin 'MattesGroeger/vim-bookmarks' "https://github.com/MattesGroeger/vim-bookmarks
 Plugin 'maciakl/vim-neatstatus'      "https://github.com/maciakl/vim-neatstatus
 Plugin 'flazz/vim-colorschemes'
-Plugin 'Yggdroot/LeaderF'
-Plugin 'jiangmiao/auto-pairs'
+Plugin 'Yggdroot/LeaderF'          "LeaderF 和 auto-pairs有些冲突
 " All of your Plugins must be added before the following line
 
 call vundle#end()            " required
@@ -39,7 +46,7 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
-
+runtime! plugin/sensible.vim
 " Vim5 and later versions support syntax highlighting. Uncommenting the
 " following enables syntax highlighting by default.
 if has("syntax")
@@ -53,10 +60,12 @@ if has("autocmd")
 "filetype on
 "filetype plugin indent on
 endif
-" select color scheme
+" select color scheme use colorscheme plugin
 "color desert
 colorscheme molokai
+hi Normal ctermfg=252 ctermbg=none
 let mapleader = "\<space>"
+let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"'}
 "去掉行尾多余空行
 "nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<CR>
 "vim-which-key
@@ -67,14 +76,14 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 set timeoutlen=500
 
 "let g:which_key_map =  {}
-
 set number
 set autoindent
+set autoread
 set softtabstop=4    " 设置软制表符的宽度
 set shiftwidth=4     " (自动) 缩进使用的4个空格
 set tabstop=4        " 设置制表符(tab键)的宽度
 set expandtab        " 行首tab转换为4个空格
-set cindent          " 使用 C/C++ 语言的自动缩进方式
+"set cindent          " 使用 C/C++ 语言的自动缩进方式
 set cinoptions={0,1s,t0,n-2,p2s,(03s,=.5s,>1s,=1s,:1s     "设置C/C++语言的具体缩进方式
 set showmatch        " 设置匹配模式，显示匹配的括号
 set linebreak        " 整词换行
@@ -117,4 +126,8 @@ if empty(mapcheck('<C-W>', 'i'))
 	inoremap <C-W> <C-G>u<C-W>
 endif
 ":inoremap { {}<ESC>i
+"nmap <C-Enter> <Plug>SendBlock
+"vmap <C-Enter> <Plug>SendSelection
 :map <f3> :NERDTreeToggle<CR>
+nnoremap rt :.w !tcsh<CR>
+inoremap <C-G>u<C-R> :.w !tcsh<CR>

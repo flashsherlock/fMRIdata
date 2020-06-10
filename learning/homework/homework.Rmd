@@ -13,7 +13,7 @@ classoption: "hyperref"
 ---
 # 前言
 
-鉴于老师说过可以使用其它软件，并且我发现对于本次作业来说使用R会很方便快捷，尤其是可以用Rmarkdown很方便地将代码和结果整合到一个文档中，所以决定使用R来完成本次作业。
+鉴于老师说过可以使用其它软件，并且我发现对于本次作业来说使用R会很方便快捷，尤其是可以用Rmarkdown很方便地将代码和结果整合到一个文档中，所以决定使用R来完成本次作业。后来我也学习了一下Unix的脚本，用awk程序和bash的循环又完成了一次作业1，结果和前面是一致的。
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
@@ -43,7 +43,7 @@ log <- read.table("log.txt",header = TRUE)
 # trial时长是Text2.Onset-Fixation.Onset+5000，即反应前的加反应阶段的5s
 log <- mutate(log,trial_time=Text2.Onset-Fixation.Onset+5000)
 ```
-\clearpage
+
 ```{r echo=FALSE}
 # 展示一下前几个
 kable(head(log[c("Subjectindex","trial_time")],10),
@@ -52,7 +52,7 @@ kable(head(log[c("Subjectindex","trial_time")],10),
       longtable = TRUE,
       caption = "被试每个试次的时长（部分）")
 ```
-
+\clearpage
 
 ## 计算每名被试在4个条件下的正确率
 
@@ -373,3 +373,203 @@ ggplot(analyze, aes(x=vars, y=mean,fill=group1)) +
                 position=position_dodge(.9))
 ```
 
+\clearpage
+
+# 作业1（Unix脚本）
+
+主要使用了awk，外加一个bash的循环。由于前面已经展示过完整的结果，这部分的结果和之前是一样的，所以就只是输出了结果的前几行。
+## 提取每名被试每个trial的时长
+```{bash eval=FALSE, include=FALSE}
+# 读取列编号(没有用到)
+#awk 'NR=1{for (i=1;i<=NF;i++) if ($i~/Text2.Onset/) print i}' log.txt
+#awk 'NR=1{for (i=1;i<=NF;i++) if ($i~/Fixation.Onset/) print i}' log.txt
+```
+
+通过awk计算，这里展示了结果的前5行
+
+```{bash}
+# 计算trial时长
+# trial时长是Text2.Onset-Fixation.Onset+5000，即反应前的加反应阶段的5s
+awk 'NR!=1{print $7-$3+5000}' log.txt | head -n 5
+```
+
+## 计算每名被试在4个条件下的正确率
+```{bash}
+
+# 每个被试循环
+for sub in $(awk 'NR!=1{print $1}' log.txt | uniq)
+do
+# "'$var'"使用系统变量,或者"'"$var"'"
+awk '$1=="'$sub'"{
+  #根据fixation时长判断条件
+  if ($4-$3==3000)
+  {
+    #结果以百分数表示，乘100
+    sixcount[$6]+=0.01
+    #统计正确的数量
+    if ($9=="TRUE")
+    {six[$6]+=1}
+  }
+  else
+  {
+    ninecount[$6]+=0.01
+    
+    if ($9=="TRUE")
+    {nine[$6]+=1}
+  }
+
+}
+END {
+
+  printf "%d \t %.2f \t %.2f \t %.2f \t %.2f \n", "'$sub'",
+  six["FALSE"]/sixcount["FALSE"], six["TRUE"]/sixcount["TRUE"], 
+  nine["FALSE"]/ninecount["FALSE"], nine["TRUE"]/ninecount["TRUE"]
+
+}' log.txt 
+
+done | head -n 5
+
+```
+
+## 提取4个条件下被试的反应时和正确反应的反应时
+
+提取全部反应的反应时，通过If.Response等于TRUE进行提取，这里展示了提取结果的前5行。
+```{bash}
+
+# 每个被试循环
+for sub in $(awk 'NR!=1{print $1}' log.txt | uniq)
+do
+# "'$var'"使用系统变量,或者"'"$var"'"
+awk '$1=="'$sub'"{
+  if ($8=="TRUE")
+  {
+  subject=$1
+  audio=$6
+  rt=$10-$7
+    if ($4-$3==3000)
+    {
+      word=6
+    }
+    else
+    {
+      word=9
+    }
+  printf "%d \t %s \t %d \t %d \n", subject,audio,word,rt
+  }
+}' log.txt 
+
+done > rt_all.txt
+head -n 5 rt_all.txt
+# 打印总的行数
+cat rt_all.txt | wc -l
+
+```
+
+接着是正确反应的反应时，通过Corre.Response等于1进行提取，这里展示了提取结果的前5行。虽然前面5个的结果是一样的，但是通过总的行数可以看出来确实去掉了不正确的反应。
+```{bash}
+
+# 每个被试循环
+for sub in $(awk 'NR!=1{print $1}' log.txt | uniq)
+do
+# "'$var'"使用系统变量,或者"'"$var"'"
+awk '$1=="'$sub'"{
+  #增加一个条件$9=="TRUE"
+  if ($8=="TRUE" && $9=="TRUE")
+  {
+  subject=$1
+  audio=$6
+  rt=$10-$7
+    if ($4-$3==3000)
+    {
+      word=6
+    }
+    else
+    {
+      word=9
+    }
+  printf "%d \t %s \t %d \t %d \n", subject,audio,word,rt
+  }
+}' log.txt 
+
+done > rt_correct.txt
+head -n 5 rt_correct.txt
+# 打印总的行数
+cat rt_correct.txt | wc -l
+
+```
+## 计算4个条件下被试的平均反应时和正确反应的平均反应时
+
+计算4个条件每名被试所有反应的平均反应时。
+```{bash}
+# 每个被试循环
+for sub in $(awk '{print $1}' rt_all.txt | uniq)
+do
+# "'$var'"使用系统变量,或者"'"$var"'"
+awk '$1=="'$sub'"{
+  #增加一个条件$9=="TRUE"
+  rtcount[$3$2]+=1
+  rt[$3$2]+=$4
+}
+END {
+
+  printf "%d \t %.2f \t %.2f \t %.2f \t %.2f \n", "'$sub'",
+  rt["6FALSE"]/rtcount["6FALSE"], rt["6TRUE"]/rtcount["6TRUE"], 
+  rt["9FALSE"]/rtcount["9FALSE"], rt["9TRUE"]/rtcount["9TRUE"]
+  
+}' rt_all.txt
+
+done | head -n 5
+```
+
+计算4个条件每名被试正确反应的平均反应时。
+```{bash}
+# 每个被试循环
+for sub in $(awk '{print $1}' rt_correct.txt | uniq)
+do
+# "'$var'"使用系统变量,或者"'"$var"'"
+awk '$1=="'$sub'"{
+  #增加一个条件$9=="TRUE"
+  rtcount[$3$2]+=1
+  rt[$3$2]+=$4
+}
+END {
+
+  printf "%d \t %.2f \t %.2f \t %.2f \t %.2f \n", "'$sub'",
+  rt["6FALSE"]/rtcount["6FALSE"], rt["6TRUE"]/rtcount["6TRUE"], 
+  rt["9FALSE"]/rtcount["9FALSE"], rt["9TRUE"]/rtcount["9TRUE"]
+  
+}' rt_correct.txt
+
+done | head -n 5
+```
+## 计算4个条件下被试的平均反应时和正确反应的平均反应时
+先计算所有被试4个条件所有反应的平均反应时，然后是正确反应的平均反应时。
+```{bash}
+# 所有反应的
+awk '{
+  #增加一个条件$9=="TRUE"
+  rtcount[$3$2]+=1
+  rt[$3$2]+=$4
+}
+END {
+
+  printf "全部反应 \t %.2f \t %.2f \t %.2f \t %.2f \n",
+  rt["6FALSE"]/rtcount["6FALSE"], rt["6TRUE"]/rtcount["6TRUE"], 
+  rt["9FALSE"]/rtcount["9FALSE"], rt["9TRUE"]/rtcount["9TRUE"]
+  
+}' rt_all.txt
+# 正确反应的
+awk '{
+  #增加一个条件$9=="TRUE"
+  rtcount[$3$2]+=1
+  rt[$3$2]+=$4
+}
+END {
+
+  printf "正确反应 \t %.2f \t %.2f \t %.2f \t %.2f \n",
+  rt["6FALSE"]/rtcount["6FALSE"], rt["6TRUE"]/rtcount["6TRUE"], 
+  rt["9FALSE"]/rtcount["9FALSE"], rt["9TRUE"]/rtcount["9TRUE"]
+  
+}' rt_correct.txt
+
+```

@@ -49,7 +49,7 @@ cd analysis
 cd ..
 cd ..
 
-end
+# end
 
 else
  echo "Usage: $0 <Subjname>"

@@ -35,7 +35,7 @@ rm(list = ls())
 # 作业1
 
 ## 提取每名被试每个trial的时长
-提取结果到数据框log里，这里展示了一下前10行
+提取结果到数据框log里，这里展示了一下前10行。
 ```{r}
 # 读取数据
 log <- read.table("log.txt",header = TRUE)
@@ -189,7 +189,6 @@ kable(all,
 
 \clearpage
 
-\clearpage
 ```{r echo=FALSE}
 # 输出表格
 kable(meanrt_all,
@@ -227,7 +226,7 @@ kable(meanrt_correct,
 # 作业2
 
 ## 描述统计
-分别计算男、女被试在前、后测中，反应时的最大值、最小值、中位数、均值、标准差
+分别计算男、女被试在前、后测中，反应时的最大值、最小值、中位数、均值、标准差。
 ```{r}
 # 读取数据
 matlab_data <- read.table("matlab_data.txt",header = TRUE)
@@ -378,14 +377,16 @@ ggplot(analyze, aes(x=vars, y=mean,fill=group1)) +
 # 作业1（Unix脚本）
 
 主要使用了awk，外加一个bash的循环。由于前面已经展示过完整的结果，这部分的结果和之前是一样的，所以就只是输出了结果的前几行。
+
 ## 提取每名被试每个trial的时长
+
 ```{bash eval=FALSE, include=FALSE}
 # 读取列编号(没有用到)
 #awk 'NR=1{for (i=1;i<=NF;i++) if ($i~/Text2.Onset/) print i}' log.txt
 #awk 'NR=1{for (i=1;i<=NF;i++) if ($i~/Fixation.Onset/) print i}' log.txt
 ```
 
-通过awk计算，这里展示了结果的前5行
+通过awk计算，这里展示了结果的前5行。
 
 ```{bash}
 # 计算trial时长
@@ -499,15 +500,16 @@ cat rt_correct.txt | wc -l
 ```
 ## 计算4个条件下被试的平均反应时和正确反应的平均反应时
 
-计算4个条件每名被试所有反应的平均反应时。
+计算4个条件每名被试所有反应的平均反应时，这里展示了结果的前5行。
 ```{bash}
 # 每个被试循环
 for sub in $(awk '{print $1}' rt_all.txt | uniq)
 do
 # "'$var'"使用系统变量,或者"'"$var"'"
 awk '$1=="'$sub'"{
-  #增加一个条件$9=="TRUE"
+  # rtcount是各个条件的试次数目
   rtcount[$3$2]+=1
+  # rt是各个条件的反应时$4总和
   rt[$3$2]+=$4
 }
 END {
@@ -521,14 +523,13 @@ END {
 done | head -n 5
 ```
 
-计算4个条件每名被试正确反应的平均反应时。
+计算4个条件每名被试正确反应的平均反应时，这里展示了结果的前5行。
 ```{bash}
 # 每个被试循环
 for sub in $(awk '{print $1}' rt_correct.txt | uniq)
 do
 # "'$var'"使用系统变量,或者"'"$var"'"
 awk '$1=="'$sub'"{
-  #增加一个条件$9=="TRUE"
   rtcount[$3$2]+=1
   rt[$3$2]+=$4
 }
@@ -542,12 +543,10 @@ END {
 
 done | head -n 5
 ```
-## 计算4个条件下被试的平均反应时和正确反应的平均反应时
 先计算所有被试4个条件所有反应的平均反应时，然后是正确反应的平均反应时。
 ```{bash}
 # 所有反应的
 awk '{
-  #增加一个条件$9=="TRUE"
   rtcount[$3$2]+=1
   rt[$3$2]+=$4
 }
@@ -558,9 +557,9 @@ END {
   rt["9FALSE"]/rtcount["9FALSE"], rt["9TRUE"]/rtcount["9TRUE"]
   
 }' rt_all.txt
+
 # 正确反应的
 awk '{
-  #增加一个条件$9=="TRUE"
   rtcount[$3$2]+=1
   rt[$3$2]+=$4
 }
@@ -571,5 +570,4 @@ END {
   rt["9FALSE"]/rtcount["9FALSE"], rt["9TRUE"]/rtcount["9TRUE"]
   
 }' rt_correct.txt
-
 ```

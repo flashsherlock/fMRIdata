@@ -1,0 +1,162 @@
+---
+title: "计算编程在心理学研究中的应用课程作业"
+author: "谷菲 201928012503005"
+date: '2020-06-13'
+documentclass: ctexart
+geometry: "left=2.5cm,right=2cm,top=3cm,bottom=2.5cm"
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: no
+classoption: "hyperref"
+bibliography: ./bib/globalsig.bib
+csl: ./bib/apa-6th-edition.csl
+link-citations: true
+linkcolor: blue
+---
+
+# 代码
+
+下面是计算功能连接的matlab代码。首先分别对每个被试计算全脑的平均值，以及平均值和全脑的相关，然后计算了三个被试的平均结果。接下来依此对三个被试和平均结果进行可视化，分别选取了横切面、冠状面和矢状面各5个位置画图。
+
+```{r include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,out.width="100%",
+                      fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(tiff)
+library(grid)
+# knitr::include_graphics('Mean_A5.tif')
+```
+
+
+```{matlab eval=FALSE}
+% 准备数据
+Path='/dpabi/demo/FunImgARCWF/';
+DataFile_name='Filtered_4Dvolume.nii';
+Mask=y_ReadAll('/gufei/DPABI_V4.3_200401/Templates/BrainMask_05_61x73x61.img');
+% 放平均值
+MeanData=zeros(61,73,61);    
+% 被试循环
+for sub=1:3
+	DataFile=[Path 'Sub_00' num2str(sub) '/' DataFile_name];
+	[Data,Vox,Files,Header]=y_ReadAll(DataFile);
+	datasize=size(Data);
+  %计算全脑平均值
+	Seed=squeeze(mean(mean(mean(Data,1),2),3));
+	%建立输出的矩阵
+	OutData=zeros(datasize(1:3));    
+	%逐个体素计算相关
+    for i=1:61
+		for j=1:73
+			for k=1:61
+				if Mask(i,j,k)
+					VoxelT=squeeze(Data(i,j,k,:));
+					[r,~]=corrcoef(Seed,VoxelT);
+					OutData(i,j,k)=r(1,2);
+				end
+			end
+		end
+    end
+  %将结果加到MeanData之后计算平均
+  MeanData=OutData+MeanData;
+  %写入数据
+	Outname=[Path 'Sub_00' num2str(sub) '_Con' '.nii'];
+	y_Write(OutData,Header,Outname);
+end
+    
+%除以3计算平均
+MeanData=MeanData/3;
+y_Write(MeanData,Header,'Mean.nii');
+
+% 画图
+Targetdir='/dpabi/demo/TestImages/';
+images=dir('*.nii');
+for i=1:length(images)
+    ImageFile=images(i).name;
+   
+    H=w_Call_DPABI_VIEW(ImageFile);
+    %横切面
+    [Image,~]=w_MontageImage([-30 -15 0 15 30],'T',H);
+    Image=flip(Image,1);
+    imwrite(Image,[Targetdir,'/',ImageFile(1:end-4),'_A5.tif']);
+	
+    %冠状面
+    [Image,~]=w_MontageImage([-30 -15 0 15 30],'C',H);
+    Image=flip(Image,1);
+	imwrite(Image,[Targetdir,'/',ImageFile(1:end-4),'_C5.tif']);
+
+    %矢状面
+    [Image,~]=w_MontageImage([-30 -15 0 15 30],'S',H);
+    Image=flip(Image,1);
+    imwrite(Image,[Targetdir,'/',ImageFile(1:end-4),'_S5.tif']);
+	
+end
+close all
+```
+
+# 结果
+
+下面依次展示了3名被试以及被试的平均结果的横切面、冠状面和矢状面。通过结果可以看出全脑的平均序列和大脑的大部分区域都有正相关，而与脑室等区域则相关很低，这和其它研究得到的结果是相似的[@RN1037]。因为全脑的平均信号表示了大脑整体的活动，所以和大脑的各个区域都有相关；而脑室区域主要是脑脊液，没有相应的活动，因此和全脑平均信号没有相关。另外，每个被试的结果的变易相对更大，存在一些和附近结果不同的分散的点，平均的结果则变易更小，可以看出脑室的大致形状。
+
+## 被试1
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_001_Con_A5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_001_Con_C5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_001_Con_S5.tif"))
+```
+
+## 被试2
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_002_Con_A5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_002_Con_C5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_002_Con_S5.tif"))
+
+```
+## 被试3
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_003_Con_A5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_003_Con_C5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Sub_003_Con_S5.tif"))
+```
+
+## 被试平均
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Mean_A5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Mean_C5.tif"))
+```
+
+```{r echo=FALSE}
+grid.raster(readTIFF("Mean_S5.tif"))
+```
+<!-- ![A5](Mean_A5.tif) -->
+
+\centerline{\large{\textbf{参考文献}}}
+<!-- 解决悬挂缩进的问题 -->
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+\setlength{\parskip}{8pt}

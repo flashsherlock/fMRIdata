@@ -1,5 +1,5 @@
 rm(list = ls())
-
+library(dplyr)
 # 合并多个数据框
 multimerge<-function(dat,...){
   if(length(dat)<2)return(as.data.frame(get(dat)))
@@ -12,7 +12,7 @@ multimerge<-function(dat,...){
 }
 
 # 读取数据框列表
-load("AmyAb0tent.RData")
+load("AmyAbove0t196t196_tent.RData")
 list = ls(pattern = "20subj.*")
 
 for (result in list) {

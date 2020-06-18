@@ -28,12 +28,12 @@ return(data1)
 }
 
 # 设置工作目录循环
-setwd("/Volumes/WD_D/allsub/ana4")
+setwd("/Volumes/WD_D/allsub/ana4/AmyAbove0t196t196_tent")
 require(showtext)
 # a <- 0
 folder <- dir(pattern = "tent.*l")
 for (workingpath in folder) {
-  setwd(paste("/Volumes/WD_D/allsub/ana4",workingpath,sep="/"))
+  setwd(paste("/Volumes/WD_D/allsub/ana4/AmyAbove0t196t196_tent",workingpath,sep="/"))
   getwd()
   # a <- a+1
   # 每个txt循环
@@ -46,19 +46,19 @@ for (workingpath in folder) {
     results <- get(result)
     meanbeta <- apply(results[2:12],2,mean)
     #保存图片为eps
-    setEPS()
-    postscript(paste(result,"eps",sep="."))
-    showtext_begin()
-    plot(meanbeta,xaxt='n',xlab="TimePoint",ylab="Beta",type = 'b', lty = 3)
-    axis(1,0:10)
-    title(result)
-    showtext_end()
-    dev.off()
+    # setEPS()
+    # postscript(paste(result,"eps",sep="."))
+    # showtext_begin()
+    # plot(meanbeta,xaxt='n',xlab="TimePoint",ylab="Beta",type = 'b', lty = 3)
+    # axis(1,0:10)
+    # title(result)
+    # showtext_end()
+    # dev.off()
   }
 }
 rm(results)
 bruceR::set.wd()
-save(list = ls(pattern = "20subj.*"), file = "AmyAb0tent.RData")
+save(list = ls(pattern = "20subj.*"), file = "AmyAbove0t196t196_tent.RData")
 # #保存图片为eps
 # require(showtext)
 # for (data in txtfile) {

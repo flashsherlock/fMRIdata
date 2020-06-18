@@ -1,7 +1,7 @@
 ---
 title: "Amygdala"
 author: "GuFei"
-date: '2020-03-25'
+date: '2020-06-18'
 output:
   html_document:
   df_print: paged
@@ -16,6 +16,7 @@ library(RColorBrewer)
 library(ggpubr)
 library(ggrepel)
 library(plotly)
+library(DT)
 ```
 
 # 汇总数据
@@ -24,7 +25,20 @@ library(plotly)
 rm(list = ls())
 load("All.RData")
 all_block <- all
-load("../AmygdalaTENT/Alltent.RData")
+load("Alltent.RData")
+# 查看缺失值的信息
+navalue <- subset(all_block,is.na(Count),select = c(Sub,position,valance,condition))
+datatable(navalue,rownames = FALSE,
+          caption = htmltools::tags$caption(
+            style = 'caption-side: top; text-align: center;',
+            htmltools::strong('Missing values')# bold text
+          ))
+# 如果有缺失值显示信息并且去掉
+if (dim(navalue)[1]!=0) {
+  #na.omit函数可以删除缺失值所在的行
+  all_block<-na.omit(all_block)  
+  all<-na.omit(all)  
+}
 
 # 分组统计
 analyze <- describeBy(all_block[2:14],list(all_block$position,all_block$condition),mat = TRUE)
@@ -77,7 +91,7 @@ condition <- unique(subset(all_block,valance==val)$condition)
 # 图的标题
 title <- val
 # 提取需要画图的部分
-datachosen <- subset(analyze,group1%in%c("medialAmy","lateralAmy") 
+datachosen <- subset(analyze,group1%in%c("medialAmy","lateralAmy","Amy") 
                      & group2%in%condition 
                      & vars=='Count',select = c(mean,se,vars,group1,group2))
 # Error bars represent standard error of the mean
@@ -101,6 +115,9 @@ figure <- ggplot(datachosen, aes(x=group1, y=mean, fill=group2)) +
 print(figure)
 
 # 箱线图
+voxel <- subset(all_block,valance==val,
+                select = c(Sub,Count,position,condition))
+names(voxel) <- c("Sub","Count","position","preference")
 figure <- ggplot(voxel, aes(x=position, y=Count, label=Sub,
                             fill=preference,group=interaction(position,preference))) + 
   #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
@@ -142,7 +159,8 @@ plotly_plots <- htmltools::tagList()
 # 4个选取ROI的方式,这里是先选出是face还是odor
 for (val in unique(all_block$valance)) {
 # 3个杏仁核的位置
-  for (pos in unique(all_block$position)) {
+  # for (pos in unique(all_block$position)) {
+  for (pos in c("Amy")) {
     
     cat("\n作差并取绝对值之后\n")
     # 进行方差分析
@@ -285,7 +303,7 @@ for (val in unique(all_block$valance)) {
                          select = c(mean,se,vars,group2))
     # Error bars represent standard error of the mean
     figure_8 <- ggplot(datachosen, aes(x=vars, y=mean, fill=group2)) + 
-      coord_cartesian(ylim=c(-0.5,0.5)) +  # 设置y轴坐标范围
+      coord_cartesian(ylim=c(-0.3,0.7)) +  # 设置y轴坐标范围
       labs(title = title ,x='Condition',y='Mean β',fill='Preference')+#设置坐标轴
       theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
             axis.text.y = element_text(size=WORD_SIZE), 

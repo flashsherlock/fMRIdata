@@ -153,6 +153,8 @@ cd analysis
 3dROIstats -mask ${subj}.FaceValence.AmyFH.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 139 2 158`159]"  > ../../ana4/tent_faceFH_all/${subj}.FaceValence.AmyFH.t196_HUI.txt
 3dROIstats -mask ${subj}.FaceValence.AmyFH.t196+tlrc -nzmean ${subj}.analysis.tent+tlrc"[`seq -s , 162 2 181`182]"  > ../../ana4/tent_faceFH_all/${subj}.FaceValence.AmyFH.t196_HUV.txt
 
+cd ..
+cd ..
 end
 
 # else

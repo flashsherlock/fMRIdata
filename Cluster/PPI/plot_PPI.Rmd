@@ -23,7 +23,18 @@ library(plotly)
 
 rm(list = ls())
 load("All.RData")
-
+# 查看缺失值的信息
+navalue <- subset(all,is.na(Count),select = c(Sub,position,valance,condition))
+datatable(navalue,rownames = FALSE,
+          caption = htmltools::tags$caption(
+            style = 'caption-side: top; text-align: center;',
+            htmltools::strong('Missing values')# bold text
+          ))
+# 如果有缺失值显示信息并且去掉
+if (dim(navalue)[1]!=0) {
+  #na.omit函数可以删除缺失值所在的行
+  all<-na.omit(all)  
+}
 # 分组统计
 analyze <- describeBy(all[2:6],list(all$position,all$condition,all$roi),mat = TRUE)
 # 把vars列中的数字替换为名称

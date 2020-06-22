@@ -24,6 +24,12 @@ Analyze the connectivity between amygdala and FFA/STS
 ## Cluster
 Restrict the ROI to be continuous and guarantee the activation to stimulus is positive.
 
+## Baseline
+Use the time interval without any odor or visual stimulus as baseline.
+
+## Invisible
+Define ROI by the activation difference of invisible faces.
+
 ## learning
 Stores some of the files and notes during learning.
 

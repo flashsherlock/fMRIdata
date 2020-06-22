@@ -1,0 +1,245 @@
+http://blog.csdn.net/wswqiang/article/details/8628028
+
+sudo apt install bastet
+sudo apt-get install ninvaders
+sudo apt-get install pacman4console
+sudo apt-get install nsnake
+sudo apt-get install bsdgames
+sudo apt-get install moon-buggy
+sudo apt install nethack-console
+sudo apt install cowsay
+sudo apt install fortune
+sudo apt install xcowsay
+sudo apt install gtypist
+
+
+# 设置屏幕亮度
+sudo gedit /sys/class/backlight/intel_backlight/brightness
+sudo chrome 777 /sys/class/backlight/intel_backlight/brightness
+echo 1005 /sys/class/backlight/intel_backlight/brightness
+# 开启无线网的软开关
+rfkill list
+sudo modprobe -r ideapad-laptop
+sudo rfkill unblock all
+# 开启aria2
+aria2c --conf-path=/home/sherlock/下载/aria2.conf -D
+
+# opencv
+sudo apt-get install build-essential
+sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev # 处理图像所需的包
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev liblapacke-dev
+sudo apt-get install libxvidcore-dev libx264-dev # 处理视频所需的包
+sudo apt-get install libatlas-base-dev gfortran # 优化opencv功能
+sudo apt-get install ffmpeg
+# 打不开Sherlock文件夹 去掉那个driver
+sudo umount /home/sherlock/thinclient_drives
+# 使用xfce4桌面环境
+echo xfce4-session>~/.xsession
+# 关闭盖子不挂起
+sudo gedit /etc/UPower/UPower.conf
+# 修改ignorelid 为 true
+service upower restart
+# 如果想不休眠，需要进行以下修改：
+sudo sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/g' /etc/systemd/logind.conf
+# 修改完成后重启系统服务：
+systemctl restart systemd-logind
+# 远程登录
+xrdp 使用xorg
+# 软件安装
+# 仅需要
+sudo apt install xrdp
+# 编辑配置
+sudo vim /etc/xrdp/startwm.sh
+# 把最下面的test和exec两行注释掉，添加一行
+gnome-session
+
+sudo service xrdp restart
+# 使用any-vnc 要开启共享，需要先安装vino dconf-editor并且关闭加密
+cd ~/xrdp-0.9.5/sesman/chansrv/pulse
+make PULSE_DIR='/home/sherlock/pulseaudio-11.1'
+sudo install -s -m 644 module-xrdp-sink.so /usr/lib/pulse-11.1/modules
+sudo install -s -m 644 module-xrdp-source.so /usr/lib/pulse-11.1/modules
+sudo install -s -m 644 module-xrdp-sink.so '/usr/local/lib/pulse-11.1/modules'
+sudo install -s -m 644 module-xrdp-source.so '/usr/local/lib/pulse-11.1/modules'
+
+sudo cp '/home/sherlock/module-xrdp-sink.so' '/usr/lib/pulse-11.1/modules'
+sudo cp '/home/sherlock/module-xrdp-source.so' '/usr/lib/pulse-11.1/modules'
+sudo cp '/home/sherlock/module-xrdp-sink.so' '/usr/local/lib/pulse-11.1/modules'
+sudo cp '/home/sherlock/module-xrdp-source.so' '/usr/local/lib/pulse-11.1/modules'
+# 开启远程桌面的声音
+sudo apt install xrdp-pulseaudio-installer
+cd /usr/src/xrdp-pulseaudio-installer
+sudo make PULSE_DIR='/home/sherlock/pulseaudio-11.1'
+sudo install -t "/var/lib/xrdp-pulseaudio-installer" -D -m 644 *.so
+
+Building the Pulseaudio Module
+Since we have the necessary pulseaudio source in tmp directory, it’s time to compile them so they can be used by the xRDP software.  To compile them, we will issue the following commands
+
+cd /usr/src/xrdp-pulseaudio-installer
+make PULSE_DIR='/home/sherlock/pulseaudio-11.1'
+
+This will because create two additional module-xrdp*.so files. These files needs to be copied into the correct location so xRDP can perform sound redirection
+
+Installing the Pulseaudio Module
+This is an important one.  As you know, we are focusing on Ubuntu and we have seen a lot of blogs mentioning that the two module files generated above needs to be copied in the following location /usr/lib/pulse-11.1/modules.    This is wrong !!
+
+These files needs to be copied in the following location  /var/lib/xrdp-pulseaudio-installer.  So, we will run the following command to copy the correct files into the correct location….
+
+install -t "/var/lib/xrdp-pulseaudio-installer" -D -m 644 *.so
+
+
+# 学校vpn
+sudo openconnect --juniper https://sslvpn.bnu.edu.cn
+# 安装双显卡切换软件
+sudo add-apt-repository ppa:nilarimogard/webupd8    #添加PPA更新源
+sudo apt-get update                                 #刷新更新源列表
+sudo apt-get install prime-indicator                #安装双显卡切换指示器
+# 安装显卡驱动 最好是直接通过附加驱动安装
+# 屏蔽nouveau
+sudo gedit /etc/modprobe.d/blacklist.conf
+# 添加
+blacklist nouveau
+options nouveau modeset=0
+# 更新内核
+sudo update-initramfs -u
+# 重启使用附加驱动安装
+
+#查看显示器标识符：我的是DVI-I-0，在'connected'之前。
+xrandr
+#查看分辨率的属性：我要看1920x1080的分辨率，在'Modeline'之后。
+cvt 1920 1080
+#创建新分辨率模式：拷贝'Modeline'之后的信息即可。
+sudo xrandr --newmode "1920x1080"  173.00  1920 2048 2248 2576  1080 1083 1088 1120 -hsync +vsync
+#为显示器添加分辨率模式：
+sudo xrandr --addmode DVI-I-0 "1920x1080"
+#将分辨率模式应用到显示器：
+sudo xrandr --output DVI-I-0 --mode "1920x1080"
+
+# 手势操作
+fusuma
+
+# shadowsocks
+sslocal -c ~/shadow.json
+
+# wine
+sudo add-apt-repository ppa:wine/wine-builds
+wget https://dl.winehq.org/wine-builds/Release.key
+sudo apt-get install --install-recommends wine-staging
+sudo apt-get update
+sudo apt-get install --install-recommends wine-stable
+sudo dpkg --add-architecture i386  64位的需要
+sudo apt-get install --install-recommends winehq-stable
+
+# 色温调节
+redshift -l 39.92:116.46 -t 5500:4500
+
+# 使用swap的趋势
+cat /proc/sys/vm/swappiness
+sudo gedit /etc/sysctl.conf
+# Reduce the swap tendency
+vm.swappiness = 10
+# 安装公匙
+gpg --keyserver wwwkeys.pgp.net --recv EBE14A20
+# （报错的后8位，中间的服务器网址可以再找）
+gpg --export --armor EBE14A20 | sudo apt-key add -
+
+# 安装电源管理软件tlp
+# 提前启动优化
+preload prelink
+# 查看状态
+systemctl status preload
+# 查看启动时间
+systemd-analyze blame
+systemd-analyze time
+# 开机时间
+date -d "$(awk -F. '{print $1}' /proc/uptime) second ago" +"%Y-%m-%d %H:%M:%S"
+# 已运行时间
+cat /proc/uptime| awk -F. '{run_days=$1 / 86400;run_hour=($1 % 86400)/3600;run_minute=($1 % 3600)/60;run_second=$1 % 60;printf("系统已运行：%d天%d时%d分%d秒",run_days,run_hour,run_minute,run_second)}'
+
+# 安装天文软件
+sudo add-apt-repository ppa:stellarium/stellarium-releases
+sudo apt-get update
+sudo apt-get install stellarium
+
+# 安装音频编辑软件
+sudo add-apt-repository ppa:ubuntuhandbook1/audacity
+sudo apt-get update
+sudo apt-get install audacity
+
+# snap软件
+# 查看所有安装的
+snap list --all
+# 卸载特定rev的
+snap remove --revision=3247 core
+
+# 下载工具
+# firefox插件 downthemall
+# wget 单线程 mirror 等价于-r -N -l inf --no-remove-listing
+# uget组合Aria2 -D --disable-ipv6 --check-certificate=false
+
+# 删除文件夹
+rm -r 文件夹名
+# 更新virtualbox内核
+sudo rcvboxdrv setup
+# wps字体
+unzip linux_wps_fonts.zip -d ~/.fonts
+# 1. 将要安装的字体放在一个文件夹下，以/home/UsrName/Download/Font为例
+# 2.在终端中输入sudo cp -r /home/UsrName/Download/Font /usr/share/fonts/  #将字体文件夹全部复制到/usr/share/fonts/目录下
+# 3.在终端中依次输入以下三条命令：
+
+    sudo mkfontscale
+    sudo mkfontdir
+    sudo fc-cache -fv
+
+# 4. 至此新的字体安装完成
+
+# 附：字体可以从Windows系统下c:/window/fonts
+# 去后台占用软件安装的进程
+sudo rm /var/cache/apt/archives/lock
+sudo rm /var/lib/dpkg/lock
+
+# 挂载d盘
+sudo ntfsfix /dev/sdc6
+
+# 安装bdebi
+sudo apt install gdebi-core
+# 安装deb包
+sudo gdebi google-chrome-stable_current_amd64.deb
+# 查看安装的内核
+dpkg --get-selections|grep linux
+# 查看现在使用的内核
+uname -a
+# 删除内核
+sudo apt purge 内核名称
+# ipv6源
+# 输入命令：
+sudo gedit /etc/apt/sources.list         //打开软件源列表，将下面源复制进去，放在文件开头，
+sudo apt-get update                        //更新源列表
+sudo apt-get upgrade                     //这一步是更新软件
+deb https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial main restricted universe multiverse
+deb-src https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial main restricted universe multiverse
+
+deb https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial-security main restricted universe multiverse
+deb-src https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial-security main restricted universe multiverse
+
+deb https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial-updates main restricted universe multiverse
+deb-src https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial-updates main restricted universe multiverse
+
+deb https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe multiverse
+deb-src https://ipv6.mirrors.ustc.edu.cn/ubuntu/ xenial-backports main restricted universe multiverse
+
+# virtualbox安装需要先安装headers
+sudo apt-get install linux-headers-generic
+# 编译
+sudo rcvboxdrv setup
+# 安装dkm自动编译
+sudo apt-get install dkms
+# 检测
+sudo /usr/lib/virtualbox/vboxdrv.sh status
+# 删除亚马逊链接（会卸载unity tweak tool）
+sudo apt-get remove unity-webapps-common
+# 清理软件
+sudo add-apt-repository ppa:n-muench/programs-ppa
+sudo apt-get update
+sudo apt-get install bleachbit

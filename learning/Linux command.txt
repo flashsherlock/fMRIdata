@@ -1,5 +1,16 @@
 http://blog.csdn.net/wswqiang/article/details/8628028
 
+sudo apt install bastet
+sudo apt-get install ninvaders
+sudo apt-get install pacman4console
+sudo apt-get install nsnake
+sudo apt-get install bsdgames
+sudo apt-get install moon-buggy
+sudo apt install nethack-console
+sudo apt install cowsay
+sudo apt install fortune
+sudo apt install xcowsay
+sudo apt install gtypist
 
 
 # 设置屏幕亮度

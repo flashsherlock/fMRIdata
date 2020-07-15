@@ -1,0 +1,227 @@
+'Global Variables
+
+Dim receiveBuffer As String
+Dim triggerActive As Boolean
+
+'activateTrigger
+'Activates the ability for the ETT Olfactometer to start a paradigm based on the 5V pulse on the 'Trigger In' port of the device. Trigger occurs on rising edge. 
+'Serial.FlushInputBuffer
+Serial.WriteString "@110!"
+Debug.Print "ettOlfactometer_activateTrigger"
+If(ettOlfactometer_feedBack("111,1"))Then
+    Debug.Print "Success"
+    triggerActive=True
+Else
+    Debug.print "Fail"
+    triggerActive=False
+End If
+
+
+'deactivateTrigger
+'Deactivates the 'Trigger in' port.
+'Serial.FlushInputBuffer
+Serial.WriteString "@109!"
+Debug.Print "ettOlfactometer_deactivateTrigger"
+If(ettOlfactometer_feedBack("111,3"))Then
+    Debug.Print "Success"
+    triggerActive=False
+Else
+    Debug.print "Fail"
+    triggerActive=True
+End If
+
+
+'feedBack
+'Internal function.
+'parameters
+'Name	Type	Pass	Optional
+'searchString	String	ByVal	No 
+'searchString2	String	ByVal	Yes
+Dim strPeek As String
+Dim strDone As String
+'Dim receiveBuffer As String
+Dim str As String
+Dim n As Long
+Dim donePeek As Boolean
+Dim p1 As Integer ' location of @
+Dim p2 As Integer ' location of !
+Dim start As Long
+Dim total As Long
+donePeek=False
+    str=""
+    'Debug.Print "searchString: " & searchString & " searchString2: " & searchString2
+    Do While ((len(Serial.Peek)>0) Or (donePeek=False))
+        
+        n=Serial.ReadString(str)
+        If(n>0) Then
+            receiveBuffer=receiveBuffer & str
+            Dim tmpCommand As String
+            tmpCommand=ettOlfactometer_getFirstCommand(receiveBuffer)
+            If((instr(tmpCommand,searchString)<>0) Or ((instr(tmpCommand,searchString2)<>0)And (len(searchString2)>0 )))Then
+                Debug.Print "Found: " & tmpCommand & "--> end loop"
+                donePeek=True
+                End If
+            End If
+        Loop
+        ettOlfactometer_feedBack=True
+
+
+'getDeviceType
+'Internal function
+Dim strPeek As String
+Dim strDone As String
+'Dim receiveBuffer As String
+Dim str As String
+Dim n As Long
+Dim donePeek As Boolean
+Dim p1 As Integer ' location of @
+Dim p2 As Integer ' location of !
+Dim start As Long
+Dim total As Long
+Serial.WriteString "@333!"
+Dim searchString As String
+Dim searchString2 As String
+searchString="334,6"
+searchString2="334,12"
+donePeek=False
+    str=""
+    Do While ((len(Serial.Peek)>0) Or (donePeek=False))
+        
+        n=Serial.ReadString(str)
+        If(n>0) Then
+            receiveBuffer=receiveBuffer & str
+            Dim tmpCommand As String
+            tmpCommand=ettOlfactometer_getFirstCommand(receiveBuffer)
+            If(instr(tmpCommand,searchString)<>0)Then
+                Debug.Print "Found: " & tmpCommand & "--> end loop"
+                ettOlfactometer_getDeviceType=6
+                donePeek=True
+                End If
+                If (instr(tmpCommand,searchString2)<>0) Then
+                    Debug.Print "Found: " & tmpCommand & "--> end loop"
+                    ettOlfactometer_getDeviceType=12
+                    donePeek=True
+                    End If
+                    
+                End If
+                
+                
+            Loop
+            'ettOlfactometer_getDeviceType=True
+
+
+'get first command
+'Internal function.
+'parameters
+'Name	Type	Pass	Optional
+'commandBuffer	String	ByRef	No 
+Dim p1 As Integer ' location of @
+Dim p2 As Integer ' location of !
+Debug.Print "Command:" & commandBuffer
+p1%=instr(commandBuffer,"@")
+p2%=instr(commandBuffer,"!")
+'Debug.Print x
+If(p1%<>0 And p2% <>0) Then ' looks like a complete string
+Dim str As String
+str=Mid(commandBuffer,p1+1,p2-p1-1)
+commandBuffer=Mid(commandBuffer,p2+1)
+ettOlfactometer_getFirstCommand=str
+Else
+ettOlfactometer_getFirstCommand=""
+End If
+
+
+'helloWorld
+'Internal function
+Serial.WriteString "@301!"
+
+Debug.Print "Trying to connect to Olfactometer.."
+
+If(ettOlfactometer_feedBack("ETT"))Then
+    Debug.Print "Success"
+Else
+    Debug.print "Fail"
+End If
+
+
+
+'Initialize
+'Internal function.
+'parameters
+'Name	Type	Pass	Optional
+'valveAssignments	Variant	ByRef	Yes
+Debug.Print "Initializing Olfactometer.."
+Sleep 250
+Serial.FlushOutputBuffer
+Serial.FlushInputBuffer
+Sleep 250
+
+ettOlfactometer_helloWorld
+If (len(valveAssignments)>0) Then
+    Serial.WriteString "@100" & valveAssignments & ",15!"
+Else
+    Debug.Print "using standard valve assignments"
+    Dim deviceChannelNumber As Integer
+    deviceChannelNumber=ettOlfactometer_getDeviceType
+    If (deviceChannelNumber=12)Then
+        'Serial.WriteString "@100,8,7,6,5,4,3,14,13,12,11,10,9,15!"
+        Serial.WriteString "@100,3,4,5,6,7,8,9,10,11,12,14,15,16!"
+    Else
+        'Serial.WriteString "@100,8,7,6,5,4,3,15!"
+        Serial.WriteString "@100,3,4,5,6,7,8,15!"
+    End If
+End If
+Debug.Print "Init done"
+
+
+
+'manualTrigger
+'Calls internal functions just like a trigger would do. Can be used for test purposes in case external devices for trigger are not connected.
+'Serial.FlushInputBuffer
+Serial.WriteString "@112!"
+Debug.Print "ETT Olfactometer: manualTrigger()"
+If(ettOlfactometer_feedBack( "111,2"))Then
+    Debug.Print "Success"
+Else
+    Debug.print "Fail"
+End If
+
+
+
+'setValves
+'Will process a list of valve Values seperated by comma (no spaces).
+'Examples for channel settings:
+'1,0,1,1,0,0 (6 channel device)
+'1,0,1,1,0,1,0,0,0,0,0,0 (12 channel device)
+'parameters
+'Name	Type	Pass	Optional
+'pinOutValue	String	ByVal	No
+Serial.WriteString "@1,0," & pinOutValue & "!"
+Debug.Print "ettOlfactometer_setValves"
+If(ettOlfactometer_feedBack( "2"))Then
+    Debug.Print "Success"
+Else
+    Debug.print "Fail"
+End If
+
+
+
+'waitForTrigger
+If(triggerActive=False)Then
+    
+Else
+    Debug.Print "#######WARNING#######"
+    Debug.Print "activateTrigger needs to be called first for this to work!"
+    Debug.Print "Automatically activating for you real quick. Please consider timing issues!"
+    ettOlfactometer_activateTrigger
+    Debug.Print "#####################"
+End If
+'str=""
+'Serial.WriteString "@5,"& triggerID & "!"
+Debug.Print "waiting for trigger"
+If(ettOlfactometer_feedBack("111,2")) Then
+    Debug.Print "success"
+Else
+    Debug.Print "fail"
+End If
+'srTrigger_setPinsOnTrigger "-1"

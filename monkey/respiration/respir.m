@@ -217,7 +217,9 @@ handles.workingpath=get(hObject,'String');
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
-handles.filename=data{1};
+    handles.filename=data{1};
+else
+    set(handles.load,'Enable','off');
 end
 guidata(hObject, handles);
 
@@ -243,15 +245,20 @@ function setpath_Callback(hObject, eventdata, handles)
 % hObject    handle to setpath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.workingpath = uigetdir('*.*','Choose a folder');
+temp= uigetdir('*.*','Choose a folder');
+if temp~=0
+handles.workingpath=temp;
 set(handles.path,'String',handles.workingpath);
 %设置list的显示
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
-handles.filename=data{1};
+    handles.filename=data{1};
+else
+    set(handles.load,'Enable','off');
 end
 guidata(hObject, handles);
+end
 
 
 

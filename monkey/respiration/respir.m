@@ -50,7 +50,7 @@ function respir_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to respir (see VARARGIN)
-%ÇĞ»»¹¤×÷Ä¿Â¼
+%åˆ‡æ¢å·¥ä½œç›®å½•
 workingpath=fileparts(mfilename('fullpath'));
 cd(workingpath);      
 set(handles.path,'string',workingpath);
@@ -58,11 +58,11 @@ handles.workingpath=workingpath;
 handles.datatype='acq';
 set(handles.acq,'Value',1);
 set(handles.acq,'BackgroundColor','green');
-%³õÊ¼»¯list
+%åˆå§‹åŒ–list
 data=list('.',handles.datatype);
 set(handles.data,'string',data);
 handles.filename=data{1};
-%plotÏÔÊ¾Í¼±ê
+%plotæ˜¾ç¤ºå›¾æ ‡
 LL=40*membrane(1,25);
 surfl(LL)
 shading interp
@@ -106,7 +106,7 @@ function start_Callback(hObject, eventdata, handles)
 % hObject    handle to start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%ºÍÁíÍâÁ½¸ö°´Å¥»¥³â
+%å’Œå¦å¤–ä¸¤ä¸ªæŒ‰é’®äº’æ–¥
 if get(hObject,'Value')
     set(handles.stop,'Value',0);
     set(handles.peak,'Value',0);
@@ -126,7 +126,7 @@ function peak_Callback(hObject, eventdata, handles)
 % hObject    handle to peak (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%ºÍÁíÍâÁ½¸ö°´Å¥»¥³â
+%å’Œå¦å¤–ä¸¤ä¸ªæŒ‰é’®äº’æ–¥
 if get(hObject,'Value')
     set(handles.stop,'Value',0);
     set(handles.start,'Value',0);
@@ -147,7 +147,7 @@ function stop_Callback(hObject, eventdata, handles)
 % hObject    handle to stop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%ºÍÁíÍâÁ½¸ö°´Å¥»¥³â
+%å’Œå¦å¤–ä¸¤ä¸ªæŒ‰é’®äº’æ–¥
 if get(hObject,'Value')
     set(handles.start,'Value',0);
     set(handles.peak,'Value',0);
@@ -213,7 +213,7 @@ function path_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.workingpath=get(hObject,'String');
-%ÉèÖÃlistµÄÏÔÊ¾
+%è®¾ç½®listçš„æ˜¾ç¤º
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
@@ -245,7 +245,7 @@ function setpath_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.workingpath = uigetdir('*.*','Choose a folder');
 set(handles.path,'String',handles.workingpath);
-%ÉèÖÃlistµÄÏÔÊ¾
+%è®¾ç½®listçš„æ˜¾ç¤º
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
@@ -261,7 +261,7 @@ function acq_Callback(hObject, eventdata, handles)
 % hObject    handle to acq (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%ºÍmat°´Å¥»¥³â
+%å’ŒmatæŒ‰é’®äº’æ–¥
 if get(hObject,'Value')
     set(handles.mat,'Value',0);
     handles.datatype='acq';
@@ -273,7 +273,7 @@ else
     set(handles.mat,'BackgroundColor','green');
     set(handles.acq,'BackgroundColor',[0.94,0.94,0.94]);
 end
-%¸üĞÂÎÄ¼şÁĞ±í
+%æ›´æ–°æ–‡ä»¶åˆ—è¡¨
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
@@ -288,7 +288,7 @@ function mat_Callback(hObject, eventdata, handles)
 % hObject    handle to mat (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%ºÍmat°´Å¥»¥³â
+%å’ŒmatæŒ‰é’®äº’æ–¥
 if get(hObject,'Value')
     set(handles.acq,'Value',0);
     handles.datatype='mat';
@@ -300,13 +300,13 @@ else
     set(handles.mat,'BackgroundColor',[0.94,0.94,0.94]);
     set(handles.acq,'BackgroundColor','green');
 end
-%¸üĞÂÎÄ¼şÁĞ±í
+%æ›´æ–°æ–‡ä»¶åˆ—è¡¨
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
 set(handles.data,'Value',1);
 handles.filename=data{1};
-% ¼ì²ématÎÄ¼şÊÇ²»ÊÇ¶ÔµÄ
+% æ£€æŸ¥matæ–‡ä»¶æ˜¯ä¸æ˜¯å¯¹çš„
     if strcmp(handles.datatype,'mat')
             load(handles.filename);
             if ~exist('guisave','var')
@@ -330,12 +330,12 @@ if ~isempty(handles.filename)
             [data,error]=marker_trans(alldata.data);
             res=findres(data);
             data(:,3)=res;     
-            % È¥µôÊ×Î²µÄ²¿·Ö¼õÉÙ¹¤×÷Á¿,ÕÒµ½markerµÄÊ×Î»£¬È»ºóÑÓÉìµ½Ê×¸öpeak
+            % å»æ‰é¦–å°¾çš„éƒ¨åˆ†å‡å°‘å·¥ä½œé‡,æ‰¾åˆ°markerçš„é¦–ä½ï¼Œç„¶åå»¶ä¼¸åˆ°é¦–ä¸ªpeak
             first=find(data(:,2)~=0,1,'first');
             last=find(data(:,2)~=0,1,'last');
-            % Ç°ÃæÈ¡µ½ÉÏÒ»¸ö½áÊøµÄºóÒ»¸ö
+            % å‰é¢å–åˆ°ä¸Šä¸€ä¸ªç»“æŸçš„åä¸€ä¸ª
             first2=find(data(1:first,3)==3,1,'last')+1;
-            % ºóÃæÈ¡µ½ÏÂÒ»¸ö¿ªÊ¼µÄÇ°Ò»¸ö
+            % åé¢å–åˆ°ä¸‹ä¸€ä¸ªå¼€å§‹çš„å‰ä¸€ä¸ª
             last2=last+find(data(last+1:end,3)==1,1,'first')-1;
             if ~isempty(first2)
                 first=first2;
@@ -360,26 +360,26 @@ if ~isempty(handles.filename)
     set(handles.right,'Enable','on');
     set(handles.currentnum,'Enable','on');
     set(handles.allnum,'Enable','on');
-% ÉèÖÃ±£´æµÄÃû³Æ²¿·Ö
+% è®¾ç½®ä¿å­˜çš„åç§°éƒ¨åˆ†
     set(handles.name,'String',handles.filename(1:end-4));
     name_Callback(hObject, eventdata, handles)
     handles.savename=get(handles.name,'String');
-% ÕÒµ½ºôÎüµÄÊıÁ¿
+% æ‰¾åˆ°å‘¼å¸çš„æ•°é‡
 handles.resnum=length(find(data(:,3)==2));
-% ³õÊ¼»¯Ê±¼äµãµÄ¾ØÕó
+% åˆå§‹åŒ–æ—¶é—´ç‚¹çš„çŸ©é˜µ
 handles.points=findpoints(data);
-% ÓÃÀ´µ÷ÊÔ×ª»»ÊÇ·ñÕıÈ·
+% ç”¨æ¥è°ƒè¯•è½¬æ¢æ˜¯å¦æ­£ç¡®
 % d=transmat(handles.points,length(data(:,3)));
 % if isequal(d,data(:,3))
 %     disp('OK');
 % end
-% ÉèÖÃ¹ö¶¯ÌõºÍÊı×ÖÏÔÊ¾
+% è®¾ç½®æ»šåŠ¨æ¡å’Œæ•°å­—æ˜¾ç¤º
 set(handles.allnum,'String',num2str(handles.resnum));
 set(handles.position,'Max',handles.resnum);
-% ÉèÖÃ»­Í¼µÄÎ»ÖÃ
+% è®¾ç½®ç”»å›¾çš„ä½ç½®
 handles.plotnum=1;
 set(handles.currentnum,'String','1');
-% »­Í¼
+% ç”»å›¾
 plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 handles.choosetype='';
 end
@@ -395,14 +395,14 @@ function figure1_WindowKeyPressFcn(hObject, eventdata, handles)
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
 % disp(eventdata.Key);
-if strcmp(get(handles.left,'Enable'),'on') && strcmp(eventdata.Key,'leftarrow')   %Èç¹û°´ÏÂµÄÊÇ×ó
+if strcmp(get(handles.left,'Enable'),'on') && strcmp(eventdata.Key,'leftarrow')   %å¦‚æœæŒ‰ä¸‹çš„æ˜¯å·¦
     if handles.plotnum>1
     handles.plotnum=handles.plotnum-1;
     set(handles.currentnum,'String',num2str(handles.plotnum));
     set(handles.position,'Value',handles.plotnum);
     plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
     end
-elseif strcmp(get(handles.right,'Enable'),'on') && strcmp(eventdata.Key,'rightarrow')   %Èç¹û°´ÏÂµÄÊÇÓÒ
+elseif strcmp(get(handles.right,'Enable'),'on') && strcmp(eventdata.Key,'rightarrow')   %å¦‚æœæŒ‰ä¸‹çš„æ˜¯å³
     if handles.plotnum<handles.resnum
     handles.plotnum=handles.plotnum+1;
     set(handles.currentnum,'String',num2str(handles.plotnum));
@@ -546,7 +546,7 @@ switch fnum
     case 2
         set(handles.load,'BackgroundColor','red');
 end
-% ¼ì²ématÎÄ¼şÊÇ²»ÊÇ¶ÔµÄ
+% æ£€æŸ¥matæ–‡ä»¶æ˜¯ä¸æ˜¯å¯¹çš„
     if strcmp(handles.datatype,'mat')
             load(handles.filename);
             if ~exist('guisave','var')
@@ -573,14 +573,14 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% ÆäËüµÄº¯Êı
-% ÕÒÎÄ¼şÉú³ÉÁĞ±í
+% å…¶å®ƒçš„å‡½æ•°
+% æ‰¾æ–‡ä»¶ç”Ÿæˆåˆ—è¡¨
 function li=list(folder,type)
 li=dir([folder '/*.' type]);
 li=struct2cell(li);
 li=li(1,:);
 
-% »­ÉÏºôÎüµãµÄº¯Êı
+% ç”»ä¸Šå‘¼å¸ç‚¹çš„å‡½æ•°
 function resplot(data)
 res=data(:,3);
 %start
@@ -599,13 +599,13 @@ peak=find(res==2);
 timepoint(peak)=data(peak,1);
 plot(timepoint,'^','MarkerFaceColor','k','MarkerSize',10);
 
-% »­³öµ±Ç°µãµÄÊı¾İµÄº¯Êı
+% ç”»å‡ºå½“å‰ç‚¹çš„æ•°æ®çš„å‡½æ•°
 function plotcurrentnum(data,num,t)
    
-% ÕÒµ½µ±Ç°¶ÔÓ¦µÄÊı¾İ¶Î£¬ÒÔÏàÁÚµÄpeakÎª±ß½ç
+% æ‰¾åˆ°å½“å‰å¯¹åº”çš„æ•°æ®æ®µï¼Œä»¥ç›¸é‚»çš„peakä¸ºè¾¹ç•Œ
 peak=find(data(:,3)==2);
 len=length(peak);
-% ¿¼ÂÇµÚÒ»¸öºÍ×îºóÒ»¸öÊÇ²»Í¬µÄ
+% è€ƒè™‘ç¬¬ä¸€ä¸ªå’Œæœ€åä¸€ä¸ªæ˜¯ä¸åŒçš„
 if num==1
     left=1;
     right=peak(2);
@@ -619,29 +619,29 @@ end
 % current=peak(num);
 currentdata=data(left:right,:);
 plot(currentdata(:,1),'LineWidth',3,'Color',[0 0.74902 1]);
-% ÉèÖÃ×ø±êÖáºÍ±êÌâ
+% è®¾ç½®åæ ‡è½´å’Œæ ‡é¢˜
 axis([1 length(currentdata(:,1)) min(currentdata(:,1))-0.1 max(currentdata(:,1))+0.1])
 set(gca,'XTick',[]);
 set(gca,'FontName','Times New Roman','FontSize',8);
 title(t,'Interpreter','none','Fontsize',12,'LineWidth',3);
-% »­ÉÏºôÎüµÄµã
+% ç”»ä¸Šå‘¼å¸çš„ç‚¹
 hold on
 resplot(currentdata);
 hold off
 
-% ³õÊ¼Ê±¼ÇÂ¼ËùÓĞµãµÄÎ»ÖÃ
+% åˆå§‹æ—¶è®°å½•æ‰€æœ‰ç‚¹çš„ä½ç½®
 function points=findpoints(data)
 allpeak=find(data(:,3)==2);
-% ¸ù¾İpeakµÄÊıÄ¿Ñ¡Ôñ
+% æ ¹æ®peakçš„æ•°ç›®é€‰æ‹©
 points=zeros(length(allpeak),4);
-% µÚËÄÁĞ±íÊ¾ÕâÒ»×éÊıÊÇ·ñÓĞĞ§
+% ç¬¬å››åˆ—è¡¨ç¤ºè¿™ä¸€ç»„æ•°æ˜¯å¦æœ‰æ•ˆ
 points(:,4)=1;
 points(:,2)=allpeak;
-% ¼ÇÂ¼µ±Ç°µÄÈı¸öµã,1-start,2-peak,3-stop
-% Ã»ÓĞµÄµã¾ÍÊÇ0
+% è®°å½•å½“å‰çš„ä¸‰ä¸ªç‚¹,1-start,2-peak,3-stop
+% æ²¡æœ‰çš„ç‚¹å°±æ˜¯0
 len=length(allpeak);
 for i=1:len
-    % ¿¼ÂÇµÚÒ»¸öºÍ×îºóÒ»¸öÊÇ²»Í¬µÄ
+    % è€ƒè™‘ç¬¬ä¸€ä¸ªå’Œæœ€åä¸€ä¸ªæ˜¯ä¸åŒçš„
 if i==1
     left=1;
     right=allpeak(2);
@@ -665,12 +665,12 @@ end
     points(i,1:3)=[start peak stop];
 end
 
-% ×ª»»¾ØÕóµ½Ò»ÁĞ
+% è½¬æ¢çŸ©é˜µåˆ°ä¸€åˆ—
 function data=transmat(points,len)
 points=points(points(:,4)~=0,1:3);
 data=zeros(len,1);
 for i=1:3
-    % È¥µô0
+    % å»æ‰0
     p0=points(:,i);
     p0(p0==0)=[];
     data(p0)=i;

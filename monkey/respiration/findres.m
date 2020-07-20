@@ -5,12 +5,12 @@ function combine=findres(data)%,p)
 %   stop:the time point that finish exhalation
 %   p whether plot the data or not(0)
 SR=500;%sampling rate
-MPD=SR*2;
+MPD=SR*3;
 
 [~,localmax_position]=findpeaks(data(:,1),'MINPEAKDISTANCE',MPD);%,'MINPEAKHEIGHT',3
 %find peak
 peak=localmax_position;
-interval=ceil(mean(diff(peak,1))*0.75);
+interval=ceil(mean(diff(peak,1))*0.55);
 % 1st order diff
 % change=diff(data(:,1),1);
 % NP=length(peak);
@@ -48,27 +48,27 @@ combine(stop)=3;
 end
 
 function points=findchange(x,i,mark,peak,value)
-%找在距离i内首次到达value的点
+%find first point reach value in i
 %mark=1 start
 %mark=2 stop
 %peak location of peaks
 NP=length(peak);
 points=zeros(1,NP);
 if mark==1
-%每行递增直到i
+%increase until i for each row
 range=bsxfun(@plus,peak,-i:0);
 else
 range=bsxfun(@plus,peak,0:i);
 end
-%保证range不超上下界
+%ensure in range
 range(range<1)=1;
 range(range>length(x))=length(x);
-%找到到达value距离peak最近的点
+%nearest point around peak that reach value
 for row=1:NP 
-    %找到距离peak点最近的到达value的点
+    %nearest point around peak that reach value
     position=min(abs(range(row,(x(range(row,:))<=value))-peak(row)));
     if isempty(position)
-        % 如果该范围没有到达value就找最小值
+        % if above value then use the min
         [~,points(row)]=min(x(range(row,:)));
         points(row)=range(row,points(row));
     else
@@ -82,14 +82,14 @@ end
 end
 
 % function points=findchange(x,i,mark,NP,MPD)
-% %找在距离i内首次到达0的点
+% find first point reach value in i
 % %mark=1 start
 % %mark=2 stop
 % %NP number of peaks
 % points=zeros(1,NP);
 % if mark==1
 % [~,localmax_position]=findpeaks(x,'NPEAKS',NP,'MINPEAKDISTANCE',MPD);
-% %每行递增直到i
+% increase until i for each row
 % range=bsxfun(@plus,localmax_position,-i:0);
 % else
 % [~,localmin_position]=findpeaks(-x,'NPEAKS',NP,'MINPEAKDISTANCE',MPD);

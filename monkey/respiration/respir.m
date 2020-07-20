@@ -22,7 +22,7 @@ function varargout = respir(varargin)
 
 % Edit the above text to modify the response to help respir
 
-% Last Modified by GUIDE v2.5 16-Jul-2020 15:21:17
+% Last Modified by GUIDE v2.5 20-Jul-2020 22:36:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -67,6 +67,8 @@ LL=40*membrane(1,25);
 surfl(LL)
 shading interp
 axis off
+% disable buttons
+handles=setbuttons(handles,'off');
 % title('GUI tool for marking respiration','Fontsize',12)
 % Choose default command line output for respir
 handles.output = hObject;
@@ -181,7 +183,7 @@ function plotall_Callback(hObject, eventdata, handles)
 figure;
 set(gcf,'position',[0 150 3500 300])
 plot(handles.tempdata(:,1));
-title(handles.filename);
+title(handles.filename,'Interpreter','none','Fontsize',12,'LineWidth',3);
 hold on
 resplot(handles.tempdata);
 
@@ -193,7 +195,7 @@ function save_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 guisave=handles.guisave;
 data=handles.tempdata;
-save([handles.savename '.mat'],'data','guisave');
+save([handles.workingpath '/' handles.savename '.mat'],'data','guisave');
 
 
 function path_Callback(hObject, eventdata, handles)
@@ -303,7 +305,7 @@ set(handles.data,'Value',1);
 handles.filename=data{1};
 % 检查mat文件是不是对的
     if strcmp(handles.datatype,'mat')
-            load(handles.filename);
+            load([handles.workingpath,'/',handles.filename]);
             if ~exist('guisave','var')
                 set(handles.load,'Enable','off');
             end
@@ -319,42 +321,34 @@ function load_Callback(hObject, eventdata, handles)
 if ~isempty(handles.filename)
     switch handles.datatype
         case 'mat'
-            load(handles.filename);
+            load([handles.workingpath,'/',handles.filename]);
         case 'acq'
-            alldata=load_acq(handles.filename);
+            alldata=load_acq([handles.workingpath '/' handles.filename]);
             [data,error]=marker_trans(alldata.data);
             res=findres(data);
-            data(:,3)=res;     
-            % 去掉首尾的部分减少工作量,找到marker的首位，然后延伸到首个peak
-            first=find(data(:,2)~=0,1,'first');
-            last=find(data(:,2)~=0,1,'last');
-            % 前面取到上一个结束的后一个
-            first2=find(data(1:first,3)==3,1,'last')+1;
-            % 后面取到下一个开始的前一个
-            last2=last+find(data(last+1:end,3)==1,1,'first')-1;
-            if ~isempty(first2)
-                first=first2;
+            data(:,3)=res;
+            disp(error);
+            if error==0
+                % 去掉首尾的部分减少工作量,先找到marker的首位和末位然后延伸
+                first=find(data(:,2)~=0,1,'first');
+                last=find(data(:,2)~=0,1,'last');
+                % 前面取到上一个结束位置的后一个点
+                first2=find(data(1:first,3)==3,1,'last')+1;
+                % 后面取到下一个开始位置的前一个点
+                last2=last+find(data(last+1:end,3)==1,1,'first')-1;
+                if ~isempty(first2)
+                    first=first2;
+                end
+                if ~isempty(last2)
+                    last=last2;
+                end
+                data=data(first:last,:);
             end
-            if ~isempty(last2)
-                last=last2;
-            end
-            data=data(first:last,:);           
     end
             handles.tempdata=data;
+    
     % enable buttons
-    set(handles.plotall,'Enable','on');
-    set(handles.clear,'Enable','on');
-    set(handles.add,'Enable','on');
-    set(handles.name,'Enable','on');
-    set(handles.save,'Enable','on');
-    set(handles.start,'Enable','on');
-    set(handles.peak,'Enable','on');
-    set(handles.stop,'Enable','on');
-    set(handles.position,'Enable','on');
-    set(handles.left,'Enable','on');
-    set(handles.right,'Enable','on');
-    set(handles.currentnum,'Enable','on');
-    set(handles.allnum,'Enable','on');
+    handles=setbuttons(handles,'on');
 % 设置保存的名称部分
     set(handles.name,'String',handles.filename(1:end-4));
     name_Callback(hObject, eventdata, handles)
@@ -372,6 +366,7 @@ handles.guisave=handles.points;
 % 设置滚动条和数字显示
 set(handles.allnum,'String',num2str(handles.resnum));
 set(handles.position,'Max',handles.resnum);
+set(handles.position,'Value',1);
 % 设置画图的位置
 handles.plotnum=1;
 set(handles.currentnum,'String','1');
@@ -424,7 +419,7 @@ switch eventdata.Key
     case 's'
     guisave=handles.guisave;
     data=handles.tempdata;
-    save([handles.savename '.mat'],'data','guisave');
+    save([handles.workingpath '/' handles.savename '.mat'],'data','guisave');
 end
 guidata(hObject, handles);
 
@@ -501,12 +496,83 @@ function clear_Callback(hObject, eventdata, handles)
 % hObject    handle to clear (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+% delete temporarily by changing the forth column 
+handles.points(handles.plotnum,4)=0;
+temp=handles.tempdata;
+temp(:,3)=transmat(handles.points,length(handles.tempdata(:,3)));
+if handles.plotnum==handles.resnum
+   currentnum=handles.plotnum-1;
+else
+   currentnum=handles.plotnum;
+end
+% 画图
+plotcurrentnum(temp,currentnum,handles.filename);
+
+% confirmation
+answer=questdlg('Do you confirm？','Clear','Yes','No','No');
+if strcmp(answer,'Yes')
+    handles.points(handles.plotnum,:)=[];
+    handles.tempdata=temp;
+    handles.resnum=handles.resnum-1;
+    set(handles.allnum,'String',handles.resnum);
+    set(handles.position,'Max',handles.resnum);
+    handles.plotnum=currentnum;
+    set(handles.position,'Value',handles.plotnum);
+    set(handles.currentnum,'String',handles.plotnum);
+    % 画图
+    plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+else
+    handles.points(handles.plotnum,4)=1;
+    % 画图
+    plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+end
+guidata(hObject, handles);
+
 
 % --- Executes on button press in add.
 function add_Callback(hObject, eventdata, handles)
 % hObject    handle to add (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+axes(handles.plot);
+[x,~]=ginput(3);
+x=sort(floor(x));
+points=handles.points(handles.points(:,4)~=0,:);
+% 考虑第一个和最后一个是不同的
+if handles.plotnum==1
+    xmin=1;
+    xmax=points(handles.plotnum+1,2);
+elseif handles.plotnum==handles.resnum
+    xmin=points(handles.plotnum-1,2);
+    xmax=length(handles.tempdata(:,1));
+else
+    xmin=points(handles.plotnum-1,2);
+    xmax=points(handles.plotnum+1,2);
+end
+
+% if the point is in the range
+if all(x>=1) && all(x<=xmax-xmin+1)
+    x=xmin+x-1;
+    x=x';
+    oldx=points(handles.plotnum,2);    
+    points(end+1,:)=[x 1];
+    points=sortrows(points,2);
+    handles.points=points;
+    handles.tempdata(:,3)=transmat(handles.points,length(handles.tempdata(:,3)));
+    % 改变数字    
+    handles.resnum=handles.resnum+1;
+    if x(2)>=oldx
+        handles.plotnum=handles.plotnum+1;
+    end
+    % 画图
+    plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+    % 设置显示    
+    set(handles.allnum,'String',handles.resnum);
+    set(handles.position,'Max',handles.resnum);
+    set(handles.position,'Value',handles.plotnum);
+    set(handles.currentnum,'String',handles.plotnum);
+end
+guidata(hObject, handles);
 
 function name_Callback(hObject, eventdata, handles)
 % hObject    handle to name (see GCBO)
@@ -564,7 +630,8 @@ switch fnum
 end
 % 检查mat文件是不是对的
     if strcmp(handles.datatype,'mat')
-            load(handles.filename);
+            load([handles.workingpath,'/',handles.filename]);
+            % 判断是否是该程序生成的矩阵
             if ~exist('guisave','var')
                 set(handles.load,'Enable','off');
             end
@@ -637,7 +704,7 @@ currentdata=data(left:right,:);
 plot(currentdata(:,1),'LineWidth',3,'Color',[0 0.74902 1]);
 % 设置坐标轴和标题
 axis([1 length(currentdata(:,1)) min(currentdata(:,1))-0.1 max(currentdata(:,1))+0.1])
-set(gca,'XTick',[]);
+% set(gca,'XTick',[]);
 set(gca,'FontName','Times New Roman','FontSize',8);
 title(t,'Interpreter','none','Fontsize',12,'LineWidth',3);
 % 画上呼吸的点
@@ -716,12 +783,32 @@ function newhandle=choosepoint(handles)
     % if the point is in the range
     if x>=1 && x<=xmax-xmin+1
         newx=xmin+x-1;
+        range=15;
+        left=max(1,newx-range);
+        right=min(length(handles.tempdata(:,3)),newx+range);
+        mindata=min(handles.tempdata(left:right,1));
+        maxdata=max(handles.tempdata(left:right,1));
     switch handles.choosetype
-        case 'start'
+        case 'start'            
+            newx=find(handles.tempdata(left:right,1)==mindata,1,'last');
+            newx=newx+left-1;
+            if newx>=points(handles.plotnum,2)
+                newx=handles.points(handles.plotnum,1);
+            end
             points(handles.plotnum,1)=newx;
         case 'peak'
+            newx=find(handles.tempdata(left:right,1)==maxdata,1,'first');
+            newx=newx+left-1;
+            if newx<=points(handles.plotnum,1) || newx>=points(handles.plotnum,3)
+                newx=points(handles.plotnum,2);
+            end
             points(handles.plotnum,2)=newx;
-        case 'stop'
+        case 'stop'            
+            newx=find(handles.tempdata(left:right,1)==mindata,1,'first');
+            newx=newx+left-1;
+            if newx<=points(handles.plotnum,2)
+                newx=handles.points(handles.plotnum,3);
+            end
             points(handles.plotnum,3)=newx;
     end
     handles.tempdata(:,3)=transmat(points,length(handles.tempdata(:,3)));
@@ -731,3 +818,20 @@ function newhandle=choosepoint(handles)
     handles.points=findpoints(handles.tempdata);
     newhandle=handles;
     end
+    
+%设置按钮状态
+function newhandle=setbuttons(handles,status)
+    set(handles.plotall,'Enable',status);
+    set(handles.clear,'Enable',status);
+    set(handles.add,'Enable',status);
+    set(handles.name,'Enable',status);
+    set(handles.save,'Enable',status);
+    set(handles.start,'Enable',status);
+    set(handles.peak,'Enable',status);
+    set(handles.stop,'Enable',status);
+    set(handles.position,'Enable',status);
+    set(handles.left,'Enable',status);
+    set(handles.right,'Enable',status);
+    set(handles.currentnum,'Enable',status);
+    set(handles.allnum,'Enable',status);
+    newhandle=handles;

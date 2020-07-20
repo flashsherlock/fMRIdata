@@ -93,13 +93,9 @@ function choose_Callback(hObject, eventdata, handles)
 % hObject    handle to choose (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-ginput(1);
-switch handles.choosetype
-    case 'start'
-    case 'peak'
-    case 'stop'
-end
-
+handles=choosepoint(handles);
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in start.
 function start_Callback(hObject, eventdata, handles)
@@ -175,14 +171,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in reset.
-function reset_Callback(hObject, eventdata, handles)
-% hObject    handle to reset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
 % --- Executes on button press in plotall.
 function plotall_Callback(hObject, eventdata, handles)
 % hObject    handle to plotall (see GCBO)
@@ -203,7 +191,7 @@ function save_Callback(hObject, eventdata, handles)
 % hObject    handle to save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-guisave=1;
+guisave=handles.guisave;
 data=handles.tempdata;
 save([handles.savename '.mat'],'data','guisave');
 
@@ -375,6 +363,7 @@ if ~isempty(handles.filename)
 handles.resnum=length(find(data(:,3)==2));
 % 初始化时间点的矩阵
 handles.points=findpoints(data);
+handles.guisave=handles.points;
 % 用来调试转换是否正确
 % d=transmat(handles.points,length(data(:,3)));
 % if isequal(d,data(:,3))
@@ -388,7 +377,10 @@ handles.plotnum=1;
 set(handles.currentnum,'String','1');
 % 画图
 plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
-handles.choosetype='';
+% % set start as default
+% set(handles.start,'Value',1);
+% handles.choosetype='start';
+% set(handles.start,'BackgroundColor','green');
 end
 guidata(hObject, handles);
 
@@ -402,20 +394,37 @@ function figure1_WindowKeyPressFcn(hObject, eventdata, handles)
 %	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
 % handles    structure with handles and user data (see GUIDATA)
 % disp(eventdata.Key);
-if strcmp(get(handles.left,'Enable'),'on') && strcmp(eventdata.Key,'leftarrow')   %如果按下的是左
-    if handles.plotnum>1
-    handles.plotnum=handles.plotnum-1;
-    set(handles.currentnum,'String',num2str(handles.plotnum));
-    set(handles.position,'Value',handles.plotnum);
-    plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+switch eventdata.Key
+    % press d or leftarrow to move left
+    case {'leftarrow','d'}
+    if strcmp(get(handles.left,'Enable'),'on')
+        if handles.plotnum>1
+        handles.plotnum=handles.plotnum-1;
+        set(handles.currentnum,'String',num2str(handles.plotnum));
+        set(handles.position,'Value',handles.plotnum);
+        plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+        end
     end
-elseif strcmp(get(handles.right,'Enable'),'on') && strcmp(eventdata.Key,'rightarrow')   %如果按下的是右
-    if handles.plotnum<handles.resnum
-    handles.plotnum=handles.plotnum+1;
-    set(handles.currentnum,'String',num2str(handles.plotnum));
-    set(handles.position,'Value',handles.plotnum);
-    plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+    %press f or rightarrow to move right
+    case {'rightarrow','f'}
+    if strcmp(get(handles.right,'Enable'),'on') 
+        if handles.plotnum<handles.resnum
+        handles.plotnum=handles.plotnum+1;
+        set(handles.currentnum,'String',num2str(handles.plotnum));
+        set(handles.position,'Value',handles.plotnum);
+        plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+        end
     end
+    %press v or downarrow to choose point
+    case {'downarrow','v'}
+    if strcmp(get(handles.choose,'Enable'),'on')
+        handles=choosepoint(handles);
+    end
+    %press s to save the data
+    case 's'
+    guisave=handles.guisave;
+    data=handles.tempdata;
+    save([handles.savename '.mat'],'data','guisave');
 end
 guidata(hObject, handles);
 
@@ -608,7 +617,7 @@ plot(timepoint,'^','MarkerFaceColor','k','MarkerSize',10);
 
 % 画出当前点的数据的函数
 function plotcurrentnum(data,num,t)
-   
+% t-title
 % 找到当前对应的数据段，以相邻的peak为边界
 peak=find(data(:,3)==2);
 len=length(peak);
@@ -682,3 +691,43 @@ for i=1:3
     p0(p0==0)=[];
     data(p0)=i;
 end
+
+% 选择位置
+function newhandle=choosepoint(handles)
+    axes(handles.plot);
+    [x,~]=ginput(1);
+    x=floor(x);
+    % display(x);
+    % range of the x axes
+    points=handles.points(handles.points(:,4)~=0,:);
+
+    % 考虑第一个和最后一个是不同的
+    if handles.plotnum==1
+        xmin=1;
+        xmax=points(handles.plotnum+1,2);
+    elseif handles.plotnum==handles.resnum
+        xmin=points(handles.plotnum-1,2);
+        xmax=length(handles.tempdata(:,1));
+    else
+        xmin=points(handles.plotnum-1,2);
+        xmax=points(handles.plotnum+1,2);
+    end
+
+    % if the point is in the range
+    if x>=1 && x<=xmax-xmin+1
+        newx=xmin+x-1;
+    switch handles.choosetype
+        case 'start'
+            points(handles.plotnum,1)=newx;
+        case 'peak'
+            points(handles.plotnum,2)=newx;
+        case 'stop'
+            points(handles.plotnum,3)=newx;
+    end
+    handles.tempdata(:,3)=transmat(points,length(handles.tempdata(:,3)));
+    % 画图
+    plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+    % update points
+    handles.points=findpoints(handles.tempdata);
+    newhandle=handles;
+    end

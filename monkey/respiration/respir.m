@@ -17,15 +17,16 @@ function varargout = respir(varargin)
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
-%
+% GuFei 2020/07/20
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
 % Edit the above text to modify the response to help respir
 
-% Last Modified by GUIDE v2.5 20-Jul-2020 22:36:35
+% Last Modified by GUIDE v2.5 21-Jul-2020 00:20:33
 
 % Begin initialization code - DO NOT EDIT
-gui_Singleton = 1;
+% 0-allow more than one widow 1-only one window
+gui_Singleton = 0;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
                    'gui_OpeningFcn', @respir_OpeningFcn, ...
@@ -43,6 +44,8 @@ else
 end
 % End initialization code - DO NOT EDIT
 
+
+
 % --- Executes just before respir is made visible.
 function respir_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -50,19 +53,22 @@ function respir_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to respir (see VARARGIN)
-%切换工作目录
+
+% change path
 workingpath=fileparts(mfilename('fullpath'));
-cd(workingpath);      
+cd(workingpath);
+% set workingpath
 set(handles.path,'string',workingpath);
 handles.workingpath=workingpath;
+% set acq as default
 handles.datatype='acq';
 set(handles.acq,'Value',1);
 set(handles.acq,'BackgroundColor','green');
-%初始化list
+% init list
 data=list('.',handles.datatype);
 set(handles.data,'string',data);
 handles.filename=data{1};
-%plot显示图标
+% plot matlab icon
 LL=40*membrane(1,25);
 surfl(LL)
 shading interp
@@ -72,12 +78,11 @@ handles=setbuttons(handles,'off');
 % title('GUI tool for marking respiration','Fontsize',12)
 % Choose default command line output for respir
 handles.output = hObject;
-
 % Update handles structure
 guidata(hObject, handles);
-
 % UIWAIT makes respir wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+
 
 
 % --- Outputs from this function are returned to the command line.
@@ -86,25 +91,32 @@ function varargout = respir_OutputFcn(hObject, eventdata, handles)
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+%
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
 
 % --- Executes on button press in choose.
 function choose_Callback(hObject, eventdata, handles)
 % hObject    handle to choose (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%
+% choose point on the figure
 handles=choosepoint(handles);
 % Update handles structure
 guidata(hObject, handles);
+
+
 
 % --- Executes on button press in start.
 function start_Callback(hObject, eventdata, handles)
 % hObject    handle to start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%和另外两个按钮互斥
+%
+% interplay with two other buttons
 if get(hObject,'Value')
     set(handles.stop,'Value',0);
     set(handles.peak,'Value',0);
@@ -124,7 +136,8 @@ function peak_Callback(hObject, eventdata, handles)
 % hObject    handle to peak (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%和另外两个按钮互斥
+%
+% interplay with two other buttons
 if get(hObject,'Value')
     set(handles.stop,'Value',0);
     set(handles.start,'Value',0);
@@ -145,7 +158,8 @@ function stop_Callback(hObject, eventdata, handles)
 % hObject    handle to stop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%和另外两个按钮互斥
+%
+% interplay with two other buttons
 if get(hObject,'Value')
     set(handles.start,'Value',0);
     set(handles.peak,'Value',0);
@@ -161,31 +175,6 @@ else
 end
 guidata(hObject, handles);
 
-% --- Executes during object creation, after setting all properties.
-function currentnum_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to currentnum (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes on button press in plotall.
-function plotall_Callback(hObject, eventdata, handles)
-% hObject    handle to plotall (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-%plot
-
-figure;
-set(gcf,'position',[0 150 3500 300])
-plot(handles.tempdata(:,1));
-title(handles.filename,'Interpreter','none','Fontsize',12,'LineWidth',3);
-hold on
-resplot(handles.tempdata);
 
 
 % --- Executes on button press in save.
@@ -193,28 +182,13 @@ function save_Callback(hObject, eventdata, handles)
 % hObject    handle to save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%
+% save data to mat
+% guisave stores unedited respiration points
 guisave=handles.guisave;
 data=handles.tempdata;
 save([handles.workingpath '/' handles.savename '.mat'],'data','guisave');
 
-
-function path_Callback(hObject, eventdata, handles)
-% hObject    handle to path (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-handles.workingpath=get(hObject,'String');
-%设置list的显示
-data=list(handles.workingpath,handles.datatype);
-set(handles.data,'string',data);
-if ~isempty(data)
-    handles.filename=data{1};
-else
-    set(handles.load,'Enable','off');
-end
-guidata(hObject, handles);
-
-% Hints: get(hObject,'String') returns contents of path as text
-%        str2double(get(hObject,'String')) returns contents of path as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -222,34 +196,57 @@ function path_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to path (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
+function path_Callback(hObject, eventdata, handles)
+% hObject    handle to path (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%
+% set path by txt
+handles.workingpath=get(hObject,'String');
+% get data file list
+data=list(handles.workingpath,handles.datatype);
+% set display
+set(handles.data,'string',data);
+if ~isempty(data)
+    % the first file is default file
+    handles.filename=data{1};
+else
+    set(handles.load,'Enable','off');
+end
+guidata(hObject, handles);
+% Hints: get(hObject,'String') returns contents of path as text
+%        str2double(get(hObject,'String')) returns contents of path as a double
 
 % --- Executes on button press in setpath.
 function setpath_Callback(hObject, eventdata, handles)
 % hObject    handle to setpath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%
+% set path by gui
 temp= uigetdir('*.*','Choose a folder');
+% ensure temp is not 0
 if temp~=0
-handles.workingpath=temp;
-set(handles.path,'String',handles.workingpath);
-%设置list的显示
-data=list(handles.workingpath,handles.datatype);
-set(handles.data,'string',data);
-if ~isempty(data)
-    handles.filename=data{1};
-else
-    set(handles.load,'Enable','off');
+    % set path
+    handles.workingpath=temp;
+    set(handles.path,'String',handles.workingpath);
+    % set display of the listbox
+    data=list(handles.workingpath,handles.datatype);
+    set(handles.data,'string',data);
+    % set the first file as default file
+    if ~isempty(data)
+        handles.filename=data{1};
+    else
+        set(handles.load,'Enable','off');
+    end
+    guidata(hObject, handles);
 end
-guidata(hObject, handles);
-end
-
 
 
 
@@ -258,7 +255,8 @@ function acq_Callback(hObject, eventdata, handles)
 % hObject    handle to acq (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%和mat按钮互斥
+%
+% interplay with mat button
 if get(hObject,'Value')
     set(handles.mat,'Value',0);
     handles.datatype='acq';
@@ -270,12 +268,12 @@ else
     set(handles.mat,'BackgroundColor','green');
     set(handles.acq,'BackgroundColor',[0.94,0.94,0.94]);
 end
-%更新文件列表
+% update filename list
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
-set(handles.data,'Value',1);
-handles.filename=data{1};
+    set(handles.data,'Value',1);
+    handles.filename=data{1};
 end
 guidata(hObject, handles);
 
@@ -297,7 +295,7 @@ else
     set(handles.mat,'BackgroundColor',[0.94,0.94,0.94]);
     set(handles.acq,'BackgroundColor','green');
 end
-%更新文件列表
+% update filename list
 data=list(handles.workingpath,handles.datatype);
 set(handles.data,'string',data);
 if ~isempty(data)
@@ -346,7 +344,7 @@ if ~isempty(handles.filename)
             end
     end
             handles.tempdata=data;
-    
+
     % enable buttons
     handles=setbuttons(handles,'on');
 % 设置保存的名称部分
@@ -367,10 +365,10 @@ handles.guisave=handles.points;
 set(handles.allnum,'String',num2str(handles.resnum));
 set(handles.position,'Max',handles.resnum);
 set(handles.position,'Value',1);
-% 设置画图的位置
+% 设置plot的位置
 handles.plotnum=1;
 set(handles.currentnum,'String','1');
-% 画图
+% plot
 plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 % % set start as default
 % set(handles.start,'Value',1);
@@ -379,6 +377,24 @@ plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 end
 guidata(hObject, handles);
 
+
+
+% --- Executes on button press in plotall.
+function plotall_Callback(hObject, eventdata, handles)
+% hObject    handle to plotall (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%
+% plot all data points
+% plot in a new figure
+figure;
+set(gcf,'position',[0 150 3500 300])
+plot(handles.tempdata(:,1));
+% set title, avoid latex
+title(handles.filename,'Interpreter','none','Fontsize',12,'LineWidth',3);
+hold on
+% plot respiration markers
+resplot(handles.tempdata);
 
 % --- Executes on key press with focus on figure1 or any of its controls.
 function figure1_WindowKeyPressFcn(hObject, eventdata, handles)
@@ -402,7 +418,7 @@ switch eventdata.Key
     end
     %press f or rightarrow to move right
     case {'rightarrow','f'}
-    if strcmp(get(handles.right,'Enable'),'on') 
+    if strcmp(get(handles.right,'Enable'),'on')
         if handles.plotnum<handles.resnum
         handles.plotnum=handles.plotnum+1;
         set(handles.currentnum,'String',num2str(handles.plotnum));
@@ -449,13 +465,28 @@ plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 end
 guidata(hObject, handles);
 
+% --- Executes during object creation, after setting all properties.
+function currentnum_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to currentnum (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+%
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
 function currentnum_Callback(hObject, eventdata, handles)
 % hObject    handle to currentnum (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 num=str2num(get(hObject,'String'));
 if num>=1 && num <=handles.resnum
-    handles.plotnum=num;    
+    handles.plotnum=num;
     set(handles.position,'Value',handles.plotnum);
     plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 else
@@ -468,7 +499,7 @@ function position_Callback(hObject, eventdata, handles)
 % hObject    handle to position (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.plotnum=ceil(get(hObject,'Value'));   
+handles.plotnum=ceil(get(hObject,'Value'));
 set(handles.position,'Value',handles.plotnum);
 set(handles.currentnum,'String',handles.plotnum);
 plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
@@ -496,7 +527,7 @@ function clear_Callback(hObject, eventdata, handles)
 % hObject    handle to clear (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% delete temporarily by changing the forth column 
+% delete temporarily by changing the forth column
 handles.points(handles.plotnum,4)=0;
 temp=handles.tempdata;
 temp(:,3)=transmat(handles.points,length(handles.tempdata(:,3)));
@@ -505,7 +536,7 @@ if handles.plotnum==handles.resnum
 else
    currentnum=handles.plotnum;
 end
-% 画图
+% plot
 plotcurrentnum(temp,currentnum,handles.filename);
 
 % confirmation
@@ -519,11 +550,11 @@ if strcmp(answer,'Yes')
     handles.plotnum=currentnum;
     set(handles.position,'Value',handles.plotnum);
     set(handles.currentnum,'String',handles.plotnum);
-    % 画图
+    % plot
     plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 else
     handles.points(handles.plotnum,4)=1;
-    % 画图
+    % plot
     plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 end
 guidata(hObject, handles);
@@ -554,19 +585,19 @@ end
 if all(x>=1) && all(x<=xmax-xmin+1)
     x=xmin+x-1;
     x=x';
-    oldx=points(handles.plotnum,2);    
+    oldx=points(handles.plotnum,2);
     points(end+1,:)=[x 1];
     points=sortrows(points,2);
     handles.points=points;
     handles.tempdata(:,3)=transmat(handles.points,length(handles.tempdata(:,3)));
-    % 改变数字    
+    % 改变数字
     handles.resnum=handles.resnum+1;
     if x(2)>=oldx
         handles.plotnum=handles.plotnum+1;
     end
-    % 画图
+    % plot
     plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
-    % 设置显示    
+    % 设置显示
     set(handles.allnum,'String',handles.resnum);
     set(handles.position,'Max',handles.resnum);
     set(handles.position,'Value',handles.plotnum);
@@ -789,7 +820,7 @@ function newhandle=choosepoint(handles)
         mindata=min(handles.tempdata(left:right,1));
         maxdata=max(handles.tempdata(left:right,1));
     switch handles.choosetype
-        case 'start'            
+        case 'start'
             newx=find(handles.tempdata(left:right,1)==mindata,1,'last');
             newx=newx+left-1;
             if newx>=points(handles.plotnum,2)
@@ -803,7 +834,7 @@ function newhandle=choosepoint(handles)
                 newx=points(handles.plotnum,2);
             end
             points(handles.plotnum,2)=newx;
-        case 'stop'            
+        case 'stop'
             newx=find(handles.tempdata(left:right,1)==mindata,1,'first');
             newx=newx+left-1;
             if newx<=points(handles.plotnum,2)
@@ -812,14 +843,14 @@ function newhandle=choosepoint(handles)
             points(handles.plotnum,3)=newx;
     end
     handles.tempdata(:,3)=transmat(points,length(handles.tempdata(:,3)));
-    % 画图
+    % plot
     plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
     % update points
     handles.points=findpoints(handles.tempdata);
     newhandle=handles;
     end
-    
-%设置按钮状态
+
+% set button status
 function newhandle=setbuttons(handles,status)
     set(handles.plotall,'Enable',status);
     set(handles.clear,'Enable',status);

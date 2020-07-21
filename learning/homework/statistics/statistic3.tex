@@ -1,0 +1,99 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{ctex,geometry}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\pagestyle{plain}
+%\topmargin -1.5in
+%\textheight 11in
+%\oddsidemargin -.25in
+%\evensidemargin -.25in
+%\textwidth 7in
+\geometry{left=2.5cm,right=2.5cm,top=2.0cm,bottom=2cm}
+\begin{document}
+%\author{谷菲 201928012503005}
+%\title{2019级心理多元统计课程作业\_第三次}
+%\maketitle
+\begin{center}
+	\LARGE
+	2019级心理多元统计课程作业\_第三次
+
+	\normalsize
+	谷菲 201928012503005
+\end{center}
+\paragraph{1 两个骰子掷一次，出现两个相同点数的概率是多少？}
+~\\
+
+%\indent
+两个骰子掷一次总共有$6\times6=36$种情况，其中两个点数相同的情况共有6种
+
+$\therefore$
+$$P(\mbox{两点数相同})=\dfrac{6}{36}=\dfrac{1}{6}$$
+
+\paragraph{2 设A与B是两个随机事件，已知A与B至少有一个发生的概率是1/3，A发生且B不发生的概率是1/9，求B发生的概率？}
+~\\
+
+$ \because $
+$$P(\mbox{A与B至少有一个发生})=P(A \cup B)=P(A)+P(B)-P(A \cap B)=P(A)+P(B)-P(A)\cdot P(B)=\dfrac{1}{3}$$
+$$P(\mbox{A发生且B不发生})=P(A \cap \complement _UB)=P(A) \cdot P(\complement _UB)=P(A)\cdot (1-P(B))=P(A)-P(A)\cdot P(B)=\dfrac{1}{9}$$
+
+$ \therefore $
+$$P(B)=P(\mbox{A与B至少有一个发生})-P(\mbox{A发生且B不发生})=\dfrac{1}{3}-\dfrac{1}{9}=\dfrac{2}{9}$$
+
+\paragraph{3 用E字型视标检查儿童的视敏度，每种视力值（1.0，1.5）有四个方向的E字（共8个），问：说对了几个才能说真看清了而不是猜对的？}
+~\\
+
+每个E字回答正确的概率为$ p=\dfrac{1}{4} $，答错的概率$ q=1-p=\dfrac{3}{4} $，答对的数量$ X $服从二项分布，均值为$ np=2 $，方差为$ npq=\dfrac{3}{2} $
+
+$\because $
+$$P(Z>1.645)=0.05$$
+
+$ \therefore $
+$$Z=\dfrac{X-np}{\sqrt{npq}}=\dfrac{\sqrt2(X-2)}{\sqrt{3}}>1.645$$
+
+$$X>4.01$$
+
+所以至少答对5个E字的方向才能说明是真看清了
+
+
+\paragraph{4 今有四择一选择测验100题，问答对多少题才能说他的回答不是完全凭猜测？}
+~\\
+
+任意一道题目回答正确的概率为$ p=\dfrac{1}{4} $，答错的概率$ q=1-p=\dfrac{3}{4} $，答对的题目数量$ X $近似服从均值为$ np=25 $，方差为$ npq=\dfrac{75}{4} $
+
+$\because $
+$$P(Z>1.645)=0.05$$
+
+$ \therefore $
+$$Z=\dfrac{X-np}{\sqrt{npq}}=\dfrac{2(X-25)}{5\sqrt{3}}>1.645$$
+
+$$X>32.12$$
+
+所以至少答对33道才能说他的回答不是完全猜测的
+%\clearpage
+
+\paragraph{5 某篮球队员定点投篮的命中率为0.8，问该队员定点投篮10次，至少投中6次的概率是多少？}
+~\\
+$$
+ \begin{aligned}
+P(\mbox{至少投中6次})
+ &=C_{10}^6\times 0.8^6 \times (1-0.8)^4+C_{10}^7\times 0.8^7 \times (1-0.8)^3+C_{10}^8\times 0.8^8 \times (1-0.8)^2\\
+ &+C_{10}^9\times 0.8^9 \times (1-0.8)+C_{10}^10\times 0.8^{10}\\
+ &\approx0.9672=96.72\%
+\end{aligned}
+$$
+
+\paragraph{6 某企业职工的文化程度，小学占10\%，初中占50\%，高中及以上占40\%，25岁以下青年在上述各组中的比例分别为20\%、50\%、70\%，从该企业中随机抽取一名职工，发现其年龄在25岁以下，问他具有小学、初中、高中以上文化程度的概率各为多少？}
+~\\
+
+设随机抽取一名员工，其文化程度为小学、初中、高中及以上分别为事件$A_1, A_2, A_3$，年龄为25岁以下为事件$B$
+
+$\because$
+$$P(A_1)=0.1 \qquad P(A_2)=0.5 \qquad P(A_3)=0.4 $$
+$$P(B\mid A_1)=0.2 \qquad P(B\mid A_2)=0.5 \qquad P(B\mid A_3)=0.7 $$
+$ \therefore $
+$$P(B)=P(B\mid A_1)\times P(A_1)+ P(B\mid A_2)\times P(A_2)+ P(B\mid A_3)\times P(A_3)=0.55 $$
+$$P(A_1 \mid B)=\dfrac{P(B\mid A_1)\times P(A_1)}{P(B)}=\dfrac{0.02}{0.55}\approx3.64\% $$
+$$P(A_2 \mid B)=\dfrac{P(B\mid A_2)\times P(A_2)}{P(B)}=\dfrac{0.25}{0.55}\approx45.45\%$$
+$$P(A_3 \mid B)=\dfrac{P(B\mid A_3)\times P(A_3)}{P(B)}=\dfrac{0.28}{0.55}\approx50.91\%$$
+\end{document}

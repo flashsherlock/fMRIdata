@@ -1,0 +1,230 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{ctex,geometry}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs,multirow}
+\pagestyle{plain}
+\geometry{left=2.5cm,right=2.5cm,top=2.0cm,bottom=2cm}
+\begin{document}
+
+\begin{center}
+	\LARGE
+	2019级心理多元统计课程作业\_第六次
+
+	\normalsize
+	谷菲 201928012503005
+\end{center}
+
+\paragraph{1汽车油耗}
+~\\
+
+$H_0:\mu_A=\mu_B=\mu_C \qquad H_1:\mu_A,\mu_B,\mu_C$中至少有两个不相等
+~\\
+
+$\bar{X}_A=\dfrac{19+21+20+19+21}{5}=20 \qquad SS_A=\displaystyle \sum_{i=1}^n (X_i-\Bar{X}_A)^2=1+1+0+1+1=4$
+~\\
+
+$\bar{X}_B=\dfrac{19+20+22+21+23}{5}=21 \qquad SS_B=\displaystyle \sum_{i=1}^n (X_i-\Bar{X}_B)^2=4+1+1+0+4=10$
+~\\
+
+$\bar{X}_C=\dfrac{24+26+23+25+27}{5}=25 \qquad SS_C=\displaystyle \sum_{i=1}^n (X_i-\Bar{X}_C)^2=1+1+4+0+4=10$
+~\\
+
+$MS_w=\dfrac{SS_w}{df_w}=\dfrac{SS_A+SS_B+SS_C}{k(n-1)}=\dfrac{4+10+10}{3\times 4}=2$
+~\\
+
+$\bar{X}=\dfrac{\bar{X}_A+\bar{X}_B+\bar{X}_C}{3}=\dfrac{20+21+25}{3}=22$
+~\\
+ 
+$SS_b=n(\bar{X}_A-\bar{X})^2+n(\bar{X}_B-\bar{X})^2+n(\bar{X}_C-\bar{X})^2=5\times(4+1+9)=70$
+~\\
+
+$MS_b=\dfrac{SS_b}{df_b}=\dfrac{70}{3-1}=35$
+~\\
+
+$F=\dfrac{MS_b}{MS_w}=\dfrac{35}{2}=17.5$
+~\\
+
+当$\alpha=0.05$时，临界值$F(2,12)=3.89$
+
+$\because F > 3.89$
+
+$\therefore$拒绝$H_0$，三种汽车每加仑平均行驶里程数有显著差异
+
+\paragraph{2平均培训时间}
+~\\
+
+$H_0:\mu_A=\mu_B=\mu_C \qquad H_1:\mu_A,\mu_B,\mu_C$中至少有两个不相等
+~\\
+
+$\bar{X}_A=\dfrac{16+19+14+13+18}{5}=16 \qquad SS_A=\displaystyle \sum_{i=1}^n (X_i-\Bar{X}_A)^2=0+9+4+9+4=26$
+~\\
+
+$\bar{X}_B=\dfrac{16+17+13+12+17}{5}=15 \qquad SS_B=\displaystyle \sum_{i=1}^n (X_i-\Bar{X}_B)^2=1+4+4+9+4=22$
+~\\
+
+$\bar{X}_C=\dfrac{24+22+19+18+22}{5}=21 \qquad SS_C=\displaystyle \sum_{i=1}^n (X_i-\Bar{X}_C)^2=9+1+4+9+1=24$
+~\\
+
+$SS_w=SS_A+SS_B+SS_C=22+24+26=72$
+~\\
+
+$\bar{X}=\dfrac{\bar{X}_A+\bar{X}_B+\bar{X}_C}{3}=\dfrac{16+15+21}{3}=\dfrac{52}{3}$
+~\\
+
+$SS_r=k\displaystyle \sum_{i=1}^{n}(\bar{X}_i-\bar{X})^2=3\times(\dfrac{16}{9}+\dfrac{36}{9}+\dfrac{36}{9}+\dfrac{81}{9}+\dfrac{25}{9})=\dfrac{194}{3}$
+~\\
+
+$SS_e=SS_w-SS_r=\dfrac{22}{3}$
+%$\sum_{i=1}^{n}\sum_{j=1}^{k}(X_{ij}-\bar{X}_i)$
+~\\
+
+$MS_e=\dfrac{SS_e}{df_e}=\dfrac{22}{3\times 8}=\dfrac{11}{12}$
+~\\
+
+$SS_b=n(\bar{X}_A-\bar{X})^2+n(\bar{X}_B-\bar{X})^2+n(\bar{X}_C-\bar{X})^2=5\times(\dfrac{16}{9}+\dfrac{49}{9}+\dfrac{121}{9})=\dfrac{310}{3}$
+~\\
+
+$MS_b=\dfrac{SS_b}{df_b}=\dfrac{310}{3(3-1)}=\dfrac{155}{3}$
+~\\
+
+$F=\dfrac{MS_b}{MS_e}=\dfrac{155\times 12}{3\times11}\approx56.36$
+~\\
+
+当$\alpha=0.05$时，临界值$F(2,8)=4.46$
+
+$\because F > 4.46$
+
+$\therefore$拒绝$H_0$，3种系统平均培训时间有显著差异
+
+\paragraph{3广告大小与方案}
+~\\
+
+记方案为因素A，广告大小为因素B，A因素有$p=3$个水平，B因素有$q=2$个水平，每个条件下$n=2$
+~\\
+
+%$SS_A=\displaystyle \sum_{j=1}^{p}\dfrac{\left(\displaystyle \sum_{k=1}^{q}\sum_{i=1}^{n}X_{ijk}\right)^2}{nq}-\dfrac{\left(\displaystyle\sum_{i=1}^{n} \sum_{j=1}^{p}\sum_{k=1}^{q}X_{ijk}\right)^2}{npq}$
+%~\\
+%
+%
+%$SS_B=\displaystyle \sum_{k=1}^{q}\dfrac{\left(\displaystyle \sum_{j=1}^{p}\sum_{i=1}^{n}X_{ijk}\right)^2}{np}-\dfrac{\left(\displaystyle\sum_{i=1}^{n} \sum_{j=1}^{p}\sum_{k=1}^{q}X_{ijk}\right)^2}{npq}$
+%~\\
+%
+%$SS_{A\times B}=\displaystyle \sum_{j=1}^{p}\sum_{k=1}^{q}\dfrac{\left(\displaystyle\sum_{i=1}^{n}X_{ijk}\right)^2}{n}-\dfrac{\left(\displaystyle\sum_{i=1}^{n} \sum_{j=1}^{p}\sum_{k=1}^{q}X_{ijk}\right)^2}{npq}-SS_A-SS_B$
+%~\\
+$
+\begin{aligned}
+SS_t
+&=\displaystyle \sum_{j=1}^{p}\displaystyle \sum_{k=1}^{q}\sum_{i=1}^{n}X_{ijk}^2
+-\dfrac{\left(\displaystyle\sum_{i=1}^{n} \sum_{j=1}^{p}\sum_{k=1}^{q}X_{ijk}\right)^2}{npq}\\
+&=3616-\dfrac{60^2}{4}-\dfrac{192^2}{12}\\
+&=3616-3072\\
+&=544
+\end{aligned}
+$
+~\\
+
+$
+\begin{aligned}
+SS_A
+&=\displaystyle \sum_{j=1}^{p} \dfrac{\left(\displaystyle \sum_{k=1}^{q}\sum_{i=1}^{n}X_{ijk}\right)^2}{nq}
+-\dfrac{\left(\displaystyle\sum_{i=1}^{n} \sum_{j=1}^{p}\sum_{k=1}^{q}X_{ijk}\right)^2}{npq}\\
+&=\dfrac{40^2}{4}+\dfrac{92^2}{4}+\dfrac{60^2}{4}-\dfrac{192^2}{12}\\
+&=3416-3072\\
+&=344
+\end{aligned}
+$
+~\\
+
+$
+\begin{aligned}
+SS_B
+&=\displaystyle \sum_{k=1}^{q} \dfrac{\left(\displaystyle \sum_{j=1}^{p}\sum_{i=1}^{n}X_{ijk}\right)^2}{np}
+-\dfrac{\left(\displaystyle\sum_{i=1}^{n} \sum_{j=1}^{p}\sum_{k=1}^{q}X_{ijk}\right)^2}{npq}\\
+&=\dfrac{84^2}{6}+\dfrac{108^2}{6}-\dfrac{192^2}{12}\\
+&=3120-3072\\
+&=48
+\end{aligned}
+$
+~\\
+
+$
+\begin{aligned}
+SS_{A\times B}
+&=\displaystyle \sum_{j=1}^{p}\sum_{k=1}^{q}\dfrac{\left(\displaystyle\sum_{i=1}^{n}X_{ijk}\right)^2}{n}
+-\dfrac{\left(\displaystyle\sum_{i=1}^{n} \sum_{j=1}^{p}\sum_{k=1}^{q}X_{ijk}\right)^2}{npq}
+-SS_A-SS_B\\
+&=\dfrac{20^2+20^2+36^2+56^2+28^2+32^2}{2}-\dfrac{192^2}{12}-344-48\\
+&=3520-3072-344-48\\
+&=56
+\end{aligned}
+$
+~\\
+
+$SS_e=SS_t-SS_A-SS_B-SS_{A\times B}=544-344-48-56=96$
+~\\
+
+$MS_A=\dfrac{SS_A}{df_A}=\dfrac{344}{3-1}=172 
+\qquad\qquad 
+MS_B=\dfrac{SS_B}{df_B}=\dfrac{48}{2-1}=48$
+~\\
+
+$MS_{A\times B}=\dfrac{SS_{A\times  B}}{(3-1)\times(2-1)}=28 
+\qquad 
+MS_e=\dfrac{SS_e}{df_e}=\dfrac{96}{6}=16$
+~\\
+
+$F_A=\dfrac{MS_A}{MS_e}=\dfrac{172}{16}=10.75
+\qquad
+F_B=\dfrac{MS_B}{MS_e}=\dfrac{48}{16}=3
+\qquad
+F_{A\times B}=\dfrac{MS_{A\times B}}{MS_e}=\dfrac{28}{16}=1.75$
+~\\
+
+当$\alpha=0.05$时，临界值$F(2,6)=5.14 \qquad F(1,6)=5.98$
+
+$\because F_A > 5.14 \qquad F_B < 5.98 \qquad F_{A\times B} < 5.14$
+
+$\therefore$方案的主效应显著，广告大小的主效应不显著，二者的交互作用不显著
+
+
+\paragraph{4选修课程}
+~\\
+
+\begin{tabular}{ccccc}
+\toprule
+\multirow{2}{*}{本科专业} & \multicolumn{3}{c}{MBA 所选课程}  \\
+\cmidrule{2-4}
+ & 会计 & 统计 & 市场营销 & RT \\
+\midrule
+专业1 & 31 & 13 & 16 & 60 \\
+专业2 & 8 & 16 & 7 & 31 \\
+专业3 & 12 & 10 & 17 & 39 \\
+其他专业 & 10 & 5 & 7 & 22 \\
+CT & 61 & 44 & 47 & 152 \\
+
+\bottomrule
+\end{tabular}
+
+~\\
+
+$H_0$:专业和所选课程独立 $\qquad H_1$:专业和所选课程相关
+~\\
+
+$\chi^2=n\left(\sum\sum\dfrac{f_{ij}^2}{RT_i\times CT_j}-1\right)=152\times\left(\dfrac{31^2}{60\times61}+\dfrac{13^2}{60\times44}+\dots+\dfrac{7^2}{22\times47}-1\right)\approx14.70$
+~\\
+
+$df=(3-1)\times(4-1)=6$
+~\\
+
+当$\alpha=0.05$时，临界值$\chi_\alpha^2(6)=12.59$
+
+$\because \chi^2 > 12.59$
+
+$\therefore$拒绝$H_0$，学生本科所学专业影响其MBA期间所选课程
+
+
+
+
+\end{document}

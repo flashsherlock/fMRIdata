@@ -1,0 +1,264 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{ctex,geometry}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\pagestyle{plain}
+\geometry{left=2.5cm,right=2.5cm,top=2.0cm,bottom=2cm}
+\begin{document}
+
+\begin{center}
+	\LARGE
+	2019级心理多元统计课程作业\_第二次
+
+	\normalsize
+	谷菲 201928012503005
+\end{center}
+
+\paragraph{1}(1)该应试者哪项测试更为理想？
+~\\
+
+$Z_A=\dfrac{115-100}{15}=1  \qquad $
+$Z_B=\dfrac{425-400}{50}=0.5$
+~\\
+
+$\therefore$在A项测试中分数更为理想
+~\\
+
+(2)哪项测试的离散程度更大？ 
+
+因为B的标准差更大，所以其离散程度更大
+
+\paragraph{2一个总体有10个数据，平均数μ=9，标准差σ=3，如果其中某个分数X=10从总体中去掉，那么现在总体的平均数和标准差分别是多少？}
+~\\
+
+
+$\mu'=\dfrac{n\mu-X}{n-1}=\dfrac{90-10}{9}=\dfrac{80}{9}$
+	
+$\because $
+$
+\sigma^2=\dfrac{\displaystyle \sum_{i=1}^{n}X_i^2}{n}-\mu^2
+\qquad 
+\sigma'^2=\dfrac{\displaystyle \sum_{i=1}^{n-1}X_i^2}{n-1}-\mu'^2
+$
+
+$ \qquad \displaystyle\sum_{i=1}^{n-1}X_i^2=\sum_{i=1}^{n}X_i^2-X^2=\sum_{i=1}^{n}X_i^2-100$
+~\\
+
+$\sigma'=\sqrt{\dfrac{n(\sigma^2+\mu^2)-100}{n-1}-\mu'^2}=\sqrt{\dfrac{800}{9}-(\dfrac{80}{9})^2}\approx3.14$
+
+\paragraph{3相关的适用情况}
+~\\
+
+\begin{tabular}{ll}
+	\toprule
+	数据情况 & 相关方法 \\
+	\midrule
+	两变量等距以上但非正态分布 & 等级相关           \\
+	两变量等距以上且正态分布     & 积差相关      \\
+	两变量等距以上、正态，都被认为化为两类   & 四分相关\\
+	两变量等距以上，但其中一个变量被认为化为两类   &二列相关\\
+	两变量等距以上，但其中一个变量被认为化为多类	&多系列相关\\
+	一个变量为等距以上且正态发表，另一个变量为二分变量	&点二列相关\\
+	两个变量都为二分变量	&$\phi$相关系数\\
+	两个变量都为顺序变量	&列联相关系数\\
+	两个变量都为两类的类别变量 &$\phi$相关系数\\
+	\bottomrule
+%	$\sqrt{\dfrac{SS}{n(n-1)}}$	
+\end{tabular}
+\newpage
+\paragraph{4斯皮尔曼相关}
+~\\
+
+%\begin{center}
+	\begin{tabular}{ccccc}
+		\toprule
+		排名 & 成绩 & 成绩的等级 & $D_i$ & $D_i^2$ \\
+		\midrule
+		1 & A & 1.5 & -0.5 & 0.25 \\
+		2 & B & 4 & -2 & 4 \\
+		3 & A & 1.5 & 1.5 & 2.25 \\
+		4 & B & 4 & 0 & 0 \\
+		5 & B & 4 & 1 & 1 \\
+		6 & C & 7 & -1 & 1 \\
+		7 & D & 9.5 & -2.5 & 6.25 \\
+		8 & C & 7 & 1 & 1 \\
+		9 & C & 7 & 2 & 4 \\
+		10 & D & 9.5 & 0.5 & 0.25 \\
+		11 & E & 11 & 0 & 0 \\
+		\bottomrule
+	\end{tabular}
+%\end{center}
+
+~\\
+
+%$r_k=1-\dfrac{\displaystyle 6\sum_{i=1}^{n}D_i^2}{n(n^2-1)}$
+$\because$排名没有重复的
+\\
+
+$\therefore \sum x^2=\dfrac{n(n^2-1)}{12}=110$
+\\
+
+$\because$成绩有重复的，重复的数量分别为2，2，3，3
+\\
+
+$\therefore \sum y^2=\dfrac{n(n^2-1)}{12}-\left(\dfrac{2\times(2^2-1)}{12}+\dfrac{2\times(2^2-1)}{12}+\dfrac{3\times(2^3-1)}{12}+\dfrac{3\times (3^2-1)}{12}\right)=105$
+\\
+
+$r_R=\dfrac{\sum x^2+\sum y^2 -\sum D^2}{2\sqrt{\sum X^2\sum y^2}}=\dfrac{110+105-20}{2\times \sqrt{110\times 105}}\approx0.91$
+\\
+
+当$\alpha=0.05$，自由度为9时，斯皮尔曼相关的临界值是0.7
+
+$\therefore$相关系数是显著的，两人的评分具有一致性
+\\
+
+\noindent
+使用SPSS计算所用到的syntax如下
+\begin{verbatim}
+	NONPAR CORR 
+	/VARIABLES=rank score 
+	/PRINT=SPEARMAN TWOTAIL NOSIG 
+	/MISSING=PAIRWISE.
+\end{verbatim}
+
+\newpage
+\paragraph{5皮尔逊相关}
+~\\
+
+\begin{tabular}{ccccccc}
+\toprule
+焦虑等级(X) & 考试分数(Y) & $X-\bar{X}$ & $Y-\bar{Y}$ & $(X-\bar{X})^2$ & $(Y-\bar{Y})^2$ & $(X-\bar{X})(Y-\bar{Y})$ \\
+\midrule
+5 & 80 & 0 & -3 & 0 & 9 & 0 \\
+2 & 88 & -3 & 5 & 9 & 25 & -15 \\
+7 & 80 & 2 & -3 & 4 & 9 & -6 \\
+7 & 79 & 2 & -4 & 4 & 16 & -8 \\
+4 & 86 & -1 & 3 & 1 & 9 & -3 \\
+5 & 85 & 0 & 2 & 0 & 4 & 0 \\
+
+\bottomrule
+\end{tabular}
+~\\
+
+$r=\dfrac{\displaystyle \sum_{i=1}^{n}(X_i-\bar{X})(Y_i-\bar{Y})}{\sqrt{\displaystyle \sum_{i=1}^{n}(X_i-\bar{X})^2\sum_{i=1}^{n}(Y_i-\bar{Y})^2}}=\dfrac{-32}{\sqrt{18\times 72}}\approx-0.89$
+~\\
+
+$df=n-2=6-2=4$
+
+当$\alpha=0.05$时，相关系数的临界值是$r_\alpha=0.811$
+
+$\because r>0.811$
+
+$\therefore$焦虑与考试分数之间有显著的相关关系
+
+\noindent
+使用SPSS计算所用到的syntax如下
+\begin{verbatim}
+CORRELATIONS 
+/VARIABLES=stress examscore 
+/PRINT=TWOTAIL NOSIG 
+/MISSING=PAIRWISE.
+\end{verbatim}
+
+
+\paragraph{6点二列相关}
+~\\
+
+\begin{tabular}{cc}
+\toprule
+分数 & 训练 \\
+\midrule
+4 & 0 \\
+7 & 0 \\
+3 & 0 \\
+6 & 0 \\
+9 & 1 \\
+7 & 1 \\
+6 & 1 \\
+10 & 1 \\
+
+\bottomrule
+\end{tabular}
+
+经过训练的平均值$\bar{X_p}=\dfrac{9+7+6+10}{4}=8$
+
+没有训练的平均值$\bar{X_q}=\dfrac{4+7+3+6}{4}=5$
+
+经过训练的比例$p=0.5$
+
+没有训练的比例$q=0.5$
+
+$S_t=\sqrt{\dfrac{\displaystyle \sum_{i=1}^n (X_i-\Bar{X})^2}{n-1}}\approx2.33$
+~\\
+
+$r_pb=\dfrac{\bar{X_p}-\bar{X_q}}{S_t}\sqrt{pq}=0.5\times\sqrt{\dfrac{8-5}{2.33}}\approx0.57$
+~\\
+
+\noindent
+使用SPSS计算所用到的syntax如下
+\begin{verbatim}
+NONPAR CORR 
+/VARIABLES=score train 
+/PRINT=SPEARMAN TWOTAIL NOSIG 
+/MISSING=PAIRWISE.
+\end{verbatim}
+
+
+\paragraph{7计算$\varphi$系数}
+~\\
+
+原始的数据形式
+
+\begin{tabular}{cc}
+\toprule
+年龄 & 喜欢A \\
+\midrule
+0 & 1 \\
+0 & 0 \\
+0 & 0 \\
+0 & 0 \\
+1 & 1 \\
+1 & 1 \\
+1 & 1 \\
+1 & 1 \\
+1 & 1 \\
+1 & 0 \\
+1 & 0 \\
+1 & 0 \\
+
+\bottomrule
+\end{tabular}
+
+~\\
+
+转换为四格表的形式
+
+\begin{tabular}{ccc}
+\toprule
+ & 喜欢A & 不喜欢A \\
+\midrule
+30岁以上 & 5 & 3 \\
+30岁以下 & 1 & 3 \\
+
+\bottomrule
+\end{tabular}
+
+~\\
+
+$\varphi=\dfrac{|ad-bc|}{\sqrt{(a+b)(c+d)(a+c)(b+d)}}=\dfrac{15-3}{\sqrt{8\times6\times6\times4}}\approx0.35$
+~\\
+
+\noindent
+使用SPSS计算所用到的syntax如下
+\begin{verbatim}
+CROSSTABS 
+/TABLES=age BY loveA 
+/FORMAT=AVALUE TABLES 
+/STATISTICS=PHI 
+/CELLS=COUNT 
+/COUNT ROUND CELL.
+\end{verbatim}
+
+\end{document}

@@ -1,0 +1,137 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{ctex,geometry}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs,multirow}
+\pagestyle{plain}
+\geometry{left=2.5cm,right=2.5cm,top=2.0cm,bottom=2cm}
+\begin{document}
+
+\begin{center}
+	\LARGE
+	2019级心理多元统计课程作业\_第八次
+
+	\normalsize
+	谷菲 201928012503005
+\end{center}
+
+\paragraph{1求相关矩阵}
+~\\
+
+%\[ \mathbf{X} = \left(
+%\begin{array}{cccc}
+%x_{11} & x_{12} & \ldots & x_{1n}\\
+%x_{21} & x_{22} & \ldots & x_{2n}\\
+%\vdots & \vdots & \ddots & \vdots\\
+%x_{n1} & x_{n2} & \ldots & x_{nn}\\
+%\end{array} \right) \]
+由于协方差矩阵
+$
+\Sigma=
+\begin{pmatrix}
+	25 & $-$2 & 4\\
+	$-$2 & 4 & 1\\
+	4 & 1 & 9\\
+\end{pmatrix}
+$
+，所以标准差矩阵为
+$
+\mathbf{D}=
+\begin{pmatrix}
+5 & 0 & 0\\
+0 & 2 & 0\\
+0 & 0 & 3\\
+\end{pmatrix}
+$
+\\
+
+相关矩阵
+$
+\rho=\mathbf{D^{-1}} \Sigma \mathbf{D^{-1}}=
+\begin{pmatrix}
+\frac{1}{5} & 0 & 0\\
+0 & \frac{1}{2} & 0\\
+0 & 0 & \frac{1}{3} \\
+\end{pmatrix}
+\begin{pmatrix}
+25 & $-$2 & 4\\
+$-$2 & 4 & 1\\
+4 & 1 & 9\\
+\end{pmatrix}
+\begin{pmatrix}
+\frac{1}{5} & 0 & 0\\
+0 & \frac{1}{2} & 0\\
+0 & 0 & \frac{1}{3} \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 & $-$\frac{1}{5} & \frac{4}{15}\\
+$-$\frac{1}{5} & 1 & \frac{1}{6}\\
+\frac{4}{15} & \frac{1}{6} & 1\\
+\end{pmatrix}
+$
+
+\paragraph{2求协方差矩阵}
+~\\
+
+由各个分量的方差可得标准差矩阵
+$
+\mathbf{D}=
+\begin{pmatrix}
+4 & 0 & 0& 0\\
+0 & 1 & 0& 0\\
+0 & 0 & 3& 0\\
+0 & 0 & 0& 2\\
+\end{pmatrix}
+$
+\\
+
+
+$
+\begin{aligned}
+\Sigma=\mathbf{D} \rho \mathbf{D}
+&=
+\begin{pmatrix}
+4 & 0 & 0& 0\\
+0 & 1 & 0& 0\\
+0 & 0 & 3& 0\\
+0 & 0 & 0& 2\\
+\end{pmatrix}
+\begin{pmatrix}
+1& $-$0.1& 0.25& $-$0.4\\
+$-$0.1& 1& 0.6& 0.8\\
+0.25& $-$0.6& 1& 0.2\\
+$-$0.4& 0.8& 0.2& 1\\
+\end{pmatrix}
+\begin{pmatrix}
+4 & 0 & 0& 0\\
+0 & 1 & 0& 0\\
+0 & 0 & 3& 0\\
+0 & 0 & 0& 2\\
+\end{pmatrix}\\
+&=
+\begin{pmatrix}
+4& $-$0.4& 1& $-$1.6\\
+$-$0.1& 1& 0.6& 0.8\\
+0.75& $-$1.8& 3&0.6 \\
+$-$0.8& 1.6& 0.4& 2\\
+\end{pmatrix}
+\begin{pmatrix}
+4 & 0 & 0& 0\\
+0 & 1 & 0& 0\\
+0 & 0 & 3& 0\\
+0 & 0 & 0& 2\\
+\end{pmatrix}\\
+&=
+\begin{pmatrix}
+16& $-$0.4& 3& $-$3.2\\
+$-$0.4& 1& 1.8& 1.6\\
+3& $-$1.8& 9& 1.2 \\
+$-$3.2& 1.6& 1.2& 4\\
+\end{pmatrix}
+\end{aligned}
+$
+
+
+\end{document}

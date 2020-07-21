@@ -1,0 +1,166 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{ctex,geometry}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\pagestyle{plain}
+\geometry{left=2.5cm,right=2.5cm,top=2.0cm,bottom=2cm}
+\begin{document}
+
+\begin{center}
+	\LARGE
+	2019级心理多元统计课程作业\_第一次
+
+	\normalsize
+	谷菲 201928012503005
+\end{center}
+
+\paragraph{1 参数与统计量的英文与符号}
+~\\
+%$\left(\begin{tabular}{ccc|c}
+%
+%a11 & a12 & a13  & b1 \\
+%a21 & a22  & a23 & b2  \\ 
+%a31 & a32  & a33 & b3  \\
+%
+%\end{tabular}\right)$
+\begin{tabular}{cccc}
+    \toprule
+    统计特征 & 英文 & 符号（参数） & 符号（统计量）\\
+    \midrule
+     算术平均数 & Arithmetic mean            &$\mu$ & $\Bar{X}$     \\
+     方差       & Variance                   &$\sigma^2$ & $S^2$         \\
+     标准差     & Standard deviation         &$\sigma$ & $S$           \\
+     相关系数   & Correlation coefficient    &$\rho$ & $r$      \\
+     回归系数   & Regression coefficient     &$\beta$ & $b$    \\
+     \bottomrule
+\end{tabular}
+\\
+\\
+
+%其它统计特征及其英文
+\begin{tabular}{cccc}
+	\toprule
+	统计特征 & 英文 & 统计特征 & 英文\\
+	\midrule
+	最大值   & Maximum          &众数 &Mode     \\
+	最小值   & Minimum            	 &峰度 &Kurtosis         \\
+	计数     & Count       &偏度 & Skewness           \\
+	标准误   & Standard error &全距 & Range      \\
+	中位数   & Median		\\
+	\bottomrule
+\end{tabular}
+%最大值，最小值，计数，标准误，中位数，众数，峰度，偏度，全距
+
+\paragraph{2 算数平均数的性质}
+%\subparagraph{2 算数平均数的性质}
+~\\
+
+各变量值与其均值离差之和等于零
+
+各变量值与其均值的离差平方和最小
+
+两个正数的算数平均数总是大于等于几何平均数
+
+易受极端值的影响
+
+\paragraph{3 销售数据的计算}
+~\\
+(1) 销售人员汽车销售量的众数、中数、平均数
+
+先将数据进行排序
+1，2，2，3，3，3，3，4，4，4，4，4，5，5，6，7，7，7，8，10
+
+可以发现5出现的频次最高，因此众数为5
+
+中位数为第10位和第11位两个数的平均值，因此为4
+~\\
+
+平均值$\Bar{X}=\dfrac{1+2\times 2+3\times 4+4\times 5+5\times 2+6+7\times 3+8+10}{20}=4.6$
+~\\
+
+
+\noindent(2) 销售量的四分位差、平均差、方差、标准差
+
+上四分位数为第15与第16项的平均值6.5
+
+下四分位数为第5与第6项的平均值3
+
+$\therefore$
+四分位差$Q_D=6.75-3=3.5$
+~\\
+
+平均差$AD=\dfrac{\displaystyle \sum_{i=1}^{n}(X_i-\bar{X})}{n}=\dfrac{\displaystyle \sum_{i=1}^{20}(X_i-4.6)}{20}\dfrac{36.4}{20}=1.82$
+~\\
+
+方差$S^2=\dfrac{\displaystyle \sum_{i=1}^n (X_i-\Bar{X})^2}{n-1}=\dfrac{\displaystyle\sum_{i=1}^{20} (X_i-4.6)}{19}=\dfrac{98.8}{19}=5.2$
+~\\
+
+标准差$S=\sqrt{S^2}=\sqrt{5.2}\approx2.28$
+~\\
+
+%这里偏度和峰度得到的值和SPSS的结果并不一致，和R计算出来的差不多（moments的函数）
+\noindent(3) 偏度、峰度
+
+偏度$a_3= \dfrac{\displaystyle\sum_{i=1}^{n} (X_i-\Bar{X})^3}{nS^3}=\dfrac{\displaystyle \sum_{i=1}^{20} (X_i-4.6)^3}{20\times 2.28^3}\approx0.60$
+~\\
+
+峰度$a_4= \dfrac{\displaystyle \sum_{i=1}^{n} (X_i-\Bar{X})^4}{nS^4}\dfrac{\displaystyle \sum_{i=1}^{20} (X_i-4.6)^4}{20\times 5.2^2}\approx2.54$
+\\
+
+\noindent
+使用SPSS计算所用到的syntax如下
+\begin{verbatim}
+FREQUENCIES VARIABLES=sale 
+/NTILES=4 
+/STATISTICS=STDDEV VARIANCE MEAN MEDIAN MODE SKEWNESS SESKEW KURTOSIS SEKURT 
+/ORDER=ANALYSIS.
+*计算平均差.
+COMPUTE AD=ABS(sale - 4.6). 
+EXECUTE.  
+DESCRIPTIVES VARIABLES=AD 
+/STATISTICS=MEAN.
+\end{verbatim}
+
+\paragraph{4 居民状态调查}
+\begin{verbatim}
+COMPUTE Toptim=(6-op2)+(6-op4)+(6-op6)+op1+op3+op5.
+COMPUTE Tmast=(5-mast1)+(5-mast3)+(5-mast4)+(5-mast6)+(5-mast7)+mast2+mast5.
+COMPUTE Tposaff=pn1+pn4+pn6+pn7+pn9+pn12+pn13+pn15+pn17+pn18.
+COMPUTE Tnegaff=pn2+pn3+pn5+pn8+pn10+pn11+pn14+pn16+pn19+pn20.
+COMPUTE Tlifesat=SUM(lifsat1 TO lifsat5).
+COMPUTE Tpstress=(6-pss4)+(6-pss5)+(6-pss7)+(6-pss8)+pss1+pss2+pss3+pss6+pss9+pss10.
+COMPUTE Tselfest=(5-sest3)+(5-sest5)+(5-sest7)+(5-sest9)+(5-sest10)+sest1+sest2+sest4+sest6+sest8.
+COMPUTE Tmarlow=SUM(m1 TO m5)+(1-m6)+(1-m7)+(1-m8)+(1-m9)+(1-m10).
+COMPUTE Tpcoiss=(6-pc1)+(6-pc2)+(6-pc7)+(6-pc11)+(6-pc15)+(6-pc16)+pc3+pc4+pc5+pc6+pc8+pc9+pc10+pc12+pc13+pc14+pc17+pc18.
+EXECUTE.
+
+RECODE educ (3=2) (4=3) (5=4) (6=5) (1 thru 2=1) INTO educ2.
+RECODE age (18 thru 29=1) (30 thru 44=2) (45 thru Highest=3) INTO Agegp3.
+RECODE age (18 thru 24=1) (25 thru 32=2) (33 thru 40=3) (41 thru 49=4) (50 thru Highest=5) INTO Agegp5.
+EXECUTE.
+
+FREQUENCIES VARIABLES=Tlifesat
+/NTILES=4
+/PERCENTILES=80.0 
+/STATISTICS=STDDEV VARIANCE MEAN MEDIAN MODE
+/ORDER=ANALYSIS.
+
+EXAMINE VARIABLES=Tpstress
+/PLOT BOXPLOT STEMLEAF HISTOGRAM
+/COMPARE VARIABLES
+/STATISTICS NONE
+/CINTERVAL 95
+/MISSING LISTWISE
+/NOTOTAL.
+
+EXAMINE VARIABLES=Tposaff Tnegaff Tselfest BY sex
+/PLOT NONE
+/STATISTICS DESCRIPTIVES
+/CINTERVAL 95
+/MISSING LISTWISE
+/NOTOTAL.
+\end{verbatim}
+
+\end{document}

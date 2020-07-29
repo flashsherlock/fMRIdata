@@ -91,10 +91,11 @@ cd "${datafolder}"
 #       -regress_run_clustsim no                                 \
 #       -html_review_style pythonic
 
-# run1 刺激完整但没有跑全
+# run2 都是完整的 增加 phase correction-blip_reverse_dset
       afni_proc.py                                                  \
-      -subj_id Yuli.run1                                              \
-      -dsets yuli.run1+orig.HEAD                        \
+      -subj_id Yuli.run2.pa                                         \
+      -dsets yuli.run2+orig.HEAD                        \
+      -blip_reverse_dset 20200708_S0_WZHOU_mb3_1.1iso_p3_tr3_pa_20200708093406_17.nii.gz \
       -copy_anat yuli.str+orig                                   \
       -anat_has_skull yes                                       \
       -blocks tshift align volreg blur mask scale regress \
@@ -102,7 +103,7 @@ cd "${datafolder}"
       -align_opts_aea -cost lpc+ZZ -giant_move                 \
       -volreg_align_to MIN_OUTLIER                             \
       -blur_size 4.0                                           \
-      -regress_stim_times ../7Tdata/run1_fear.txt ../7Tdata/run1_neutral.txt        \
+      -regress_stim_times ../7Tdata/run2_fear.txt ../7Tdata/run2_neutral.txt        \
       -regress_stim_labels fear neutral                             \
       -regress_basis 'BLOCK(15,1)'                             \
       -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
@@ -110,3 +111,23 @@ cd "${datafolder}"
       -regress_motion_per_run                                  \
       -regress_run_clustsim no                                 \
       -html_review_style pythonic
+
+# # run1 刺激完整但没有跑全
+#       afni_proc.py                                                  \
+#       -subj_id Yuli.run1                                              \
+#       -dsets yuli.run1+orig.HEAD                        \
+#       -copy_anat yuli.str+orig                                   \
+#       -anat_has_skull yes                                       \
+#       -blocks tshift align volreg blur mask scale regress \
+#       -radial_correlate_blocks tcat volreg                     \
+#       -align_opts_aea -cost lpc+ZZ -giant_move                 \
+#       -volreg_align_to MIN_OUTLIER                             \
+#       -blur_size 4.0                                           \
+#       -regress_stim_times ../7Tdata/run1_fear.txt ../7Tdata/run1_neutral.txt        \
+#       -regress_stim_labels fear neutral                             \
+#       -regress_basis 'BLOCK(15,1)'                             \
+#       -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
+#           -glt_label 1 H-N                                     \
+#       -regress_motion_per_run                                  \
+#       -regress_run_clustsim no                                 \
+#       -html_review_style pythonic

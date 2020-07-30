@@ -38,6 +38,13 @@ cd "${datafolder}"
 # -gert_outdir ../7T \
 # -no_wait
 
+# # reverse phase encoding images for pahse correction
+# Dimon -infile_pattern '*FMRI.0017.*' \
+# -gert_create_dataset \
+# -gert_to3d_prefix yuli.run2.pa \
+# -gert_outdir ../7T \
+# -no_wait
+
 # run4 完整但是没有刺激
 # afni_proc.py                                                  \
 #    -subj_id Yuli                                              \
@@ -95,7 +102,7 @@ cd "${datafolder}"
       afni_proc.py                                                  \
       -subj_id Yuli.run2.pa                                         \
       -dsets yuli.run2+orig.HEAD                        \
-      -blip_reverse_dset 20200708_S0_WZHOU_mb3_1.1iso_p3_tr3_pa_20200708093406_17.nii.gz \
+      -blip_reverse_dset yuli.run2.pa+orig.HEAD \
       -copy_anat yuli.str+orig                                   \
       -anat_has_skull yes                                       \
       -blocks tshift align volreg blur mask scale regress \

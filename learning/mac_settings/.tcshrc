@@ -2,7 +2,7 @@
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 if ( -f "/Users/mac/anaconda3/etc/profile.d/conda.csh" ) then
-    source "/Users/mac/anaconda3/etc/profile.d/conda.csh"
+    source "/Users/mac/anaconda3/etc/profile.d/conda.csh" > /dev/null 
 else
     setenv PATH "/Users/mac/anaconda3/bin:$PATH"
 endif
@@ -62,3 +62,8 @@ setenv FSLDIR /usr/local/fsl
 setenv PATH ${FSLDIR}/bin:${PATH}
 source ${FSLDIR}/etc/fslconf/fsl.csh
 
+# freesurfer setup
+set FREESURFER_HOME=/Applications/freesurfer/7.1.1
+set SUBJECTS_DIR=$FREESURFER_HOME/subjects
+set TUTORIAL_DATA=/Volumes/WD_D/share/tutorial_data_20190918_1558
+source $FREESURFER_HOME/SetUpFreeSurfer.csh > /dev/null

@@ -77,6 +77,7 @@ set timeoutlen=500
 
 "let g:which_key_map =  {}
 set number
+set relativenumber
 set autoindent
 set autoread
 set softtabstop=4    " 设置软制表符的宽度
@@ -131,3 +132,19 @@ endif
 :map <f3> :NERDTreeToggle<CR>
 nnoremap rt :.w !tcsh<CR>
 inoremap <C-G>u<C-R> :.w !tcsh<CR>
+
+" buffer 快捷方式
+nnoremap <Leader>bn :bn<CR>
+nnoremap <Leader>bp :bp<CR>
+nnoremap <Leader>bf :bfirst<CR>
+nnoremap <Leader>bl :blast<CR>
+nnoremap <Leader>bc :bwipe<CR>
+
+" 标签页快捷方式
+nnoremap <Leader>tp :tabp<CR>
+nnoremap <Leader>tn :tabn<CR>
+nnoremap <Leader>tc :tabc<CR>
+nnoremap <Leader>to :tabo<CR>
+nnoremap <Leader>tN :tabn
+nnoremap <Leader>te :tabe
+

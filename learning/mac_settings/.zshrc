@@ -1,8 +1,9 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
-export PATH=$PATH:/sw/bin:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin
+export PATH=$PATH:/sw/bin:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4
 export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
+export DNNBRAIN_DATA=/Volumes/WD_D/gufei/document/dnnbrain/data
 alias cat="bat"
 alias top="htop"
 alias f="fuck"
@@ -14,6 +15,10 @@ alias v="nvim"
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/mac/.oh-my-zsh"
 export TERM="xterm-256color"
+# ffmpeg libffi
+#export LDFLAGS="-L/usr/local/opt/libffi/lib"
+#export CPPFLAGS="-I/usr/local/opt/libffi/include"
+#export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -135,7 +140,12 @@ unset __conda_setup
 
 conda deactivate
 
-#dictionary
+# freesurfer
+export FREESURFER_HOME=/Applications/freesurfer/7.1.1
+export SUBJECTS_DIR=$FREESURFER_HOME/subjects
+export TUTORIAL_DATA=/Volumes/WD_D/share/tutorial_data_20190918_1558
+source $FREESURFER_HOME/SetUpFreeSurfer.sh > /dev/null
+# dictionary
 v2() {
   declare q="$*";
   curl --user-agent curl "https://v2en.co/${q// /%20}";

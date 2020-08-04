@@ -30,7 +30,7 @@ Use `3dresample` to generate atlas masks from BN_atlas and use ROIresample to ch
 * Amygdala
 
 ## makesepROI05
-Use `3dcalc` to generate final masks in the BN_atlas lateralAmy and medialAmy whose activity in Upleasant >/< Pleasant or Fearful >/< Happy （seperate two directions）
+Use `3dcalc` to generate final masks in the BN_atlas lateralAmy and medialAmy whose activity in Upleasant >/< Pleasant or Fearful >/< Happy in visible conditions （seperate two directions）
 
 Use 3dROIstats to print the mean value to txt files
 

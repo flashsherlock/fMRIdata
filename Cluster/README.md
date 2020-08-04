@@ -1,5 +1,5 @@
 # These are the scripts for Cluster analysis
-
+First let the betas in two conditions larger than zero (Finished), then choose clusters with peak value for each side (Unfinished).
 ## 3Deconvolve
 Add 4 contrast
 * -glt_label 5 VisFaceF0 -gltsym 'SYM: 0.5*FearPleaVis +0.5*FearUnpleaVis'   

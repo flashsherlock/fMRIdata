@@ -6,8 +6,10 @@ cd "${datafolder}"
 foreach subj (`echo $*`)
 # foreach subj (`ls -d S*`)
 
-
 cd ${subj}
+
+3dSkullStrip -input *.nii
+
 
 cd ..
 end

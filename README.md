@@ -36,4 +36,7 @@ Stores some of the files and notes during learning.
 ## monkey
 Some files for olfaction experitments on monkeys.
 
+## 7T
+Use afni_proc.py to analyze 7T data.
+
 2020.1.15

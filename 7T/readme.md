@@ -8,4 +8,4 @@ Use afni_proc.py to analyze data.
 Fix timing errors in the initial analysis.
 
 ## skull.tcsh
-Skullstripping
+SkullStripping three subjects provided by yanqing.

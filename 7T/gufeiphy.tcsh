@@ -1,15 +1,27 @@
 #! /bin/csh
 
-set datafolder=/Volumes/WD_D/share/7Tdata/phy
+set datafolder=/Volumes/WD_D/share
 cd "${datafolder}"
 
-# compare 1D files with/without -M option
-cd mb
-foreach file (`ls *.1D` )
+# # generate 1D files
+# extract_physio.py                   \
+# -p ./7Tdata/S40/                    \
+# -d ./20200811_S40_TEST02/           \
+# -o ./7Tdata/phy/                    \
+# -C resp puls                        \
+# -f 10 12 13 15 17 19 21 22 23 25    \
+# -m overlap                          \
+# -M
 
-diff --head=10 $file ../$file
+cd ./7Tdata/phy
 
-end
+# # compare 1D files with/without -M option
+# cd mb
+# foreach file (`ls *.1D` )
+
+# diff --head=10 $file ../$file
+
+# end
 
 # RetroTS.py -r resp01.1D -c puls01.1D -p 50 -n 99 -v 3 -prefix gufei.run1
 # RetroTS.py -r resp02.1D -c puls02.1D -p 50 -n 50 -v 3 -prefix gufei.run3

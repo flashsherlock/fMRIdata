@@ -180,25 +180,26 @@ cd "${datafolder}"
         # -regress_motion_per_run                                  \
         # -regress_run_clustsim no                                 
 
+# run3 stopped unexpectly, and has broken resp file
 # # run2 刺激完整 phase correction
-        # afni_proc.py                                                  \
-        # -subj_id gufei.run2.pa                                         \
-        # -dsets gufei.run2+orig.HEAD                        \
-        # -blip_reverse_dset gufei.run2.pa+orig.HEAD \
-        # -copy_anat gufei.uniden15_brain.nii.gz                    \
-        # -anat_has_skull no                                       \
-        # -blocks tshift align volreg blur mask scale regress \
-        # -radial_correlate_blocks tcat volreg                     \
-        # -align_opts_aea -cost lpc+ZZ -giant_move                 \
-        # -volreg_align_to MIN_OUTLIER                             \
-        # -blur_size 4.0                                           \
-        # -regress_stim_times ../7Tdata/run2_fear.txt ../7Tdata/run2_neutral.txt        \
-        # -regress_stim_labels fear neutral                             \
-        # -regress_basis 'BLOCK(15,1)'                             \
-        # -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
-        #     -glt_label 1 F-N                                     \
-        # -regress_motion_per_run                                  \
-        # -regress_run_clustsim no   
+        afni_proc.py                                                  \
+        -subj_id gufei.run2.pa                                         \
+        -dsets gufei.run2+orig.HEAD                              \
+        -blip_reverse_dset gufei.run2.pa+orig.HEAD              \
+        -copy_anat  gufei.uniden15_brain.nii.gz                  \
+        -anat_has_skull no                                       \
+        -blocks tshift align volreg blur mask scale regress \
+        -radial_correlate_blocks tcat volreg                     \
+        -align_opts_aea -cost lpc+ZZ -giant_move                 \
+        -volreg_align_to MIN_OUTLIER                             \
+        -blur_size 4.0                                           \
+        -regress_stim_times ../7Tdata/run2_fear.txt ../7Tdata/run2_neutral.txt        \
+        -regress_stim_labels fear neutral                             \
+        -regress_basis 'BLOCK(15,1)'                             \
+        -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
+            -glt_label 1 F-N                                     \
+        -regress_motion_per_run                                  \
+        -regress_run_clustsim no   
 
 # # run3 刺激完整 phase correction 
         # afni_proc.py                                                  \
@@ -262,43 +263,43 @@ cd "${datafolder}"
 
 # =========================run4====================================
 # # run4 刺激完整 phase correction phy despike
-        afni_proc.py                                                  \
-        -subj_id gufei.run4.paphde                                         \
-        -dsets gufei.run4+orig.HEAD                        \
-        -blip_reverse_dset gufei.run4.pa+orig.HEAD \
-        -copy_anat gufei.uniden15_brain.nii.gz                    \
-        -anat_has_skull no                                       \
-        -blocks despike ricor tshift align volreg blur mask scale regress \
-        -radial_correlate_blocks tcat volreg                     \
-        -ricor_regs ../7Tdata/phy/gufei.run4.slibase.1D           \
-        -align_opts_aea -cost lpc+ZZ -giant_move                 \
-        -volreg_align_to MIN_OUTLIER                             \
-        -blur_size 3.0                                           \
-        -regress_stim_times ../7Tdata/run2_fear.txt ../7Tdata/run2_neutral.txt        \
-        -regress_stim_labels fear neutral                             \
-        -regress_basis 'BLOCK(15,1)'                             \
-        -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
-            -glt_label 1 F-N                                     \
-        -regress_motion_per_run                                  \
-        -regress_run_clustsim no 
+        # afni_proc.py                                                  \
+        # -subj_id gufei.run4.paphde                                         \
+        # -dsets gufei.run4+orig.HEAD                        \
+        # -blip_reverse_dset gufei.run4.pa+orig.HEAD \
+        # -copy_anat gufei.uniden15_brain.nii.gz                    \
+        # -anat_has_skull no                                       \
+        # -blocks despike ricor tshift align volreg blur mask scale regress \
+        # -radial_correlate_blocks tcat volreg                     \
+        # -ricor_regs ../7Tdata/phy/gufei.run4.slibase.1D           \
+        # -align_opts_aea -cost lpc+ZZ -giant_move                 \
+        # -volreg_align_to MIN_OUTLIER                             \
+        # -blur_size 3.0                                           \
+        # -regress_stim_times ../7Tdata/run2_fear.txt ../7Tdata/run2_neutral.txt        \
+        # -regress_stim_labels fear neutral                             \
+        # -regress_basis 'BLOCK(15,1)'                             \
+        # -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
+        #     -glt_label 1 F-N                                     \
+        # -regress_motion_per_run                                  \
+        # -regress_run_clustsim no 
 
 # # run5 刺激完整 phase correction phy despike
-        afni_proc.py                                                  \
-        -subj_id gufei.run5.paphde                                         \
-        -dsets gufei.run5+orig.HEAD                        \
-        -blip_reverse_dset gufei.run5.pa+orig.HEAD \
-        -copy_anat gufei.uniden15_brain.nii.gz                    \
-        -anat_has_skull no                                       \
-        -blocks despike ricor tshift align volreg blur mask scale regress \
-        -radial_correlate_blocks tcat volreg                     \
-        -ricor_regs ../7Tdata/phy/gufei.run5.slibase.1D           \
-        -align_opts_aea -cost lpc+ZZ -giant_move                 \
-        -volreg_align_to MIN_OUTLIER                             \
-        -blur_size 4.0                                           \
-        -regress_stim_times ../7Tdata/run1_fear.txt ../7Tdata/run1_neutral.txt        \
-        -regress_stim_labels fear neutral                             \
-        -regress_basis 'BLOCK(15,1)'                             \
-        -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
-            -glt_label 1 F-N                                     \
-        -regress_motion_per_run                                  \
-        -regress_run_clustsim no 
+        # afni_proc.py                                                  \
+        # -subj_id gufei.run5.paphde                                         \
+        # -dsets gufei.run5+orig.HEAD                        \
+        # -blip_reverse_dset gufei.run5.pa+orig.HEAD \
+        # -copy_anat gufei.uniden15_brain.nii.gz                    \
+        # -anat_has_skull no                                       \
+        # -blocks despike ricor tshift align volreg blur mask scale regress \
+        # -radial_correlate_blocks tcat volreg                     \
+        # -ricor_regs ../7Tdata/phy/gufei.run5.slibase.1D           \
+        # -align_opts_aea -cost lpc+ZZ -giant_move                 \
+        # -volreg_align_to MIN_OUTLIER                             \
+        # -blur_size 4.0                                           \
+        # -regress_stim_times ../7Tdata/run1_fear.txt ../7Tdata/run1_neutral.txt        \
+        # -regress_stim_labels fear neutral                             \
+        # -regress_basis 'BLOCK(15,1)'                             \
+        # -regress_opts_3dD -jobs 12 -gltsym 'SYM: fear -neutral'        \
+        #     -glt_label 1 F-N                                     \
+        # -regress_motion_per_run                                  \
+        # -regress_run_clustsim no 

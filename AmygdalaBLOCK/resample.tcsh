@@ -1,3 +1,5 @@
+# 查询图谱
+# whereami -show_atlas_code -atlas Brainnetome_1.0
 # 通过图谱生成mask
 whereami -mask_atlas_region Brainnetome_1.0::lAmyg_right
 whereami -mask_atlas_region Brainnetome_1.0::mAmyg_left

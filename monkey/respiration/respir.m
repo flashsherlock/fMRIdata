@@ -22,7 +22,7 @@ function varargout = respir(varargin)
 
 % Edit the above text to modify the response to help respir
 
-% Last Modified by GUIDE v2.5 21-Jul-2020 00:20:33
+% Last Modified by GUIDE v2.5 20-Aug-2020 11:11:03
 
 % Begin initialization code - DO NOT EDIT
 % 0-allow more than one widow 1-only one window
@@ -75,6 +75,8 @@ shading interp
 axis off
 % disable buttons
 handles=setbuttons(handles,'off');
+% default parameters for findres
+handles.findpara=[3,0.15,1,50];
 % title('GUI tool for marking respiration','Fontsize',12)
 % Choose default command line output for respir
 handles.output = hObject;
@@ -138,7 +140,8 @@ switch eventdata.Key
     case 's'
     guisave=handles.guisave;
     data=handles.tempdata;
-    save([handles.workingpath '/' handles.savename '.mat'],'data','guisave');
+    parameters=handles.usepara;
+    save([handles.workingpath '/' handles.savename '.mat'],'data','guisave','parameters');
 end
 guidata(hObject, handles);
 
@@ -234,7 +237,8 @@ function save_Callback(hObject, eventdata, handles)
 % guisave stores unedited respiration points
 guisave=handles.guisave;
 data=handles.tempdata;
-save([handles.workingpath '/' handles.savename '.mat'],'data','guisave');
+parameters=handles.usepara;
+save([handles.workingpath '/' handles.savename '.mat'],'data','guisave','parameters');
 
 
 
@@ -362,6 +366,7 @@ if ~isempty(data)
 end
 guidata(hObject, handles);
 
+%% load data
 % --- Executes on button press in load.
 function load_Callback(hObject, eventdata, handles)
 % hObject    handle to load (see GCBO)
@@ -452,8 +457,140 @@ if ~isempty(handles.filename)
 end
 guidata(hObject, handles);
 
+%% auto find points
+function seconds_Callback(hObject, eventdata, handles)
+% hObject    handle to seconds (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
+% edit the number to set seconds for MPD
+num=str2num(get(hObject,'String'));
+% ensure it is above 0
+if num>0
+    set(hObject,'String',num);
+    handles.findpara(1)=num;
+end
+guidata(hObject, handles);
 
+% --- Executes during object creation, after setting all properties.
+function seconds_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to seconds (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function rate_Callback(hObject, eventdata, handles)
+% hObject    handle to rate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% edit the number to set rate of the height
+num=str2num(get(hObject,'String'));
+% ensure it is between 0 and 1
+if num>0 && num <1
+    set(hObject,'String',num);
+    handles.findpara(2)=num;
+end
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function rate_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes on button press in chmin.
+function chmin_Callback(hObject, eventdata, handles)
+% hObject    handle to chmin (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.findpara(3)=get(hObject,'Value');
+if get(hObject,'Value')
+    status='on';
+else
+    status='off';
+end
+set(handles.range,'Enable',status);
+guidata(hObject, handles);
+
+function range_Callback(hObject, eventdata, handles)
+% hObject    handle to range (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% edit the number to set range for searching min
+num=str2num(get(hObject,'String'));
+% ensure it is integer
+num=ceil(num);
+% ensure it is above 0
+if num>0
+    set(hObject,'String',num);
+    handles.findpara(4)=num;
+end
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function range_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to range (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes during object creation, after setting all properties.
+function find_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to find (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% --- Executes on button press in find.
+function find_Callback(hObject, eventdata, handles)
+% hObject    handle to find (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+usep=handles.findpara;
+% find res points
+handles.tempdata(:,3)=findres(handles.tempdata(:,1),usep(1),usep(2),usep(3),usep(4));
+
+% 找到呼吸的数量
+% find the number of respirations-resnum
+handles.resnum=length(find(handles.tempdata(:,3)==2));
+% 初始化时间点的矩阵
+% store respiration points in a matrix
+handles.points=findpoints(handles.tempdata);
+
+% 设置滚动条和数字显示
+% set the scollbar and textbox
+set(handles.allnum,'String',num2str(handles.resnum));
+set(handles.position,'Max',handles.resnum);
+set(handles.position,'Value',1);
+% 设置plot的位置
+% plotnum is the position to be ploted
+handles.plotnum=1;
+set(handles.currentnum,'String','1');
+% plot
+plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
+
+% save parameters used
+handles.usepara=usep;
+guidata(hObject, handles);
+
+%% 
 % --- Executes on button press in plotall.
 function plotall_Callback(hObject, eventdata, handles)
 % hObject    handle to plotall (see GCBO)
@@ -959,4 +1096,9 @@ set(handles.left,'Enable',status);
 set(handles.right,'Enable',status);
 set(handles.currentnum,'Enable',status);
 set(handles.allnum,'Enable',status);
+set(handles.seconds,'Enable',status);
+set(handles.rate,'Enable',status);
+set(handles.chmin,'Enable',status);
+set(handles.range,'Enable',status);
+set(handles.find,'Enable',status);
 newhandle=handles;

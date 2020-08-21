@@ -1,6 +1,6 @@
 load('example_bad.mat');
 % res=findres(data,1);
-res=findres(data);
+res=findres(data,2,0.15,1,50);
 data(:,3)=res;
 
 %plot
@@ -14,16 +14,16 @@ hold on
 timepoint=nan(size(data,1),1);
 start=find(res==1);
 timepoint(start)=data(start,1);
-plot(timepoint,'*','Color','g','MarkerSize',10);
+plot(timepoint,'>','Color','g','MarkerSize',10);
 %stop
 timepoint=nan(size(data,1),1);
 stop=find(res==3);
 timepoint(stop)=data(stop,1);
-plot(timepoint,'*','Color','r','MarkerSize',10);
+plot(timepoint,'<','Color','r','MarkerSize',10);
 %peak
 timepoint=nan(size(data,1),1);
 peak=find(res==2);
 timepoint(peak)=data(peak,1);
-plot(timepoint,'*','Color','b','MarkerSize',10);
+plot(timepoint,'^','Color','b','MarkerSize',10);
 
 % end

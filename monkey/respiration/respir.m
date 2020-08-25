@@ -77,6 +77,7 @@ axis off
 handles=setbuttons(handles,'off');
 % default parameters for findres
 handles.findpara=[3,0.15,1,50];
+handles.usepara=handles.findpara;
 % title('GUI tool for marking respiration','Fontsize',12)
 % Choose default command line output for respir
 handles.output = hObject;

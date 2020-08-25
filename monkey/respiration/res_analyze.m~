@@ -1,15 +1,13 @@
 clear;
 clc;
-path='/Volumes/WD_D/gufei/monkey_data/monkey_odor';
+path='/Volumes/WD_D/gufei/monkey_data/monkey_odor/';
 % path='C:\Users\GuFei\zhuom\monkey\respiration\20191231';
 % path='C:\Users\GuFei\zhuom\monkey\analysis\testfindres';
-% cd(path);
-file=dir([path '/' '*.acq']);
+file=dir([path '\' '*.acq']);
 num=length(file);
-% num=1;
-for i=60:num
-    filename=file(i).name;
-    alldata=load_acq([path '/' filename]);
+num=1;
+parfor i=1:num
+    alldata=load_acq([path '/' file(i).name]);
     % translate event markers
     [data,error]=marker_trans(alldata.data);
     % find respiration points automatically
@@ -38,12 +36,11 @@ for i=60:num
         end
         % cut the data
         data=data(first:last,:);
-        guisave=1;
-        parameters=[3 0.15 1 50];
-        save([path '/' filename(1:end-4) '.mat'],'data','guisave','parameters');
-    else
-        movefile([path '/' filename],[path '/unuse']);
-    end    
+    end
+    guisave=1;
+    data=handles.tempdata;
+    parameters=handles.usepara;
+    save([handles.workingpath '/' handles.savename '.mat'],'data','guisave','parameters');
 end
 % % for i=1:num
 % % 6-bad example

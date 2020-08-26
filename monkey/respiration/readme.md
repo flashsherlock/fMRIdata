@@ -5,8 +5,8 @@ A GUI programm to mark respiration points (start peak stop).
 
 Important variables in this programm.
 
-|  handles.     | Object                                    |
-|  ---------    | -------                                   |
+| handles.      | Meaning                                   |
+| ---------     | -------                                   |
 | workingpath   | working directory                         |
 | datatype      | 'acq' or 'mat'                            |
 | choosetype    | which kind of point(start,peak,stop)      |
@@ -19,12 +19,13 @@ Important variables in this programm.
 | tempdata      | data edited in this GUI                   |
 | points        | a matrix storing respiration points       |
 | guisave       | initial data loaded                       |
+
 Range to find local minimum values for choosing points manually is 15.
 
 Objects on the GUI
 
-|  handles.  | Meaning                      |  handles.  | Meaning                              |
-|  --------- | -------                      |  --------- | -------                              |
+| handles.   | Object                       | handles.   | Object                               |
+| ---------  | -------                      | ---------  | -------                              |
 | path       | enter working path           | clear      | delete current respiration           |
 | setpath    | set workingpath with GUI     | add        | add a respiration (start,peak,stop)  |
 | data       | data files in current folder | choose     | choose point manually (press 'v' key)|

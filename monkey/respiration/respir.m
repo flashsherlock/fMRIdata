@@ -22,7 +22,7 @@ function varargout = respir(varargin)
 
 % Edit the above text to modify the response to help respir
 
-% Last Modified by GUIDE v2.5 20-Aug-2020 11:11:03
+% Last Modified by GUIDE v2.5 25-Aug-2020 16:15:11
 
 % Begin initialization code - DO NOT EDIT
 % 0-allow more than one widow 1-only one window
@@ -76,7 +76,7 @@ axis off
 % disable buttons
 handles=setbuttons(handles,'off');
 % default parameters for findres
-handles.findpara=[3,0.15,1,50];
+handles.findpara=[3,0.15,1,50,50];
 handles.usepara=handles.findpara;
 % title('GUI tool for marking respiration','Fontsize',12)
 % Choose default command line output for respir
@@ -522,11 +522,12 @@ if get(hObject,'Value')
 else
     status='off';
 end
-set(handles.range,'Enable',status);
+set(handles.rangestart,'Enable',status);
+set(handles.rangestop,'Enable',status);
 guidata(hObject, handles);
 
-function range_Callback(hObject, eventdata, handles)
-% hObject    handle to range (see GCBO)
+function rangestart_Callback(hObject, eventdata, handles)
+% hObject    handle to rangestart (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -535,15 +536,43 @@ num=str2num(get(hObject,'String'));
 % ensure it is integer
 num=ceil(num);
 % ensure it is above 0
-if num>0
+if num>=0
     set(hObject,'String',num);
     handles.findpara(4)=num;
 end
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function range_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to range (see GCBO)
+function rangestart_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rangestart (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function rangestop_Callback(hObject, eventdata, handles)
+% hObject    handle to rangestop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% edit the number to set range for searching min
+num=str2num(get(hObject,'String'));
+% ensure it is integer
+num=ceil(num);
+% ensure it is above 0
+if num>=0
+    set(hObject,'String',num);
+    handles.findpara(5)=num;
+end
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function rangestop_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rangestop (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -560,13 +589,14 @@ function find_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % --- Executes on button press in find.
+% find respiration points automatically
 function find_Callback(hObject, eventdata, handles)
 % hObject    handle to find (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 usep=handles.findpara;
 % find res points
-handles.tempdata(:,3)=findres(handles.tempdata(:,1),usep(1),usep(2),usep(3),usep(4));
+handles.tempdata(:,3)=findres(handles.tempdata(:,1),usep(1),usep(2),usep(3),usep(4),usep(5));
 
 % 找到呼吸的数量
 % find the number of respirations-resnum
@@ -1100,6 +1130,7 @@ set(handles.allnum,'Enable',status);
 set(handles.seconds,'Enable',status);
 set(handles.rate,'Enable',status);
 set(handles.chmin,'Enable',status);
-set(handles.range,'Enable',status);
+set(handles.rangestart,'Enable',status);
+set(handles.rangestop,'Enable',status);
 set(handles.find,'Enable',status);
 newhandle=handles;

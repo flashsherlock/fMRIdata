@@ -1,23 +1,27 @@
-function combine=findres(data,seconds,rate,chmin,range)%,p)
+function combine=findres(data,seconds,rate,chmin,rangestart,rangestop)%,p)
 % find three time points
 
 %   start:the time point that start inhalation
 %   start:the time point that finish inhalation and start exhalation
 %   stop:the time point that finish exhalation
 %   chmin:whether to find local min value as the points
-%   range:range for searching min value
+%   rangestart:range for searching min start value
+%   rangestop:range for searching min stop value
 %   p whether plot the data or not(0)
 
 
 % default values
-if nargin < 5
+if nargin < 6
     % whether to find local min
     if ~exist('chmin','var')
         chmin=1;
     end
     % range for searching min value
     if chmin~=0
-        range=50;
+        if ~exist('rangestart','var')
+        rangestart=50;
+        end
+        rangestop=rangestart;
     end    
     % seconds to calculate MPD
     if ~exist('seconds','var')
@@ -31,8 +35,10 @@ end
 
 % deal with unexpected value
 if chmin~=0
-    range=ceil(range);
-    range=max(1,range);
+    rangestart=ceil(rangestart);
+    rangestart=max(0,rangestart);
+    rangestop=ceil(rangestop);
+    rangestop=max(0,rangestop);
 end
 rate=max(0+realmin,rate);
 rate=min(1-realmin,rate);
@@ -62,8 +68,12 @@ expeak=[1 peak length(data(:,1))];
 [start,stop]=findpt(data(:,1),expeak,rate);
 % change points to local min in the range
 if chmin
-start=chlocalmin(data(:,1),start,'start',range,expeak);
-stop=chlocalmin(data(:,1),stop,'stop',range,expeak);
+    if rangestart
+    start=chlocalmin(data(:,1),start,'start',rangestart,expeak);
+    end
+    if rangestop
+    stop=chlocalmin(data(:,1),stop,'stop',rangestop,expeak);
+    end
 end
 % combine three points
 combine=zeros(length(data(:,1)),1);

@@ -141,8 +141,15 @@ switch eventdata.Key
     case 's'
     guisave=handles.guisave;
     data=handles.tempdata;
+    % save the data without smooth
+    data(:,1)=handles.nosmooth;
+    % save parameters used to find points
     parameters=handles.usepara;
     save([handles.workingpath '/' handles.savename '.mat'],'data','guisave','parameters');
+    % restore smooth
+    case 'z'
+    handles.tempdata(:,1)=handles.nosmooth;
+    plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 end
 guidata(hObject, handles);
 
@@ -237,7 +244,9 @@ function save_Callback(hObject, eventdata, handles)
 % save data to mat
 % guisave stores unedited respiration points
 guisave=handles.guisave;
-data=handles.tempdata;
+% save the data without smooth
+data(:,1)=handles.nosmooth;
+% save parameters used to find points
 parameters=handles.usepara;
 save([handles.workingpath '/' handles.savename '.mat'],'data','guisave','parameters');
 
@@ -416,7 +425,8 @@ if ~isempty(handles.filename)
     end
     % store data in handles.tempdata
     handles.tempdata=data;
-
+    % store data without smooth
+    handles.nosmooth=data(:,1);
     % enable buttons
     handles=setbuttons(handles,'on');
     % 设置保存的名称部分
@@ -627,16 +637,36 @@ function smooth_Callback(hObject, eventdata, handles)
 % hObject    handle to smooth (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+win=str2num(get(handles.winsize,'String'));
+type=get(handles.smoothtype,'String');
+type=type{get(handles.smoothtype,'Value')};
+switch type
+    case 'smooth'
+        handles.tempdata(:,1)=smooth(handles.nosmooth,win);
+    case 'filter'        
+        b = (1/win)*ones(1,win);
+        a = 1;
+        handles.tempdata(:,1)=filter(b,a,handles.nosmooth);
+    otherwise
+        handles.tempdata(:,1)=handles.nosmooth;
+end
+% plot
+plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);   
+guidata(hObject, handles);
 
 
 function winsize_Callback(hObject, eventdata, handles)
 % hObject    handle to winsize (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of winsize as text
-%        str2double(get(hObject,'String')) returns contents of winsize as a double
+% edit the number to set window size for smooth
+num=str2num(get(hObject,'String'));
+% ensure it is integer
+num=ceil(num);
+% ensure it is above 0
+if num>0
+    set(hObject,'String',num);    
+end
 
 
 % --- Executes during object creation, after setting all properties.

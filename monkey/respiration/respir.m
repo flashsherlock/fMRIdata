@@ -22,7 +22,7 @@ function varargout = respir(varargin)
 
 % Edit the above text to modify the response to help respir
 
-% Last Modified by GUIDE v2.5 25-Aug-2020 16:15:11
+% Last Modified by GUIDE v2.5 26-Aug-2020 17:44:32
 
 % Begin initialization code - DO NOT EDIT
 % 0-allow more than one widow 1-only one window
@@ -458,7 +458,7 @@ if ~isempty(handles.filename)
 end
 guidata(hObject, handles);
 
-%% auto find points
+%% find points automatically
 function seconds_Callback(hObject, eventdata, handles)
 % hObject    handle to seconds (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -620,6 +620,59 @@ plotcurrentnum(handles.tempdata,handles.plotnum,handles.filename);
 % save parameters used
 handles.usepara=usep;
 guidata(hObject, handles);
+
+%% smooth data
+% --- Executes on button press in smooth.
+function smooth_Callback(hObject, eventdata, handles)
+% hObject    handle to smooth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function winsize_Callback(hObject, eventdata, handles)
+% hObject    handle to winsize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of winsize as text
+%        str2double(get(hObject,'String')) returns contents of winsize as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function winsize_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to winsize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in smoothtype.
+function smoothtype_Callback(hObject, eventdata, handles)
+% hObject    handle to smoothtype (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns smoothtype contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from smoothtype
+
+
+% --- Executes during object creation, after setting all properties.
+function smoothtype_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to smoothtype (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 %% 
 % --- Executes on button press in plotall.
@@ -1133,4 +1186,7 @@ set(handles.chmin,'Enable',status);
 set(handles.rangestart,'Enable',status);
 set(handles.rangestop,'Enable',status);
 set(handles.find,'Enable',status);
+set(handles.smoothtype,'Enable',status);
+set(handles.winsize,'Enable',status);
+set(handles.smooth,'Enable',status);
 newhandle=handles;

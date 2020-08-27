@@ -283,6 +283,7 @@ function save_Callback(hObject, eventdata, handles)
 % save data to mat
 % guisave stores unedited respiration points
 guisave=handles.guisave;
+data=handles.tempdata;
 % save the data without smooth
 data(:,1)=handles.nosmooth;
 % save parameters used to find points

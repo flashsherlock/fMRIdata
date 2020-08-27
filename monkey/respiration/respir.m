@@ -494,6 +494,7 @@ if ~isempty(handles.filename)
     set(handles.allnum,'String',num2str(handles.resnum));
     set(handles.position,'Max',handles.resnum);
     set(handles.position,'Value',1);
+    set(handles.position,'SliderStep',[1/(handles.resnum-1),1]);
     % 设置plot的位置
     % plotnum is the position to be ploted
     handles.plotnum=1;

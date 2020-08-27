@@ -1089,7 +1089,7 @@ plot(currentdata(:,1),'LineWidth',3,'Color',[0 0.74902 1]);
 % set axis and title
 axis([1 length(currentdata(:,1)) min(currentdata(:,1))-0.1 max(currentdata(:,1))+0.1])
 % set(gca,'XTick',[]);
-set(gca,'FontName','Times New Roman','FontSize',8);
+set(gca,'FontName','Times New Roman','FontSize',12);
 title(t,'Interpreter','none','Fontsize',12,'LineWidth',3);
 % 画上呼吸的点
 hold on

@@ -956,7 +956,17 @@ function name_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %
 % set name of the file to be saved
-handles.savename=get(handles.name,'String');
+filename=get(handles.name,'String');
+% deal with empty input
+if isempty(filename)
+    % set as previous valid name
+%     set(handles.name,'String',handles.savename);
+    % set as original filename
+    set(handles.name,'String',handles.filename(1:end-4));
+    handles.savename=get(handles.name,'String');
+else
+handles.savename=filename;
+end
 % check if the file already exist
 if isempty(dir([handles.workingpath,'/',handles.savename,'.mat']))
     set(handles.save,'BackgroundColor','green');
@@ -964,9 +974,6 @@ else
     set(handles.save,'BackgroundColor','red');
 end
 guidata(hObject, handles);
-% Hints: get(hObject,'String') returns contents of name as text
-%        str2double(get(hObject,'String')) returns contents of name as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function name_CreateFcn(hObject, eventdata, handles)
@@ -980,14 +987,12 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
 % --- Executes during object creation, after setting all properties.
 function plot_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to plot (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 % Hint: place code in OpeningFcn to populate plot
-
 
 % --- Executes on selection change in data.
 function data_Callback(hObject, eventdata, handles)
@@ -1089,7 +1094,16 @@ plot(currentdata(:,1),'LineWidth',3,'Color',[0 0.74902 1]);
 % 设置坐标轴和标题
 % set axis and title
 axis([1 length(currentdata(:,1)) min(currentdata(:,1))-0.1 max(currentdata(:,1))+0.1])
-% set(gca,'XTick',[]);
+% set major tick
+set(gca,'XTick',0:500:length(currentdata(:,1)));
+% set(gca,'XMinorTick','on');
+% set minor tick
+ax = gca;
+ax.XAxis.MinorTick = 'on';
+ax.XAxis.MinorTickValues = 0:50:length(currentdata(:,1));
+% open x grid
+set(gca,'XGrid','on');
+set(gca,'XMinorGrid','on');
 set(gca,'FontName','Times New Roman','FontSize',12);
 title(t,'Interpreter','none','Fontsize',12,'LineWidth',3);
 % 画上呼吸的点

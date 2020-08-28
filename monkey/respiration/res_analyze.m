@@ -1,13 +1,13 @@
 clear;
 clc;
-path='/Volumes/WD_D/gufei/monkey_data/monkey_odor';
+path='/Users/mac/Documents/resdata/814-20';
 % path='C:\Users\GuFei\zhuom\monkey\respiration\20191231';
 % path='C:\Users\GuFei\zhuom\monkey\analysis\testfindres';
 % cd(path);
 file=dir([path '/' '*.acq']);
 num=length(file);
 % num=1;
-for i=60:num
+for i=1:num
     filename=file(i).name;
     alldata=load_acq([path '/' filename]);
     % translate event markers

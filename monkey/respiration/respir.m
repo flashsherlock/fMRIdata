@@ -97,7 +97,7 @@ function respir_OpeningFcn(hObject, eventdata, handles, varargin)
 workingpath=fileparts(mfilename('fullpath'));
 cd(workingpath);
 % set workingpath
-set(handles.path,'string',workingpath);
+set(handles.path,'String',workingpath);
 handles.workingpath=workingpath;
 % set acq as default
 handles.datatype='acq';
@@ -105,7 +105,7 @@ set(handles.acq,'Value',1);
 set(handles.acq,'BackgroundColor','green');
 % init list
 data=list('.',handles.datatype);
-set(handles.data,'string',data);
+set(handles.data,'String',data);
 handles.filename=data{1};
 % plot matlab icon
 LL=40*membrane(1,25);
@@ -313,7 +313,8 @@ handles.workingpath=get(hObject,'String');
 % get data file list
 data=list(handles.workingpath,handles.datatype);
 % set display
-set(handles.data,'string',data);
+set(handles.data,'String',data);
+set(handles.data,'Value',1);
 if ~isempty(data)
     % the first file is default file
     handles.filename=data{1};
@@ -339,7 +340,7 @@ if temp~=0
     set(handles.path,'String',handles.workingpath);
     % set display of the listbox
     data=list(handles.workingpath,handles.datatype);
-    set(handles.data,'string',data);
+    set(handles.data,'String',data);
     % set the first file as default file if the list is not empty
     if ~isempty(data)
         handles.filename=data{1};
@@ -371,7 +372,7 @@ else
 end
 % update filename list
 data=list(handles.workingpath,handles.datatype);
-set(handles.data,'string',data);
+set(handles.data,'String',data);
 % set the first file as defaut file if the list is not empty
 if ~isempty(data)
     set(handles.data,'Value',1);

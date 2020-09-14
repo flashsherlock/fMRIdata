@@ -8,8 +8,8 @@
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 
-run='run2';
-sub=['gufei.' run '.pa'];
+run='run3';
+sub=['gufei.' run '.paphde'];
 
 % Set defaults
 cfg = decoding_defaults;
@@ -18,10 +18,10 @@ cfg = decoding_defaults;
 cfg.software = 'AFNI';
 
 % Set the analysis that should be performed (default is 'searchlight')
-cfg.analysis = 'searchlight';
+cfg.analysis = 'wholebrain';
 
 % Set the output directory where data will be saved, e.g. 'c:\exp\results\buttonpress'
-cfg.results.dir = ['/Volumes/WD_D/share/7Tdata/mvpa/' run];
+cfg.results.dir = ['/Volumes/WD_D/share/7Tdata/mvpa/wholebrain/' run];
 
 % Set the filename of your brain mask (or your ROI masks as cell array) 
 % for searchlight or wholebrain e.g. 'c:\exp\glm\model_button\mask.img' OR 
@@ -34,24 +34,24 @@ cfg.files.mask = ['/Volumes/WD_D/share/7T/' sub '.results/mask_anat.' sub '+orig
 % Set the following field:
 % Full path to file names (1xn cell array) (e.g.
 % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
-tr=[3:7:98;4:7:98;5:7:98;6:7:98];
-numtr=4*2*7;
+tr=[3:7:128;4:7:128;5:7:128;6:7:128];
+numtr=4*2*9;
 F=cell(1,numtr);
 for i = 1:numtr
     t=tr(i);
-    F{i} = ['/Volumes/WD_D/share/7T/' sub '.results/' 'pb03.' sub '.r01.volreg+orig.BRIK,' num2str(t)];
+    F{i} = ['/Volumes/WD_D/share/7T/' sub '.results/'  'pb05.' sub '.r01.volreg+orig.BRIK,' num2str(t)];
 end 
 cfg.files.name =  F;
 % and the other two fields if you use a make_design function (e.g. make_design_cv)
 %
 % (1) a nx1 vector to indicate what data you want to keep together for 
 % cross-validation (typically runs, so enter run numbers)
-cfg.files.chunk = reshape(repmat([1;2;3;4],[1 14]),[numtr 1]);
+cfg.files.chunk = reshape(repmat([1;2;3;4],[1 18]),[numtr 1]);
 %
 % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
 % label number (i.e. a nx1 vector)
 % 1:fear -1:neutral
-cfg.files.label = reshape(repmat([1 -1],[4 7]),[numtr 1]);
+cfg.files.label = reshape(repmat([1 -1],[4 9]),[numtr 1]);
 if mod(str2double(run(4)),2)==0
     cfg.files.label = -cfg.files.label;
 end

@@ -18,10 +18,10 @@ cfg = decoding_defaults;
 cfg.software = 'AFNI';
 
 % Set the analysis that should be performed (default is 'searchlight')
-cfg.analysis = 'searchlight';
+cfg.analysis = 'wholebrain';
 
 % Set the output directory where data will be saved, e.g. 'c:\exp\results\buttonpress'
-cfg.results.dir = ['/Volumes/WD_D/share/7Tdata/mvpa/' run];
+cfg.results.dir = ['/Volumes/WD_D/share/7Tdata/mvpa/wholebrain/' run];
 
 % Set the filename of your brain mask (or your ROI masks as cell array) 
 % for searchlight or wholebrain e.g. 'c:\exp\glm\model_button\mask.img' OR 

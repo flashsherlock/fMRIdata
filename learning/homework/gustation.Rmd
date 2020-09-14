@@ -1,0 +1,109 @@
+---
+title: "Gustation"
+author: "GuFei"
+date: '2020-09-14'
+output: html_document
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(plotly)
+library(dplyr)
+library(tidyr)
+```
+
+```{r}
+setwd('/Volumes/WD_D/gufei')
+alldata <- read.csv('DataExploration_R.csv')
+```
+
+You can achieve a nice result using ggplot2, but for that you need a data.frame with 3 columns for x, y and the value to plot.
+
+Using gather from the tidyr tool it is very easy to reformat your data:
+
+
+```{r}
+# Loading your example. Row names should get their own column (here `y`).
+hm <- readr::read_delim("y a b c d e f g h i j
+a 5 4 0 0 0 0 0 0 0 0
+b 0 0 0 0 0 0 0 0 0 0
+c 0 0 4 0 0 0 0 0 0 0
+d 0 0 0 0 0 0 0 0 0 0
+e 2 0 0 0 2 0 0 0 0 0
+f 1 0 0 0 0 2 0 0 0 0
+g 0 0 0 0 0 0 0 0 0 0
+h 0 0 0 0 0 0 0 0 0 0
+i 0 0 0 0 0 0 0 0 0 0
+j 0 0 0 0 0 0 0 0 0 0", delim=" ")
+
+# Gathering columns a to j
+hm <- hm %>% gather(x, value, a:j)
+
+# hm now looks like:
+# # A tibble: 100 x 3
+# y     x     value
+# <chr> <chr> <dbl>
+# 1 a     a         5
+# 2 b     a         0
+# 3 c     a         0
+# 4 d     a         0
+# 5 e     a         2
+# # ... with 95 more rows
+```
+Perfect! Let's get plotting. the basic geom for heatmap with ggplot2 is geom_tile to which we'll provide aesthetic x, y and fill.
+
+```{r}
+ggplot(hm, aes(x=x, y=y, fill=value)) + geom_tile() 
+# First attempt at a heatmap
+# 
+# OK not too bad but we can do much better. First we probably want to reverse the y axis. The trick is to provide x and y as factors with the levels ordered as we want them.
+
+hm <- hm %>%
+  mutate(x = factor(x), # alphabetical order by default
+         y = factor(y, levels = rev(unique(y)))) # force reverse alphabetical order
+```
+Then I like the black & white theme theme_bw() which gets rid of the grey background. I also like to use a palette from RColorBrewer (with direction = 1 to get the darker colors for higher values).
+
+Since you're plotting the same thing on the x and y axis, you probably want equal axis scales: coord_equal() will give you a square plot.
+```{r}
+ggplot(hm, aes(x=x, y=y, fill=value)) +
+  geom_tile() + theme_bw() + coord_equal() +
+  scale_fill_distiller(palette="Greens", direction=1) 
+# Other valid palettes: Reds, Blues, Spectral, RdYlBu (red-yellow-blue), ...
+```
+A better heatmap
+
+The finishing touch: printing the values on top of the tiles and removing the legend since it is not longer useful. Obviously this is all optional but it gives you material to build from. Note geom_text inherits the x and y aesthetics since they were passed to ggplot.
+```{r}
+ggplot(hm, aes(x=x, y=y, fill=value)) +
+  geom_tile() + theme_bw() + coord_equal() +
+  scale_fill_distiller(palette="Greens", direction=1) +
+  guides(fill=F) + # removing legend for `fill`
+  labs(title = "Value distribution") + # using a title instead
+  geom_text(aes(label=value), color="black") # printing values
+```
+Final heatmap
+
+You could also pass color="black" to geom_tile to draw (black) lines around the tiles. A final plot with the RdYlBu color scheme (see RColorBrewer::display.brewer.all() for a list of available palettes).
+
+Showcasing more options
+
+```{r}
+TClass <- factor(c(0, 0, 1, 1))
+PClass <- factor(c(0, 1, 0, 1))
+Y      <- c(2816, 248, 34, 235)
+df <- data.frame(TClass, PClass, Y)
+
+library(ggplot2)
+ggplot(data =  df, mapping = aes(x = TClass, y = PClass)) +
+  geom_tile(aes(fill = Y), colour = "white") +
+  geom_text(aes(label = sprintf("%1.0f", Y)), vjust = 1) +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_bw() + theme(legend.position = "none")
+```
+

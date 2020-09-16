@@ -1,28 +1,18 @@
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-if ( -f "/Users/mac/anaconda3/etc/profile.d/conda.csh" ) then
-    source "/Users/mac/anaconda3/etc/profile.d/conda.csh" > /dev/null 
-else
-    setenv PATH "/Users/mac/anaconda3/bin:$PATH"
-endif
 # <<< conda initialize <<<
-
-set path=($path ~/abin /sw/bin /Applications/MATLAB_R2016b.app/bin/ /Users/mac/Library/Python/2.7/bin)
+setenv OMP_NUM_THREADS 12
+set path=($path ~/abin /Applications/MATLAB_R2016b.app/bin/ /Users/mac/Library/Python/2.7/bin /Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts /Users/mac/laynii)
 setenv LANG zh_CN.UTF-8
 setenv LC_ALL zh_CN.UTF-8
 #setenv DISPLAY localhost:10.0
-test -r /sw/bin/init.csh && source /sw/bin/init.csh
+#test -r /sw/bin/init.csh && source /sw/bin/init.csh
 
 if ( -f $HOME/.afni/help/all_progs.COMP ) then
    source $HOME/.afni/help/all_progs.COMP
 endif
 
-if ( $?DYLD_LIBRARY_PATH ) then
-  setenv DYLD_LIBRARY_PATH ${DYLD_LIBRARY_PATH}:/opt/X11/lib/flat_namespace
-else
-  setenv DYLD_LIBRARY_PATH /opt/X11/lib/flat_namespace
-endif
 set filec
 set autolist
 set nobeep
@@ -67,3 +57,15 @@ set FREESURFER_HOME=/Applications/freesurfer/7.1.1
 set SUBJECTS_DIR=$FREESURFER_HOME/subjects
 set TUTORIAL_DATA=/Volumes/WD_D/share/tutorial_data_20190918_1558
 source $FREESURFER_HOME/SetUpFreeSurfer.csh > /dev/null
+
+if ( -f "/Users/mac/anaconda3/etc/profile.d/conda.csh" ) then
+    source "/Users/mac/anaconda3/etc/profile.d/conda.csh" > /dev/null 
+else
+    setenv PATH "/Users/mac/anaconda3/bin:$PATH"
+endif
+
+if ( $?DYLD_LIBRARY_PATH ) then
+  setenv DYLD_LIBRARY_PATH ${DYLD_LIBRARY_PATH}:/opt/X11/lib/flat_namespace
+else
+  setenv DYLD_LIBRARY_PATH /opt/X11/lib/flat_namespace
+endif

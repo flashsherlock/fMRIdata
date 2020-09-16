@@ -1,6 +1,7 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
-export PATH=$PATH:/sw/bin:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4
+# export DYLD_LIBRARY_PATH=/opt/X11/lib/flat_namespace
+export PATH=$PATH:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4:/Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts:/Users/mac/laynii:/Users/mac/go/bin/
 export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export DNNBRAIN_DATA=/Volumes/WD_D/gufei/document/dnnbrain/data
@@ -12,6 +13,9 @@ alias du="ncdu -rr -x --exclude .git --exclude node_modules"
 alias diff="icdiff"
 alias tree="tree -N -C"
 alias v="nvim"
+# ANTs
+export ANTSPATH=/opt/ANTs/bin/
+export PATH=${ANTSPATH}:$PATH
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/mac/.oh-my-zsh"
 export TERM="xterm-256color"
@@ -172,3 +176,4 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 eval $(thefuck --alias)
+export PATH="/usr/local/sbin:$PATH"

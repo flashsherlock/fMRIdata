@@ -433,6 +433,8 @@ if ~isempty(handles.filename)
             load([handles.workingpath,'/',handles.filename]);
         % load acq data
         case 'acq'
+            % use try-catch to deal with errors
+            try
             alldata=load_acq([handles.workingpath '/' handles.filename]);
             % translate event markers
             [data,error]=marker_trans(alldata.data);
@@ -462,6 +464,16 @@ if ~isempty(handles.filename)
                 end
                 % cut the data
                 data=data(first:last,:);
+            end
+            % if meet error (probably caused by markers)
+            % 如果上面遇到错误，主要是因为marker，或者没有marker的数据
+            catch
+                disp('Marker error! No marker loaded!')
+                % all data points are used
+                data(:,1)=alldata.data(:,1);
+                % values in column 2 (for markers) are zeros
+                % find respiration points automatically
+                data(:,3)=findres(data(:,1));
             end
     end
     % store data in handles.tempdata

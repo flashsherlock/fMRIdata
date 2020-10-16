@@ -289,8 +289,8 @@ suptitle(t(1:end-9));
 end
 %% 分时段的分布直方图
 
-timeint=4.1;%minute
-p=timeint*60*1000/40;
+timeint=9.1;%minute
+p=round(timeint*60*1000/40);
 interval=5;
 % plot each day
 for f=1:length(files)

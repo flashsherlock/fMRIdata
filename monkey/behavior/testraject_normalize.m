@@ -1,4 +1,7 @@
 clc;clear;
+workingpath='/Volumes/WD_D/share/202007RM039 嗅觉实验/';
+cd(workingpath);
+
 id=fopen('嗅觉实验记录.txt');
 conditions=textscan(id,'%q','whitespace','\b\t');
 conditions=conditions{1};
@@ -45,14 +48,14 @@ for f=1:length(files)
 end
 %% 绘制轨迹
 
-for f=1:length(files)
-    data=alldata{f};
-    figure;
-    % 绘制轨迹
-    % monkeyt(data(:,2),data(:,3),0.1,0.001);
-    monkeyt(data(:,2),data(:,3),0,0);
-    title(conditions{f});
-end
+% for f=1:length(files)
+%     data=alldata{f};
+%     figure;
+%     % 绘制轨迹
+%     % monkeyt(data(:,2),data(:,3),0.1,0.001);
+%     monkeyt(data(:,2),data(:,3),0,0);
+%     title(conditions{f});
+% end
 %% 整体的直方图
 
 interval=5;
@@ -383,7 +386,7 @@ t=conditions{2};
 suptitle(t(10:end));
 %% 分时段的分布直方图
 
-timeint=7.1;%minute
+timeint=9.1;%minute
 p=timeint*60*1000/40;
 interval=5;
 % plot each day
@@ -391,8 +394,7 @@ for f=1:length(files)
     data=alldata{f};
     l=length(data(:,2));
     plots=ceil(l/p);
-    figure;
-    set(gcf,'position',[1280,720,ceil(plots/2)*400,2*300]);
+
     disp('===========================')
     disp(conditions{f})
     disp('===========================')
@@ -415,8 +417,17 @@ for f=1:length(files)
         disp(chi2)
         disp(pvalue)
         disp('-------------')
-
+        % barplot
+        percenttbl=tbl./sum(tbl,2);
+        figure;
+        barh(percenttbl,'stack')
+        set(gca,'YDir','reverse')
+        title(conditions{f})       
     end
+    
+    
+    figure;
+    set(gcf,'position',[1280,720,ceil(plots/2)*400,2*300]);
     % subplot each bin
     for i=1:plots
         subplot(2,ceil(plots/2),i)

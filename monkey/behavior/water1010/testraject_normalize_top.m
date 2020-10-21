@@ -289,7 +289,7 @@ suptitle(t(1:end-9));
 end
 %% 分时段的分布直方图
 
-timeint=4.1;%minute
+timeint=9.1;%minute
 p=round(timeint*60*1000/40);
 interval=5;
 % plot each day
@@ -297,8 +297,7 @@ for f=1:length(files)
     data=alldata{f};
     l=length(data(:,2));
     plots=ceil(l/p);
-    figure;
-    set(gcf,'position',[1280,720,ceil(plots/2)*400,2*300]);
+    
     disp('===========================')
     disp(conditions{f})
     disp('===========================')
@@ -321,8 +320,16 @@ for f=1:length(files)
         disp(chi2)
         disp(pvalue)
         disp('-------------')
-
+        % barplot
+        percenttbl=tbl./sum(tbl,2);
+        figure;
+        barh(percenttbl,'stack')
+        set(gca,'YDir','reverse')
+        title(conditions{f})  
     end
+    
+    figure;
+    set(gcf,'position',[1280,720,ceil(plots/2)*400,2*300]);
     % subplot each bin
     for i=1:plots
         subplot(2,ceil(plots/2),i)

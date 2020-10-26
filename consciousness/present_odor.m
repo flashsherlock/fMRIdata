@@ -4,22 +4,23 @@ s = serial('com6', 'BaudRate',115200);
 % open port
 fopen(s);  
 % time
-odort=4;
-airt=16                                                                                                                                                  ;
+odort=5;
+airt=15                                                                                                                                                  ;
 % repeat
-re=1;
-odor=[1 2 3 4 5];
-odorname={'∫Ï‘Ê','ƒ˚√ ','≥»◊”','«…øÀ¡¶','œ„À‚'};
-fwrite(s, 6); %air
-disp('air')
-WaitSecs(15); 
+
+re=5;
+odor=[2 4 5];
+odorname={'ƒ˚√ ','«…øÀ¡¶','œ„À‚'};
+% fwrite(s, 6); %air
+% disp('air')
+% WaitSecs(15); 
 
 for i=1:re
 
     disp(i);
     for j=1:length(odor)  
     fwrite(s, odor(j)); %2
-    disp(odorname{j})
+    disp(['run' num2str(i) '   ' odorname{j}])
     WaitSecs(odort); 
     fwrite(s, 6); 
     disp('air')

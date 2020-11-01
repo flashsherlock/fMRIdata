@@ -1,13 +1,13 @@
 #! /bin/csh
 # 复制结构像
-foreach num (2)
+foreach num (1 2 3)
 
     set run=run${num}
-    set subj=gufei.${run}.pa
-    set datafolder=/Volumes/WD_D/share/7T/${subj}.results
+    set subj=gufei.${run}.pade
+    set datafolder=/Volumes/WD_D/gufei/7t/${subj}.results
     cd "${datafolder}"
 
-    3dcopy anat_final.${subj}+orig ../../7Tdata/mvpa/${run}/${run}
+    3dcopy anat_final.${subj}+orig ../mvpa/${run}/${run}
 
 end
 

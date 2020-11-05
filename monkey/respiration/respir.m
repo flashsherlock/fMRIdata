@@ -94,8 +94,9 @@ function respir_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to respir (see VARARGIN)
 
 % change path
-workingpath=fileparts(mfilename('fullpath'));
-cd(workingpath);
+% workingpath=fileparts(mfilename('fullpath'));
+% cd(workingpath);
+workingpath=pwd;
 % set workingpath
 set(handles.path,'String',workingpath);
 handles.workingpath=workingpath;
@@ -106,7 +107,12 @@ set(handles.acq,'BackgroundColor','green');
 % init list
 data=list('.',handles.datatype);
 set(handles.data,'String',data);
-handles.filename=data{1};
+if ~isempty(data)
+    % the first file is default file
+    handles.filename=data{1};
+else
+    set(handles.load,'Enable','off');
+end
 % plot matlab icon
 LL=40*membrane(1,25);
 surfl(LL)
@@ -377,6 +383,8 @@ set(handles.data,'String',data);
 if ~isempty(data)
     set(handles.data,'Value',1);
     handles.filename=data{1};
+else
+    set(handles.load,'Enable','off');
 end
 guidata(hObject, handles);
 
@@ -414,6 +422,8 @@ if ~isempty(data)
               set(handles.load,'Enable','off');
           end
     end
+else
+    set(handles.load,'Enable','off');
 end
 guidata(hObject, handles);
 

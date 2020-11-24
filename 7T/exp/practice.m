@@ -1,7 +1,13 @@
 %% Prepare stimuli
-trials=10;
-pictime=2;
-acc=zeros(length(trials),1);
+pictime=3;
+times=6;
+numbers=repmat(1:7,times);
+trials=length(numbers);
+acc=zeros(trials,3);
+for i=1:3
+numbers=numbers(randperm(trials));
+end
+acc(:,3)=numbers';
 Screen('Preference', 'SkipSyncTests', 1);
 
 offcenter_x=0;
@@ -73,7 +79,7 @@ Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
 vbl=Screen('Flip',windowPtr);
 WaitSecs(3);
 for cyc=1:trials
-    num=randperm(7,1);
+    num=numbers(cyc);
     
     Screen('DrawTexture',windowPtr,ins(num),[],StimRect);
     vbl=Screen('Flip',windowPtr);
@@ -85,17 +91,20 @@ for cyc=1:trials
              keyCode(Key5) keyCode(Key6) keyCode(Key7)];
         if touch && ismember(1,ifkey)
             if find(ifkey==1)==num
-                acc(cyc)=1;
+                acc(cyc,1)=1;
+                acc(cyc,2)=GetSecs-trialtime;
             Screen('DrawTexture',windowPtr,ins(8),[],StimRectf);
             Screen('Flip',windowPtr);
-%             WaitSecs(0.5);
+            WaitSecs(0.5);
+            break;
 %             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
 %             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
 %             Screen('Flip',windowPtr);
             else
             Screen('DrawTexture',windowPtr,ins(9),[],StimRectf);
             Screen('Flip',windowPtr);
-%             WaitSecs(0.5);
+            WaitSecs(0.5);
+            break;
 %             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
 %             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
 %             Screen('Flip',windowPtr);    
@@ -107,40 +116,55 @@ for cyc=1:trials
         end
     end
     
+    if touch && ismember(1,ifkey)
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+    vbl = Screen('Flip', windowPtr);
+    WaitSecs(1);
+    else
     Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
     vbl = Screen('Flip', windowPtr, vbl + (fps*pictime-0.1)*ifi);
-
-    while GetSecs-trialtime<pictime+1
-        [touch, secs, keyCode] = KbCheck;
-        ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
-             keyCode(Key5) keyCode(Key6) keyCode(Key7)];
-        if touch && ismember(1,ifkey)
-            if find(ifkey==1)==num
-                acc(cyc)=1;
-            Screen('DrawTexture',windowPtr,ins(8),[],StimRectf);
-            Screen('Flip',windowPtr);
-            WaitSecs(0.5);
-            Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
-            Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
-            Screen('Flip',windowPtr);
-            else
-            Screen('DrawTexture',windowPtr,ins(9),[],StimRectf);
-            Screen('Flip',windowPtr);
-            WaitSecs(0.5);
-            Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
-            Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
-            Screen('Flip',windowPtr);    
-            end          
-        elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
-            Screen('CloseAll');
-            return
-        end
+    WaitSecs(1);
     end
+%     while GetSecs-trialtime<pictime+1
+%         [touch, secs, keyCode] = KbCheck;
+%         ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
+%              keyCode(Key5) keyCode(Key6) keyCode(Key7)];
+%         if touch && ismember(1,ifkey)
+%             if find(ifkey==1)==num
+%                 acc(cyc,1)=1;
+%                 acc(cyc,2)=GetSecs-trialtime;
+%             Screen('DrawTexture',windowPtr,ins(8),[],StimRectf);
+%             Screen('Flip',windowPtr);
+%             WaitSecs(0.5);
+%             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+%             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+%             Screen('Flip',windowPtr);
+%             else
+%             Screen('DrawTexture',windowPtr,ins(9),[],StimRectf);
+%             Screen('Flip',windowPtr);
+%             WaitSecs(0.5);
+%             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+%             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+%             Screen('Flip',windowPtr);    
+%             end          
+%         elseif touch && keyCode(escapeKey)
+%             ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
+%             Screen('CloseAll');
+%             return
+%         end
+%     end
 end
 toc;
-disp(mean(acc)*100);
+result=zeros(8,3);
+for i=1:7
+    result(i,1)=i;
+    result(i,2)=mean(acc(acc(:,3)==i,1));
+    result(i,3)=mean(acc(acc(:,3)==i&acc(:,1)==1,2));
+end
+result(8,2:3)=mean(result(1:7,2:3));
+
 % restore
 Priority(oldPriority);
 ShowCursor;
@@ -148,3 +172,5 @@ ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
+
+disp(result);

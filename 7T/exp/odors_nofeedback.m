@@ -1,17 +1,19 @@
 function odors_nofeedback(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
-% Scan = 403s, TR = 3s, 135TR
-times=8;
+% Scan = 390s, TR = 3s, 130TR
+times=8;% even number
 % times
-waittime=3;
-cuetime=2;
+waittime=6;
+cuetime=1.5;
 odortime=2;
 offset=1;
-ratetime=2;
-jmean=6;
-jitter=jmean-floor(times/4):jmean+floor(times/4);
+ratetime=5;
+jmean=12-ratetime-odortime-cuetime;
+% jitter
 if ~mod(times/2,2)
-    jitter(times/4+1)=[];   
+    jitter=jmean-(times/4-0.5):jmean+(times/4-0.5);   
+else
+    jitter=jmean-floor(times/4):jmean+floor(times/4);
 end
 
 % fixation
@@ -40,15 +42,15 @@ triggerKey = KbName('s');
 imageSizex=100;
 imageSizey=75;
 StimSize=[0 0 imageSizex imageSizey];
-feedbackSizex=100;
-feedbackSizey=100;
-StimSizef=[0 0 feedbackSizex feedbackSizey];
+% feedbackSizex=100;
+% feedbackSizey=100;
+% StimSizef=[0 0 feedbackSizex feedbackSizey];
 % block config
 % odor seq
 odors=[7 8 9 10];
 air=0;
 odors=repmat(odors,[times 1]);
-% ratine 1 valence 2 intensity
+% rating 1 valence 2 intensity
 rating=[ones(times/2,size(odors,2));ones(times/2,size(odors,2))*2];
 % jitter
 jitter=repmat(jitter',[2 size(odors,2)]);
@@ -61,10 +63,14 @@ end
 
 % final seq
 seq=[reshape(odors,[],1) reshape(rating,[],1) reshape(jitter,[],1)];
-for i=1:10
-seq=sortrows([seq(:,1:3) randperm(length(seq))'],4);
-end
+seq=randseq(seq);
 seq=seq(:,1:3);
+
+% record
+result=zeros(length(seq),7);
+result(:,1:3)=seq;
+% record all keystrokes
+response=cell(length(seq),2);
 
 % input
 [subject, runnum] = inputsubinfo;
@@ -83,7 +89,6 @@ Screen('Resolution', whichscreen, 800, 600);
 delete(instrfindall('Type','serial'));
 % ettport=ett('init',port);
 
-
 %每次重启matlab时的随机种子都是相同的，所以随机数是一样的
 %所以通过系统时间设置随机数的种子
 ctime = datestr(now, 30);
@@ -101,7 +106,7 @@ datafile=sprintf('Data%s%s_run%d%s.mat',filesep,subject,runnum,datestr(now,30));
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 StimRect=OffsetRect(CenterRect(StimSize,rect),offcenter_x,offcenter_y);
-StimRectf=OffsetRect(CenterRect(StimSizef,rect),offcenter_x,offcenter_y+100);
+% StimRectf=OffsetRect(CenterRect(StimSizef,rect),offcenter_x,offcenter_y+100);
 
 fixationp1=OffsetRect(CenterRect([0 0 fix_thick fix_size],rect),offcenter_x,offcenter_y);
 fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offcenter_y);
@@ -109,7 +114,11 @@ fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offc
 fps=round(FrameRate(windowPtr));%Screen('NominalFrameRate',windowPtr);
 ifi=Screen('GetFlipInterval',windowPtr);
 oldPriority=Priority(MaxPriority(windowPtr));
-
+% load pictures
+cd ins
+ins(1)=Screen('MakeTexture', windowPtr, imread('valence.bmp'));
+ins(2)=Screen('MakeTexture', windowPtr, imread('intensity.bmp'));
+cd ..
 HideCursor;
 ListenChar(2);      %关闭Matlab自带键盘监听
 
@@ -121,14 +130,6 @@ errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, wh
         return
     end
 
-
-
-% load pictures
-cd ins
-ins(1)=Screen('MakeTexture', windowPtr, imread('valence.bmp'));
-ins(2)=Screen('MakeTexture', windowPtr, imread('intensity.bmp'));
-cd ..
-
 tic;
 zerotime=GetSecs;
 % start
@@ -139,9 +140,6 @@ Screen('Flip',windowPtr);
 % wait time
 WaitSecs(waittime);
 % ett('set',ettport,air); 
-
-result=zeros(length(seq),7);
-result(:,1:3)=seq;
 
 for cyc=1:length(seq)
     
@@ -177,21 +175,26 @@ for cyc=1:length(seq)
     
     % rating    
     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-%     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
-%     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
     vbl=Screen('Flip',windowPtr);
 
     while GetSecs-trialtime<(fps*(odortime+ratetime)-0.9)*ifi
         [touch, secs, keyCode] = KbCheck;
         ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
              keyCode(Key5) keyCode(Key6) keyCode(Key7)];
-        if touch &&  ~result(cyc,6) && ismember(1,ifkey)
-            result(cyc,6)=find(ifkey==1);
+        if touch &&  ismember(1,ifkey) 
+            if find(ifkey==1,1,'first')~=result(cyc,6)
+            result(cyc,6)=find(ifkey==1,1,'first');
             result(cyc,7)=secs-trialtime;
+            response{cyc,1}=[response{cyc,1} result(cyc,6)];
+            response{cyc,2}=[response{cyc,2} result(cyc,7)];
+            Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+            Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+            Screen('Flip', windowPtr);
+            end
         elseif touch && keyCode(escapeKey)
             ListenChar(0);      %还原Matlab键盘监听
             Screen('CloseAll');
-            save(datafile,'result');
+            save(datafile,'result','response');
             return
         end
     end
@@ -204,17 +207,21 @@ for cyc=1:length(seq)
         [touch, secs, keyCode] = KbCheck;
         ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
              keyCode(Key5) keyCode(Key6) keyCode(Key7)];
-        if touch &&  ~result(cyc,6) && ismember(1,ifkey)
-            result(cyc,6)=find(ifkey==1);
+        if touch && ismember(1,ifkey)
+            if find(ifkey==1,1,'first')~=result(cyc,6)
+            result(cyc,6)=find(ifkey==1,1,'first');
             result(cyc,7)=secs-trialtime;
+            response{cyc,1}=[response{cyc,1} result(cyc,6)];
+            response{cyc,2}=[response{cyc,2} result(cyc,7)];
+            end
         elseif touch && keyCode(escapeKey)
             ListenChar(0);      %还原Matlab键盘监听
             Screen('CloseAll');
-            save(datafile,'result');
+            save(datafile,'result','response');
             return
         end
     end
-
+    
 end
 toc;
 % restore
@@ -225,5 +232,5 @@ Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
 %save
-save(datafile,'result');
+save(datafile,'result','response');
 return

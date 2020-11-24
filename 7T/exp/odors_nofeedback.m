@@ -1,0 +1,229 @@
+function odors_nofeedback(offcenter_x, offcenter_y)
+% ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
+% Scan = 403s, TR = 3s, 135TR
+times=8;
+% times
+waittime=3;
+cuetime=2;
+odortime=2;
+offset=1;
+ratetime=2;
+jmean=6;
+jitter=jmean-floor(times/4):jmean+floor(times/4);
+if ~mod(times/2,2)
+    jitter(times/4+1)=[];   
+end
+
+% fixation
+fix_size=18;
+fix_thick=3;
+fixcolor_back=[0 0 0];
+fixcolor_cue=[246 123 0]; %[211 82 48];
+fixcolor_inhale=[0 154 70];  %[0 0 240];
+
+% port
+port='COM5';
+% keys
+KbName('UnifyKeyNames');
+Key1 = KbName('1!');
+Key2 = KbName('2@');
+Key3 = KbName('3#');
+Key4 = KbName('4$');
+Key5 = KbName('6^');
+Key6 = KbName('7&');
+Key7 = KbName('8*');
+Key8 = KbName('9(');
+escapeKey = KbName('ESCAPE');
+triggerKey = KbName('s');
+
+% rating instruction
+imageSizex=100;
+imageSizey=75;
+StimSize=[0 0 imageSizex imageSizey];
+feedbackSizex=100;
+feedbackSizey=100;
+StimSizef=[0 0 feedbackSizex feedbackSizey];
+% block config
+% odor seq
+odors=[7 8 9 10];
+air=0;
+odors=repmat(odors,[times 1]);
+% ratine 1 valence 2 intensity
+rating=[ones(times/2,size(odors,2));ones(times/2,size(odors,2))*2];
+% jitter
+jitter=repmat(jitter',[2 size(odors,2)]);
+
+% rand
+for i=1:times
+r=randperm(size(odors,2));
+odors(i,:)=odors(i,r);
+end
+
+% final seq
+seq=[reshape(odors,[],1) reshape(rating,[],1) reshape(jitter,[],1)];
+for i=1:10
+seq=sortrows([seq(:,1:3) randperm(length(seq))'],4);
+end
+seq=seq(:,1:3);
+
+% input
+[subject, runnum] = inputsubinfo;
+Screen('Preference', 'SkipSyncTests', 1);
+if nargin < 2
+    offcenter_x=0; offcenter_y=-150;
+end
+
+AssertOpenGL;
+whichscreen=max(Screen('Screens'));
+% backup resolution
+oldResolution=Screen('Resolution', whichscreen);
+Screen('Resolution', whichscreen, 800, 600);
+
+% ettport
+delete(instrfindall('Type','serial'));
+% ettport=ett('init',port);
+
+
+%每次重启matlab时的随机种子都是相同的，所以随机数是一样的
+%所以通过系统时间设置随机数的种子
+ctime = datestr(now, 30);
+tseed = str2num(ctime((end - 5) : end));
+rng(tseed);
+
+% colors
+black=BlackIndex(whichscreen);
+white=WhiteIndex(whichscreen);
+gray=round((white+black)*4/5);
+backcolor=gray;
+
+datafile=sprintf('Data%s%s_run%d%s.mat',filesep,subject,runnum,datestr(now,30));
+
+[windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
+Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+StimRect=OffsetRect(CenterRect(StimSize,rect),offcenter_x,offcenter_y);
+StimRectf=OffsetRect(CenterRect(StimSizef,rect),offcenter_x,offcenter_y+100);
+
+fixationp1=OffsetRect(CenterRect([0 0 fix_thick fix_size],rect),offcenter_x,offcenter_y);
+fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offcenter_y);
+
+fps=round(FrameRate(windowPtr));%Screen('NominalFrameRate',windowPtr);
+ifi=Screen('GetFlipInterval',windowPtr);
+oldPriority=Priority(MaxPriority(windowPtr));
+
+HideCursor;
+ListenChar(2);      %关闭Matlab自带键盘监听
+
+% start screen
+msg=sprintf('Waiting for the trigger to start...');
+errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, white);
+    if errinfo==1
+		Screen('CloseAll');
+        return
+    end
+
+
+
+% load pictures
+cd ins
+ins(1)=Screen('MakeTexture', windowPtr, imread('valence.bmp'));
+ins(2)=Screen('MakeTexture', windowPtr, imread('intensity.bmp'));
+cd ..
+
+tic;
+zerotime=GetSecs;
+% start
+Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+Screen('Flip',windowPtr);
+
+% wait time
+WaitSecs(waittime);
+% ett('set',ettport,air); 
+
+result=zeros(length(seq),7);
+result(:,1:3)=seq;
+
+for cyc=1:length(seq)
+    
+    odor=seq(cyc,1);
+    
+    % hint
+    Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_cue,fixationp2);
+    vbl=Screen('Flip',windowPtr);
+    starttime=GetSecs;
+    result(cyc,4)=starttime-zerotime;
+    
+    % open
+    WaitSecs(cuetime-offset);
+%     ett('set',ettport,odor);
+    
+    % offset
+    WaitSecs(offset);
+    
+    % inhale
+    Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
+    vbl=Screen('Flip',windowPtr);
+    trialtime=GetSecs;
+    result(cyc,5)=trialtime-zerotime;
+    
+    % close 
+    WaitSecs(odortime-offset);
+%     ett('set',ettport,air);    
+
+    % offset
+    WaitSecs(offset);
+    
+    % rating    
+    Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
+%     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
+%     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
+    vbl=Screen('Flip',windowPtr);
+
+    while GetSecs-trialtime<(fps*(odortime+ratetime)-0.9)*ifi
+        [touch, secs, keyCode] = KbCheck;
+        ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
+             keyCode(Key5) keyCode(Key6) keyCode(Key7)];
+        if touch &&  ~result(cyc,6) && ismember(1,ifkey)
+            result(cyc,6)=find(ifkey==1);
+            result(cyc,7)=secs-trialtime;
+        elseif touch && keyCode(escapeKey)
+            ListenChar(0);      %还原Matlab键盘监听
+            Screen('CloseAll');
+            save(datafile,'result');
+            return
+        end
+    end
+
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+    vbl = Screen('Flip', windowPtr, vbl + (fps*ratetime-0.1)*ifi);
+
+    while GetSecs-trialtime<odortime+ratetime+seq(cyc,3)%jitter
+        [touch, secs, keyCode] = KbCheck;
+        ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
+             keyCode(Key5) keyCode(Key6) keyCode(Key7)];
+        if touch &&  ~result(cyc,6) && ismember(1,ifkey)
+            result(cyc,6)=find(ifkey==1);
+            result(cyc,7)=secs-trialtime;
+        elseif touch && keyCode(escapeKey)
+            ListenChar(0);      %还原Matlab键盘监听
+            Screen('CloseAll');
+            save(datafile,'result');
+            return
+        end
+    end
+
+end
+toc;
+% restore
+Priority(oldPriority);
+ShowCursor;
+ListenChar(0);      %还原Matlab键盘监听
+Screen('CloseAll');
+%restore resolution
+Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
+%save
+save(datafile,'result');
+return

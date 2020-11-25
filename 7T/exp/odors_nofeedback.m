@@ -7,8 +7,9 @@ waittime=6;
 cuetime=1.5;
 odortime=2;
 offset=1;
-ratetime=5;
-jmean=12-ratetime-odortime-cuetime;
+blanktime=0.5;
+ratetime=4.5;
+jmean=12-ratetime-blanktime-odortime-cuetime;
 % jitter
 if ~mod(times/2,2)
     jitter=jmean-(times/4-0.5):jmean+(times/4-0.5);   
@@ -81,7 +82,7 @@ Screen('Resolution', whichscreen, 800, 600);
 
 % ettport
 delete(instrfindall('Type','serial'));
-% ettport=ett('init',port);
+ettport=ett('init',port);
 
 %每次重启matlab时的随机种子都是相同的，所以随机数是一样的
 %所以通过系统时间设置随机数的种子
@@ -133,7 +134,7 @@ Screen('Flip',windowPtr);
 
 % wait time
 WaitSecs(waittime);
-% ett('set',ettport,air); 
+ett('set',ettport,air); 
 
 for cyc=1:length(seq)
     
@@ -148,7 +149,7 @@ for cyc=1:length(seq)
     
     % open
     WaitSecs(cuetime-offset);
-%     ett('set',ettport,odor);
+    ett('set',ettport,odor);
     
     % offset
     WaitSecs(offset);
@@ -162,16 +163,22 @@ for cyc=1:length(seq)
     
     % close 
     WaitSecs(odortime-offset);
-%     ett('set',ettport,air);    
+    ett('set',ettport,air);    
 
     % offset
     WaitSecs(offset);
+    
+    % blank screen
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+    Screen('Flip', windowPtr);
+    WaitSecs(blanktime)
     
     % rating    
     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
     vbl=Screen('Flip',windowPtr);
 
-    while GetSecs-trialtime<(fps*(odortime+ratetime)-0.9)*ifi
+    while GetSecs-trialtime<(fps*(odortime+blanktime+ratetime)-0.9)*ifi
         [touch, secs, keyCode] = KbCheck;
         ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
              keyCode(Key5) keyCode(Key6) keyCode(Key7)];
@@ -197,7 +204,7 @@ for cyc=1:length(seq)
     Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
     vbl = Screen('Flip', windowPtr, vbl + (fps*ratetime-0.1)*ifi);
 
-    while GetSecs-trialtime<odortime+ratetime+seq(cyc,3)%jitter
+    while GetSecs-trialtime<odortime+blanktime+ratetime+seq(cyc,3)%jitter
         [touch, secs, keyCode] = KbCheck;
         ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)...
              keyCode(Key5) keyCode(Key6) keyCode(Key7)];

@@ -7,9 +7,10 @@ waittime=6;
 cuetime=1.5;
 odortime=2;
 offset=1;
-ratetime=5;
+blanktime=0.5;
+ratetime=4.5;
 feedbacktime=1;
-jmean=12-ratetime-odortime-cuetime;
+jmean=12-ratetime-blanktime-odortime-cuetime;
 % jitter
 if ~mod(times/2,2)
     jitter=jmean-(times/4-0.5):jmean+(times/4-0.5);   
@@ -170,13 +171,20 @@ for cyc=1:length(seq)
     ett('set',ettport,air);    
 
     % offset
-    %WaitSecs(offset);
+    WaitSecs(offset);
+    
+    % blank screen
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+    Screen('Flip', windowPtr);
+    WaitSecs(blanktime)
     
     % rating    
     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-    vbl=Screen('Flip', windowPtr, vbl + (fps*odortime-0.1)*ifi);
+    vbl=Screen('Flip', windowPtr);
+    
     fbpoint=GetSecs+999;
-    while GetSecs-trialtime<(fps*(odortime+ratetime)-0.9)*ifi
+    while GetSecs-trialtime<(fps*(odortime+blanktime+ratetime)-0.9)*ifi
         if GetSecs-fbpoint>=feedbacktime
             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
@@ -210,7 +218,7 @@ for cyc=1:length(seq)
     vbl = Screen('Flip', windowPtr, vbl + (fps*ratetime-0.1)*ifi);
 
     fbpoint=GetSecs+999;
-    while GetSecs-trialtime<odortime+ratetime+seq(cyc,3)%jitter
+    while GetSecs-trialtime<odortime+blanktime+ratetime+seq(cyc,3)%jitter
         if GetSecs-fbpoint>=feedbacktime
             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);

@@ -8,7 +8,7 @@ port='COM5';
 %     ett('open',ettport);
 % end
 odort=2;
-airt=20;
+airt=10;
 
 %每次重启matlab时的随机种子都是相同的，所以随机数是一样的
 %所以通过系统时间设置随机数的种子

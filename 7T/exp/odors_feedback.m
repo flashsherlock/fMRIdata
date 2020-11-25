@@ -56,12 +56,6 @@ rating=[ones(times/2,size(odors,2));ones(times/2,size(odors,2))*2];
 % jitter
 jitter=repmat(jitter',[2 size(odors,2)]);
 
-% rand
-for i=1:times
-r=randperm(size(odors,2));
-odors(i,:)=odors(i,r);
-end
-
 % final seq
 seq=[reshape(odors,[],1) reshape(rating,[],1) reshape(jitter,[],1)];
 seq=randseq(seq);
@@ -87,7 +81,7 @@ Screen('Resolution', whichscreen, 800, 600);
 
 % ettport
 delete(instrfindall('Type','serial'));
-% ettport=ett('init',port);
+ettport=ett('init',port);
 
 
 %每次重启matlab时的随机种子都是相同的，所以随机数是一样的
@@ -144,7 +138,7 @@ Screen('Flip',windowPtr);
 
 % wait time
 WaitSecs(waittime);
-% ett('set',ettport,air); 
+ett('set',ettport,air); 
 
 for cyc=1:length(seq)
     
@@ -159,7 +153,7 @@ for cyc=1:length(seq)
     
     % open
     WaitSecs(cuetime-offset);
-%     ett('set',ettport,odor);
+    ett('set',ettport,odor);
     
     % offset
     %WaitSecs(offset);
@@ -173,7 +167,7 @@ for cyc=1:length(seq)
     
     % close 
     WaitSecs(odortime-offset);
-%     ett('set',ettport,air);    
+    ett('set',ettport,air);    
 
     % offset
     %WaitSecs(offset);

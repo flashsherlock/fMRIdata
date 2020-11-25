@@ -55,12 +55,6 @@ rating=[ones(times/2,size(odors,2));ones(times/2,size(odors,2))*2];
 % jitter
 jitter=repmat(jitter',[2 size(odors,2)]);
 
-% rand
-for i=1:times
-r=randperm(size(odors,2));
-odors(i,:)=odors(i,r);
-end
-
 % final seq
 seq=[reshape(odors,[],1) reshape(rating,[],1) reshape(jitter,[],1)];
 seq=randseq(seq);

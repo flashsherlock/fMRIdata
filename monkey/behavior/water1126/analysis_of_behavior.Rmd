@@ -1,0 +1,47 @@
+---
+title: "Behavior_campare_with_water"
+author: "Fei"
+date: "2020/10/26"
+output: html_document
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(openxlsx)
+library(dplyr)
+library(anipaths)
+library(gdata)
+```
+
+
+```{r}
+setwd("/Volumes/WD_D/gufei/monkey_data/campwater_newmonkey/")
+filename <- dir(pattern = "*.xlsx")
+for (f in filename) {
+  # 读取xlsx并取出有用的3列
+  data <- subset(read.xlsx(f),type==108 & time>=0, select=c("time","location","data1","data2"))
+  
+  # 修改列名称
+  names(data)[3:4] <- c("x","y")
+  # 时间转化为ms，并且四舍五入
+  data <- mutate(data,time=round(time/1000))
+  
+  data_top <- subset(data,location=="Cage1-Top",select = c("time","x","y"))
+  data_side <- subset(data,location=="Cage1-Side",select = c("time","x","y"))
+  
+  # 获得文件名
+  fname <- strsplit(f,split = "[_-]")
+  fname <- paste(fname[[1]][1],fname[[1]][2],fname[[1]][4],sep = "_")
+  # 用原文件名
+  # 将得到的结果放到对应的变量中
+  assign(paste0(fname,"_top"),data_top)
+  assign(paste0(fname,"_side"),data_side)
+  # 保存到csv中
+  write.csv(data_top,paste0(fname,"_top.csv"),row.names = F)
+  write.csv(data_side,paste0(fname,"_side.csv"),row.names = F)
+}
+# save(list = ls(pattern='data07*'),file="Behavior4days.RData")
+```
+
+
+

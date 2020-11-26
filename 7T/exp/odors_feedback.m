@@ -7,9 +7,10 @@ waittime=6;
 cuetime=1.5;
 odortime=2;
 offset=1;
-ratetime=5;
+blanktime=0.5;
+ratetime=4.5;
 feedbacktime=1;
-jmean=12-ratetime-odortime-cuetime;
+jmean=12-ratetime-blanktime-odortime-cuetime;
 % jitter
 if ~mod(times/2,2)
     jitter=jmean-(times/4-0.5):jmean+(times/4-0.5);   
@@ -60,6 +61,7 @@ jitter=repmat(jitter',[2 size(odors,2)]);
 seq=[reshape(odors,[],1) reshape(rating,[],1) reshape(jitter,[],1)];
 seq=randseq(seq);
 seq=seq(:,1:3);
+
 % record
 result=zeros(length(seq),7);
 result(:,1:3)=seq;
@@ -119,7 +121,7 @@ ins(2)=Screen('MakeTexture', windowPtr, imread('intensity.bmp'));
 cd ..
 HideCursor;
 ListenChar(2);      %¹Ø±ÕMatlab×Ô´ø¼üÅÌ¼àÌý
-
+ett('set',ettport,air); 
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
 errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, white);
@@ -138,7 +140,6 @@ Screen('Flip',windowPtr);
 
 % wait time
 WaitSecs(waittime);
-ett('set',ettport,air); 
 
 for cyc=1:length(seq)
     
@@ -156,7 +157,7 @@ for cyc=1:length(seq)
     ett('set',ettport,odor);
     
     % offset
-    %WaitSecs(offset);
+    % WaitSecs(offset);
     
     % inhale
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
@@ -170,13 +171,20 @@ for cyc=1:length(seq)
     ett('set',ettport,air);    
 
     % offset
-    %WaitSecs(offset);
+    WaitSecs(offset);
+    
+    % blank screen
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+    Screen('Flip', windowPtr);
+    WaitSecs(blanktime);
     
     % rating    
     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-    vbl=Screen('Flip', windowPtr, vbl + (fps*odortime-0.1)*ifi);
+    vbl=Screen('Flip', windowPtr);
+
     fbpoint=GetSecs+999;
-    while GetSecs-trialtime<(fps*(odortime+ratetime)-0.9)*ifi
+    while GetSecs-trialtime<(fps*(odortime+blanktime+ratetime)-0.9)*ifi
         if GetSecs-fbpoint>=feedbacktime
             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
@@ -189,8 +197,8 @@ for cyc=1:length(seq)
             if find(ifkey==1,1,'first')~=result(cyc,6)
             result(cyc,6)=find(ifkey==1,1,'first');
             result(cyc,7)=secs-trialtime;
-            result(cyc,6)=find(ifkey==1,1,'first');
-            result(cyc,7)=secs-trialtime;
+            response{cyc,1}=[response{cyc,1} result(cyc,6)];
+            response{cyc,2}=[response{cyc,2} result(cyc,7)];
             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
             Screen('DrawTexture',windowPtr,feedback(result(cyc,6)),[],StimRectf);
@@ -210,7 +218,7 @@ for cyc=1:length(seq)
     vbl = Screen('Flip', windowPtr, vbl + (fps*ratetime-0.1)*ifi);
 
     fbpoint=GetSecs+999;
-    while GetSecs-trialtime<odortime+ratetime+seq(cyc,3)%jitter
+    while GetSecs-trialtime<odortime+blanktime+ratetime+seq(cyc,3)%jitter
         if GetSecs-fbpoint>=feedbacktime
             Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
             Screen('FillRect',windowPtr,fixcolor_back,fixationp2);

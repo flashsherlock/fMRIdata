@@ -1,40 +1,33 @@
 #! /bin/csh
-
-set datafolder=/Volumes/WD_D/share
+set sub=S01_yyt
+set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
+set imgdir=`ls -d *S40*`
+
 # generate 1D files
-# extract_physio.py                   \
-# -p ./7Tdata/S40/                    \
-# -d ./20200811_S40_TEST02/           \
-# -o ./7Tdata/phy/                    \
-# -C resp puls                        \
-# -f 10 12 13 15 17 19 21 22 23 25    \
-# -m overlap                          \
-# -M
+conda activate psychopy
+extract_physio.py                   \
+-p ./phy/                    \
+-d ./${imgdir}/           \
+-o ./phy/                    \
+-C resp puls                        \
+-f 10 12 14 16 18 20    \
+-m overlap                          \
+-M
 
-# run2 has broken resp file, but puls can be used
-# extract_physio.py                   \
-# -p ./7Tdata/S40                     \
-# -d ./20200811_S40_TEST02/           \
-# -o ./7Tdata/phy/test                \
-# -C puls                             \
-# -f 12                               \
-# -m overlap                          \
-# -M
+# -m default is cover
 
-# cd ./7Tdata/phy
+cd ./phy
 
-# # compare 1D files with/without -M option
-# cd mb
-# foreach file (`ls *.1D` )
+# 1dplot -xaxis 1:1000:10:10 puls01.1D
 
-# diff --head=10 $file ../$file
+foreach run (1 2 3 4 5 6)
+    RetroTS.py -r resp0${run}.1D -c puls0${run}.1D -p 50 -n 105 -v 3 -prefix ${sub}.run${run}
+end
 
-# end
-
-# RetroTS.py -r resp01.1D -c puls01.1D -p 50 -n 99 -v 3 -prefix gufei.run1
-# RetroTS.py -c puls01.1D -p 50 -n 100 -v 3 -prefix gufei.run2
-# RetroTS.py -r resp02.1D -c puls02.1D -p 50 -n 50 -v 3 -prefix gufei.run3
-# RetroTS.py -r resp03.1D -c puls03.1D -p 50 -n 45 -v 3 -prefix gufei.run4
-# RetroTS.py -r resp04.1D -c puls04.1D -p 50 -n 99 -v 3 -prefix gufei.run5
+# -r: (respiration_file) Respiration data file
+# -c: (cardiac_file) Cardiac data file
+# -p: (phys_fs) Physiological signal sampling frequency in Hz.
+# -n: (number_of_slices) Number of slices
+# -v: (volume_tr) Volume TR in seconds

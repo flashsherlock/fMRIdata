@@ -15,7 +15,7 @@ library(gdata)
 
 
 ```{r}
-setwd("/Volumes/WD_D/gufei/monkey_data/campwater_newmonkey/")
+setwd("/Volumes/WD_D/gufei/monkey_data/campwater_newmonkey/xlsx/")
 filename <- dir(pattern = "*.xlsx")
 for (f in filename) {
   # 读取xlsx并取出有用的3列
@@ -31,7 +31,9 @@ for (f in filename) {
   
   # 获得文件名
   fname <- strsplit(f,split = "[_-]")
-  fname <- paste(fname[[1]][1],fname[[1]][2],fname[[1]][4],sep = "_")
+  odor <- strsplit(fname[[1]][3],"")
+  lf <- odor[[1]][length(odor[[1]])]
+  fname <- paste(strsplit(fname[[1]][3],"[L R]"),lf,fname[[1]][1],sep = "_")
   # 用原文件名
   # 将得到的结果放到对应的变量中
   assign(paste0(fname,"_top"),data_top)

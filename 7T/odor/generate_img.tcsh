@@ -1,6 +1,6 @@
 #! /bin/csh
 
-sub=S01_yyt
+set sub=S01_yyt
 
 set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/*_S40_*
 cd "${datafolder}"

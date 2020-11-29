@@ -25,7 +25,7 @@ cd "${datafolder}"
         -gltsym 'SYM: car -tra'       -glt_label 2 car-tra                \
         -gltsym 'SYM: cit -tra'       -glt_label 3 cit-tra                \
         -gltsym 'SYM: car -lim'       -glt_label 4 car-lim                \
-        -gltsym 'SYM: cit -lim'       -glt_label 5 car-lim                \
+        -gltsym 'SYM: cit -lim'       -glt_label 5 cit-lim                \
         -gltsym 'SYM: car -cit'       -glt_label 6 car-cit                \
         -regress_motion_per_run                                           \
         -regress_run_clustsim no                                 

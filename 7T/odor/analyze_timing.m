@@ -10,8 +10,10 @@ for i=1:run
     dataname=data(1).name;
     load(dataname);
     disp([sub num2str(i)]);
+    % response number
     resnum=length(result(result(:,6)~=0,7));
     rt=mean(result(result(:,6)~=0,7));
+    % rt-2.5(green cross and black cross) is real rt
     disp([resnum rt-2.5]);
     
     odors=unique(result(:,1));    

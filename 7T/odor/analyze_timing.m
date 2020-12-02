@@ -15,9 +15,9 @@ for i=1:run
     rt=mean(result(result(:,6)~=0,7));
     % rt-2.5(green cross and black cross) is real rt
     disp([resnum rt-2.5]);
-    
+    % odor numbers
     odors=unique(result(:,1));    
-    
+    % for each odor, find timing
     for oi=1:length(odors)
         odor=odors(oi);        
         inhale=result(result(:,1)==odor,5)';
@@ -28,6 +28,11 @@ end
 
 names={'lim','tra','car','cit'};
 for i=1:length(names)
+    % timing for each odor(all runs)
     dlmwrite([names{i} '.txt'],timing(:,:,i),'delimiter',' ');
+    % timing for each odor(each run)
+    for runi=1:run
+        dlmwrite([names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
+    end
 end
 

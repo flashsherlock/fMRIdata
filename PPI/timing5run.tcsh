@@ -7,6 +7,7 @@ foreach file (`ls *{Visible,Invisible}.1D`)
   # 查看文件行数
   # cat ${file} | wc -l
   # 按行分割,196个TR一个run
+  # use split to separate file
   split -l 196 ${file}
 
   # rename

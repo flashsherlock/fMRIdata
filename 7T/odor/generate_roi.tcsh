@@ -15,4 +15,12 @@ cd ${sub}.${analysis}.results
 # 3dcalc -a ${sub}.ROI+orig -expr 'iszero(a-2)' -prefix PPC.${sub}
 # 3dcalc -a ${sub}.ROI+orig -expr 'iszero(a-3)' -prefix Amy.${sub}
 
-3dcalc -a APC.${sub}+orig -b PPC.${sub}+orig -expr 'a+b' -prefix Piriform.${sub}
+# 3dcalc -a APC.${sub}+orig -b PPC.${sub}+orig -expr 'a+b' -prefix Piriform.${sub}
+
+foreach mask (`ls {APC,PPC,Amy,Piriform}.${sub}+orig.HEAD`)
+    # echo ${mask}
+    3dresample  -input ${mask}                       \
+                -master pb07.${sub}.${analysis}.r01.scale+orig.HEAD      \
+                -rmode NN                                \
+                -prefix ./mvpamask/${mask}      
+end

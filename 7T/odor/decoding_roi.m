@@ -87,7 +87,7 @@ for i=1:length(rois)
     % detailed version of it). Then you set:
 
     % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
-    % cfg.results.output = {'accuracy_minus_chance', 'confusion_matrix'};
+    cfg.results.output = {'accuracy_minus_chance', 'confusion_matrix'};
 
     % You can also use all methods that start with "transres_", e.g. use
     %   cfg.results.output = {'SVM_pattern'};

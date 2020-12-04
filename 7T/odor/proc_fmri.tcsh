@@ -1,18 +1,19 @@
 #! /bin/csh
 
 set sub=S01_yyt
+set analysis=pabiode
 set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 # ==========================processing========================== # 
 # run1 刺激完整 phase correction phy despike
         afni_proc.py                                                      \
-        -subj_id ${sub}.paphde                                            \
+        -subj_id ${sub}.${analysis}                                            \
         -dsets ${sub}.run?+orig.HEAD                                      \
         -blip_reverse_dset ${sub}.pa+orig.HEAD                            \
         -copy_anat ${sub}.uniden15_brain.nii.gz                           \
         -anat_has_skull no                                                \
         -blocks despike ricor tshift align volreg blur mask scale regress \
-        -ricor_regs ./phy/${sub}.run?.slibase.1D                          \
+        -ricor_regs ./phy/${sub}.biop.run?.slibase.1D                          \
         -radial_correlate_blocks tcat volreg                              \
         -align_opts_aea -cost lpc+ZZ -giant_move                          \
         -volreg_align_to MIN_OUTLIER                                      \

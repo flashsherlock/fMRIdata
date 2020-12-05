@@ -10,7 +10,7 @@
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 sub='S01_yyt';
-analysis='paphde';
+analysis='pabiode';
 odors={'lim','tra','car','cit'};
 comb=nchoosek(1:length(odors), 2);
 

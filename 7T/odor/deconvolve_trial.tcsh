@@ -1,6 +1,6 @@
 #!/bin/tcsh
 set sub=S01_yyt
-set analysis=paphde
+set analysis=pabiode
 
 set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"

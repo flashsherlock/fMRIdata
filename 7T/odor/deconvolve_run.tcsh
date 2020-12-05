@@ -4,7 +4,7 @@ if ( $# > 0 ) then
     foreach run (`echo $*`)
 
         set sub=S01_yyt
-        set analysis=paphde
+        set analysis=pabiode
 
         set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
         cd "${datafolder}"
@@ -29,7 +29,7 @@ if ( $# > 0 ) then
             -stim_label 3 car                                          \
             -stim_times 4 ../behavior/cit_run_${run}.txt 'BLOCK(2,1)'      \
             -stim_label 4 cit                                          \
-            -jobs 22                                                   \
+            -jobs 12                                                   \
             -fout -tout -x1D X.xmat.${filedec}_${run}.1D -xjpeg X.${filedec}_${run}.jpg  \
             -fitts fitts.$subj.${filedec}_${run}                                         \
             -errts errts.${subj}.${filedec}_${run}                                       \

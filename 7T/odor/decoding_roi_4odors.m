@@ -12,14 +12,10 @@
 sub='S01_yyt';
 analysis='pabiode';
 rois={'Amy','Piriform','APC','PPC'};
-odors={'lim','tra','car','cit'};
-comb=nchoosek(1:length(odors), 2);
 
 for i=1:length(rois)
     roi=rois{i};
     mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpamask/' roi '*+orig.HEAD']);
-for i=1:length(comb)
-    odornumber=comb(i,:);
     % Set defaults
     cfg = decoding_defaults;
 
@@ -28,9 +24,7 @@ for i=1:length(comb)
 
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
-    labelname1 = odors{odornumber(1)};
-    labelname2 = odors{odornumber(2)};
-    test=[roi '/' '2odors_' labelname1 '_' labelname2];
+    test=['4odors_' roi];
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
@@ -58,10 +52,10 @@ for i=1:length(comb)
     % Set the label names to the regressor names which you want to use for 
     % decoding, e.g. 'button left' and 'button right'
     % don't remember the names? -> run display_regressor_names(beta_loc)
-    % labelname1 = 'lim';
-    % labelname2 = 'tra';
-    % labelname3 = 'car';
-    % labelname4 = 'cit';
+    labelname1 = 'lim';
+    labelname2 = 'tra';
+    labelname3 = 'car';
+    labelname4 = 'cit';
     %% Set additional parameters
     % Set additional parameters manually if you want (see decoding.m or
     % decoding_defaults.m). Below some example parameters that you might want 
@@ -109,14 +103,14 @@ for i=1:length(comb)
 
     % Extract all information for the cfg.files structure (labels will be [1 -1] )
     % cfg = decoding_describe_data(cfg,{labelname1 labelname2},[1 -1],regressor_names,beta_loc);
-    cfg = decoding_describe_data(cfg, {labelname1 labelname2}, [1 -1], regressor_names, beta_loc);
+    cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg); 
 
     % Run decoding
     results = decoding(cfg);    
 end
-end
+
 % some warnings
 % there may be errors when saving fig because of replacing . with _
 % edit save_fig.m

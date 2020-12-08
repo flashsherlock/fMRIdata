@@ -1,7 +1,8 @@
-sub		   = 's01'
+% the filename con't contain '-',so change to '_'
+sub		   = 's03'
 fshome     = '/Applications/freesurfer/7.1.1/';
-subdir     = '/Volumes/WD_D/gufei/consciousness/electrode/use/s01/';
-mrfile     = [subdir sub '_MRI.nii'];
+subdir     = ['/Volumes/WD_D/gufei/consciousness/electrode/use/' sub];
+mrfile     = [subdir '/' sub '_MRI_acpc.nii'];
 system(['export FREESURFER_HOME=' fshome '; ' ...
 'source $FREESURFER_HOME/SetUpFreeSurfer.sh; ' ...
 'mri_convert -c -oc 0 0 0 ' mrfile ' ' [subdir '/tmp.nii'] '; ' ...

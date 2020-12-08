@@ -17,7 +17,7 @@ if ( $# > 0 ) then
         # remove file to resolve conflicts
         # rm *${filedec}_${run}*
 
-        3dDeconvolve -input pb07.$subj.r0${run}.scale+orig.HEAD              \
+        3dDeconvolve -input pb06.$subj.r0${run}.scale+orig.HEAD              \
             -ortvec mot_demean.r${run}.1D mot_demean_r${run}         \
             -polort 3                                                  \
             -num_stimts 4                                              \

@@ -9,7 +9,7 @@ cd "${datafolder}"
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 set filedec = IM
-3dDeconvolve -input pb07.$subj.r*.scale+orig.HEAD              \
+3dDeconvolve -input pb06.$subj.r*.scale+orig.HEAD              \
     -ortvec mot_demean.r01.1D mot_demean_r01                   \
     -ortvec mot_demean.r02.1D mot_demean_r02                   \
     -ortvec mot_demean.r03.1D mot_demean_r03                   \

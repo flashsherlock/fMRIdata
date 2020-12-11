@@ -1,6 +1,7 @@
-%% load mri image
-subjID = 's02';
+%% set path
+subjID = 's04';
 filepath='E:/NanChang/use';
+%% load CT image
 ct = ft_read_mri([filepath '/' subjID '_CT.nii']);
 %% determine left and right
 ft_determine_coordsys(ct);

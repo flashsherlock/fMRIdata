@@ -1,6 +1,6 @@
 %% set path and load header from edf file
 subjID = 's03';
-filepath='E:/NanChang/use';
+filepath='/Volumes/WD_D/gufei/consciousness/electrode/use/s03';
 % filename='FA0576HS';
 % hdr = ft_read_header([filepath filesep filename '.edf']);
 %% load CT and MRI img

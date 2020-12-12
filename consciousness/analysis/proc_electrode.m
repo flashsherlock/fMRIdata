@@ -21,3 +21,13 @@ hdr.label=names;
 cfg         = [];
 cfg.channel = hdr.label;
 elec_acpc_f = ft_electrodeplacement(cfg, ct_acpc_f, fsmri_acpc);
+%% visualize electrodes
+ft_plot_ortho(fsmri_acpc.anatomy, 'transform', fsmri_acpc.transform, 'style', 'intersect');
+ft_plot_sens(elec_acpc_f, 'label', 'on', 'fontcolor', 'w');
+%% place again if find any error
+load([subjID '_elec_acpc_f.mat']);
+cfg=[];
+cfg.elec=elec_acpc_f;
+elec_acpc_f = ft_electrodeplacement(cfg, ct_acpc_f, fsmri_acpc);
+%% save
+save([subjID '_elec_acpc_f.mat'], 'elec_acpc_f');

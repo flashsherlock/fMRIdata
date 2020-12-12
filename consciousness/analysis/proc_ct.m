@@ -15,7 +15,7 @@ cfg           = [];
 cfg.method    = 'interactive';
 cfg.coordsys  = 'ctf';
 ct_ctf = ft_volumerealign(cfg, ct_ctf);
-%% convert the CT¡¯s coordinate system into an approximation of the ACPC coordinate system
+%% convert the CTs coordinate system into an approximation of the ACPC coordinate system
 ct_acpc = ft_convert_coordsys(ct_ctf, 'acpc');
 %% save acpc aligned image
 cfg           = [];
@@ -37,7 +37,7 @@ cfg.spmversion  = 'spm12';
 cfg.coordsys    = 'acpc';
 cfg.viewresult  = 'yes';
 ct_acpc_f = ft_volumerealign(cfg, ct_acpc, fsmri_acpc);
-%% Write the preprocessed anatomical MRI out to file.
+%% Write the fused CT out to file.
 cfg           = [];
 cfg.filename  = [filepath '/' subjID '_CT_acpc_f'];
 cfg.filetype  = 'nifti';

@@ -13,7 +13,7 @@ while 1
     if ~ismember(0,rseq(2:end,1)-rseq(1:end-1,1))
             for i=1:length(odors)
                 l=length(rseq(rseq(:,1)==odors(i),2));
-                rseq(rseq(:,1)==odors(i),2)=repmat(randperm(2)',l/2,[]);                
+                rseq(rseq(:,1)==odors(i),2)=repmat(randperm(2)',l/2,1);                
             end
         break
     end

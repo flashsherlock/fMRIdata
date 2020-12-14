@@ -1,6 +1,6 @@
 %% set path and load header from edf file
-subjID = 's03';
-filepath='/Volumes/WD_D/gufei/consciousness/electrode/use/s03';
+subjID = 's02';
+filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 % filename='FA0576HS';
 % hdr = ft_read_header([filepath filesep filename '.edf']);
 %% load CT and MRI img
@@ -8,9 +8,19 @@ ct_acpc_f = ft_read_mri([filepath '/' subjID '_CT_acpc_f.nii']);
 fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
 fsmri_acpc.coordsys='acpc';
 %% generate labels manually
-prefix='POL ';
-ename=['A' 'H' 'J' 'X'];
-enum=[14 14 12 16];
+% prefix='POL ';
+% s01
+% ename=['A' 'H' 'J'];
+% enum=[14 12 14];
+% s02
+% ename=['A' 'H' 'J' 'C' 'I' 'a' 'h'];
+% enum=[14 12 12 14 6 12 2];
+% s03
+% ename=['F' 'G' 'Q' 'R'];
+% enum=[14 12 12 14];
+% s04
+ename=['A' 'H' 'J' 'C' 'I' 'a' 'h'];
+enum=[14 12 12 14 6 12 2];
 names=cell(sum(enum),1);
 for i=1:length(ename)
 % A=[repmat('A',14,1) [1:14]'];

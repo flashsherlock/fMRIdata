@@ -1,9 +1,10 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 # export DYLD_LIBRARY_PATH=/opt/X11/lib/flat_namespace
-export PATH=$PATH:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4:/Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts:/Users/mac/laynii:/Users/mac/go/bin/
+export PATH=$PATH:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4:/Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts:/Users/mac/laynii:/Users/mac/go/bin/:/users/mac/abin
 export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
+export CONVERTIO_API_KEY=8229327db3a33178b87d1983d1a15f42
 export DNNBRAIN_DATA=/Volumes/WD_D/gufei/document/dnnbrain/data
 alias cat="bat"
 alias top="htop"
@@ -19,6 +20,7 @@ export PATH=${ANTSPATH}:$PATH
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/mac/.oh-my-zsh"
 export TERM="xterm-256color"
+export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:/opt/X11/lib/flat_namespace
 # ffmpeg libffi
 #export LDFLAGS="-L/usr/local/opt/libffi/lib"
 #export CPPFLAGS="-I/usr/local/opt/libffi/include"

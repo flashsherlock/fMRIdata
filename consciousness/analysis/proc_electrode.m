@@ -58,7 +58,7 @@ cfg.filename  = [filepath '/' subjID '_MRI_mni'];
 cfg.filetype  = 'nifti';
 cfg.parameter = 'anatomy';
 ft_volumewrite(cfg, fsmri_mni);
-%% btain the electrode positions in standard MNI space.
+%% obtain the electrode positions in standard MNI space.
 elec_mni_fv = elec_acpc_f;
 elec_mni_fv.elecpos = ft_warp_apply(fsmri_mni.params, elec_acpc_f.elecpos, 'individual2sn');
 elec_mni_fv.chanpos = ft_warp_apply(fsmri_mni.params, elec_acpc_f.chanpos, 'individual2sn');

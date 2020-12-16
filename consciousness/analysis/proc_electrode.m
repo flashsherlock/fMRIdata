@@ -51,6 +51,7 @@ cfg.spmversion = 'spm12';
 cfg.spmmethod  = 'new';
 % cfg.template = '/Volumes/WD_D/gufei/consciousness/electrode/reconstruction/ch2bet.nii';
 % cfg.templatecoordsys = 'acpc';
+% cfg.opts.bb=[-70 -100 -60;70 70 68];
 fsmri_mni = ft_volumenormalise(cfg, fsmri_acpc);
 %% save
 cfg           = [];

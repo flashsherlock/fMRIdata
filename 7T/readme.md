@@ -1,7 +1,7 @@
-# Sripts for 7T data analysis
+# Scripts for 7T data analysis
 
 ## exp
-Experiment programms and materials.
+Programms and materials for 7T odor experiments.
 
 ## yuli
 Pilot experiment that comparing different sequences. Learn to do phase correction.
@@ -13,7 +13,7 @@ Pilot experiment that comparing different sequences. Learn to do physiology corr
 Pilot experiment that comparing local shimming and no multi-band.
 
 ## odor
-Experiment with four odors.
+Experiment using four odors.
 
 ### yanqing.tcsh
 Help yanqing generate ROI masks (including 3dSkullStrip).

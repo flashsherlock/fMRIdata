@@ -1,6 +1,6 @@
 %% set path
-subjID = 's04';
-filepath='E:/NanChang/use';
+subjID = 's02';
+filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 %% load CT image
 ct = ft_read_mri([filepath '/' subjID '_CT.nii']);
 %% determine left and right
@@ -26,7 +26,7 @@ ft_volumewrite(cfg, ct_acpc);
 %% load spm reoriented img
 ct_acpc = ft_read_mri([filepath '/' subjID '_CT_acpc.nii']);
 %% load aligned MRI image
-% fsmri_acpc = ft_read_mri('freesurfer/mri/T1.mgz'); 
+% fsmri_acpc = ft_read_mri([filepath '/freesurfer/mri/T1.mgz']); 
 % on Windows, use 'SubjectUCI29_MR_acpc.nii'
 fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
 fsmri_acpc.coordsys = 'acpc';
@@ -37,6 +37,13 @@ cfg.spmversion  = 'spm12';
 cfg.coordsys    = 'acpc';
 cfg.viewresult  = 'yes';
 ct_acpc_f = ft_volumerealign(cfg, ct_acpc, fsmri_acpc);
+%% visualize image
+cfg=[];
+ft_sourceplot(cfg,ct_acpc_f);
+%% reslice
+cfg = [];
+cfg.dim = [256 256 256];
+ct_acpc_f = ft_volumereslice(cfg,ct_acpc_f);
 %% Write the fused CT out to file.
 cfg           = [];
 cfg.filename  = [filepath '/' subjID '_CT_acpc_f'];

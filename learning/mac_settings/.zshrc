@@ -1,11 +1,11 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 # export DYLD_LIBRARY_PATH=/opt/X11/lib/flat_namespace
-export PATH=$PATH:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4:/Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts:/Users/mac/laynii:/Users/mac/go/bin/:/users/mac/abin
+export PATH=$PATH:/Applications/MATLAB_R2016b.app/bin/:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4:/Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts:/Users/mac/laynii:/Users/mac/go/bin/:/Users/mac/abin
 export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
-export CONVERTIO_API_KEY=8229327db3a33178b87d1983d1a15f42
 export DNNBRAIN_DATA=/Volumes/WD_D/gufei/document/dnnbrain/data
+export MATLAB_SHELL=/bin/bash
 alias cat="bat"
 alias top="htop"
 alias f="fuck"
@@ -179,3 +179,13 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 eval $(thefuck --alias)
 export PATH="/usr/local/sbin:$PATH"
+
+# auto-inserted by @update.afni.binaries :
+#    set up tab completion for AFNI programs
+if [ -f $HOME/.afni/help/all_progs.COMP.zsh ]
+then
+   autoload -U +X bashcompinit && bashcompinit
+   autoload -U +X compinit && compinit \
+      && source $HOME/.afni/help/all_progs.COMP.zsh
+fi
+

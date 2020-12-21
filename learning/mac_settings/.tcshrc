@@ -3,9 +3,10 @@
 # !! Contents within this block are managed by 'conda init' !!
 # <<< conda initialize <<<
 setenv OMP_NUM_THREADS 12
-set path=($path ~/abin /Applications/MATLAB_R2016b.app/bin/ /Users/mac/Library/Python/2.7/bin /Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts /Users/mac/laynii)
+set path=($path Users/mac/abin /Applications/MATLAB_R2016b.app/bin/ /Users/mac/Library/Python/2.7/bin /Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts /Users/mac/laynii)
 setenv LANG zh_CN.UTF-8
 setenv LC_ALL zh_CN.UTF-8
+setenv MATLAB_SHELL /bin/bash
 #setenv DISPLAY localhost:10.0
 #test -r /sw/bin/init.csh && source /sw/bin/init.csh
 

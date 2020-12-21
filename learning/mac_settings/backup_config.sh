@@ -5,3 +5,4 @@ cp ~/.vimrc .
 cp ~/.zshrc .
 cp ~/.vimrc_bk .
 cp ~/.tmux.conf .
+cp ~/matlab/startup.m .

@@ -1,6 +1,7 @@
 set path=($path ~/abin /sw/bin)
 setenv LANG zh_CN.UTF-8
 setenv LC_ALL zh_CN.UTF-8
+setenv MATLAB_SHELL /bin/bash
 #setenv DISPLAY localhost:10.0
 test -r /sw/bin/init.csh && source /sw/bin/init.csh
 

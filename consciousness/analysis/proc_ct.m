@@ -26,7 +26,7 @@ ft_volumewrite(cfg, ct_acpc);
 %% load spm reoriented img
 ct_acpc = ft_read_mri([filepath '/' subjID '_CT_acpc.nii']);
 %% load aligned MRI image
-% fsmri_acpc = ft_read_mri([filepath '/freesurfer/mri/T1.mgz']); 
+fsmri_acpc = ft_read_mri([filepath '/freesurfer/mri/T1.mgz']); 
 % on Windows, use 'SubjectUCI29_MR_acpc.nii'
 fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
 fsmri_acpc.coordsys = 'acpc';
@@ -50,3 +50,9 @@ cfg.filename  = [filepath '/' subjID '_CT_acpc_f'];
 cfg.filetype  = 'nifti';
 cfg.parameter = 'anatomy';
 ft_volumewrite(cfg, ct_acpc_f);
+%% use 3dresample in afni to fix problem in orientation
+input = [filepath '/' subjID '_CT1.nii'];
+output = [filepath '/' subjID '_CT1r.nii'];
+master = [filepath '/freesurfer/mri/T1.nii'];
+afni_resample=['3dresample -input ' input ' -master ' master ' -prefix ' output];
+unix(afni_resample)

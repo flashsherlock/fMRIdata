@@ -16,9 +16,12 @@ fsmri_acpc.coordsys='acpc';
 % ename=['A' 'H' 'J' 'C' 'I' 'a' 'h'];
 % enum=[14 12 12 14 6 12 2];
 % s03
+% ename=['A' 'H' 'J' 'X'];
+% enum=[14 14 12 16];
+% s04
 % ename=['F' 'G' 'Q' 'R'];
 % enum=[14 12 12 14];
-% s04
+
 ename=['A' 'H' 'J' 'C' 'I' 'a' 'h'];
 enum=[14 12 12 14 6 12 2];
 names=cell(sum(enum),1);

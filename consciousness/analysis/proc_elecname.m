@@ -1,7 +1,10 @@
+function proc_elecname(ID)
 %% set path and load header from edf file
-subjID = 's02';
+% subjID = 's02';
+subjID = ID;
 filepath='/Volumes/WD_D/gufei/consciousness/edf';
-hdr = ft_read_header([filepath '/' subjID '.edf']);
+% hdr = ft_read_header([filepath '/' subjID '.edf']);
+% hdr = ft_read_header([filepath '/' 's02' '.edf']);
 %% load xls 
 [num,txt,raw]=xlsread([filepath '/../electrode/' subjID '_elec_name.xlsx']);
 % delete '
@@ -18,3 +21,4 @@ end
 delete=find(strcmp(raw(:,2),'unused')==1);
 electrodes=raw;
 save([filepath '/../data/' subjID '_electrodes.mat'],'electrodes','delete');
+end

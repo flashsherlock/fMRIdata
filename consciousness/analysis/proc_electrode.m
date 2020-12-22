@@ -9,21 +9,20 @@ fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
 fsmri_acpc.coordsys='acpc';
 %% generate labels manually
 % prefix='POL ';
-% s01
-% ename=['A' 'H' 'J'];
-% enum=[14 12 14];
-% s02
-% ename=['A' 'H' 'J' 'C' 'I' 'a' 'h'];
-% enum=[14 12 12 14 6 12 2];
-% s03
-% ename=['A' 'H' 'J' 'X'];
-% enum=[14 14 12 16];
-% s04
-% ename=['F' 'G' 'Q' 'R'];
-% enum=[14 12 12 14];
-
-ename=['A' 'H' 'J' 'C' 'I' 'a' 'h'];
-enum=[14 12 12 14 6 12 2];
+switch subjID
+    case 's01'
+    ename=['A' 'H' 'J'];
+    enum=[14 12 14];
+    case 's02'
+    ename=['A' 'H' 'J' 'C' 'I' 'a' 'h'];
+    enum=[14 12 12 14 6 12 2];
+    case 's03'
+    ename=['A' 'H' 'J' 'X'];
+    enum=[14 14 12 16];
+    case 's04'
+    ename=['F' 'G' 'Q' 'R'];
+    enum=[14 12 12 14];
+end
 names=cell(sum(enum),1);
 for i=1:length(ename)
 % A=[repmat('A',14,1) [1:14]'];
@@ -82,3 +81,6 @@ lighting gouraud;
 camlight;
 %% Save the normalized electrode information to file
 save([subjID '_elec_mni_fv.mat'], 'elec_mni_fv');
+%% save names
+proc_elecposition(subjID);
+proc_elecname(subjID);

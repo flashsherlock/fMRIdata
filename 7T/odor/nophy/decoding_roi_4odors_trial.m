@@ -10,7 +10,7 @@
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 sub='S01_yyt';
-analysis='pabiode';
+analysis='pade';
 rois={'Amy','Piriform','APC','PPC'};
 
 for i=1:length(rois)
@@ -54,8 +54,8 @@ for i=1:length(rois)
     % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
     % label number (i.e. a nx1 vector)
     % 1-lim 2-tra 3-car 4-cit
-    cfg.files.label = reshape(repmat([1 2 3 4],[48 1]),[numtr 1]);
-    cfg.files.labelname = reshape(repmat({'lim' 'tra' 'car' 'cit'},[48 1]),[numtr 1]);
+    cfg.files.label = reshape(repmat([1 2 3 4],[numtr/4 1]),[numtr 1]);
+    cfg.files.labelname = reshape(repmat({'lim' 'tra' 'car' 'cit'},[numtr/4 1]),[numtr 1]);
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
 

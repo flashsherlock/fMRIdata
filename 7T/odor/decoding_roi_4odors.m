@@ -10,7 +10,7 @@
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 sub='S01_yyt';
-analysis='paphde';
+analysis='pabiode';
 rois={'Amy','Piriform','APC','PPC'};
 
 for i=1:length(rois)
@@ -24,7 +24,7 @@ for i=1:length(rois)
 
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
-    test=['4odors_' roi '_trial'];
+    test=['4odors_' roi];
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'

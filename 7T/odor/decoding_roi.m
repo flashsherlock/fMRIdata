@@ -15,8 +15,8 @@ rois={'Amy','Piriform','APC','PPC'};
 odors={'lim','tra','car','cit'};
 comb=nchoosek(1:length(odors), 2);
 
-for i=1:length(rois)
-    roi=rois{i};
+for roi_i=1:length(rois)
+    roi=rois{roi_i};
     mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpamask/' roi '*+orig.HEAD']);
 for i=1:length(comb)
     odornumber=comb(i,:);

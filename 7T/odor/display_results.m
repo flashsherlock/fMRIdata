@@ -1,5 +1,5 @@
 sub='S01_yyt';
-analysis='paphde';
+analysis='pabiode';
 rois={'Amy','Piriform','APC','PPC'};
 cfg.analysis = 'roi';
 odors={'lim','tra','car','cit'};
@@ -21,15 +21,16 @@ for i=1:length(dirs)
         disp(results.accuracy_minus_chance.output);
         % confusion_matrix is a cell array that only contains a class*class matrix
         load([cfg.results.dir dirs(i).name filesep 'res_confusion_matrix.mat']);
-        figure;
+        % figure;
         % 2017b and later has heatmap function
         % heatmap(results.confusion_matrix.output{1}, 'Colormap', jet)
-        HMobj=HeatMap(results.confusion_matrix.output{1}, 'RowLabels', odors, 'ColumnLabels', odors, 'Colormap', jet);
-        H=addTitle(HMobj,strrep(dirs(i).name,'_','-'));
-        
+%         HMobj=HeatMap(results.confusion_matrix.output{1}, 'RowLabels', odors, 'ColumnLabels', odors, 'Colormap', jet);
+%         H=addTitle(HMobj,strrep(dirs(i).name,'_','-'));
+%         
         disp(results.confusion_matrix.output{1})
 
     catch
+        % if there is no confusion matrix (searchlight .. and .)
         disp(dirs(i).name);
     end
 end

@@ -1,21 +1,21 @@
 %% set path
 subjID = 's01';
 filepath='/Volumes/WD_D/gufei/consciousness';
-cfg=[];
-cfg.dataset=[filepath '/edf/' subjID '_2.edf'];
-eeg=ft_preprocessing(cfg);
-%% delete unused channels
-eeg.label(58:end)=[];
-eeg.trial{1}(58:end,:)=[];
-%% resample
-cfg=[];
-cfg.resamplefs=500;
-eeg=ft_resampledata(cfg,eeg);
+
+for i=1:2
+    cfg=[];
+    cfg.dataset=[filepath '/edf/' subjID '_' num2str(i) '.edf'];
+    %% delete unused channels
+    load([filepath '/data/' subjID '_electrodes.mat']);
+    use=electrodes(:,1);
+    use(delete)=[];
+    cfg.channels=use;
+    datr=ft_preprocessing(cfg);
+    %% resample
+    cfg=[];
+    cfg.resamplefs=500;
+    dat{i}=ft_resampledata(cfg,datr);
+end
+eeg = ft_appenddata(cfg, dat{:});
 %% save
 save('s01.mat','eeg');
-%% plot
-cfg = [];
-cfg.channel = 54:57;
-cfg.viewmode = 'vertical';
-eegplot = ft_databrowser(cfg,eeg);
-

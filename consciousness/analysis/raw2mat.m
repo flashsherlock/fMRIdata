@@ -1,28 +1,39 @@
+function raw2mat(ID)
 %% set path
-subjID = 's03';
+% subjID = 's03';
+subjID = ID;
 filepath='/Volumes/WD_D/gufei/consciousness';
 sfix={'','_awake','_sleep'};
 %%
-for i=2:3
-cfg=[];
-cfg.dataset=[filepath '/edf/' subjID sfix{i} '.edf'];
-eeg=ft_preprocessing(cfg);
-% delete useless data
-eeg.label(66:71)=[];
-eeg.trial{1}(66:71,:)=[];
-% resample
-cfg=[];
-cfg.resamplefs=500;
-eeg=ft_resampledata(cfg,eeg);
-% save as .mat
-save([filepath '/data/' subjID sfix{i} '.mat'],'eeg');
+for i=1:3
+    cfg=[];
+    cfg.dataset=[filepath '/edf/' subjID sfix{i} '.edf'];
+    if exist(cfg.dataset,'file')
+        % delete useless data
+        load([filepath '/data/' subjID '_electrodes.mat']);
+        use=electrodes(:,1);
+        use(delete)=[];
+        cfg.channels=use;
+        eeg=ft_preprocessing(cfg);
+        % dc index 
+        dc=find(contains(electrodes(:,1),'DC')==1);      
+        
+        % resample
+        cfg=[];
+        cfg.resamplefs=500;
+        eeg=ft_resampledata(cfg,eeg);
+        
+        cfg.marker=eeg.trial{1}(dc(1:3),:);
+        % save as .mat
+        save([filepath '/data/' subjID sfix{i} '.mat'],'eeg');
+        % ft_write_data([filepath '/data/' subjID sfix{i} '.mat'],eeg,'dataformat','matlab')
+    end
 end
 %% plot signal
-cfg = [];
-cfg.channel = 64:67;
-cfg.viewmode = 'vertical';
-eegplot = ft_databrowser(cfg,eeg);
-
+% cfg = [];
+% cfg.channel = 64:67;
+% cfg.viewmode = 'vertical';
+% eegplot = ft_databrowser(cfg,eeg);
 %%
 % marker={'POL DC02';'POL DC03';'POL DC04';};
 % channel=[];
@@ -32,4 +43,4 @@ eegplot = ft_databrowser(cfg,eeg);
 %     end
 % end
 % eeg.marker=eeg.trial{1}(channel,:);
-
+end

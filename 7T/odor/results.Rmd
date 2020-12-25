@@ -16,5 +16,177 @@ library(ggpubr)
 library(ggrepel)
 library(plotly)
 library(R.matlab)
+library(dplyr)
+library(tidyr)
 ```
 
+```{r include=FALSE}
+# load mvpa acc for each roi
+path <- "/Volumes/WD_D/gufei/7T_odor/"
+sub <- "S01_yyt"
+analysis <- c("pade","paphde","pabiode")
+data <- data.frame(sub=0,phy=0,beta=0,roi=0,odor=0,acc=0)
+data <- data[-1,]
+# 3 kinds of phy
+for (a in 1:length(analysis)) {
+  ana <- analysis[a]
+  setwd(paste0(path,sub,'/',sub,'.',ana,'.results/mvpa/'))
+  # mvpa <- c("roi","roi_IM","searchligt")
+  mvpa <- dir(pattern = "roi")
+  # 2 kinds of beta (run and trial)
+  for (m in mvpa){
+    # odor4 <- dir(path="roi",pattern = "^4")
+    # dirname start not with 4
+    odor2 <- dir(path=m,pattern = "^[^4]")
+    # 4 kinds of roi
+    for (r in odor2){
+      # read mat file
+        mat <- readMat(file.path(m,paste0("4odors_",r),'res_accuracy_minus_chance.mat'))
+        # find acc
+        acc <- mat$results[[9]][[1]]+mat$results[[9]][[2]]
+        data[nrow(data)+1,] <- c(sub,ana,m,r,paste0("4odors_",r),acc)
+    
+      for (campare in dir(path=file.path(m,r),pattern = "2")) {
+        # read mat file
+        mat <- readMat(file.path(m,r,campare,'res_accuracy_minus_chance.mat'))
+        # find acc
+        acc <- mat$results[[9]][[1]]+mat$results[[9]][[2]]
+        # sub_name type_of_phy mvpa_run_or_trial roi campare_pair acc
+        data[nrow(data)+1,] <- c(sub,ana,m,r,campare,acc)
+        
+      }
+    }
+  }
+}
+data[,6] <- as.numeric(data[,6])
+data <- mutate(data, phy=factor(phy,levels = c("pade","paphde","pabiode")))
+data <- mutate(data, roi=factor(roi,levels = c("Amy","Piriform","APC","PPC")))
+```
+
+# Accuracy
+## 4 odors
+```{r}
+sub <- "S01_yyt"
+ggthemr('fresh',layout = "clean")
+data4odor <- subset(data,odor%in%unique(data$odor)[grepl("^4",unique(data$odor))])
+# data4odor <- mutate(data4odor, phy=factor(phy,levels = c("pade","paphde","pabiode")))
+# 3 kinds of phy
+# for (a in 1:length(analysis)) {
+  # ana <- analysis[a]
+  mvpa <- c( "roi","roi_IM")
+  # ntest <- c(24,192)
+  for (m in mvpa){
+    # odor2 <- c("4odors_Amy","4odors_APC","4odors_Piriform","4odors_PPC")
+    # 4 kinds of roi
+    # for (r in odor2){
+      n <- if_else(m=="roi",24,192)
+      dataplot <- subset(data4odor, sub ==sub & beta==m )
+      figure <- ggplot(dataplot, aes(x=roi, y=acc, fill=phy)) + 
+      labs(title = m ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
+      geom_bar(position="dodge", stat="identity") +
+      coord_cartesian(ylim=c(0,45)) +
+      scale_y_continuous(breaks=waiver(),expand = c(0,0))+
+        geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+
+      # scale_fill_manual(values = colors[1:2])+ #颜色
+      scale_fill_brewer(palette = "Greens",direction = 1) #颜色
+      print(figure)
+    # }
+  }
+# }
+```
+## 2odors
+```{r}
+sub <- "S01_yyt"
+ggthemr('fresh',layout = "clean")
+data2odor <- subset(data,odor%in%unique(data$odor)[grepl("^2",unique(data$odor))])
+# data2odor <- mutate(data2odor, phy=factor(phy,levels = c("pade","paphde","pabiode")))
+# data2odor <- mutate(data2odor, roi=factor(roi,levels = c("Amy","Piriform","APC","PPC")))
+# 3 kinds of phy
+# for (a in 1:length(analysis)) {
+  # ana <- analysis[a]
+  mvpa <- c( "roi","roi_IM")
+  # ntest <- c(24,192)
+  for (m in mvpa){
+    odor2 <- unique(data2odor$odor)
+    # 4 kinds of roi
+    for (r in odor2){
+      n <- if_else(m=="roi",12,96)
+      dataplot <- subset(data2odor, sub ==sub & beta==m & odor==r)
+      figure <- ggplot(dataplot, aes(x=roi, y=acc, fill=phy)) + 
+      labs(title = paste(m,r,sep = "_") ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
+      geom_bar(position="dodge", stat="identity") +
+      coord_cartesian(ylim=c(0,100)) +
+      scale_y_continuous(breaks=waiver(),expand = c(0,0))+
+        geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
+      # scale_fill_manual(values = colors[1:2])+ #颜色
+      scale_fill_brewer(palette = "Greens",direction = 1) #颜色
+      print(figure)
+    }
+  }
+# }
+```
+
+```{r include=FALSE}
+# load confusion matrix for 4 odors mvpa
+path <- "/Volumes/WD_D/gufei/7T_odor/"
+sub <- "S01_yyt"
+analysis <- c("pade","paphde","pabiode")
+cmatrix <- list()
+# 3 kinds of phy
+for (a in 1:length(analysis)) {
+  ana <- analysis[a]
+  setwd(paste0(path,sub,'/',sub,'.',ana,'.results/mvpa/'))
+  mvpa <- dir(pattern = "roi")
+  # 2 kinds of beta (run and trial)
+  for (m in mvpa){
+    # dirname
+    odor2 <- dir(path=m,pattern = "^4")
+    # 4 kinds of roi
+    for (r in odor2){
+        # read mat file
+        mat <- readMat(file.path(m,r,'res_confusion_matrix.mat'))
+        # find acc
+        cmatrix <- as.data.frame( mat$results[[9]][[1]] )
+        # row.names(cmatrix) <- c("lim","tra","car","cit")
+        cmatrix <- cbind(cmatrix,c("lim","tra","car","cit"))
+        names(cmatrix) <- c(paste0('p_',c("lim","tra","car","cit")),"odor")
+        cmatrix <- gather(cmatrix, prediction, value, p_lim:p_cit)
+        cmatrix <- mutate(cmatrix,odor = factor(odor,rev(c("lim","tra","car","cit"))), # alphabetical order by default
+         prediction = factor(prediction, levels = paste0('p_',c("lim","tra","car","cit")))) # force reverse alphabetical order
+        cmatrix[,3] <- round(cmatrix[,3],digits = 2)
+        assign(paste(ana,m,r,sep = '_'),cmatrix)
+    }
+  }
+}
+
+```
+
+# Confusion matrix
+```{r}
+sub <- "S01_yyt"
+analysis <- c("pade","paphde","pabiode")
+# 3 kinds of phy
+for (a in 1:length(analysis)) {
+  ana <- analysis[a]
+  mvpa <- c( "roi","roi_IM")
+  for (m in mvpa){
+    up <- ifelse(m=="roi",85,50)
+    low <- ifelse(m=="roi",25,25)
+    odor2 <- c("4odors_Amy","4odors_APC","4odors_Piriform","4odors_PPC")
+    # 4 kinds of roi
+    for (r in odor2){
+      cmatrix <- get(paste(ana,m,r,sep = '_'))
+      # myPalette <- colorRampPalette(brewer.pal(9, "Greens"))
+      # sc <- scale_colour_gradientn(colours = myPalette(1000), limits=c(0, 100))
+      figure <- ggplot(cmatrix, aes(x=prediction, y=odor, fill=value)) +
+        geom_tile() + theme_bw() + coord_equal() +
+        scale_fill_distiller(palette="Greens", direction=1,limits=c(low, up) ) +
+        # sc+
+        guides(fill=F) + # removing legend for `fill`
+        labs(title = paste(ana,m,r,sep = '_')) + # using a title instead
+        geom_text(aes(label=value), color="black") # printing values
+      print(figure)
+    }
+  }
+}
+```

@@ -41,3 +41,26 @@ disp(nanmean(valence))
 disp('intensity')
 disp(nanmean(intensity))
 [p2,tbl2,stats2]=anova1(intensity,odors,'on');
+
+disp('valence_run')
+runvalence(1,:)=nanmean(valence(1:4,:));
+runvalence(2,:)=nanmean(valence(5:8,:));
+runvalence(3,:)=nanmean(valence(9:12,:));
+runvalence(4,:)=nanmean(valence(13:16,:));
+runvalence(5,:)=nanmean(valence(17:20,:));
+runvalence(6,:)=nanmean(valence(21:24,:));
+disp(runvalence)
+plot(runvalence,'-d')
+legend(odors)
+axis([1 6 4.5 7])
+disp('intensity_run')
+runintensity(1,:)=nanmean(intensity(1:4,:));
+runintensity(2,:)=nanmean(intensity(5:8,:));
+runintensity(3,:)=nanmean(intensity(9:12,:));
+runintensity(4,:)=nanmean(intensity(13:16,:));
+runintensity(5,:)=nanmean(intensity(17:20,:));
+runintensity(6,:)=nanmean(intensity(21:24,:));
+disp(runintensity)
+plot(runintensity,'-d')
+legend(odors)
+axis([1 6 4.5 7])

@@ -28,7 +28,7 @@ for i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_IM/' test];
+    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_IM_leave1/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -49,7 +49,9 @@ for i=1:length(rois)
     % (1) a nx1 vector to indicate what data you want to keep together for 
     % cross-validation (typically runs, so enter run numbers)
     % each run is a chunk
-    cfg.files.chunk = reshape(repmat(1:6,[8 4]),[numtr 1]);
+    % cfg.files.chunk = reshape(repmat(1:6,[8 4]),[numtr 1]);
+    % each trial is a chunk
+    cfg.files.chunk = reshape(repmat(1:6 * 8, [1 4]), [numtr 1]);
     %
     % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
     % label number (i.e. a nx1 vector)

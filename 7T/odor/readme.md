@@ -49,7 +49,7 @@ Use ft_preproc_lowpassfilter to filt respiration from Biopac. Align and compare 
 Save respiration from Biopac to 1d file that used in physiology correction.
 
 ## nophy
-Analysis same as above but without physioloy correction (pade).
+Analysis same as above but without physioloy correction (pade). This can be a backup for all of the analysis.
 
 # MVPA
 

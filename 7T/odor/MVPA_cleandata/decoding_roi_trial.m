@@ -14,6 +14,7 @@ analysis='pabiode';
 rois={'Amy','Piriform','APC','PPC'};
 odors={'lim','tra','car','cit'};
 comb=nchoosek(1:length(odors), 2);
+shift=0;
 
 for roi_i=1:length(rois)
     roi=rois{roi_i};
@@ -34,27 +35,20 @@ for i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_IM_leave1/' test];
+    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VI_leave1/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
     
-    % Full path to file names (1xn cell array) (e.g.
-    % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
-    % lim tra car cit
-    tr_lim=2:2:96;
-    tr_tra=99:2:193;
-    tr_car=196:2:290;
-    tr_cit=293:2:387;
-    % all of betas
-    trs={tr_lim,tr_tra,tr_car,tr_cit};
-    % betas selected by odornumber
-    tr=[trs{odornumber(1)} trs{odornumber(2)}];
+    % all of images
+    timing = findtrs(shift);
+    % images selected by odornumber
+    tr = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), 2);
     numtr=6*8*2;
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/'  'stats.' sub '.' analysis '.IM+orig.BRIK,' num2str(t)];
+        F{subi} = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/'  'errts.' sub '.' analysis '.VI+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)

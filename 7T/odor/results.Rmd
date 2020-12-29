@@ -32,7 +32,7 @@ for (a in 1:length(analysis)) {
   ana <- analysis[a]
   setwd(paste0(path,sub,'/',sub,'.',ana,'.results/mvpa/'))
   # mvpa <- c("roi","roi_IM","searchligt")
-  mvpa <- dir(pattern = "roi")
+  mvpa <- dir(pattern = "roi_IM_")
   # 2 kinds of beta (run and trial)
   for (m in mvpa){
     # odor4 <- dir(path="roi",pattern = "^4")
@@ -73,7 +73,8 @@ data4odor <- subset(data,odor%in%unique(data$odor)[grepl("^4",unique(data$odor))
 # 3 kinds of phy
 # for (a in 1:length(analysis)) {
   # ana <- analysis[a]
-  mvpa <- c( "roi","roi_IM")
+  # mvpa <- c( "roi","roi_IM")
+  mvpa <- c("roi_IM_leave1")
   # ntest <- c(24,192)
   for (m in mvpa){
     # odor2 <- c("4odors_Amy","4odors_APC","4odors_Piriform","4odors_PPC")
@@ -104,7 +105,8 @@ data2odor <- subset(data,odor%in%unique(data$odor)[grepl("^2",unique(data$odor))
 # 3 kinds of phy
 # for (a in 1:length(analysis)) {
   # ana <- analysis[a]
-  mvpa <- c( "roi","roi_IM")
+  # mvpa <- c( "roi","roi_IM")
+  mvpa <- c("roi_IM_leave1")
   # ntest <- c(24,192)
   for (m in mvpa){
     odor2 <- unique(data2odor$odor)
@@ -136,7 +138,7 @@ cmatrix <- list()
 for (a in 1:length(analysis)) {
   ana <- analysis[a]
   setwd(paste0(path,sub,'/',sub,'.',ana,'.results/mvpa/'))
-  mvpa <- dir(pattern = "roi")
+  mvpa <- dir(pattern = "roi_IM_")
   # 2 kinds of beta (run and trial)
   for (m in mvpa){
     # dirname
@@ -168,10 +170,11 @@ analysis <- c("pade","paphde","pabiode")
 # 3 kinds of phy
 for (a in 1:length(analysis)) {
   ana <- analysis[a]
-  mvpa <- c( "roi","roi_IM")
+    # mvpa <- c( "roi","roi_IM")
+  mvpa <- c("roi_IM_leave1")
   for (m in mvpa){
     up <- ifelse(m=="roi",85,50)
-    low <- ifelse(m=="roi",25,25)
+    low <- ifelse(m=="roi",0,0)
     odor2 <- c("4odors_Amy","4odors_APC","4odors_Piriform","4odors_PPC")
     # 4 kinds of roi
     for (r in odor2){

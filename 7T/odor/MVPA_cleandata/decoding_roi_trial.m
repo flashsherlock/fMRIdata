@@ -14,7 +14,7 @@ analysis='pabiode';
 rois={'Amy','Piriform','APC','PPC'};
 odors={'lim','tra','car','cit'};
 comb=nchoosek(1:length(odors), 2);
-shift=0;
+shift=6;
 
 for roi_i=1:length(rois)
     roi=rois{roi_i};
@@ -35,7 +35,7 @@ for i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VI_leave1/' test];
+    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VI_leave1_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end

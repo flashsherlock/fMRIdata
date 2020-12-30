@@ -11,7 +11,7 @@
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 sub='S01_yyt';
 analysis='paphde';
-
+shift=6;
 mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mask_anat*+orig.HEAD']);
 % Set defaults
 cfg = decoding_defaults;
@@ -25,20 +25,21 @@ test=['4odors_'];
 cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
 % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_IM/' test];
+cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_leave1_' num2str(shift) '/' test];
 if ~exist(cfg.results.dir,'dir')
     mkdir(cfg.results.dir)
 end
 
+timing=findtrs(shift);
 % Full path to file names (1xn cell array) (e.g.
 % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
 % lim tra car cit
-tr=[2:2:96 99:2:193 196:2:290 293:2:387];
+tr=timing(:,2);
 numtr=6*8*4;
 F=cell(1,numtr);
 for subi = 1:numtr
     t=tr(subi);
-    F{subi} = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/'  'stats.' sub '.' analysis '.IM+orig.BRIK,' num2str(t)];
+    F{subi} = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
 end
 cfg.files.name =  F;
 % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -46,12 +47,13 @@ cfg.files.name =  F;
 % (1) a nx1 vector to indicate what data you want to keep together for 
 % cross-validation (typically runs, so enter run numbers)
 % each run is a chunk
-cfg.files.chunk = reshape(repmat(1:6,[8 4]),[numtr 1]);
+cfg.files.chunk = reshape(repmat(1:6 * 8, [1 4]), [numtr 1]);
 %
 % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
 % label number (i.e. a nx1 vector)
 % 1-lim 2-tra 3-car 4-cit
 cfg.files.label = reshape(repmat([1 2 3 4],[48 1]),[numtr 1]);
+% cfg.files.label = timing(:, 1);
 cfg.files.labelname = reshape(repmat({'lim' 'tra' 'car' 'cit'},[48 1]),[numtr 1]);
 %% Decide whether you want to see the searchlight/ROI/... during decoding
 cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...

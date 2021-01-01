@@ -32,7 +32,7 @@
 				"acrylicOpacity": 0.8,
                 "fontSize":13,
 				"cursorShape":"filledBox",
-				"fontFace":"DejaVu Sans Mono for Powerline"
+				"fontFace":"DejaVuSansMono NF"
         },
         "list":
         [
@@ -55,7 +55,7 @@
 				"commandline":"ssh mac@flashsherlock.xyz -p 6000",
 				"backgroundImage": "C:\\Users\\GuFei\\t\\finder.jpg",
 				"backgroundImageOpacity": 0.1,
-				"backgroundImageStretchMode": "uniformfill",
+				"backgroundImageStretchMode": "uniform",
 				"tabTitle": "Mac Pro",
                 "hidden": false
             },
@@ -78,7 +78,11 @@
                 "guid": "{120518d8-7fa3-4700-a76b-a46004c0749d}",
                 "name": "Mac via huashengke",
 				"colorScheme": "Campbell",
-				"commandline":"ssh mac@flashsherlock.qicp.vip -p 1034",
+				"commandline":"ssh mac@flashsherlock.qicp.vip -p ***",
+				"backgroundImage": "C:\\Users\\GuFei\\t\\finder.jpg",
+				"backgroundImageOpacity": 0.1,
+				"backgroundImageStretchMode": "uniform",
+				"tabTitle": "Mac Pro",
                 "hidden": false
             },
 
@@ -124,6 +128,28 @@
 		  "brightCyan": "#26bbd1",
 		  "brightWhite": "#d9d9d9"
 		},
+		{
+            "name": "Campbell",
+            "foreground": "#CCCCCC",
+            "background": "#0C0C0C",
+            "cursorColor": "#FFFFFF",
+            "black": "#0C0C0C",
+            "red": "#C50F1F",
+            "green": "#13A10E",
+            "yellow": "#C19C00",
+            "blue": "#268BD2",
+            "purple": "#881798",
+            "cyan": "#3A96DD",
+            "white": "#CCCCCC",
+            "brightBlack": "#767676",
+            "brightRed": "#E74856",
+            "brightGreen": "#16C60C",
+            "brightYellow": "#F9F1A5",
+            "brightBlue": "#3B78FF",
+            "brightPurple": "#B4009E",
+            "brightCyan": "#61D6D6",
+            "brightWhite": "#F2F2F2"
+        },
         {
             "name": "Solarized Darker",
             "foreground": "#dae3e4",
@@ -176,8 +202,8 @@
         // Copy and paste are bound to Ctrl+Shift+C and Ctrl+Shift+V in your defaults.json.
         // These two lines additionally bind them to Ctrl+C and Ctrl+V.
         // To learn more about selection, visit https://aka.ms/terminal-selection
-        { "command": {"action": "copy", "singleLine": false }, "keys": "ctrl+c" },
-        { "command": "paste", "keys": "ctrl+v" },
+        //{ "command": {"action": "copy", "singleLine": false }, "keys": "ctrl+c" },
+        //{ "command": "paste", "keys": "ctrl+v" },
 
         // Press Ctrl+Shift+F to open the search box
         { "command": "find", "keys": "ctrl+shift+f" },
@@ -188,8 +214,10 @@
         // To learn more about panes, visit https://aka.ms/terminal-panes
 		//{ "command":"unbound", "keys": "alt+shift+plus" },
 		//{ "command":"unbound", "keys": "alt+shift+-" },
-		{ "command": { "action": "splitPane", "split": "vertical"}, "keys": "ctrl+shift+." },
+		{ "command": { "action": "splitPane", "split": "auto"}, "keys": "ctrl+shift+a" },
 		{ "command": { "action": "splitPane", "split": "auto", "index": 1}, "keys": "alt+shift+m" },
+		{ "command": { "action": "splitPane", "split": "auto", "index": 2}, "keys": "alt+shift+u" },
+		{ "command": { "action": "splitPane", "split": "auto", "index": 3}, "keys": "alt+shift+n" },
         { "command": { "action": "splitPane", "split": "auto", "splitMode": "duplicate" }, "keys": "alt+shift+d" }
     ]
 

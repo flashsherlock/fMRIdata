@@ -1,5 +1,5 @@
 %% set path
-subjID = 's01';
+subjID = 's02';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 %% load CT image
 ct = ft_read_mri([filepath '/' subjID '_CT.nii']);

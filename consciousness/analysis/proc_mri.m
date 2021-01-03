@@ -1,6 +1,6 @@
 %% load mri image
 subjID = 's02';
-filepath='E:/NanChang/use';
+filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 mri = ft_read_mri([filepath '/' subjID '_MRI.nii']);
 %% determine left and right
 ft_determine_coordsys(mri);

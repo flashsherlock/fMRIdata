@@ -9,6 +9,7 @@
 % (e.g. addpath('/home/decoding_toolbox') )
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
+subn=1;
 sub='S01_yyt';
 analysis='pabiode';
 rois={'Amy','Piriform','APC','PPC'};
@@ -41,7 +42,7 @@ for i=1:length(comb)
     end
     
     % all of images
-    timing = findtrs(shift);
+    timing = findtrs(shift,subn);
     % images selected by odornumber
     tr = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), 2);
     numtr=6*8*2;

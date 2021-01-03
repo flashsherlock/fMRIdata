@@ -1,10 +1,11 @@
-function timing = findtrs( shift )
+function timing = findtrs( shift,subnum )
 % find TRs when odor evoked activity reaches peak
 % shift is the time shift (seconds) after inhalation
 run=6;
 times=8;
-sub='s01_run';
-datadir='/Volumes/WD_D/gufei/7T_odor/S01_yyt/behavior/';
+prefix=dir(sprintf('/Volumes/WD_D/gufei/7T_odor/S%02d*',subnum));
+sub=sprintf('s%02d_run',subnum);
+datadir=[prefix.folder filesep prefix.name filesep 'behavior/'];
 timing=zeros(2,4*times,run);
 
 for i=1:run

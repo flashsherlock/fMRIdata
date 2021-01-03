@@ -8,33 +8,33 @@
 %% Initialisation %%
 %%%%%%%%%%%%%%%%%%%%
 
-toolboxRoot = 'toolboxPathOnYourMachine'; addpath(genpath(toolboxRoot));
+% toolboxRoot = '/Users/mac/matlab/rsatoolbox'; addpath(genpath(toolboxRoot));
 userOptions = defineUserOptions();
 
 %%%%%%%%%%%%%%%%%%%%%%
 %% Data preparation %%
 %%%%%%%%%%%%%%%%%%%%%%
 
-fullBrainVols = rsa.fmri.fMRIDataPreparation('SPM', userOptions);
-binaryMasks_nS = rsa.fmri.fMRIMaskPreparation(userOptions);
-responsePatterns = rsa.fmri.fMRIDataMasking(fullBrainVols, binaryMasks_nS, 'SPM', userOptions);
+fullBrainVols = fMRIDataPreparation_afni(betaCorrespondence, userOptions);
+binaryMasks_nS = fMRIMaskPreparation_afni(userOptions);
+responsePatterns = rsa.fmri.fMRIDataMasking(fullBrainVols, binaryMasks_nS, betaCorrespondence, userOptions);
 
 %%%%%%%%%%%%%%%%%%%%%
 %% RDM calculation %%
 %%%%%%%%%%%%%%%%%%%%%
 
-RDMs  = rsa.constructRDMs(responsePatterns, 'SPM', userOptions);
+RDMs  = rsa.constructRDMs(responsePatterns, betaCorrespondence, userOptions);
 sRDMs = rsa.rdm.averageRDMs_subjectSession(RDMs, 'session');
 RDMs  = rsa.rdm.averageRDMs_subjectSession(RDMs, 'session', 'subject');
 
-Models = rsa.constructModelRDMs(modelRDMs(), userOptions);
+Models = rsa.constructModelRDMs(modelRDMs_7T(), userOptions);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% First-order visualisation %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-rsa.fig.figureRDMs(RDMs, userOptions, struct('fileName', 'RoIRDMs', 'figureNumber', 1));
-rsa.fig.figureRDMs(Models, userOptions, struct('fileName', 'ModelRDMs', 'figureNumber', 2));
+rsa.figureRDMs(RDMs, userOptions, struct('fileName', 'RoIRDMs', 'figureNumber', 1));
+rsa.figureRDMs(Models, userOptions, struct('fileName', 'ModelRDMs', 'figureNumber', 2));
 
 rsa.MDSConditions(RDMs, userOptions);
 rsa.dendrogramConditions(RDMs, userOptions);

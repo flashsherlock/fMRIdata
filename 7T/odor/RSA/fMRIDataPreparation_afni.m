@@ -104,13 +104,24 @@ if overwriteFlag
 		thisSubject = userOptions.subjectNames{subject};
 
 		fprintf(['Reading beta volumes for subject number ' num2str(subject) ' of ' num2str(nSubjects) ': ' thisSubject]);
-
+        
+        % load data from afni
+        if isfield(userOptions,'afni')
+            % replace wildcards
+            readPath = replaceWildcards(userOptions.betaPath, '[[betaIdentifier]]', betas(1,1).identifier, '[[subjectName]]', thisSubject);
+            userOptions.afni.files.name=get_name_afni(userOptions,readPath,subject);
+            userOptions.afni.files.mask='all voxels';
+            brainMatrix = decoding_load_data(userOptions.afni);
+            % reshape to （voxel,condition,session）
+            fullBrainVols.(thisSubject) = reshape(brainMatrix.data',[],nConditions,nSessions);
+            
+        else   % original code         
 		for session = 1:nSessions % For each session...
 			for condition = 1:nConditions % and each condition...
 
 				readPath = replaceWildcards(userOptions.betaPath, '[[betaIdentifier]]', betas(session,condition).identifier, '[[subjectName]]', thisSubject);
                 if strcmp(betaCorrespondence,'SPM')
-                    brainMatrix = spm_read_vols(spm_vol(readPath));
+                    brainMatrix = spm_read_vols(spm_vol(readPath));                
                 else
                 load(readPath);
                 brainMatrix = betaImage;
@@ -128,7 +139,7 @@ if overwriteFlag
 
 		% For each subject, record the vectorised brain scan in a subject-name-indexed structure
 		fullBrainVols.(thisSubject) = subjectMatrix; clear subjectMatrix;
-
+        end
 		fprintf('\b:\n');
 
 	end%for

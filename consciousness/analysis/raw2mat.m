@@ -1,4 +1,4 @@
-function eeg=raw2mat(subjID)
+function raw2mat(subjID)
 %% set path
 % subjID = 's03';
 filepath='/Volumes/WD_D/gufei/consciousness';
@@ -13,6 +13,8 @@ switch subjID
         subname='HuYifan';
     case 's04'
         subname='WanRuilong';
+    otherwise
+        error('No data for this subject');
 end
 bipolar_path=[filepath '/data/' subjID '_' subname '_bipolar'];
 if ~exist(bipolar_path,'dir')
@@ -42,7 +44,6 @@ if strcmp(subjID,'s01')
     elec.electrodes(elec.delete,:)=[];
     % change to newlabel
     eeg.label=newlabel;
-    eeg = rmfield(eeg,'hdr');
     % sort electrodes        
     [eeg.label,order]=sort(eeg.label);
     eeg.trial{:}=eeg.trial{:}(order,:);

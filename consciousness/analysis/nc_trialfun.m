@@ -17,7 +17,7 @@ marker=round(eeg.trial{1}(mindex,:)/1e5);
 marker=marker>31;
 % convert to digits
 marker=[1 2 4]*marker;
-% set air to zero
+% set air to zero for checking position
 % marker(marker==6)=0;
 
 % shift=2;

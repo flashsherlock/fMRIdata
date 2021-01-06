@@ -34,7 +34,7 @@ try
     offset=zeros(size(start));
     trl=[start stop offset label];
 catch
-    error('The numbers of each odor are not equal')
+    error('The trial numbers of each odor are not equal')
 end
 % check position
 % plot(marker)

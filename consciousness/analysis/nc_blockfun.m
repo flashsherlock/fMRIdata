@@ -12,6 +12,8 @@ if mod(length(trial),5)==0
     % find start time of each block by every 5 lemons
     index=1:5:length(trial)/3;
     trl=trial(index,:);
+    % compute block time
+    trl(:,2)=trl(:,1)+5*60*eeg.fsample;
 else
     error('Some of the blocks do not contain 5 trials');
 end
@@ -32,13 +34,16 @@ marker=[1 2 4]*marker;
 % set air to zero for checking position
 marker(marker==6)=0;
 % plot marker
+figure;
 plot(marker)
 hold on
 z=nan(size(marker));
-z(trl(trl(:,4)==2,1))=2;
+% find start and stop
+z(trl(:,1))=2;
+z(trl(:,2))=0;
 plot(z,'.','MarkerSize',15);
 % get file name
 [~,name,~]=fileparts(eeg.cfg.previous.dataset);
 % add filename as title
-title(name);
+title(name,'Interpreter','none');
 end

@@ -102,6 +102,7 @@ end
 % cfg = [];
 % cfg.channel = 1:5;
 % cfg.viewmode = 'vertical';
+% cfg.ylim = 'maxmin'
 % eegplot = ft_databrowser(cfg,eeg);
 %%
 % marker={'POL DC02';'POL DC03';'POL DC04';};

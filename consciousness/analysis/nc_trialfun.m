@@ -1,5 +1,10 @@
-function trl = nc_trialfun( eeg )
+function trl = nc_trialfun( eeg , offset)
 % tial function for iEEG
+% default off set is 0
+% offset is use for consideration of rise time
+if nargin==1
+    offset=0;
+end
 % marker=eeg.trial{1}(ismember(eeg.label,{'DC02','DC03','DC04'}),:);
 % to make sure the order of DCs
 mindex=zeros(3,1);
@@ -8,11 +13,13 @@ for dc=2:4
 end
 % convert to integer values
 marker=round(eeg.trial{1}(mindex,:)/1e5);
-% set to 1 if >30
-marker=marker>30;
+% set to 1 if >31
+marker=marker>31;
 % convert to digits
 marker=[1 2 4]*marker;
-marker(marker==6)=0;
+% set air to zero
+% marker(marker==6)=0;
+
 % shift=2;
 % marker(1:end-shift)=marker(1:end-shift)-marker(1+shift:end);
 % find onset marker for each odor
@@ -31,7 +38,8 @@ try
     start=reshape(start,[],1);
     % compute stop
     stop=start+5*eeg.fsample;
-    offset=zeros(size(start));
+    % add offset
+    offset=offset*ones(size(start));
     trl=[start stop offset label];
 catch
     error('The trial numbers of each odor are not equal')

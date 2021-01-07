@@ -13,7 +13,7 @@ if mod(length(trial),5)==0
     index=1:5:length(trial)/3;
     trl=trial(index,:);
     % compute block time
-    trl(:,2)=trl(:,1)+5*60*eeg.fsample;
+    trl(:,2)=trl(:,1)+fix(5*60*eeg.fsample);
 else
     error('Some of the blocks do not contain 5 trials');
 end

@@ -26,18 +26,21 @@ marker=[1 2 4]*marker;
 lemon=1+find(diff(marker==2)==1);
 chocolate=1+find(diff(marker==4)==1);
 garlic=1+find(diff(marker==5)==1);
+
 % remove some unexpected value(still remain the same value when+check)
-check=500;
-lemon=lemon(marker(lemon+check)==2);
-chocolate=chocolate(marker(chocolate+check)==4);
-garlic=garlic(marker(garlic+check)==5);
+for check=[1 500 fix(5*eeg.fsample)-10]
+    lemon=lemon(marker(lemon+check)==2);
+    chocolate=chocolate(marker(chocolate+check)==4);
+    garlic=garlic(marker(garlic+check)==5);
+end
+
 try
     start=[lemon;chocolate;garlic]';
     % reshape to one column
     label=reshape(ones(size(start)).*[2,4,5],[],1);
     start=reshape(start,[],1);
     % compute stop
-    stop=start+5*eeg.fsample;
+    stop=start+fix(5*eeg.fsample);
     % add offset
     offset=offset*ones(size(start));
     trl=[start stop offset label];

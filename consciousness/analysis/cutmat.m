@@ -34,7 +34,7 @@ for i=1:3
         % get start time points of each block
         trl = nc_blockfun(eeg);
         % cut blocks (15s before onset )
-        eeg = nc_trialcut(eeg,trl,-15*eeg.fsample,0);
+        eeg = nc_trialcut(eeg,trl,fix(-15*eeg.fsample),0);
         % save data
 %         save([block_path '/' subjID sfix{i} '.mat'],'eeg');
         
@@ -42,7 +42,10 @@ for i=1:3
 end
 
 end
+% select channels
+% cfg.channel    = ft_channelselection({'all','-DC*','-*ref'}, eeg.label);
+% dataFIC=ft_selectdata(cfg,eeg);
 
-% cfg=[];
+% select data by trialinfo
 % cfg.trials = test.trialinfo==2;
 % dataFIC = ft_selectdata(cfg, eeg);

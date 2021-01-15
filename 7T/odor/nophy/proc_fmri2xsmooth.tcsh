@@ -1,7 +1,7 @@
 #! /bin/csh
 
 set sub=S01_yyt
-set analysis=2xpade
+set analysis=2xpadee2a
 set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 # ==========================processing========================== # 
@@ -10,7 +10,7 @@ cd "${datafolder}"
         -subj_id ${sub}.${analysis}                                                             \
         -dsets ${sub}.run?+orig.HEAD                                                            \
         -blip_reverse_dset ${sub}.pa+orig.HEAD                                                  \
-        -copy_anat ${sub}.uniden15_brain.nii.gz                                                 \
+        -copy_anat ${sub}_anat_warped/anatSS.${sub}.nii                                         \
         -anat_has_skull no                                                                      \
         -blocks despike tshift align tlrc volreg blur mask scale regress                        \
         -radial_correlate_blocks tcat volreg                                                    \
@@ -22,6 +22,8 @@ cd "${datafolder}"
                 ${sub}_anat_warped/anatQQ.${sub}.aff12.1D                                       \
                 ${sub}_anat_warped/anatQQ.${sub}_WARP.nii                                       \
         -volreg_align_to MIN_OUTLIER                                                            \
+        -volreg_align_e2a                                                                       \
+        -volreg_tlrc_warp                                                                       \
         -blur_size 2.2                                                                          \
         -regress_stim_times                                                                     \
                 behavior/lim.txt                                                                \
@@ -49,5 +51,4 @@ cd "${datafolder}"
         -regress_make_cbucket yes                                                               
         # -execute
         # more options for 3dD can be added by -regress_opts_3dD
-        # -volreg_align_e2a                                        \    
-        # -volreg_tlrc_warp                                        \    
+   

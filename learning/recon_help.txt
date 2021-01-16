@@ -1,0 +1,1300 @@
+
+USAGE: recon-all
+
+ Required Arguments:
+   -subjid <subjid>
+   -<process directive>
+
+ Fully-Automated Directive:
+  -all           : performs all stages of cortical reconstruction
+  -autorecon-all : same as -all
+
+ Manual-Intervention Workflow Directives:
+  -autorecon1    : process stages 1-5 (see below)
+  -autorecon2    : process stages 6-23
+                   after autorecon2, check white surfaces:
+                     a. if wm edit was required, then run -autorecon2-wm
+                     b. if control points added, then run -autorecon2-cp
+                     c. proceed to run -autorecon3
+  -autorecon2-cp : process stages 12-23 (uses -f w/ mri_normalize, -keep w/ mri_seg)
+  -autorecon2-wm : process stages 15-23
+  -autorecon2-inflate1 : 6-18
+  -autorecon2-perhemi : tess, sm1, inf1, q, fix, sm2, inf2, finalsurf, ribbon
+  -autorecon3    : process stages 24-34
+                     if edits made to correct pial, then run -autorecon-pial
+  -hemi ?h       : just do lh or rh (default is to do both)
+
+  Autorecon Processing Stages (see -autorecon# flags above):
+    1.  Motion Correction and Conform
+    2.  NU (Non-Uniform intensity normalization)
+    3.  Talairach transform computation
+    4.  Intensity Normalization 1
+    5.  Skull Strip
+
+    6.  EM Register (linear volumetric registration)
+    7.  CA Intensity Normalization
+    8.  CA Non-linear Volumetric Registration 
+    9.  Remove neck
+    10. EM Register, with skull
+    11. CA Label (Aseg: Volumetric Labeling) and Statistics
+
+    12. Intensity Normalization 2 (start here for control points)
+    13. White matter segmentation
+    14. Edit WM With ASeg
+    15. Fill (start here for wm edits)
+    16. Tessellation (begins per-hemisphere operations)
+    17. Smooth1
+    18. Inflate1
+    19. QSphere
+    20. Automatic Topology Fixer
+    21. White Surfs (start here for brain edits for pial surf)
+    22. Smooth2
+    23. Inflate2
+
+    24. Spherical Mapping
+    25. Spherical Registration 
+    26. Spherical Registration, Contralater hemisphere
+    27. Map average curvature to subject
+    28. Cortical Parcellation (Labeling)
+    29. Cortical Parcellation Statistics
+    30. Pial Surfs
+    31. WM/GM Contrast
+    32. Cortical Ribbon Mask
+    33. Cortical Parcellation mapped to ASeg
+    34  Brodmann and exvio EC labels
+
+ Step-wise Directives
+  See -help
+
+ Expert Preferences
+  -pons-crs C R S : col, row, slice of seed point for pons, used in fill
+  -cc-crs C R S : col, row, slice of seed point for corpus callosum, used in fill
+  -lh-crs C R S : col, row, slice of seed point for left hemisphere, used in fill
+  -rh-crs C R S : col, row, slice of seed point for right hemisphere, used in fill
+  -nofill        : do not use the automatic subcort seg to fill
+  -watershed cmd : control skull stripping/watershed program
+  -wsless : decrease watershed threshold (leaves less skull, but can strip more brain)
+  -wsmore : increase watershed threshold (leaves more skull, but can strip less brain)
+  -wsatlas : use atlas when skull stripping
+  -no-wsatlas : do not use atlas when skull stripping
+  -no-wsgcaatlas : do not use GCA atlas when skull stripping
+  -wsthresh pct : explicity set watershed threshold
+  -wsseed C R S : identify an index (C, R, S) point in the skull
+  -norm3diters niters : number of 3d iterations for mri_normalize
+  -normmaxgrad maxgrad : max grad (-g) for mri_normalize. Default is 1.
+  -norm1-b N : in the _first_ usage of mri_normalize, use control 
+               point with intensity N below target (default=10.0) 
+  -norm2-b N : in the _second_ usage of mri_normalize, use control 
+               point with intensity N below target (default=10.0) 
+  -norm1-n N : in the _first_ usage of mri_normalize, do N number 
+               of iterations
+  -norm2-n N : in the _second_ usage of mri_normalize, do N number 
+               of iterations
+  -cm           : conform volumes to the min voxel size (equal to -hires)
+  -no-fix-with-ga : do not use genetic algorithm when fixing topology
+  -fix-diag-only  : topology fixer runs until ?h.defect_labels files
+                    are created, then stops
+  -seg-wlo wlo : set wlo value for mri_segment and mris_make_surfaces
+  -seg-ghi ghi : set ghi value for mri_segment and mris_make_surfaces
+  -nothicken   : pass '-thicken 0' to mri_segment
+  -no-ca-align-after : turn off -align-after with mri_ca_register
+  -no-ca-align : turn off -align with mri_ca_label
+  -deface      : deface subject, written to orig_defaced.mgz
+
+  -expert file     : read-in expert options file
+  -xopts-use       : use pre-existing expert options file
+  -xopts-clean     : delete pre-existing expert options file
+  -xopts-overwrite : overwrite pre-existing expert options file
+  -termscript script : run script before exiting (multiple -termscript flags possible)
+   This can be good for running custom post-processing after recon-all
+   The script must be in your path. The subjid is passed as the only argument
+   The current directory is changed to SUBJECTS_DIR before the script is run
+   The script should exit with 0 unless there is an error
+
+  -mprage : assume scan parameters are MGH MP-RAGE protocol
+  -washu_mprage : assume scan parameters are Wash.U. MP-RAGE protocol.
+                  both mprage flags affect mri_normalize and mri_segment,
+                  and assumes a darker gm.
+  -schwartzya3t-atlas : for tal reg, use special young adult 3T atlas
+
+  -threads num  : set number of threads to use
+
+ Notification Files (Optional)
+  -waitfor file : wait for file to appear before beginning
+  -notify  file : create this file after finishing
+
+ Status and Log files (Optional)
+  -log     file : default is scripts/recon-all.log
+  -status  file : default is scripts/recon-all-status.log
+  -noappend     : start new log and status files instead of appending
+  -no-isrunning : do not check whether this subject is currently being processed
+
+ Segmentation of substructures of hippocampus and brainstem 
+ (These deprecated; please see segmentHA_T1.sh, segmentHA_T1.sh, segmentHA_T1_long.sh, segmentBS.sh)
+  -hippocampal-subfields-T1 : segmentation of hippocampal subfields using input T1 scan
+  -hippocampal-subfields-T2 file ID : segmentation using an additional scan (given by file);
+                                      ID is a user-defined identifier for the analysis
+  -hippocampal-subfields-T1T2 file ID : segmentation using additional scan (given by file) and input T1
+                                        simultaneously; ID is a user-defined identifier for the analysis
+  -brainstem-structures : segmentation of brainstem structures
+
+ Other Arguments (Optional)
+  -sd subjectsdir : specify subjects dir (default env SUBJECTS_DIR)
+  -mail username  : mail user when done
+  -umask umask    : set unix file permission mask (default 002)
+  -grp groupid    : check that current group is alpha groupid 
+  -onlyversions   : print version of each binary and exit
+  -debug          : print out lots of info
+  -allowcoredump  : set coredump limit to unlimited
+  -dontrun        : do everything but execute each command
+  -version        : print version of this script and exit
+  -help           : voluminous bits of wisdom
+
+7.1.1 (freesurfer-darwin-macOS-7.1.1-20200801-8b40551)
+
+
+Performs all, or any part of, the FreeSurfer cortical reconstruction
+process. This help only gives some simple information. For more
+detailed documentation, see https://surfer.nmr.mgh.harvard.edu
+
+Basic usages:
+
+1. Subject dir does not exist:
+
+  recon-all -subject subjectname -i invol1 <-i invol2> -all
+
+Creates analysis directory $SUBJECTS_DIR/subjectname, converts one or
+more input volumes to MGZ format in subjectname/mri/orig, and runs
+all processing steps. If subjectname exists, then an error is returned
+when -i is used; but this can be overridden with -force (in which
+case any pre-existing source volumes are deleted).
+
+2. Manual conversion into mgz:
+
+  mkdir -p $SUBJECTS_DIR/subjectname/mri/orig
+  mri_convert invol1 $SUBJECTS_DIR/subjectname/mri/orig/001.mgz
+  mri_convert invol2 $SUBJECTS_DIR/subjectname/mri/orig/002.mgz
+  recon-all -subject subjectname -all
+
+If no input volumes are given, then it is assumed that the subject
+directory has already been created and that the raw data already
+exists in MGZ format in subjid/mri/orig as XXX.mgz, where XXX is a
+3-digit, zero-padded number.
+
+
+SUBJECT IDENTIFICATION STRING
+
+-s subjectname
+-sid subjectname
+-subjid subjectname
+-subject subjectname
+
+'subjectname' is the FreeSurfer subject identification string which doubles
+as the name of the reconstruction root directory for this subject. This
+reconstruction should be referenced by this string for all FreeSurfer
+commands and in the register.dat matrix (for functional interfacing).
+
+
+SPECIFYING DIRECTIVES
+
+Directives instruct recon-all which part(s) of the reconstruction
+stream to run. While it is possible to do everything in one shot (using
+the -all flag), there can be some benefits to customizing the
+stream. These benefits include stopping to perform manual editing as
+well as parallelization. Directives are either clustered or step-wise.
+Clustered directives are sets of steps that can be performed by
+specifying a single flag. A step-wise directive refers to a single
+step.  Directives accumulate. A step can be removed from a cluster by
+adding -no<step> after the cluster flag. For example, specifying
+-all followed by -notalairach will perform all the reconstruction
+steps except talairaching. However, note that if -notalairach *preceeded*
+-all, talairaching would still be performed.
+
+
+CLUSTERED DIRECTIVES
+
+-all
+-autorecon-all
+
+Perform all reconstruction steps.
+
+-autorecon1
+
+Motion correction through skull strip.
+
+-autorecon2
+
+Subcortical segmentation through make white surfaces.
+
+-autorecon2-cp
+
+Normalization2 through make final surfaces.
+
+-autorecon2-wm
+
+Fill through make white surfaces. Used after editing wm volume after running
+-autorecon2.
+
+-autorecon-pial
+
+Makes final surfaces (white and pial). Used after editing brain.finalsurfs
+volume after running -autorecon2. The brain.finalsurfs.mgz volume may be
+edited to fix problems with the pial surface.
+
+-autorecon3
+
+Spherical morph, automatic cortical parcellation, pial surf and ribbon mask.
+
+
+STEP-WISE DIRECTIVES
+
+Step-wise directives allow the user to implement a single step in the
+reconstruction process. See also STEP DESCRIPTION SUMMARIES below.
+They also allow users to include/exclude a step from a clustered
+DIRECTIVE. To include a step, use -step (eg, -skullstrip). To exclude
+a step, use -nostep (eg -noskullstrip).
+
+Run times are approximate for an Intel Xeon E5-2643 64bit 3.4GHz processor:
+
+  -<no>motioncor          2 min
+  -<no>talairach        < 1 min
+  -<no>normalization      2 min
+  -<no>skullstrip        15 min
+  -<no>nuintensitycor     1 min
+  -<no>gcareg            15 min
+  -<no>canorm             1 min
+  -<no>careg              1 hour
+  -<no>rmneck             1 min
+  -<no>skull-lta         12 min
+  -<no>calabel           34 min
+  -<no>normalization2     3 min
+  -<no>maskbfs          < 1 min
+  -<no>segmentation       1 min
+  -<no>fill               1 min
+  -<no>tessellate       < 1 min     per hemisphere
+  -<no>smooth1          < 1 min     per hemisphere
+  -<no>inflate1           1 min     per hemisphere
+  -<no>qsphere            3 min     per hemisphere
+  -<no>fix               15 min     per hemisphere
+  -<no>white              3 min     per hemisphere
+  -<no>smooth2          < 1 min     per hemisphere
+  -<no>inflate2         < 1 min     per hemisphere
+  -<no>curvHK           < 1 min     per hemisphere
+  -<no>curvstats        < 1 min     per hemisphere
+  -<no>sphere            40 min     per hemisphere
+  -<no>surfreg           50 min     per hemisphere
+  -<no>jacobian_white   < 1 min     per hemisphere
+  -<no>avgcurv          < 1 min     per hemisphere
+  -<no>cortparc           1 min     per hemisphere
+  -<no>pial               4 min     per hemisphere
+  -<no>surfvolune       < 1 min     per hemisphere
+  -<no>cortribbon        15 min
+  -<no>parcstats        < 1 min     per hemisphere
+  -<no>cortparc2          1 min     per hemisphere
+  -<no>parcstats2       < 1 min     per hemisphere
+  -<no>cortparc3          1 min     per hemisphere
+  -<no>parcstats3       < 1 min     per hemisphere
+  -<no>pctsurfcon       < 1 min     per hemisphere
+  -<no>hyporelabel      < 1 min     per hemisphere
+  -<no>aparc2aseg         1 min
+  -<no>apas2aseg          1 min
+  -<no>segstats           3 min
+  -<no>wmparc             7 min
+  -<no>balabels           5 min     per hemisphere
+
+  -all                    7 hours   both hemipheres
+
+If -parallel is specified, runtime is reduced to 3 hours.
+
+
+SEGMENTATION OF HIPPOCAMPAL SUBFIELDS  AND NUCLEI OF THE AMYGDALA (CROSS-SECTIONAL AND LONGITUDINAL)
+
+The following flags can be used to obtain a segmentation of the hippocampal subfields,
+as well as of the nuclei of the amygdala.
+The methods are described in [17] (hippocampus) and [19] (amygdala). There is also a
+longitudinal version of the algorithm [20]. You can find further information here:
+https://surfer.nmr.mgh.harvard.edu/fswiki/HippocampalSubfieldsAndNucleiOfAmygdala
+
+Note that the following 6.0 flags have been deprecated:
+
+-hippocampal-subfields-T1
+-hippocampal-subfields-T2 
+-hippocampal-subfields-T1T2 
+
+And replaced by the following scripts (for help, run them with flag --help): 
+
+segmentHA_T1.sh: Uses the T1 scan which the recon-all stream has processed at 1 mm 
+resolution or higher (with -cm).
+
+segmentHA_T2.sh: It uses an additional scan in the segmentation, typically  (but
+not necessarily) a T2 volume with higher resolution, at least in the coronal plane. 
+This additional scan can be used in isolation or in combination with the T1 volume
+processed with recon-all
+
+segmentHAsegment_T1_long.sh: This is the longitudinal version of segmentHA_T1.sh.
+
+
+SEGMENTATION OF BRAINSTEM STRUCTURES
+
+This module performs segmentation of brains structures (medulla, pons, midbrain, SCP) on 
+the T1 scan which the  recon-all stream has processed, at 1 mm or higher resolution (with 
+-cm). The method is described in [18]. You can read more at: 
+http://surfer.nmr.mgh.harvard.edu/fswiki/BrainstemSubstructures
+
+Note that the following 6.0 flag has been deprecated:
+
+-brainstem-structures
+
+And replaced by the following script (for help, run it with flag --help): 
+
+segmentBS.sh
+
+
+EXPERT PREFERENCES
+
+-pons-crs C R S
+
+Specify a seed point for the pons during the fill operation. This is
+used to cut the brain stem from brain. By default, this point will be
+determined automatically. It should only be specified if there is a
+cut failure. To determine what this point should be, find the center
+of the pons in the T1 volume (in tkmedit) and record the column, row,
+and slice. Creates a file called scripts/seed-ponscrs.man.dat
+with the CRS.
+
+-cc-crs C R S
+
+Specify a seed point for the corpus callosum during the fill
+operation. This is used to help separate the hemispheres.  By default,
+this point will be determined automatically. It should only be
+specified if there is a cut failure.  To determine what this point
+should be, find the center of the CC in the T1 volume (in tkmedit) and
+record the column, row, and slice. Creates a file called
+scripts/seed-cccrs.man.dat with the CRS.
+
+-lh-crs C R S
+
+Specify a seed point for the left hemisphere during the fill
+operation. This is used to help identify the left hemisphere.  By
+default, this point will be determined automatically. It should only
+be specified if there is a cut failure.  To determine what this point
+should be, find a point in the white matter mass of the left
+hemisphere in the T1 volume (in tkmedit) and record the column, row,
+and slice. Creates a file called scripts/seed-cccrs.man.dat with the
+CRS. Remember that tkmedit displays the volume in radiological
+convention (ie, left is right).
+
+-rh-crs C R S
+
+Same as -lh-crs but for the right hemisphere. Creates a file called
+scripts/seed-rhcrs.man.dat with the CRS.
+
+-watershed cmd
+
+This controls how the skull stripping will be performed. Legal values are
+normal (the default), atlas, nowatershed, watershedonly, and watershedtemplate.
+
+-wsmore/-wsless
+
+Increase/decrease the preflooding height (threshold) when skull
+stripping. -wsmore will expand the skull surface; -wsless will shrink
+the skull surface.  See also -wsthresh.
+
+-wsthresh pctheight
+
+Explicitly set the preflooding height when skull stripping.
+
+-wsseed R C S
+
+Supply a point in the volume that the user believes to be in the white
+matter.  By default, this point will be determined automatically. It
+should only be specified if there is a strip failure. To determine
+what this point should be, find a point in the white matter using
+tkmedit and record the Volume Index values (NOT the XYZ coordinates).
+
+-no-wsgcaatlas
+
+Disable usage of the GCA atlas when running mri_watershed skull-stripping.
+The default is to use the GCA atlas to locate anatomy aiding skull-strip.
+
+-gca gcafile
+
+Specify the name of the gaussian classifier array (GCA) file
+to be used with GCA registration and automatic subcortical
+segmentation. It must be found in the FREESURFER_HOME/average directory (or
+use -gca-dir to specify an alternate path).
+The Default is RB_all_YYYY-MM-DD.gca located in
+FREESURFER_HOME/average. This has no effect unless the GCA registration
+or subcortical segmentation stages are to be performed.
+
+-gca-skull gcafile
+
+Specify the name of the gaussian classifier array (GCA) file to be used with
+registration with skull.  It must be found in the FREESURFER_HOME/average
+directory (or use -gca-dir to specify an alternate path).
+The default is RB_all_withskull_YYYY-MM-DD.gca located in
+FREESURFER_HOME/average.
+
+-gcs gcsfile
+
+Specify the name of the gaussian classifier surface atlas (GCS) file
+to be used for the cortical parcellation stage. It must be found in the
+FREESURFER_HOME/average directory (or use -gcs-dir to specify an alternate
+path). The default is named
+curvature.buckner40.filled.desikan_killiany.2007-06-20.gcs and is located in
+FREESURFER_HOME/average.
+
+-twm twmfile
+
+Where (twmfile) is a control.dat format file (a point set in freeview)
+with points manually selected to be in the white matter inferior to
+hippocampus in the temporal lobe. This option is passed to mri_ca_register.
+
+-nuiterations
+
+Number of iterations in the non-uniform intensity correction.
+Default is 2.
+
+-norm3diters niters
+
+Use niters 3d normalization iterations (passes as -n to _both_ runs of
+mri_normalize).
+
+-normmaxgrad maxgrad
+
+Passes "-g maxgrad" to _both_ runs of mri_normalize. Max grad default is 1.
+
+-norm1-b N
+
+In the _first_ usage of mri_normalize (during creation of T1.mgz), use
+control point with intensity N below target (default=10.0)
+
+-norm1-n N
+
+In the _first_ usage of mri_normalize, do N number of iterations
+
+-norm2-b N
+
+In the _second_ usage of mri_normalize (during creation of brain.mgz), use
+control point with intensity N below target (default=10.0)
+
+-norm2-n N
+
+In the _second_ usage of mri_normalize, do N number of iterations
+
+-noaseg
+
+Skips subcortical segmentation steps (same as -nosubcortseg), and does
+not use aseg.presurf.mgz for inorm2, wm segmentation, or filling. 
+Use this flag for brains that do not support usage of Freesurfers subcortical
+segmentation, such as baby brains, or non-human primates.
+
+-noaseg-inorm2
+
+Does not use aseg.presurf.mgz for the second mri_normalize step.
+
+-bigventricles
+
+If a subject has enlarged ventricles due to atrophy, include the -bigventricles
+flag with the -autorecon2 stage in order to prevent surfaces extending into
+the ventricle regions. The flag directly affects the binary mri_ca_register,
+and mris_make_surfaces indirectly via aseg.presurf.mgz.
+
+-norandomness
+
+The random number generator used by certain binaries is seeded with the
+same number, thus producing identical results from run to run.
+
+-cw256
+
+Include this flag after -autorecon1 if images have a FOV > 256.  The
+flag causes mri_convert to conform the image to dimensions of 256^3.
+
+-notal-check
+
+Skip the automatic failure detection of Talairach alignment.
+
+-qcache
+
+Produce the pre-cached files required by the Qdec utility, allowing rapid
+analysis of group data.  These files are created by running mris_preproc,
+which creates smoothed surface data files sampled to the 'fsaverage'
+common-space surface. By default, the surface data for thickness, curv, sulc,
+area and jacobian_white are smoothed at 0, 5, 10, 15, 20, and 25 mm FWHM.
+If just one set of surface data needs to be processed, then the option
+-measure <surfmeas> can follow -qcache, where <surfmeas> is one of: thickness,
+curv, sulc, area, jacobian_white or any surface measure. Multiple instances
+of -measure <meas> is supported.  The -measuredir option allows
+specifying a directory other than the default of surf. Another option is
+-fwhm <num> where <num> is a value in mm.  Also, -target <name> allows
+specifying a common-space target other than fsaverage (the default).
+qcache is also a target for make, eg. recon-all -make qcache
+See also: http://surfer.nmr.mgh.harvard.edu/fswiki/Qdec
+
+-smooth-cortex-only
+
+Only applies with -qcache. Only smooth data if it is part of the ?h.cortex.label.
+This prevents values in the medial wall (which are meaningless) from being
+smoothed into cortical areas. This is the default and you will have to turn
+it off with -no-smooth-cortex-only.
+
+-no-smooth-cortex-only
+
+Allow medial wall values to smooth into cortex.
+
+-make target
+
+Runs recon-all through 'make', the standard utility used to create a file
+only if its dependencies are out-of-date.  This -make option makes use of the
+file recon-all.makefile, where the dependency chain is specified.
+A 'target' argument must be specified.  The valid targets are:
+
+  all
+  autorecon1
+  autorecon2
+  autorecon2-volonly
+  autorecon2-perhemi
+  autorecon3
+  qcache
+
+These targets correspond to their flag equivalents in recon-all.  The
+difference in behaviour is that files are created only if the file does not
+exist or if an input file used to create it has a newer date than the file
+in need of creation.  It is also possible to supply the full pathname to a
+particular file as a target.
+
+The flag -dontrun can also be specified to show the commands that will run
+without excuting them.
+
+-lgi
+-lGI
+-localGI
+
+Computes local measurements of pial-surface gyrification at thousands of
+points over the cortical surface. See reference [13] for details.
+
+-label_v1
+
+Create a label of V1, based on Hinds et al., NeuroImage 39 (2008) 1585-1599.
+
+-balabels
+-ba-labels
+-ba_labels
+
+Creates Brodmann area labels of BA1, BA2, BA3a, BA3b, BA4a, BA4p, BA6, BA44,
+BA45, V1, V2, and V5/MT (and perirhinal) by mapping labels from the 
+'fsaverage' subject, which must exist within the SUBJECTS_DIR.  
+Based on:
+"Cortical Folding Patterns and Predicting Cytoarchitecture", Fischl et al.,
+Cerebral Cortex 2007.
+
+-threads num
+-openmp num
+
+Set the number of threads available to openMP-enabled tools.
+
+
+EXPERT OPTIONS FILE
+
+While the expert preferences flags supported by recon-all cover most
+of the instances where special flags need to be passed to a FreeSurfer
+binary, to allow passing an arbitrary flag to a binary, recon-all
+supports the reading of a user-created "expert options" (xopts) file
+containing options to append to the command string. This may be used
+to specify new options or to override default values. There are two
+types xopts file, local and global. The local file you pass on the
+command line and is used only for the subject you run it with. The
+global is place in $SUBJECTS_DIR/global-expert-options.txt and will be
+used with every call to recon-all for subjects in $SUBJECTS_DIR. If
+both contain options for the same command, then the local xopts file
+takes precedence.
+
+Each line of the xopts file corresponds to one command. The first item
+is the name of the command; the items following it on rest of the line
+will be passed as the extra options.  For example, if a file called
+expert.opts is created containing these lines:
+
+  mri_em_register -p .5
+  mris_topo_fixer -asc
+
+then the option "-p .5" will be passed to mri_em_register, and "-asc"
+will be passed to mris_topo_fixer.  The name of the expert options file
+is passed to recon-all with the -expert flag, eg.
+
+  recon-all -expert expert.opts ...
+
+When an expert options is passed, it will be copied to scripts/expert-options.
+Future calls to recon-all, the user MUST explicitly specify how to treat this file.
+Options are (1) use the file (-xopts-use), or (2) delete it (-xopts-clean). If
+this file exsts and the user specifies another expert options file, then
+the user must also specify -xopts-overwrite.
+
+The following FreeSurfer binaries will accept an expert option:
+
+  talairach_avi
+  mri_normalize
+  mri_watershed
+  mri_em_register
+  mri_ca_normalize
+  mri_ca_register
+  mri_remove_neck
+  mri_ca_label
+  mri_segstats
+  mri_mask
+  mri_segment
+  mri_edit_wm_with_aseg
+  mri_pretess
+  mri_fill
+  mri_tessellate
+  mris_smooth
+  mris_inflate
+  mris_sphere
+  mris_fix_topology
+  mris_topo_fixer
+  mris_remove_intersection
+  mris_make_surfaces
+  mris_surf2vol
+  mris_register
+  mris_jacobian
+  mrisp_paint
+  mris_ca_label
+  mris_anatomical_stats
+  mri_aparc2aseg
+
+
+NOTIFICATION FILES
+
+Notification files allow the user to cascade invocations to recon-all,
+with one invocation waiting until another one terminates. This is done
+by specifying a file that must exist before an invocation can precede
+(-waitfor) and/or specifying a file that is created when an invocation
+terminates (-notify). This type of interprocess communication can
+allow users to parallelize the stream. If this is to be done, note
+that each hemisphere can be run separately by specifying the -hemi
+flag.
+
+
+LOG AND STATUS FILES
+
+By default, log and status files are created in subjid/scripts. The
+log file contains all the output from all the programs that have been
+run during the invocation to recon-all. The status file has a list of
+all the programs that have been run and the time at which each
+started. The log file is intended to be a record of what was done
+whereas the status file allows the user to easily see where in the
+stream a currently running process is. The log file should be sent
+with all bug reports. By default, these files are called recon-all.log
+and recon-all-status.log, but this can be changed with the -log and
+-status options. By default, the log and status are appended to. New
+log and status files can be forced with the -noappend flag.
+
+
+OTHER ARGUMENTS
+
+-sd subjectsdir
+
+This allows the user to specify the root of the FreeSufer subjects
+directory. If unspecified, the environment variable SUBJECTS_DIR
+is used.
+
+-mail username
+
+Send email to username when the process terminates.
+
+
+STEP DESCRIPTION SUMMARIES
+
+Motion Correction (-<no>motioncor)
+
+When there are multiple source volumes, this step will correct for
+small motions between them and then average them together. The input
+are the volumes found in file(s) mri/orig/XXX.mgz. The output will be
+the volume mri/orig.mgz. If no runs are found, then it looks for
+a volume in mri/orig (or mri/orig.mgz). If that volume is there, then
+it is used in subsequent processes as if it was the motion corrected
+volume. If no volume is found, then the process exits with errors.
+The motion correction step uses a robust registration [14] procedure
+to produce highly accurate registrations of the brain, ignoring outlier
+regions, such as differen cropping planes, jaw, neck, eye movement etc.
+
+Talairach (-<no>talairach)
+
+This computes the affine transform from the orig volume to the MNI305
+atlas using Avi Snyders 4dfp suite of image registration tools,
+through a FreeSurfer script called talairach_avi. Several of the downstream
+programs use talairach coordinates as seed points. You can/should check
+how good the talairach registration is using
+"tkregister2 --s subjid --fstal-avi". You must have an "fsaverage" subject in
+your SUBJECTS_DIR. tkregister2 allows you to compare the orig volume
+against the talairach volume resampled into the orig space. If you modify
+the registration, it will change the talairach.xfm file. Your edits will
+be *not* be overwritten unless you run recon-all specifying -clean-tal.
+Run "tkregister2 --help" for more information.
+Creates the files mri/transform/talairach.auto.xfm and talairach.xfm.
+The flag -tal-check will check the registration against known-good transforms.
+Adding the flag -use-mritotal after -talairach will use the MINC program
+mritotal (see Collins, et al., 1994) to perform the transform.
+
+Normalization (-<no>normalization)
+
+Performs intensity normalization of the orig volume and places the
+result in mri/T1.mgz. Attempts to correct for fluctuations in
+intensity that would otherwise make intensity-based segmentation much
+more difficult. Intensities for all voxels are scaled so that the mean
+intensity of the white matter is 110. If there are problems with the
+normalization, users can add control points. See also Normalization2.
+
+Skull Strip (-<no>skullstrip)
+
+Removes the skull from mri/T1.mgz and stores the result in
+mri/brainmask.auto.mgz and mri/brainmask.mgz.
+Runs the mri_watershed program. If the strip fails, users can specify
+seed points (-wsseed) or change the threshold (-wsthresh, -wsmore, -wsless).
+The -autorecon1 stage ends here.
+
+NU Intensity Correction (-<no>nuintensitycor)
+
+Non-parametric Non-uniform intensity Normalization (N3), corrects for
+intensity non-uniformity in MR data,  making relatively few assumptions
+about the data.  This runs the MINC tool 'nu_correct'.  By default, one
+iteration of nu_correct is run.  The flag -nuiterations specification
+of some other number of iterations.
+
+Automatic Subcortical Segmentation (-<no>subcortseg)
+
+This is done in six stages. (1) GCA linear registration
+(-gcareg). This is an initial registration to a template. (2)
+Canonical Normalization (-canorm), (3) Canonical Registration
+(-careg). (4) Neck removal (-rmneck), (5) Registration, w/skull
+(-skull-lta), and (6) Subcortical labeling (-calabel).
+The stages are listed next.
+
+EM (GCA) Registration (-<no>gcareg)
+
+Computes transform to align the mri/nu.mgz volume to the default GCA atlas
+found in FREESURFER_HOME/average (see -gca flag for more info).
+Creates the file mri/transforms/talairach.lta.
+The -autorecon2 stage starts here.
+
+CA Normalize (-<no>canorm)
+
+Further normalization, based on GCA model.
+Creates mri/norm.mgz.
+Note: -canorm-usecps will enable usage of control points during normalization.
+
+CA Register (-<no>careg)
+
+Computes a nonlinear transform to align with GCA atlas.
+Creates the file mri/transform/talairach.m3z.
+
+Remove neck (-<no>rmneck)
+
+The neck region is removed from the NU-corrected volume mri/nu.mgz.
+Makes use of transform computed from prior CA Register stage.
+Creates the file mri/nu_noneck.mgz.
+
+EM Registration, with Skull (-<no>skull-lta)
+
+Computes transform to align volume mri/nu_noneck.mgz with GCA volume
+possessing the skull.
+Creates the file mri/transforms/talairach_with_skull_2.lta.
+
+CA Label (-<no>calabel)
+
+Labels subcortical structures, based in GCA model.
+Creates the files mri/aseg.auto.mgz and mri/aseg.presurf.mgz.
+
+ASeg Stats (-<no>segstats)
+
+Computes statistics on the segmented subcortical structures found
+in mri/aseg.mgz. Writes output to file stats/aseg.stats.
+
+Normalization2 (-<no>normalization)
+
+Performs a second (major) intensity correction using only the brain
+volume as the input (so that it has to be done after the skull strip).
+Intensity normalization works better when the skull has been removed.
+Creates a new brain.mgz volume. The -autorecon2-cp stage begins here.
+If -noaseg flag is used, then aseg.presurf.mgz is not used by mri_normalize.
+
+WM Segmentation (-<no>segmentation)
+
+Attempts to separate white matter from everything else. The input is
+mri/brain.mgz, and the output is mri/wm.mgz.  Uses intensity,
+neighborhood, and smoothness constraints.  This is the volume that is
+edited when manually fixing defects. Calls mri_segment,
+mri_edit_wm_with_aseg, and mri_pretess. To keep previous edits, run
+with -keep. If -noaseg is used, them mri_edit_wm_aseg is skipped.
+
+Cut/Fill (-<no>fill)
+
+This creates the subcortical mass from which the orig surface is
+created. The mid brain is cut from the cerebrum, and the hemispheres
+are cut from each other. The left hemisphere is binarized to 255.
+The right hemisphere is binarized to 127.  The input is mri/wm.mgz
+and the output is mri/filled.mgz. Calls mri_fill. If the cut fails,
+then seed points can be supplied (see -cc-crs, -pons-crs, -lh-crs,
+-rh-crs). The actual points used for the cutting planes in the
+corpus callosum and pons can be found in scripts/ponscc.cut.log.
+The stage -autorecon2-wm begins here.  This is the last stage of
+volumetric processing. If -noaseg is used, then aseg.presurf.mgz is 
+not used by mri_fill.
+
+Tessellation (-<no>tessellate)
+
+This is the step where the orig surface (ie, surf/?h.orig.nofix) is
+created. The surface is created by covering the filled hemisphere with
+triangles. Runs mri_tessellate. The places where the points of the
+triangles meet are called vertices. Creates the file surf/?h.orig.nofix
+Note: the topology fixer will create the surface ?h.orig.
+
+Orig Surface Smoothing (-<no>smooth1, -<no>smooth2)
+
+After tesselation, the orig surface is very jagged because each
+triangle is on the edge of a voxel face and so are at right angles to
+each other. The vertex positions are adjusted slightly here to reduce
+the angle. This is only necessary for the inflation processes.
+Creates surf/?h.smoothwm(.nofix). Calls mris_smooth. Smooth1 is the step
+just after tessellation, and smooth2 is the step just after topology
+fixing.
+
+Inflation (-<no>inflate1, -<no>inflate2)
+
+Inflation of the surf/?h.smoothwm(.nofix) surface to create
+surf/?h.inflated. The inflation attempts to minimize metric distortion
+so that distances and areas are perserved (ie, the surface is not
+stretched). In this sense, it is like inflating a paper bag and not a
+balloon.  Inflate1 is the step just after tessellation, and inflate2
+is the step just after topology fixing. Calls mris_inflate. Creates
+?h.inflated, ?h.sulc, ?h.curv, and ?h.area.
+
+QSphere (-<no>qsphere)
+
+This is the initial step of automatic topology fixing. It is a
+quasi-homeomorphic spherical transformation of the inflated surface designed
+to localize topological defects for the subsequent automatic topology fixer.
+Calls mris_sphere. Creates surf/?h.qsphere.nofix.
+
+Automatic Topology Fixer (-<no>fix)
+
+Finds topological defects (ie, holes in a filled hemisphere) using
+surf/?h.qsphere.nofix, and changes the orig surface (surf/?h.orig.nofix)
+to remove the defects. Changes the number of vertices.  All the defects
+will be removed, but the user should check the orig surface in the volume
+to make sure that it looks appropriate. Calls mris_topo_fixer.
+Creates surf/?h.orig (by iteratively fixing surf/?h.orig.nofix).
+
+White Surface (-<no>white)
+
+Creates the ?h.white surfacees as well as the curvature file (?h.curv).
+The white surface is created by "nudging" the orig surface so that it
+closely follows the white-gray intensity gradient as found in the T1 volume.
+Calls mris_make_surfaces.  See also "Pial Surface" and "Final Surfaces".
+
+Spherical Inflation (-<no>sphere)
+
+Inflates the orig surface into a sphere while minimizing metric
+distortion.  This step is necessary in order to register the surface
+to the spherical atlas. (also known as the spherical morph). Calls
+mris_sphere. Creates surf/?h.sphere.  The -autorecon3 stage begins here.
+
+Ipsilateral Surface Registation (Spherical Morph) (-<no>surfreg)
+
+Registers the orig surface to the spherical atlas through
+surf/?h.sphere. The surfaces are first coarsely registered by aligning
+the large scale folding patterns found in ?h.sulc and then fine tuned
+using the small-scale patterns as in ?h.curv.
+Calls mris_register. Creates surf/?h.sphere.reg.
+
+Jacobian (-<no>jacobian_white)
+
+Computes how much the white surface was distorted in order to register
+to the spherical atlas during the -surfreg step. Creates ?h.jacobian_white
+(a curv formatted file). This step follows the surface registration step.
+
+Surface Registation, maximal distortion, with Jacobian (-<no>jacobian_dist0)
+
+Run spherical registration with no metric distortion penalty. This will
+cause surface geometry to align regardless of the amount of distortion
+induced (ie, distance contraints are turned off). The distortion will then
+be quantified by the Jacobian of the transform. Creates ?h.jacobian_dist0 (a
+curv formatted file) and ?h.sphere.dist0.jacobian.reg (a surface file). This
+step is not run automatically because it can add about an hour per hemi.
+Note: the file ?h.jacobian_white (see prior help text) is the Jacobian of
+the white surface to spherical atlas alignment from -surfreg.
+
+Contralateral Surface Registation (Spherical Morph) (-<no>contrasurfreg)
+
+Same as ipsilateral but registers to the contralateral atlas.
+Creates lh.rh.sphere.reg and rh.lh.sphere.reg.
+
+Average Curvature (-<no>avgcurv)
+
+Resamples the average curvature from the atlas to that of the subject.
+Allows the user to display activity on the surface of an individual
+with the folding pattern (ie, anatomy) of a group. Calls mrisp_paint.
+Creates surf/?h.avg_curv.
+
+Cortical Parcellation (-<no>cortparc, -<no>cortparc2, -<no>cortparc3 )
+
+Assigns a neuroanatomical label to each location on the cortical surface.
+Incorporates both geometric information derived from the cortical model
+(sulcus and curvature), and neuroanatomical convention.
+Calls mris_ca_label.  -cortparc creates label/?h.aparc.annot,
+-cortparc2 creates /label/?h.aparc.a2009s.annot, and
+-cortparc3 creates /label/?h.aparc.DKTatlas40.annot.
+
+Pial Surface (-<no>pial)
+
+Creates the ?h.pial surfaces as well as the thickness file (?h.thickness).
+The pial surface is created by expanding the white surface so that it closely
+follows the gray-CSF intensity gradient as found in the T1 volume.  The
+cortical parcellation is also used to refine the surface in certain areas.
+Calls mris_make_surfaces.  See also "Final Surfaces".
+
+Final Surfaces (-<no>finalsurfs)
+
+!!! DEPRECATED !!! This flag is intended to emulate the old-style single-run
+mris_make_surfaces, where the white and pial surfaces are created at the same
+time without aid from the cortical parcellation data.
+
+WM/GM Contrast (-<no>pctsurfcon)
+
+Computes the vertex-by-vertex percent contrast between white and gray matter.
+The computation is:
+
+         100*(W-G)
+   pct = ---------
+         0.5*(W+G)
+
+The white matter is sampled 1mm below the white surface. The gray matter is
+sampled 30% the thickness into the cortex. The volume that is sampled is
+rawavg.mgz.  The output is stored in the surf dir of the given subject as
+?h.w-g.pct.mgh.  Non-cortical regions (medial wall) are zeroed.
+A stats file named ?h.w-g.pct.stats is also computed.
+
+Surface Volume (-surfvolume)
+
+Creates the ?h.volume file by first creating the ?h.mid.area file by
+adding ?h.area(.white) to ?h.area.pial, then dividing by two.  Then
+?h.volume is created by multiplying ?.mid.area with ?h.thickness.
+This step is also run at the end of the -pial step.
+
+Cortical Ribbon Mask (-<no>cortribbon)
+
+Creates binary volume masks of the cortical ribbon, ie, each voxel is
+either a 1 or 0 depending upon whether it falls in the ribbon or not.
+Saved as ?h.ribbon.mgz.  Uses mgz regardless of whether the -mgz
+option is used.
+
+Parcellation Statistics (-<no>parcstats, -<no>parcstats2, -<no>parcstats3)
+
+Runs mris_anatomical_stats to create a summary table of cortical
+parcellation statistics for each structure, including 1. structure
+name 2. number of vertices 3. total wm surface area (mm^2) 4. total gray
+matter volume (mm^3) 5. average cortical thickness (mm) 6. standard
+error of cortical thickness (mm) 7. integrated rectified mean wm
+curvature 8. integrated rectified Gaussian wm curvature 9. folding index
+10. intrinsic curvature index.
+For -parcstats, the file is saved in stats/?h.aparc.stats.
+For -parcstats2, the file is saved in stats/?h.aparc.${DESTRIEUX_NAME}.stats.
+For -parcstats3, the file is saved in stats/?h.aparc.${DKTATLAS_NAME}.stats.
+
+Curvature Statistics  (-<no>curvstats)
+
+Runs mris_curvature_stats to create a summary file (stats/?h.curv.stats)
+of cortical curvature statistics.
+
+LONGITUDINAL PROCESSING
+
+The longitudinal processing scheme aims to incorporate the subject-wise
+correlation of longitudinal data into the processing stream in order to
+increase sensitivity and repeatability, see [14-16]. Care is taken to
+avoid introduction of asymmetry-induced bias.
+
+Here is a summary of the longitudinal workflow, where tpN refers to the
+name of one timepoint of subject data, and longbase refers to the name
+given to the base subject of a collection of timepoints:
+
+1) cross-sectionally process tpN subjects (the default workflow):
+  recon-all -s tp1 -i path_to_tp1_dicom -all
+  recon-all -s tp2 -i path_to_tp2_dicom -all
+
+2) create and process the unbiased base (subject template):
+  recon-all -base longbase -tp tp1 -tp tp2 -all
+
+3) longitudinally process tpN subjects:
+  recon-all -long tp1 longbase -all
+  recon-all -long tp2 longbase -all
+
+4) do comparisons on results from 3), e.g. calculate differences
+between tp2.long.longbase - tp1.long.longbase
+
+Note that the longitudinal processing stream always produces output subject
+data containing  .long.  in the name (to help distinguish from the default
+stream).
+
+Notice that the -all flag is included in the -base and -long calls above.
+A work directive flag is required.
+
+Other flags:
+
+-uselongbasectrlvol
+
+With -long: Switch on use of control-points from the base in the long
+runs for intensity normalization (T1.mgz).
+
+-uselongbasewmedits
+
+With -long: Optionally transfer WM edits from base/template.
+Default: map WM edits from corresponding cross run.
+
+-no-orig-pial
+
+If the orig pial surface data is not available, then specify this flag so that
+mris_make_surfaces does not attempt to use it.
+
+-noasegfusion
+
+Do not create 'fused' aseg from the longbase timepoints, which would normally
+be used to initialize the ca_labeling.  Instead, initialize using the longbase
+aseg.mgz.
+
+-addtp
+
+If a new timepoint needs to be added to a longitudinal run where a base subject
+has already been created (from prior timepoints), then the -addtp command
+can be added to the -long command in order to 'fix-up' the longitudinal
+stream to accept the new timepoint. Note that the base subject is *not*
+recomputed using the new timepoint. This potentially introduces a bias, and it
+is recommended to NOT add a time point this way! Instead recreate the base
+from all time points and run all longitudinals again.
+See the LongitudinalProcessing wiki page.
+
+Example:
+
+  recon-all -long <tpNsubjid> <longbasesubjid> -addtp -all
+
+In this example, 'tnNsubjid' is the subject name (assumed processed in the
+cross-sectional stream) to add as a new timepoint and upon which to run
+the longitudinal stream (creating <tpNsubjid>.long.<longbasesubjid>).
+
+
+
+USING IMAGES FROM A 3T SCANNER 
+
+The -3T flag enables two specific options in recon-all for images acquired with
+a 3T scanner:  3T-specific NU intensity correction parameters are used in the 
+Non-Uniform normalization stage, and the Schwartz 3T atlas is used for 
+Talairach alignment.
+
+
+T2 OR FLAIR TO IMPROVE PIAL SURFACES
+
+Pial surfaces can be improved using the different contrast in T2 or FLAIR
+images. The original pial surfaces without T2/FLAIR data are saved as  
+?h.woT2.pial or ?h.woFLAIR.pial, and new ?h.pial surfaces are created.  One 
+example where this is useful is when there is dura in the brainmask.mgz that 
+isn't removed by skull stripping. The flags for these commands are:
+
+  -T2 <input T2 volume>  or -FLAIR <input FLAIR volume> 
+    (Specify the  path to the T2 or FLAIR image to use)
+  -T2pial or -FLAIRpial 
+    (Create new pial surfaces using T2 or FLAIR images)
+
+An example of running a subject through Freesurfer with a T2 image is:
+  
+  recon-all -s subjectname -i /path/to/input -T2 /path/to/T2_input -T2pial -all
+
+T2 or FLAIR images can also be used with Freesurfer subjects that have already
+been processed without them. Note that autorecon3 should also be re-ran to 
+compute statistics based on the new surfaces. For example:
+  
+  recon-all -s subjectname -T2 /path/to/T2_volume -T2pial -autorecon3
+
+
+MANUAL CHECKING AND EDITING OF SURFACES
+
+To manually edit segmenation, run the following command (make sure
+that your SUBJECTS_DIR environment variable is properly set).
+
+  tkmedit subjid wm.mgz -aux T1.mgz
+
+The surfaces can be loaded through the menu item
+File->LoadMainSurface. To enable editing, set Tools->EditVoxels.  It
+may also be convenient to bring up the reconstruction toolbar with
+View->ToolBars->Reconstruction. Alt-C toggles between the main (wm)
+and auxiliary (T1) volumes. Middle clicking will set a voxel value to
+255; left clicking will set a voxel value to 0. Only edit the wm
+volume. When finished, File->SaveMainVolume.
+
+To view the inflated surface simultaneosly with the volume, run the
+following command from a different shell:
+
+  tksurfer subjid lh inflated
+
+To goto a point on the surface inside the volume, click on the point
+and hit SavePoint (icon looks like a floppy disk), then, in tkmedit,
+hit GotoSavedPoint (icon looks like an open file).
+
+Be sure to see the tutorials found at:
+https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial
+
+
+TOUCH FILES
+
+This script creates a directory called "touch". Each time a stage is
+run a "touch file" is created (eg, skull_strip.touch). This will be
+used in the future to automatically determine which stages need to be
+run or re-run. The modification time of the touch file is important.
+The content is irrelevent, though it often contains a command-line.
+
+
+FLATTENING
+
+Flattening is not actually done in this script. This part just documents
+how one would go about performing the flattening. First, load the subject
+surface into tksurfer:
+
+  tksurfer subjid lh inflated
+
+Load the curvature through the File->Curvature->Load menu (load
+lh.curv). This should show a green/red curvature pattern. Red = sulci.
+
+Right click before making a cut; this will clear previous points. This
+is needed because it will string together all the previous places you
+have clicked to make the cut. To make a line cut, left click on a line
+of points. Make the points fairly close together; if they are too far
+appart, the cut fails. After making your line of points, execute the
+cut by clicking on the Cut icon (scissors with an open triangle for a
+line cut or scissors with a closed triangle for a closed cut). To make
+a plane cut, left click on three points to define the plane, then left
+click on the side to keep. Then hit the CutPlane icon.
+
+Fill the patch. Left click in the part of the surface that you want to
+form your patch. Then hit the Fill Uncut Area button (icon = filled
+triangle). This will fill the patch with white. The non-patch area
+will be unaccessible through the interface.  Save the patch through
+File->Patch->SaveAs. For whole cortex, save it to something like
+lh.cort.patch.3d. For occipital patches, save it to lh.occip.patch.3d.
+
+Cd into the subject surf directory and run
+
+  mris_flatten -w N -distances Size Radius lh.patch.3d lh.patch.flat
+
+where N instructs mris_flatten to write out an intermediate surface
+every N interations. This is only useful for making movies; otherwise
+set N=0.  Size is maximum number of neighbors; Radius radius (mm) in
+which to search for neighbors. In general, the more neighbors that are
+taken into account, the less the metric distortion but the more
+computationally intensive. Typical values are Size=12 for large
+patches, and Size=20 for small patches. Radius is typically 7.
+Note: flattening may take 12-24 hours to complete. The patch can be
+viewed at any time by loading the subjects inflated surface, then
+loading the patch through File->Patch->LoadPatch...
+
+
+GETTING HELP
+
+See https://surfer.nmr.mgh.harvard.edu
+Send email to freesurfer@nmr.mgh.harvard.edu
+
+
+REFERENCES
+
+See https://www.zotero.org/freesurfer
+
+[1] Collins, DL, Neelin, P., Peters, TM, and Evans, AC. (1994)
+Automatic 3D Inter-Subject Registration of MR Volumetric Data in
+Standardized Talairach Space, Journal of Computer Assisted Tomography,
+18(2) p192-205, 1994 PMID: 8126267; UI: 94172121
+
+[2] Cortical Surface-Based Analysis I: Segmentation and Surface
+Reconstruction Dale, A.M., Fischl, Bruce, Sereno, M.I.,
+(1999). Cortical Surface-Based Analysis I: Segmentation and Surface
+Reconstruction.  NeuroImage 9(2):179-194
+
+[3] Fischl, B.R., Sereno, M.I.,Dale, A. M.  (1999) Cortical
+Surface-Based Analysis II: Inflation, Flattening, and Surface-Based
+Coordinate System. NeuroImage, 9, 195-207.
+
+[4] Fischl, Bruce, Sereno, M.I., Tootell, R.B.H., and Dale, A.M.,
+(1999). High-resolution inter-subject averaging and a coordinate
+system for the cortical surface. Human Brain Mapping, 8(4): 272-284
+
+[5] Fischl, Bruce, and Dale, A.M., (2000).  Measuring the Thickness of
+the Human Cerebral Cortex from Magnetic Resonance Images.  Proceedings
+of the National Academy of Sciences, 97:11044-11049.
+
+[6] Fischl, Bruce, Liu, Arthur, and Dale, A.M., (2001). Automated
+Manifold Surgery: Constructing Geometrically Accurate and
+Topologically Correct Models of the Human Cerebral Cortex. IEEE
+Transactions on Medical Imaging, 20(1):70-80
+
+[7] Non-Uniform Intensity Correction.
+http://www.nitrc.org/projects/nu_correct/
+
+[8] Fischl B, Salat DH, Busa E, Albert M, Dieterich M, Haselgrove C,
+van der Kouwe A, Killiany R, Kennedy D, Klaveness S, Montillo A,
+Makris N, Rosen B, Dale AM. Whole brain segmentation: automated
+labeling of neuroanatomical structures in the human
+brain. Neuron. 2002 Jan 31;33(3):341-55.
+
+[9] Bruce Fischl, Andre van der Kouwe, Christophe Destrieux, Eric
+Halgren, Florent Segonne, David H. Salat, Evelina Busa, Larry
+J. Seidman, Jill Goldstein, David Kennedy, Verne Caviness, Nikos
+Makris, Bruce Rosen, and Anders M. Dale.  Automatically Parcellating
+the Human Cerebral Cortex. Cerebral Cortex January 2004; 14:11-22.
+
+[10] Fischl B, Salat DH, van der Kouwe AJW, Makris N, Ségonne F, Dale
+AM. Sequence-Independent  Segmentation of Magnetic Resonance Images.
+NeuroImage 23 Suppl 1, S69-84.
+
+[11] Segonne F, Dale, AM, Busa E, Glessner M, Salvolini U, Hahn HK,
+Fischl B, A Hybrid Approach to the Skull-Stripping Problem in MRI.
+NeuroImage, 22,  pp. 1160-1075, 2004
+
+[12] Han et al.,  Reliability of MRI-derived measurements of human
+cerebral cortical thickness: The effects of field strength, scanner
+upgrade and manufacturer, (2006) NeuroImage, 32(1):180-194.
+
+[13] Schaer et al., A Surface-based Approach to Quantify Local Cortical
+Gyrification (2007) IEEE Transactions on Medical Imaging.
+
+[14] Martin Reuter, H Diana Rosas, Bruce Fischl.
+Highly Accurate Inverse Consistent Registration: A Robust Approach.
+NeuroImage 53(4), 1181-1196, 2010. http://dx.doi.org/10.1016/j.neuroimage.2010.07.020
+
+[15] Martin Reuter, Bruce Fischl.
+Avoiding Asymmetry-Induced Bias in Longitudinal Image Processing.
+NeuroImage 51(1), 19-21, 2011. http://dx.doi.org/10.1016/j.neuroimage.2011.02.076
+
+[16] Martin Reuter, Nicholas J Schmansky, H Diana Rosas, Bruce Fischl.
+Within-Subject Template Estimation for Unbiased Longitudinal Image Analysis.
+NeuroImage 61(4), 1402-1418, 2012. http://dx.doi.org/10.1016/j.neuroimage.2012.02.084
+
+[17] Iglesias, J.E., Augustinack, J.C., Nguyen, K., Player, C.M., Player, A., Wright,
+M., Roy, N., Frosch, M.P., McKee, A.C., Wald, L.L., Fischl, B., and Van Leemput, K.,
+A computational atlas of the hippocampal formation using ex vivo, ultra-high resolution
+MRI: Application to adaptive segmentation of in vivo MRI.  Neuroimage 115, 2015, 117-137. 
+http://dx.doi.org/10.1016/j.neuroimage.2015.04.042
+
+[18] Iglesias, J.E., Van Leemput, K., Bhatt, P., Casillas, C., Dutt, S., Schuff, N.,
+Truran-Sacrey, D., Boxer, A., and Fischl, B., Bayesian segmentation of brainstem 
+structures in MRI. Neuroimage 113, 2015, 184-195.
+http://dx.doi.org/10.1016/j.neuroimage.2015.02.065
+
+[19] Saygin, Z.M. & Kliemann, D. (joint 1st authors), Iglesias, J.E., van der Kouwe, A.J.W.,
+Boyd, E., Reuter, M., Stevens, A., Van Leemput, K., McKee, A., Frosch, M.P., Fischl, B.,
+and Augustinack, J.C., High-resolution magnetic resonance imaging reveals nuclei of the 
+human amygdala: manual segmentation to automatic atlas. Neuroimage 155, 2017, 370-382.
+http://doi.org/10.1016/j.neuroimage.2017.04.046
+
+[20] Iglesias, J.E., Van Leemput, K., Augustinack, J., Insausti, R., Fischl, B., 
+and Reuter, M., Bayesian longitudinal segmentation of hippocampal substructures in brain MRI
+using subject-specific atlases. Neuroimage 141, 2016, 542-555. 
+http://doi.org/10.1016/j.neuroimage.2016.07.020
+
+
+
+

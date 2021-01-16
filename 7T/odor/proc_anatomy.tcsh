@@ -26,3 +26,7 @@ recon-all                                                                       
 -all                                                                                        \
 -parallel -threads 12                                                                       \
 -expert /Users/mac/Documents/GitHub/fMRIdata/learning/mac_settings/freesurfer_expert.txt
+
+# create files for suma
+# -fs_setup might me useful on macOS according to the help page
+@SUMA_Make_Spec_FS -fs_setup -NIFTI -fspath ${sub}_surf -sid ${sub}

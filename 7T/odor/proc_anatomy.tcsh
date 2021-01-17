@@ -30,3 +30,23 @@ recon-all                                                                       
 # create files for suma
 # -fs_setup might me useful on macOS according to the help page
 @SUMA_Make_Spec_FS -fs_setup -NIFTI -fspath ${sub}_surf -sid ${sub}
+
+# check alignment in SUMA folder
+afni -niml
+suma -spec ${sub}_surf/SUMA/${sub}_both.spec -sv ${sub}_surf/SUMA/${sub}_SurfVol.nii
+
+# set results directory
+set analysis=pabiode
+set subj = ${sub}.${analysis}
+cd ${subj}.results
+
+# align exp anatomy to suma surfvolume
+@SUMA_AlignToExperiment                                     \
+-exp_anat anat_final.${subj}+orig.HEAD                      \
+-surf_anat ../${sub}_surf/SUMA/${sub}_SurfVol.nii           \
+-prefix surf_align.${subj}                                  \
+-align_centers
+
+# show results on surface
+afni -niml
+suma -spec ../${sub}_surf/SUMA/${sub}_both.spec -sv surf_align.${subj}+orig.HEAD

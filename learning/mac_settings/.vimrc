@@ -3,6 +3,11 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
+set t_RV= ttymouse=xterm2   " Temporary (?) kludge to avoid problems
+                            " when starting vim with "-c grep something" where the termresponse puts
+							" vim into insert mode.  [2006-01-18]
+							" 'ttymouse' must be set to "xterm2" manually to get the mouse to drag window
+							" borders because vim needs the termresponse to set it correctly automatically.
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 " set fzf

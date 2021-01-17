@@ -46,16 +46,30 @@
 				"backgroundImageOpacity": 0.1,
                 "hidden": false
             },
+			
+			{
+                // Make changes here to the powershell.exe profile.
+                "guid": "{120518d8-7fa3-4700-a76b-a46004c0749d}",
+                "name": "Mac via huashengke",
+				"colorScheme": "Campbell",
+				"commandline":"ssh mac@***.qicp.vip -p ***",
+				"backgroundImage": "C:\\Users\\GuFei\\t\\finder.jpg",
+				"backgroundImageOpacity": 0.1,
+				"backgroundImageStretchMode": "uniformToFill",
+				"tabTitle": "Mac Pro",
+                "hidden": false
+            },
 
 			{
                 // Make changes here to the powershell.exe profile.
                 "guid": "{bdb35922-af7a-42b5-b81a-510f0d3a23bd}",
-                "name": "Mac via vps",
+                "name": "Mac via vpn",
 				"colorScheme": "Campbell",
-				"commandline":"ssh mac@flashsherlock.xyz -p 6000",
+				//"commandline":"ssh mac@flashsherlock.xyz -p 6000",
+				"commandline":"ssh mac@192.168.30.1 -p 22",
 				"backgroundImage": "C:\\Users\\GuFei\\t\\finder.jpg",
 				"backgroundImageOpacity": 0.1,
-				"backgroundImageStretchMode": "uniform",
+				"backgroundImageStretchMode": "uniformToFill",
 				"tabTitle": "Mac Pro",
                 "hidden": false
             },
@@ -72,19 +86,7 @@
 				"backgroundImageAlignment": "center",
                 "hidden": false
             },
-
-			{
-                // Make changes here to the powershell.exe profile.
-                "guid": "{120518d8-7fa3-4700-a76b-a46004c0749d}",
-                "name": "Mac via huashengke",
-				"colorScheme": "Campbell",
-				"commandline":"ssh mac@flashsherlock.qicp.vip -p ***",
-				"backgroundImage": "C:\\Users\\GuFei\\t\\finder.jpg",
-				"backgroundImageOpacity": 0.1,
-				"backgroundImageStretchMode": "uniform",
-				"tabTitle": "Mac Pro",
-                "hidden": false
-            },
+			
 
             {
                 // Make changes here to the cmd.exe profile.

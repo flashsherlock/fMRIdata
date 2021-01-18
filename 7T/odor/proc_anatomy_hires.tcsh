@@ -35,12 +35,34 @@ set subj = ${sub}.${analysis}
 cd ${subj}.results
 
 # align exp anatomy to suma surfvolume
-@SUMA_AlignToExperiment                                     \
--exp_anat anat_final.${subj}+orig.HEAD                      \
--surf_anat ../${sub}_surf_hires/SUMA/${sub}_SurfVol.nii           \
--prefix surf_hires_align.${subj}                                  \
--align_centers
+@SUMA_AlignToExperiment                                                 \
+    -exp_anat anat_final.${subj}+orig.HEAD                              \
+    -surf_anat ../${sub}_surf_hires/SUMA/${sub}_SurfVol.nii             \
+    -prefix surf_hires_align.${subj}                                    \
+    -align_centers
 
 # show results on surface
 afni -niml
 suma -spec ../${sub}_surf_hires/SUMA/${sub}_both.spec -sv surf_hires_align.${subj}+orig.HEAD
+
+# project results in piriform to surface
+3dVol2Surf                                                                                  \
+    -spec         ../${sub}_surf_hires/SUMA/${sub}_both.spec                                \
+    -surf_A       lh.smoothwm                                                               \
+    -sv           surf_hires_align.${subj}+orig.HEAD                                        \
+    -grid_parent "stats.${subj}+orig.HEAD"                                                  \
+    -cmask       "-a mvpamask/Piriform.${sub}+orig.HEAD -expr step(a)"                      \
+    -map_func     mask                                                                      \
+    -debug        2                                                                         \
+    -out_niml     ${sub}_Piriform_hires_lh.niml.dset
+
+3dVol2Surf                                                                                  \
+    -spec         ../${sub}_surf_hires/SUMA/${sub}_both.spec                                \
+    -surf_A       rh.smoothwm                                                               \
+    -sv           surf_hires_align.${subj}+orig.HEAD                                        \
+    -grid_parent "stats.${subj}+orig.HEAD"                                                  \
+    -cmask       "-a mvpamask/Piriform.${sub}+orig.HEAD -expr step(a)"                      \
+    -map_func     mask                                                                      \
+    -debug        2                                                                         \
+    -out_niml     ${sub}_Piriform_hires_rh.niml.dset
+

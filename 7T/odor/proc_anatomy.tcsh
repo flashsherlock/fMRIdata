@@ -33,10 +33,14 @@ set subj = ${sub}.${analysis}
 cd ${subj}.results
 
 # align exp anatomy to suma surfvolume
-@SUMA_AlignToExperiment                                             \
-    -exp_anat anat_final.${subj}+orig.HEAD                          \
-    -surf_anat ../${sub}_surf/SUMA/${sub}_SurfVol.nii               \
-    -prefix surf_align.${subj}                                      \
+# use wd to apply 12 parameters affine transform
+# surf_anat is in different grids and has skull
+@SUMA_AlignToExperiment                                                 \
+    -exp_anat anat_final.${subj}+orig.HEAD                              \
+    -surf_anat ../${sub}_surf/SUMA/${sub}_SurfVol.nii                   \
+    -prefix surf_align.${subj}                                          \
+    -strip_skull surf_anat                                              \
+    -wd                                                                 \
     -align_centers
 
 # show results on surface

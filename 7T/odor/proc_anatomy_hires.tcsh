@@ -31,7 +31,7 @@ setenv ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS 12
 # the second input is subject_dir, error will occur when using ./
 segmentHA_T1.sh ${sub}_surf_hires ${datafolder}
 # save amygdala mask
-set masks = `ls ${sub}_surf_hires/mri/?h.hippoAmygLabels-T1.v21.HBT.FSvoxelSpace.mgz`
+set masks = `ls ${sub}_surf_hires/mri/?h.hippoAmygLabels-T1.v21.HBT.mgz`
 # echo ${masks}
 foreach mask (${masks})
     # echo ${mask}
@@ -61,6 +61,18 @@ cd ${subj}.results
     -strip_skull surf_anat                                              \
     -wd                                                                 \
     -align_centers
+# change segmentation masks to experiment space
+# can also use -surf_anat_followers option in @SUMA_AlignToExperiment 
+foreach mask (${masks})
+    set input = `echo ${mask} | sed 's/mri/SUMA/' | sed 's/.mgz/.nii/'`
+    set output = `echo ${input} | cut -d '/' -f 3 | sed 's/.nii/+orig/'`
+    3dAllineate                                                             \
+        -master stats.${subj}+orig                                          \
+        -1Dmatrix_apply surf_hires_align.${subj}.A2E.1D                     \
+        -input ../${input}                                                  \
+        -prefix ${output}                                                   \
+        -final NN
+end
 
 # show results on surface
 afni -niml

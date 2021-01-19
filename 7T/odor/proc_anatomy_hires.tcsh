@@ -21,15 +21,25 @@ recon-all                                                                       
 -parallel -threads 12                                                                       \
 -expert /Users/mac/Documents/GitHub/fMRIdata/learning/mac_settings/freesurfer_expert.txt
 
+# create files for suma
+# -fs_setup might me useful on macOS according to the help page
+@SUMA_Make_Spec_FS -fs_setup -NIFTI -fspath ${sub}_surf_hires -sid ${sub}
+
 # Amygdala segmentation
 # use multipal threads
 setenv ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS 12
 # the second input is subject_dir, error will occur when using ./
 segmentHA_T1.sh ${sub}_surf_hires ${datafolder}
-
-# create files for suma
-# -fs_setup might me useful on macOS according to the help page
-@SUMA_Make_Spec_FS -fs_setup -NIFTI -fspath ${sub}_surf_hires -sid ${sub}
+# save amygdala mask
+set masks = `ls ${sub}_surf_hires/mri/?h.hippoAmygLabels-T1.v21.HBT.FSvoxelSpace.mgz`
+# echo ${masks}
+foreach mask (${masks})
+    # echo ${mask}
+    # change name
+    set name = `echo ${mask} | cut -d '/' -f 3 | sed 's/.mgz/.nii/'`
+    # echo ${name}
+    mri_convert -ot nii ${mask} ${sub}_surf_hires/SUMA/${name}
+end
 
 # check alignment in SUMA folder
 afni -niml

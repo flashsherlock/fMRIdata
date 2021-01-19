@@ -28,7 +28,16 @@ recon-all                                           \
 setenv ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS 12
 # the second input is subject_dir, error will occur when using ./
 segmentHA_T1.sh ${sub}_surf ${datafolder}
-
+# save amygdala mask
+set masks = `ls ${sub}_surf/mri/?h.hippoAmygLabels-T1.v21.HBT.FSvoxelSpace.mgz`
+# echo ${masks}
+foreach mask (${masks})
+    # echo ${mask}
+    # change name
+    set name = `echo ${mask} | cut -d '/' -f 3 | sed 's/.mgz/.nii/'`
+    # echo ${name}
+    mri_convert -ot nii ${mask} ${sub}_surf/SUMA/${name}
+end
 # check alignment in SUMA folder
 afni -niml
 suma -spec ${sub}_surf/SUMA/${sub}_both.spec -sv ${sub}_surf/SUMA/${sub}_SurfVol.nii

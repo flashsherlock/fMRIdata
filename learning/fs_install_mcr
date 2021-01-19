@@ -24,6 +24,7 @@ fi
 # operate in tmp directory
 TMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
 cd $TMP_DIR
+# echo working in $TMP_DIR
 # cleanup tmp directory at exit
 function cleanup {
     cd $FREESURFER_HOME
@@ -37,14 +38,16 @@ else
     OS_TAG=maci64
 fi
 
-
+if [ -f "$FREESURFER_HOME/installer.zip" ]; then
+	mv $FREESURFER_HOME/installer.zip ./
+else
 # download the os-specific installer
 if [[ "$MCR_VER" =~ R2012a|R2012b|R2013a ]]; then
     curl https://ssd.mathworks.com/supportfiles/MCR_Runtime/$MCR_VER/MCR_${MCR_VER}_${OS_TAG}_installer.zip -o installer.zip
 else
     curl https://ssd.mathworks.com/supportfiles/downloads/$MCR_VER/deployment_files/$MCR_VER/installers/$OS_TAG/MCR_${MCR_VER}_${OS_TAG}_installer.zip -o installer.zip
 fi
-
+fi
 unzip installer.zip
 
 # run non-interactive installation

@@ -21,6 +21,12 @@ recon-all                                                                       
 -parallel -threads 12                                                                       \
 -expert /Users/mac/Documents/GitHub/fMRIdata/learning/mac_settings/freesurfer_expert.txt
 
+# Amygdala segmentation
+# use multipal threads
+setenv ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS 12
+# the second input is subject_dir, error will occur when using ./
+segmentHA_T1.sh ${sub}_surf_hires ${datafolder}
+
 # create files for suma
 # -fs_setup might me useful on macOS according to the help page
 @SUMA_Make_Spec_FS -fs_setup -NIFTI -fspath ${sub}_surf_hires -sid ${sub}

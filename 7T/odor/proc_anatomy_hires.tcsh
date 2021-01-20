@@ -66,13 +66,32 @@ cd ${subj}.results
 foreach mask (${masks})
     set input = `echo ${mask} | sed 's/mri/SUMA/' | sed 's/.mgz/.nii/'`
     set output = `echo ${input} | cut -d '/' -f 3 | sed 's/.nii/+orig/'`
+    # resample to the EPI grid
     3dAllineate                                                             \
         -master stats.${subj}+orig                                          \
         -1Dmatrix_apply surf_hires_align.${subj}.A2E.1D                     \
         -input ../${input}                                                  \
         -prefix ${output}                                                   \
         -final NN
+    # resample to the anatomy grid (similar)
+    # 3dAllineate                                                             \
+    #     -master anat_final.${subj}+orig                                     \
+    #     -1Dmatrix_apply surf_hires_align.${subj}.A2E.1D                     \
+    #     -input ../${input}                                                  \
+    #     -prefix ant.${output}                                               \
+    #     -final NN
+    # lr can be l left or r right
+    set lr=`echo ${output} | cut -c1`
+    3dcalc -a "${output}<7001..7015>" -expr 'step(a-7000)' -prefix ${lr}Amy.freesurfer+orig   
+    3dcalc -a "${output}" -expr 'ispositive(a-7000)*(a-7000)' -prefix ${lr}Amy.seg.freesurfer+orig   
+    # 3dcalc -a "ant.${output}<7001..7015>" -expr 'step(a-7000)' -prefix ant.${lr}Amy.freesurfer+orig   
+    # 3dcalc -a "ant.${output}" -expr 'ispositive(a-7000)*(a-7000)' -prefix ant.${lr}Amy.seg.freesurfer+orig   
 end
+
+3dcalc -a lAmy.freesurfer+orig -b rAmy.freesurfer+orig -expr 'a+b' -prefix Amy.freesurfer+orig
+3dcalc -a lAmy.seg.freesurfer+orig -b rAmy.seg.freesurfer+orig -expr 'a+b' -prefix Amy.seg.freesurfer+orig
+# 3dcalc -a ant.lAmy.freesurfer+orig -b ant.rAmy.freesurfer+orig -expr 'a+b' -prefix ant.Amy.freesurfer+orig
+# 3dcalc -a ant.lAmy.seg.freesurfer+orig -b ant.rAmy.seg.freesurfer+orig -expr 'a+b' -prefix ant.Amy.seg.freesurfer+orig
 
 # show results on surface
 afni -niml

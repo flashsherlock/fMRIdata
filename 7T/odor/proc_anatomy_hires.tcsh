@@ -73,25 +73,26 @@ foreach mask (${masks})
         -input ../${input}                                                  \
         -prefix ${output}                                                   \
         -final NN
-    # resample to the anatomy grid (similar)
-    # 3dAllineate                                                             \
-    #     -master anat_final.${subj}+orig                                     \
-    #     -1Dmatrix_apply surf_hires_align.${subj}.A2E.1D                     \
-    #     -input ../${input}                                                  \
-    #     -prefix ant.${output}                                               \
-    #     -final NN
-    # lr can be l left or r right
     set lr=`echo ${output} | cut -c1`
     3dcalc -a "${output}<7001..7015>" -expr 'step(a-7000)' -prefix ${lr}Amy.freesurfer+orig   
     3dcalc -a "${output}" -expr 'ispositive(a-7000)*(a-7000)' -prefix ${lr}Amy.seg.freesurfer+orig   
-    # 3dcalc -a "ant.${output}<7001..7015>" -expr 'step(a-7000)' -prefix ant.${lr}Amy.freesurfer+orig   
-    # 3dcalc -a "ant.${output}" -expr 'ispositive(a-7000)*(a-7000)' -prefix ant.${lr}Amy.seg.freesurfer+orig   
 end
 
 3dcalc -a lAmy.freesurfer+orig -b rAmy.freesurfer+orig -expr 'a+b' -prefix Amy.freesurfer+orig
 3dcalc -a lAmy.seg.freesurfer+orig -b rAmy.seg.freesurfer+orig -expr 'a+b' -prefix Amy.seg.freesurfer+orig
-# 3dcalc -a ant.lAmy.freesurfer+orig -b ant.rAmy.freesurfer+orig -expr 'a+b' -prefix ant.Amy.freesurfer+orig
-# 3dcalc -a ant.lAmy.seg.freesurfer+orig -b ant.rAmy.seg.freesurfer+orig -expr 'a+b' -prefix ant.Amy.seg.freesurfer+orig
+# copy Amy9 masks
+cp Amy.freesurfer+orig.BRIK.gz mvpamask/Amy9.freesurfer+orig.BRIK.gz
+cp Amy.freesurfer+orig.HEAD mvpamask/Amy9.freesurfer+orig.HEAD
+cp mvpamask/Amy9.freesurfer+orig* ../${sub}.paphde.results/mvpamask/
+cp mvpamask/Amy9.freesurfer+orig* ../${sub}.pade.results/mvpamask/
+
+# Print number of voxels for each ROI
+3dROIstats -nzvoxels -mask Amy.seg.freesurfer+orig.HEAD Amy.seg.freesurfer+orig.HEAD
+
+# create cortical amygdala mask
+3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,7,9)' -prefix mvpamask/corticalAmy.freesurfer+orig
+cp mvpamask/corticalAmy* ../${sub}.paphde.results/mvpamask/
+cp mvpamask/corticalAmy* ../${sub}.pade.results/mvpamask/
 
 # show results on surface
 afni -niml

@@ -11,10 +11,12 @@
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 subn=1;
 sub='S01_yyt';
-analysis='pabiode';
-rois={'Amy','Piriform','APC','PPC'};
+analysis_all={'pabiode','paphde','pade'};
+rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
 % time shift for peak response
 shift=6;
+for i_analysis=1:length(analysis_all)
+    analysis=analysis_all{i_analysis};
 for i=1:length(rois)
     roi=rois{i};
     mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpamask/' roi '*+orig.HEAD']);
@@ -90,7 +92,7 @@ for i=1:length(rois)
     % Run decoding
     results = decoding(cfg);    
 end
-
+end
 % some warnings
 % there may be errors when saving fig because of replacing . with _
 % edit save_fig.m

@@ -94,6 +94,13 @@ cp mvpamask/Amy9.freesurfer+orig* ../${sub}.pade.results/mvpamask/
 cp mvpamask/corticalAmy* ../${sub}.paphde.results/mvpamask/
 cp mvpamask/corticalAmy* ../${sub}.pade.results/mvpamask/
 
+# create mask for each region
+foreach region (1 3 5 6 7 8 9 10 15)
+    3dcalc -a Amy.seg.freesurfer+orig -expr "equals(a,${region})" -prefix mvpamask/Amy_${region}seg.freesurfer+orig
+    cp mvpamask/Amy_${region}seg* ../${sub}.paphde.results/mvpamask/
+    cp mvpamask/Amy_${region}seg* ../${sub}.pade.results/mvpamask/
+end
+
 # show results on surface
 afni -niml
 suma -spec ../${sub}_surf_hires/SUMA/${sub}_both.spec -sv surf_hires_align.${subj}+orig.HEAD

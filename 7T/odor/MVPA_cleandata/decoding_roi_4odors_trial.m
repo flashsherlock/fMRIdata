@@ -13,10 +13,14 @@ subn=1;
 sub='S01_yyt';
 analysis_all={'pabiode','paphde','pade'};
 rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
+for region=[1 3 5 6 7 8 9 10 15]
+    rois=[rois {['Amy_' num2str(region) 'seg']}];
+end
 % time shift for peak response
 shift=6;
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
+    % Amy_seg starts from 7
 for i=1:length(rois)
     roi=rois{i};
     mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpamask/' roi '*+orig.HEAD']);

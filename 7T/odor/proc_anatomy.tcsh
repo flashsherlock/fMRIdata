@@ -29,7 +29,7 @@ setenv ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS 12
 # the second input is subject_dir, error will occur when using ./
 segmentHA_T1.sh ${sub}_surf ${datafolder}
 # save amygdala mask
-set masks = `ls ${sub}_surf/mri/?h.hippoAmygLabels-T1.v21.HBT.FSvoxelSpace.mgz`
+set masks = `ls ${sub}_surf/mri/?h.hippoAmygLabels-T1.v21.HBT.mgz`
 # echo ${masks}
 foreach mask (${masks})
     # echo ${mask}
@@ -83,3 +83,29 @@ suma -spec ../${sub}_surf/SUMA/${sub}_both.spec -sv surf_align.${subj}+orig.HEAD
     -debug        2                                                                         \
     -out_niml     ${sub}_Piriform_rh.niml.dset
 
+# try other mapping functions
+3dVol2Surf                                                                                  \
+    -spec         ../${sub}_surf/SUMA/${sub}_both.spec                                      \
+    -surf_A       lh.smoothwm                                                               \
+    -surf_B       lh.pial                                                                   \
+    -sv           surf_align.${subj}+orig.HEAD                                              \
+    -grid_parent "stats.${subj}+orig.HEAD"                                                  \
+    -cmask       "-a mvpamask/Piriform.${sub}+orig.HEAD -expr step(a)"                      \
+    -f_steps      10                                                                        \
+    -f_index      nodes                                                                     \
+    -map_func     ave                                                                       \
+    -debug        2                                                                         \
+    -out_niml     ${sub}_Piriform_ave_lh.niml.dset
+
+3dVol2Surf                                                                                  \
+    -spec         ../${sub}_surf/SUMA/${sub}_both.spec                                      \
+    -surf_A       rh.smoothwm                                                               \
+    -surf_B       rh.pial                                                                   \
+    -sv           surf_align.${subj}+orig.HEAD                                              \
+    -grid_parent "stats.${subj}+orig.HEAD"                                                  \
+    -cmask       "-a mvpamask/Piriform.${sub}+orig.HEAD -expr step(a)"                      \
+    -f_steps      10                                                                        \
+    -f_index      nodes                                                                     \
+    -map_func     ave                                                                       \
+    -debug        2                                                                         \
+    -out_niml     ${sub}_Piriform_ave_rh.niml.dset

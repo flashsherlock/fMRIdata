@@ -17,7 +17,12 @@ end
 # echo $data
 3dcopy ../${sub}.pabiode.results/pb05.${sub}.pabiode.r06.volreg+orig ./
 @AddEdge  pb05.${sub}.pabiode.r06.volreg+orig `ls ana*.HEAD`
-
+@Align_Centers                                                                  \
+    -base anat_final.${sub}.pabiode+orig                                       \
+    -dset ../${sub}_anat_warped/anatUAC.${sub}.nii                                                  \
+    -cm
+# -shift_xform_inv ../${sub}.2xpabiode.results/anatSS.${sub}_al_keep_mat.aff12.1D # not accurate, orientation changed
+cd ..
 # normalization
 # @SSwarper -input   ${sub}.uniden15.nii             \
 #                    -subid ${sub}                    \
@@ -25,24 +30,28 @@ end
 #                    -base  MNI152_2009_template_SSW.nii.gz
 
 # align to epi data
-align_epi_anat.py \
-    -anat2epi \
-    -anat ${sub}_anat_warped/anatUAC.${sub}.nii \
-    -suffix testa                               \
-    -epi ${sub}.2xpabiode.results/vr_base_min_outlier+orig -epi_base 0      \
-    -epi_strip 3dAutomask                          \
-    -anat_has_skull no                             \
-    -cost lpc+ZZ -giant_move                       \
-    -output_dir ${sub}_anat_warped              \
-    -pre_matrix ${sub}.2xpabiode.results/anatSS.${sub}_al_keep_mat.aff12.1D \
-    -volreg off -tshift off
+# align_epi_anat.py \
+#     -anat2epi \
+#     -anat ${sub}_anat_warped/anatUAC.${sub}.nii \
+#     -suffix testa                               \
+#     -epi ${sub}.2xpabiode.results/vr_base_min_outlier+orig -epi_base 0      \
+#     -epi_strip 3dAutomask                          \
+#     -anat_has_skull no                             \
+#     -cost lpc+ZZ -giant_move                       \
+#     -output_dir ${sub}_anat_warped              \
+#     -pre_matrix ${sub}.2xpabiode.results/anatSS.${sub}_al_keep_mat.aff12.1D \
+#     -volreg off -tshift off
 
+# use matrix cauculated previously
 3dAllineate                                                                                         \
     -master ${sub}.2xpabiode.results/anat_final.${sub}.2xpabiode+orig                          \
     -1Dmatrix_apply ${sub}.2xpabiode.results/anatSS.${sub}_al_keep_mat.aff12.1D                \
     -input ${sub}_anat_warped/anatUAC.${sub}.nii                                                  \
-    -prefix ${sub}_anat_warped/anatUACa.${sub}.nii                                                   
-3dcopy ${sub}_anat_warped/anatUACa.${sub}.nii ./check_align/
+    -prefix ${sub}_anat_warped/anatUACa.${sub}.nii
+
+# align accurately, but some of the skull was cut                                                   
+# 3dcopy ${sub}_anat_warped/anatUACa.${sub}.nii ./check_align/
+
 # use freesurfer to reconstruct surfaces
 # -sd pass working dir, the default is defined by env var 
 # high resolution reconstruction
@@ -78,7 +87,8 @@ afni -niml
 suma -spec ${sub}_surf_hiresalign/SUMA/${sub}_both.spec -sv ${sub}_surf/SUMA/${sub}_SurfVol.nii
 
 # set results directory
-set analysis=pabiode
+# use a different directory to avoid conflicts with existing files in pabiode
+set analysis=pade
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 
@@ -112,25 +122,25 @@ end
 
 3dcalc -a lAmy.freesurfer+orig -b rAmy.freesurfer+orig -expr 'a+b' -prefix Amy.freesurfer+orig
 3dcalc -a lAmy.seg.freesurfer+orig -b rAmy.seg.freesurfer+orig -expr 'a+b' -prefix Amy.seg.freesurfer+orig
-# copy Amy9 masks
-cp Amy.freesurfer+orig.BRIK.gz mvpamask/Amy9.freesurfer+orig.BRIK.gz
-cp Amy.freesurfer+orig.HEAD mvpamask/Amy9.freesurfer+orig.HEAD
-cp mvpamask/Amy9.freesurfer+orig* ../${sub}.paphde.results/mvpamask/
-cp mvpamask/Amy9.freesurfer+orig* ../${sub}.pade.results/mvpamask/
+# copy Amy9_align masks
+cp Amy.freesurfer+orig.BRIK.gz mvpamask/Amy9_align.freesurfer+orig.BRIK.gz
+cp Amy.freesurfer+orig.HEAD mvpamask/Amy9_align.freesurfer+orig.HEAD
+cp mvpamask/Amy9_align.freesurfer+orig* ../${sub}.paphde.results/mvpamask/
+cp mvpamask/Amy9_align.freesurfer+orig* ../${sub}.pade.results/mvpamask/
 
 # Print number of voxels for each ROI
 3dROIstats -nzvoxels -mask Amy.seg.freesurfer+orig.HEAD Amy.seg.freesurfer+orig.HEAD
 
 # create cortical amygdala mask
-3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,7,9)' -prefix mvpamask/corticalAmy.freesurfer+orig
-cp mvpamask/corticalAmy* ../${sub}.paphde.results/mvpamask/
-cp mvpamask/corticalAmy* ../${sub}.pade.results/mvpamask/
+3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,7,9)' -prefix mvpamask/corticalAmy_align.freesurfer+orig
+cp mvpamask/corticalAmy_align* ../${sub}.paphde.results/mvpamask/
+cp mvpamask/corticalAmy_align* ../${sub}.pade.results/mvpamask/
 
 # create mask for each region
 foreach region (1 3 5 6 7 8 9 10 15)
-    3dcalc -a Amy.seg.freesurfer+orig -expr "equals(a,${region})" -prefix mvpamask/Amy_${region}seg.freesurfer+orig
-    cp mvpamask/Amy_${region}seg* ../${sub}.paphde.results/mvpamask/
-    cp mvpamask/Amy_${region}seg* ../${sub}.pade.results/mvpamask/
+    3dcalc -a Amy.seg.freesurfer+orig -expr "equals(a,${region})" -prefix mvpamask/Amy_align${region}seg.freesurfer+orig
+    cp mvpamask/Amy_align${region}seg* ../${sub}.paphde.results/mvpamask/
+    cp mvpamask/Amy_align${region}seg* ../${sub}.pade.results/mvpamask/
 end
 
 # show results on surface

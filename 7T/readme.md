@@ -15,5 +15,7 @@ Pilot experiment that comparing local shimming and no multi-band.
 ## odor
 Experiment using four odors.
 
+## fix11
+Fix x11 error when run `afni_proc.py`.
 ### yanqing.tcsh
 Help yanqing generate ROI masks (including 3dSkullStrip).

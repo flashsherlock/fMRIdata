@@ -25,6 +25,10 @@ for i_analysis=1:length(analysis_all)
 for roi_i=1:length(rois)
     roi=rois{roi_i};
     mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpamask/' roi '*+orig.HEAD']);
+    % Amy will match too many files
+    if roi_i==1
+        mask=mask(1,:);
+    end
 for i=1:length(comb)
     odornumber=comb(i,:);
     % Set defaults

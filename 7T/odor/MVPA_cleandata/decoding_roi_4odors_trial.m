@@ -24,6 +24,10 @@ for i_analysis=1:length(analysis_all)
 for i=1:length(rois)
     roi=rois{i};
     mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpamask/' roi '*+orig.HEAD']);
+    % Amy will match too many files
+    if i==1
+        mask=mask(1,:);
+    end
     % Set defaults
     cfg = decoding_defaults;
 

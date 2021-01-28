@@ -126,7 +126,7 @@ end
 cp Amy.freesurfer+orig.BRIK.gz mvpamask/Amy9_align.freesurfer+orig.BRIK.gz
 cp Amy.freesurfer+orig.HEAD mvpamask/Amy9_align.freesurfer+orig.HEAD
 cp mvpamask/Amy9_align.freesurfer+orig* ../${sub}.paphde.results/mvpamask/
-cp mvpamask/Amy9_align.freesurfer+orig* ../${sub}.pade.results/mvpamask/
+cp mvpamask/Amy9_align.freesurfer+orig* ../${sub}.pabiode.results/mvpamask/
 
 # Print number of voxels for each ROI
 3dROIstats -nzvoxels -mask Amy.seg.freesurfer+orig.HEAD Amy.seg.freesurfer+orig.HEAD
@@ -134,13 +134,13 @@ cp mvpamask/Amy9_align.freesurfer+orig* ../${sub}.pade.results/mvpamask/
 # create cortical amygdala mask
 3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,7,9)' -prefix mvpamask/corticalAmy_align.freesurfer+orig
 cp mvpamask/corticalAmy_align* ../${sub}.paphde.results/mvpamask/
-cp mvpamask/corticalAmy_align* ../${sub}.pade.results/mvpamask/
+cp mvpamask/corticalAmy_align* ../${sub}.pabiode.results/mvpamask/
 
 # create mask for each region
 foreach region (1 3 5 6 7 8 9 10 15)
     3dcalc -a Amy.seg.freesurfer+orig -expr "equals(a,${region})" -prefix mvpamask/Amy_align${region}seg.freesurfer+orig
     cp mvpamask/Amy_align${region}seg* ../${sub}.paphde.results/mvpamask/
-    cp mvpamask/Amy_align${region}seg* ../${sub}.pade.results/mvpamask/
+    cp mvpamask/Amy_align${region}seg* ../${sub}.pabiode.results/mvpamask/
 end
 
 # show results on surface

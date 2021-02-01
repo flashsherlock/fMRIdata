@@ -424,7 +424,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
 acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^4",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     for (r in roi) {
-    n <- 192
+    n <- 192/6
     dataplot <- subset(acc4odor_run, sub ==sub & beta==m & roi==r)
     figure <- ggplot(dataplot, aes(x=run, y=acc, group=phy, color=phy)) + 
       labs(title = paste0(m,'_',r) ,x='ROI',y='ACC',group='PHY')+#设置坐标轴
@@ -468,7 +468,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
 acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     for (r in roi) {
-      n <- 192
+      n <- 96/6
       odor2 <- unique(acc2odor_run$odor)
       # 4 kinds of roi
       for (o in odor2){
@@ -480,7 +480,7 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
           coord_cartesian(ylim=c(0,100)) +
           scale_y_continuous(breaks=waiver(),expand = c(0,0))+
           scale_color_brewer(palette = "Greens",direction = 1)+ #颜色
-          geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")
+          geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")
         print(figure)
       }
     }

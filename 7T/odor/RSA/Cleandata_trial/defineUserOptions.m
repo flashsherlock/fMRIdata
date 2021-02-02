@@ -16,17 +16,15 @@ function userOptions = defineUserOptions()
 
 %% Project details
 userOptions.analysis='pabiode';
-userOptions.sessions=48;
-userOptions.conditions=192/userOptions.sessions;
+userOptions.sessions=1;
+userOptions.conditions=192;
 % This name identifies a collection of files which all belong to the same run of a project.
-userOptions.analysisName = 'Cleandata_avg';
+userOptions.analysisName = 'Cleandata';
 
 % This is the root directory of the project.
 % some files will be saved in this folder
 userOptions.rootPath = '/Volumes/WD_D/gufei/7T_odor';
-% if ~exist(userOptions.rootPath,'dir')
-%     mkdir(userOptions.rootPath)
-% end
+
 % The path leading to where the scans are stored (not including subject-specific identifiers).
 % "[[subjectName]]" should be used as a placeholder to denote an entry in userOptions.subjectNames
 % "[[betaIdentifier]]" should be used as a placeholder to denote an output of betaCorrespondence.m if SPM is not being used; or an arbitrary filename if SPM is being used.
@@ -67,14 +65,10 @@ userOptions.afni.software = 'AFNI';
 	% The path to a stereotypical mask data file is stored (not including subject-specific identifiers).
 	% "[[subjectName]]" should be used as a placeholder to denote an entry in userOptions.subjectNames
 	% "[[maskName]]" should be used as a placeholder to denote an entry in userOptions.maskNames
-	userOptions.maskPath = [userOptions.rootPath filesep '[[subjectName]]/' ['[[subjectName]]' '.' userOptions.analysis '.results'] '/mvpamask/[[maskName]].*orig.HEAD'];%'/imaging/mb01/lexpro/multivariate/ffx_simple/[[subjectName]]/[[maskName]].img';
+	userOptions.maskPath = [userOptions.rootPath filesep '[[subjectName]]/' ['[[subjectName]]' '.' userOptions.analysis '.results'] '/mvpamask/[[maskName]].[[subjectName]]+orig.HEAD'];%'/imaging/mb01/lexpro/multivariate/ffx_simple/[[subjectName]]/[[maskName]].img';
 		
 		% The list of mask filenames (minus .hdr extension) to be used.
 		userOptions.maskNames = {'Amy','Piriform','APC','PPC'};
-        userOptions.maskNames=[userOptions.maskNames {'Amy9_align'}];
-        for region=[1 3 5 6 7 8 9 10 15]
-            userOptions.maskNames=[userOptions.maskNames {['Amy_align' num2str(region) 'seg']}];
-        end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %% SEARCHLIGHT OPTIONS %%
@@ -137,8 +131,7 @@ userOptions.rankTransform = true;
 userOptions.rubberbands = true;
 
 % What criterion shoud be minimised in MDS display?
-% has been changed to avoid errors
-userOptions.criterion = 'metricsstress';
+userOptions.criterion = 'metricstress';
 
 % What is the colourscheme for the RDMs?
 userOptions.colourScheme = bone(128);
@@ -156,6 +149,6 @@ userOptions.dpi = 300;
 % in a manuscript or presentation.
 userOptions.tightInset = false;
 
-% userOptions.forcePromptReply = 'S';
+ userOptions.forcePromptReply = 'S';
 
 end%function

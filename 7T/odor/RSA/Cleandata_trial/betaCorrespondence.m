@@ -26,18 +26,17 @@ function betas = betaCorrespondence()
 
 preBeta = '[[subjectName]]_';
 
-session=48;
-s_name='trial';
-condition=192/session;
+session=1;
+s_name='exp';
+condition=192;
 odors={'lim' 'tra' 'car' 'cit'};
-labelname = reshape(repmat(odors,[48/session 1]),[condition 1]);
-labelname = strcat(labelname,string(1:condition)');
+labelname = reshape(repmat(odors,[48 1]),[condition 1]);
 betas(session,condition).identifier ='';
 % betas(session, condition).identifier = ???
 for session_i=1:session
     for condition_i=1:condition
     betas(session_i,condition_i).identifier = [s_name num2str(session_i) '_' ...
-        labelname{condition_i}];
+        labelname{condition_i} num2str(condition_i)];
     postBeta = '';
     end
 end

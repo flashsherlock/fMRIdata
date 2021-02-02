@@ -9,7 +9,6 @@
 %%%%%%%%%%%%%%%%%%%%
 
 % toolboxRoot = '/Users/mac/matlab/rsatoolbox'; addpath(genpath(toolboxRoot));
-% userOptions.criterion has been changed to avoid errors
 userOptions = defineUserOptions();
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -62,6 +61,4 @@ userOptions.RDMrelatednessMultipleTesting = 'FDR';
 userOptions.candRDMdifferencesTest = 'subjectRFXsignedRank';
 userOptions.candRDMdifferencesThreshold = 0.05;
 userOptions.candRDMdifferencesMultipleTesting = 'none';
-% has been changed to avoid out of bound error
-userOptions.nRandomisations = 24;
 stats_p_r=rsa.compareRefRDM2candRDMs(RDMs(roiIndex), models, userOptions);

@@ -36,15 +36,3 @@ Hypothesis RDMs to be tested.
 
 ## Recipe_fMRI.m
 Main workflow for ROI analysis.
-
-## Recipe_fMRI_searchlight.m
-Main workflow for searchlignt analysis (have not been edited).
-
-## decoding tool box RSA
-Use decoding toolbox to perform RSA (deprecated).
-
-### rsa_roi_4odors_trial
-Generate a big RDM based on trial images.
-
-### rsa_roi_4odors
-Perform RSA on run betas (with cross validation).

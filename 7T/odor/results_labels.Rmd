@@ -121,21 +121,21 @@ for (ana in analysis) {
       
 
       # confusion matrix
-      # cmatrix <- as.data.frame.matrix(cmatrix/truesums)
-      # cmatrix <- cbind(cmatrix,c("lim","tra","car","cit"))
-      # names(cmatrix) <- c(paste0('p_',c("lim","tra","car","cit")),"odor")
-      # cmatrix <- gather(cmatrix, prediction, value, p_lim:p_cit)
-      # cmatrix <- mutate(cmatrix,odor = factor(odor,rev(c("lim","tra","car","cit"))), # alphabetical order by default
-      #      prediction = factor(prediction, levels = paste0('p_',c("lim","tra","car","cit")))) # force reverse alphabetical order
-      # cmatrix[,3] <- round(100*cmatrix[,3],digits = 2)
-      # figure <- ggplot(cmatrix, aes(x=prediction, y=odor, fill=value)) +
-      #   geom_tile() + theme_bw() + coord_equal() +
-      #   scale_fill_distiller(palette="Greens", direction=1,limits=c(0, 60) ) +
-      #   # sc+
-      #   guides(fill=F) + # removing legend for `fill`
-      #   labs(title = cname) + # using a title instead
-      #   geom_text(aes(label=value), color="black") # printing values
-      # print(figure)
+      cmatrix <- as.data.frame.matrix(cmatrix/truesums)
+      cmatrix <- cbind(cmatrix,c("lim","tra","car","cit"))
+      names(cmatrix) <- c(paste0('p_',c("lim","tra","car","cit")),"odor")
+      cmatrix <- gather(cmatrix, prediction, value, p_lim:p_cit)
+      cmatrix <- mutate(cmatrix,odor = factor(odor,rev(c("lim","tra","car","cit"))), # alphabetical order by default
+           prediction = factor(prediction, levels = paste0('p_',c("lim","tra","car","cit")))) # force reverse alphabetical order
+      cmatrix[,3] <- round(100*cmatrix[,3],digits = 2)
+      figure <- ggplot(cmatrix, aes(x=prediction, y=odor, fill=value)) +
+        geom_tile() + theme_bw() + coord_equal() +
+        scale_fill_distiller(palette="Greens", direction=1,limits=c(0, 60) ) +
+        # sc+
+        guides(fill=F) + # removing legend for `fill`
+        labs(title = cname) + # using a title instead
+        geom_text(aes(label=value), color="black") # printing values
+      print(figure)
       
       # 2odors
       for (campare in campares) {

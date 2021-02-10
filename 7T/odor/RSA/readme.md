@@ -1,6 +1,15 @@
 # RSA
 Representation similarity analysis.
 
+## Cleandata_trial
+Use all of the trials to construct RDMs.
+
+## Cleandata_avgtrials
+Average all trials for each odor and then construct RDMs.
+
+## Cleandata_avgruns
+Average trials in each run for each odor and then construct RDMs.
+
 ## figureDendrogram.m
 Changed this function in rsatoolbox to match labels and colors on dendrograms.
 

@@ -1,20 +1,34 @@
-# These are the scripts I write for learning
+# These are the scripts for learning
 
 ## homework
 Matlab course homework.
 
+## mac_settings
+Configuration files for tcsh,zsh, vim, tmux, etc. on mac (also contains windows terminal settings). 
+
+## ubuntu_settings
+Vimrc and bashrc files on ubuntu.
+
+## shell
+Shell commands (e.g. `bar.sh`: progress bar) or information related to them.
+
 ## algorithm
 Reading notes for the book about algorithms.
-
-## Linux command
-Linux commands that have been used.
 
 ## MCGmodel
 The first script of R, which is about a model of time perception.
 
-## mac_settings
-Configuration files for tcsh,zsh, vim, tmux, etc. on mac. 
+## ett.m
+Use matlab to control ett olfactometer.
 
+## ettolfactometer.txt
+E-prime codes that control ett olfactometer.
+
+## fs_install_mcr
+Modified script to install matlab runtime for freesurfer, which can use zip file downloaded before.
+
+## recon_help.txt
+Instructions for using `recon-all` command.
 <!-- $ c = \sqrt{a^{2}+b_{xy}^{2}+e^{x}} $
 $ \frac{1}{2} $
 $$

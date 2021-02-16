@@ -25,7 +25,10 @@ material dull;
 lighting gouraud;
 camlight;
 
-%% Interactive plotting
+%% Prepare layout for interactive plotting
+% ft_prepare_layout generate a stuct layout that contains information for
+% plotting (ft_multiplotER, ft_multiplotTFR), e.g. layout.mask is a cell-array
+% with line segments that determine the area for topographic interpolation
 cfg            = [];
 cfg.headshape  = fspial_2h;
 cfg.projection = 'stereographic';

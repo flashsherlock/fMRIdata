@@ -29,12 +29,15 @@ for i=1:3
     if exist(dataset,'file')
         
         load(dataset);
+        % change eposition field to fieldtrip format eeg.elec
+        eeg = nc_prepare_elec(eeg);
         % delete some data affected by resistance check
         eeg = nc_trialdel( eeg );
         % get start time points of each block
         trl = nc_blockfun(eeg);
         % cut blocks (15s before onset )
         eeg = nc_trialcut(eeg,trl,fix(-15*eeg.fsample),0);
+                
         % save data
 %         save([block_path '/' subjID sfix{i} '.mat'],'eeg');
         

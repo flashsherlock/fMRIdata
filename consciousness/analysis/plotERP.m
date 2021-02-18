@@ -15,7 +15,8 @@ for i=1:3
         % prepare layout for ploting
         lay = nc_prepare_lay(eeg);
         % plot ERP for each odor
-        for iodor=1:4
+        % 2-lemon 4-chocolate 5-garlic
+        for iodor=[2 4 5]
             % define trials to be ploted
             cfg = [];
             cfg.trials = find(data_clean.trialinfo==iodor);

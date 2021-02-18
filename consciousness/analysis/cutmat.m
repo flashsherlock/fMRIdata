@@ -1,4 +1,6 @@
-function eeg=cutmat(subjID)
+function eeg=cutmat(subjID, condition)
+% cut raw data to pieces
+% condition is a number or array representing [anesthesia ,awake, sleep]
 %% set path
 filepath='/Volumes/WD_D/gufei/consciousness';
 sfix={'','_awake','_sleep'};
@@ -23,7 +25,7 @@ if ~exist(block_path,'dir')
     mkdir(block_path)
 end
 %% processing
-for i=1:3
+for i=condition
     % file name
     dataset=[indata_path '/' subjID sfix{i} '.mat'];
     if exist(dataset,'file')
@@ -33,11 +35,35 @@ for i=1:3
         eeg = nc_prepare_elec(eeg);
         % delete some data affected by resistance check
         eeg = nc_trialdel( eeg );
+        % delete DCs and filt signals
+        cfg = [];
+        cfg.channel = ft_channelselection({'dc*'}, eeg.label);
+        dcs = ft_selectdata(cfg, eeg);
+        % define channels
+        cfg = [];
+        cfg.channel = ft_channelselection({'all','-dc*'}, eeg.label);
+        % define filters
+        cfg.bpfilter = 'yes';
+        cfg.bpfreq = [1 100];
+        cfg.bsfilter    = 'yes';
+        cfg.bsfiltord   = 3;
+        cfg.bsfreq      = [49 51; 99 101]; 
+        % filt data
+        eeg = ft_preprocessing(cfg,eeg);
+        % add dcs back
+        cfg = [];
+        eeg = ft_appenddata(cfg,eeg,dcs);
+        % cut to blocks
         % get start time points of each block
-        trl = nc_blockfun(eeg);
+%         trl = nc_blockfun(eeg);
         % cut blocks (15s before onset )
-        eeg = nc_trialcut(eeg,trl,fix(-15*eeg.fsample),0);
-                
+%         eeg = nc_trialcut(eeg,trl,fix(-15*eeg.fsample),0);
+        % cut to trials
+        % get start time points of each trial
+        trl = nc_trialfun(eeg);
+        % cut blocks (2s before onset )
+        eeg = nc_trialcut(eeg,trl,fix(-2*eeg.fsample),0);
+        
         % save data
 %         save([block_path '/' subjID sfix{i} '.mat'],'eeg');
         

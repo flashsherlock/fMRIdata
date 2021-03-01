@@ -6,3 +6,4 @@ cp ./.zshrc ~
 cp ./.vimrc_bk ~
 cp ./.tmux.conf ~
 cp ./startup.m ~/matlab/
+cp ./powerline-shell-config.json ~/.config/powerline-shell/config.json

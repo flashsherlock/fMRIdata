@@ -1,5 +1,16 @@
+%% use spm to reorient CT image
+% spm will clear workspace if quit
+% workdir = pwd;
+subjID = 's05';
+filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
+cd(filepath);
+copy = ['cp ' subjID '_CT.nii ' subjID '_CT_acpc.nii'];
+unix(copy)
+spm fmri
+% mfilename('fullpath')
+% cd(workdir);
 %% set path
-subjID = 's02';
+subjID = 's05';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 %% load CT image
 ct = ft_read_mri([filepath '/' subjID '_CT.nii']);

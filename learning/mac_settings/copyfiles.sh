@@ -14,12 +14,13 @@ sudo spctl --master-disable
 xcode-select --install
 # install homebrew
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+# ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
 # install applications
 brew install vim neovim tree thefuck bat mc ncdu htop axel wget fzf tig autojump fortune cowsay
 # install to /Users/olfmac/anaconda3
 brew install homebrew/cask/anaconda
 brew install homebrew/cask/docker
-brew install tmux go go-md2man docker visual-studio-code microsoft-edge
+brew install netpbm gfortran tmux go go-md2man docker visual-studio-code microsoft-edge
 
 # install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -40,9 +41,47 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.c
 curl -sLf https://spacevim.org/cn/install.sh | bash -s -- -h
 curl -sLf https://spacevim.org/cn/install.sh | bash -s -- --install neovim
 
+# afni https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/background_install/install_instructs/steps_mac.html
+defaults write org.macosforge.xquartz.X11 wm_ffm -bool true
+defaults write org.x.X11 wm_ffm -bool true
+defaults write com.apple.Terminal FocusFollowsMouse -string YES
+# install xquartz from http://www.xquartz.org
+# download and install
+cd ~
+curl -O https://afni.nimh.nih.gov/pub/dist/bin/misc/@update.afni.binaries
+tcsh @update.afni.binaries -package macos_10.12_local -do_extras
+# or use local packages
+# tcsh @update.afni.binaries -local_package PATH_TO_FILE/macos_10.12_local.tgz -do_extras
+cp $HOME/abin/AFNI.afnirc $HOME/.afnirc
+suma -update_env
+# then reboot
+# install examples
+curl -O https://afni.nimh.nih.gov/pub/dist/edu/data/CD.tgz
+tar xvzf CD.tgz
+cd CD
+tcsh s2.cp.files . ~
+cd ..
+# check
+afni_system_check.py -check_all
+
 # fsl
-# python fslinstaller.py
+python fslinstaller.py
 
 # hostname and computername
 scutil --get LocalHostName
 scutil --get ComputerName
+sudo scutil --set HostName MacPro
+# hostname will echo MacPro
+hostname
+
+# install R and create softlink
+ln -s /Library/Frameworks/R.framework/Resources/bin/R /usr/local/bin/R
+ln -s /Library/Frameworks/R.framework/Resources/bin/Rscript /usr/local/bin/Rscript
+@afni_R_package_install -shiny -circos
+#安装updateR
+install_github('andreacirilloac/updateR')
+library(updateR) 
+#更新
+updateR()
+install.packages("devtools","tidyverse","ggstatsplot")
+devtools::install_github("psychbruce/bruceR")

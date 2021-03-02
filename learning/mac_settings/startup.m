@@ -2,7 +2,8 @@
 setenv('MATLAB_SHELL', '/bin/bash' );
 setenv('DYLD_LIBRARY_PATH','/Applications/freesurfer/7.1.1/lib/gcc/lib:/opt/X11/lib/flat_namespace');
 setenv('PATH','/usr/local/sbin:/usr/local/opt/ruby/bin:/Applications/freesurfer/7.1.1/bin:/Applications/freesurfer/7.1.1/fsfast/bin:/Applications/freesurfer/7.1.1/mni/bin:/Users/mac/anaconda3/condabin:/opt/ANTs/bin:/usr/local/fsl/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Applications/VMware Fusion.app/Contents/Public:/Library/TeX/texbin:/Applications/MATLAB_R2016b.app/bin:/Users/mac/Library/Python/2.7/bin:/Users/mac/nethack4:/Users/mac/anaconda3/envs/psychopy/lib/python3.6/site-packages/mripy/scripts:/Users/mac/laynii:/Users/mac/go/bin:/Users/mac/abin:/Users/mac/.rvm/bin:/usr/local/lib/ruby/gems/2.7.0/gems/jekyll-4.0.0/exe:/Users/mac/.cargo/bin:/usr/local/opt/fzf/bin');
-setenv('FREESURFER_HOME','/Applications/freesurfer/7.1.1')
+setenv('FREESURFER_HOME','/Applications/freesurfer/7.1.1');
+setenv('FSLOUTPUTTYPE', 'NIFTI_GZ');
 % FSL Setup
 setenv( 'FSLDIR', '/usr/local/fsl' );
 fsldir = getenv('FSLDIR');

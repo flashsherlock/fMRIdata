@@ -9,6 +9,11 @@ filepath='/Volumes/WD_D/gufei/consciousness/edf';
 [num,txt,raw]=xlsread([filepath '/../electrode/' subjID '_elec_name.xlsx']);
 % delete '
 raw=strrep(raw,'''','');
+if strcmp(subjID,'s05')
+    % replace with labels in header to avoid changes of " ' "
+    hdr = ft_read_header([filepath filesep subjID '.edf']);
+    raw(:,1)=hdr.label;
+end
 %% load position
 load([filepath '/../data/' subjID '_elec_mni_fv.mat']);
 for i=1:length(elec_mni_fv.label)

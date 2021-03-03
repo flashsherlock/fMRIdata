@@ -30,12 +30,16 @@ end
 elec_mni_fv.label=names;
 elec_acpc_f.label=names;
 %% load coordinates
+% coordinates in mni space
 c=load([filepath '/' 'MNI152_coordinates_ras.txt']);
-% elec_mni_fv.chanpos=c(:,4);
+elec_mni_fv.chanpos=c(:,1:3);
 elec_mni_fv.elecpos=elec_mni_fv.chanpos;
-elec_mni_fv.channum=c(:,1:3);
+% elec_mni_fv.channum=c(:,4);
+
 % coordinates in original space
-load([filepath '/' 'autocoordinates.mat']);
+% while ~exist('savecoors','var')
+load([filepath '/' 'autocoordinates.mat'],'savecoors');
+% end
 elec_acpc_f.chanpos = savecoors(:,3:5);
 elec_acpc_f.elecpos = elec_acpc_f.chanpos;
 % elec_acpc_f.channum = savecoors(:,2);

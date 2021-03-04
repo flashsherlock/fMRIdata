@@ -1,5 +1,20 @@
 # analyze iEEG data
 
+## electrodes reconstruction
+Several scripts are needed.
+* proc_MRI
+* recon_all
+* proc_CT (use spm to reorient CT image)
+* proc_CT_T1 (fusion with MRI and T1.mgz)
+* load electrode names from header and edit them in excel
+* proc_electrode (proc_elecposition and proc_elecname are used in this script)
+
+## data transformation
+Run `raw2mat` to change reference electrodes.
+Edit `nc_trialdel` to delete trials and then use `nc_trialfun` to identify markers.
+
+# programms
+
 ## generate_img.tcsh
 Convert DICOM files to nii.
 
@@ -30,11 +45,13 @@ Find and convert block markers into a matrix (trl).
 
 ## nc_trialcut.m
 Cut data by the matrix trl and numbers of timepoints before(-)/after(+) trial start and trial end.
+
 ## plotmarker.m
 Only for test.
 
 ## nc_prepare_elec.m
 Conver information in eposition field to elec field used by frieldtrip.
+
 # Electrodes localization
 
 ## proc_mri.m

@@ -13,6 +13,8 @@ switch subjID
         subname='HuYifan';
     case 's04'
         subname='WanRuilong';
+    case 's05'
+        subname='ZhouYuxuan';
     otherwise
         error('No data for this subject');
 end
@@ -24,15 +26,6 @@ raw_path=[filepath '/data/' subjID '_' subname '_raw'];
 if ~exist(raw_path,'dir')
     mkdir(raw_path)
 end
-%% load electrodes
-elec=load([filepath '/data/' subjID '_electrodes.mat']);
-% find old and new labels
-% use=elec.electrodes(:,1);
-newlabel=elec.electrodes(:,2);
-newlabel(elec.delete)=[];
-% used electrodes old labels
-% exclude=[{'all'};strcat('-',use(elec.delete))];        
-% cfg.channels=exclude;
 %% processing
 % specific to s01
 if strcmp(subjID,'s01')
@@ -64,7 +57,16 @@ else
     %         cfg.reref = 'yes';
     %         cfg.refmethod = 'bipolar';
             eeg=ft_preprocessing(cfg);
-
+            % load electrodes
+            % electrodes will be modified, so reload it every loop
+            elec=load([filepath '/data/' subjID '_electrodes.mat']);
+            % find old and new labels
+            % use=elec.electrodes(:,1);
+            newlabel=elec.electrodes(:,2);
+            newlabel(elec.delete)=[];
+            % used electrodes old labels
+            % exclude=[{'all'};strcat('-',use(elec.delete))];        
+            % cfg.channels=exclude;
             % delete unused channels
             eeg.label(elec.delete)=[];
             eeg.trial{:}(elec.delete,:)=[];

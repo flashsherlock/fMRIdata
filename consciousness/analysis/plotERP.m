@@ -4,7 +4,7 @@ filepath='/Volumes/WD_D/gufei/consciousness';
 sfix={'','_awake','_sleep'};
 % use bipolar block data
 indata=dir([filepath '/data/' subjID '*' '_block']);
-indata_path=indata(1).folder;
+indata_path=[indata(1).folder filesep indata(1).name];
 %% load data
 for i=1:3
     % file name

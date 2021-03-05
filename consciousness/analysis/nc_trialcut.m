@@ -11,17 +11,17 @@ if nargin < 4
 end
 
 % create blank cells
-trial=cell(1,length(trl));
+trial=cell(1,size(trl,1));
 time=trial;
-trialinfo=zeros(length(trl),1);
+trialinfo=zeros(size(trl,1),1);
 
 % according to fieldtrip, offset only controls eeg.time
 % start + offset
 % trl(:,1)=trl(:,1)+trl(:,3);
 
 % cut trials
-for itrial=1:length(trl)
-    % get trial star and end index
+for itrial=1:size(trl,1)
+    % get trial start and end index
     start=trl(itrial,1)+pretime;
     stop=trl(itrial,2)+posttime;
     % get offset
@@ -43,6 +43,6 @@ eeg.time=time;
 eeg.trialinfo=trialinfo;
 data=eeg;
 % add sampleinfo, cut point of each trial
-data.sampleinfo=trl(:,1:2)+ones(length(trl),2).*[pretime posttime];
+data.sampleinfo=trl(:,1:2)+ones(size(trl,1),2).*[pretime posttime];
 end
 

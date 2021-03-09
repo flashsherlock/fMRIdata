@@ -81,8 +81,8 @@ delete(instrfindall('Type','serial'));
 ettport=ett('init',port);
 
 
-%Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½matlabÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½
-%ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ÏµÍ³Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+%Ã¿´ÎÖØÆômatlabÊ±µÄËæ»úÖÖ×Ó¶¼ÊÇÏàÍ¬µÄ£¬ËùÒÔËæ»úÊıÊÇÒ»ÑùµÄ
+%ËùÒÔÍ¨¹ıÏµÍ³Ê±¼äÉèÖÃËæ»úÊıµÄÖÖ×Ó
 ctime = datestr(now, 30);
 tseed = str2num(ctime((end - 5) : end));
 rng(tseed);
@@ -114,7 +114,7 @@ end
 ins(1)=Screen('MakeTexture', windowPtr, imread('similarity.bmp'));
 cd ..
 HideCursor;
-ListenChar(2);      %ï¿½Ø±ï¿½Matlabï¿½Ô´ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
+ListenChar(2);      %¹Ø±ÕMatlab×Ô´ø¼üÅÌ¼àÌı
 ett('set',ettport,air); 
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
@@ -228,7 +228,7 @@ for cyc=1:length(seq)
             fbpoint=GetSecs;
             end
         elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %ï¿½ï¿½Ô­Matlabï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
+            ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌı
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -263,7 +263,7 @@ for cyc=1:length(seq)
             fbpoint=GetSecs;
             end
         elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %ï¿½ï¿½Ô­Matlabï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
+            ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌı
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -276,7 +276,7 @@ toc;
 % restore
 Priority(oldPriority);
 ShowCursor;
-ListenChar(0);      %ï¿½ï¿½Ô­Matlabï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
+ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌı
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);

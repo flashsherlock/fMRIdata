@@ -3,3 +3,5 @@
 *.Rproj
 .vscode
 *.m~
+*.asv
+/7T/exp/Data

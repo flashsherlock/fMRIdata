@@ -21,7 +21,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM3';
+port='COM4';
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');
@@ -61,7 +61,7 @@ id=min(size(si,1),id);
 id=max(1,id);
 si=si(id,:);
 jitter=ones(length(si)*2,1).*jitter;
-seq=[cell2mat(si)' fliplr(cell2mat(si))']+6;
+seq=[reshape(cell2mat(si),2,[])'; reshape(fliplr(cell2mat(si)),2,[])']+6;
 seq=[seq jitter];
 
 % record
@@ -76,13 +76,13 @@ whichscreen=max(Screen('Screens'));
 oldResolution=Screen('Resolution', whichscreen);
 Screen('Resolution', whichscreen, 800, 600);
 
-% ettport
+% ettport7
 delete(instrfindall('Type','serial'));
 ettport=ett('init',port);
 
 
-%Ã¿´ÎÖØÆômatlabÊ±µÄËæ»úÖÖ×Ó¶¼ÊÇÏàÍ¬µÄ£¬ËùÒÔËæ»úÊýÊÇÒ»ÑùµÄ
-%ËùÒÔÍ¨¹ýÏµÍ³Ê±¼äÉèÖÃËæ»úÊýµÄÖÖ×Ó
+%Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½matlabÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½
+%ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ÏµÍ³Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 ctime = datestr(now, 30);
 tseed = str2num(ctime((end - 5) : end));
 rng(tseed);
@@ -114,7 +114,7 @@ end
 ins(1)=Screen('MakeTexture', windowPtr, imread('similarity.bmp'));
 cd ..
 HideCursor;
-ListenChar(2);      %¹Ø±ÕMatlab×Ô´ø¼üÅÌ¼àÌý
+ListenChar(2);      %ï¿½Ø±ï¿½Matlabï¿½Ô´ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
 ett('set',ettport,air); 
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
@@ -228,7 +228,7 @@ for cyc=1:length(seq)
             fbpoint=GetSecs;
             end
         elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
+            ListenChar(0);      %ï¿½ï¿½Ô­Matlabï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -263,7 +263,7 @@ for cyc=1:length(seq)
             fbpoint=GetSecs;
             end
         elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
+            ListenChar(0);      %ï¿½ï¿½Ô­Matlabï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -276,7 +276,7 @@ toc;
 % restore
 Priority(oldPriority);
 ShowCursor;
-ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
+ListenChar(0);      %ï¿½ï¿½Ô­Matlabï¿½ï¿½ï¿½Ì¼ï¿½ï¿½ï¿½
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);

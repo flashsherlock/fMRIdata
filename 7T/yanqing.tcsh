@@ -3,6 +3,32 @@ set datafolder=/Volumes/WD_D/share/yanqing
 # # set datafolder=/Volumes/WD_D/share/20200708_S0_WZHOU
 cd "${datafolder}"
 
+# 3dcopy ch2better.nii ch2better
+
+# @SUMA_AlignToExperiment                                                 \
+#     -exp_anat ch2better+orig                              \
+#     -surf_anat suma_MNI_N27/MNI_N27_SurfVol.nii             \
+#     -prefix ch2better_align                                   \
+#     -wd                                                                 \
+#     -align_centers
+
+3dVol2Surf                                                                                  \
+    -spec         suma_MNI_N27/MNI_N27_both.spec                               \
+    -surf_A       suma_MNI_N27/lh.smoothwm                                                               \
+    -sv           ch2better_align+orig                                        \
+    -grid_parent  left+tlrc                                                  \
+    -map_func     mask                                                                      \
+    -debug        2                                                                         \
+    -out_niml     PPA_T.lh.niml.dset
+
+3dVol2Surf                                                                                  \
+    -spec         suma_MNI_N27/MNI_N27_both.spec                               \
+    -surf_A       suma_MNI_N27/rh.smoothwm                                                               \
+    -sv           ch2better_align+orig                                        \
+    -grid_parent  right+tlrc                                                  \
+    -map_func     mask                                                                      \
+    -debug        2                                                                         \
+    -out_niml     PPA_T.rh.niml.dset
 # foreach subj (`echo $*`)
 # # foreach subj (`ls -d S*`)
 

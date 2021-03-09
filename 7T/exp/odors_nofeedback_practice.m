@@ -25,7 +25,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM5';
+port='COM4';
 % open ttl port
 % ttlport='COM3';
 
@@ -86,8 +86,8 @@ Screen('Resolution', whichscreen, 800, 600);
 % ettport
 delete(instrfindall('Type','serial'));
 ettport=ett('init',port);
-s = serial(ttlport, 'BaudRate',115200);
-fopen(s); 
+% s = serial(ttlport, 'BaudRate',115200);
+% fopen(s); 
 
 %每次重启matlab时的随机种子都是相同的，所以随机数是一样的
 %所以通过系统时间设置随机数的种子

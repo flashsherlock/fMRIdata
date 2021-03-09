@@ -26,7 +26,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM5';
+port='COM4';
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');

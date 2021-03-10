@@ -1,15 +1,23 @@
+function analyze_timing_rating(sub)
 run=6;
 times=8;
-sub='s01_run';
-datadir='/Volumes/WD_D/gufei/7T_odor/S01_yyt/behavior/';
-cd(datadir);
+% sub='s01_run';
+datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% cd(datadir);
+% change sub to match filename
+sub=[lower(sub) '_run'];
 % timing contains the time of rating onset and duration
 timing=cell(run,4*times/2,2);
 
 for i=1:run
-    data=dir([sub num2str(i) '*.mat']);
+    if strcmp(sub,'s01_run')
+        % S01 is named from run7
+        data=dir([datadir sub num2str(i+6) '*.mat']);
+    else
+        data=dir([datadir sub num2str(i) '*.mat']);
+    end
     dataname=data(1).name;
-    load(dataname);
+    load([datadir filesep dataname]);
     disp([sub num2str(i)]);
     % response number
     resnum=length(result(result(:,6)~=0,7));
@@ -36,11 +44,12 @@ end
 names={'valence','intensity'};
 for i=1:2
     % timing for each kind of rating
-    fid=fopen([names{i} '.txt'],'w');
+    fid=fopen([datadir filesep names{i} '.txt'],'w');
     for j=1:run
         temp=strjoin(timing(j,:,i));
         fprintf(fid,'%s\r\n',temp);
     end
     fclose(fid);
+end
 end
 

@@ -1,14 +1,22 @@
+function analyze_timing(sub)
 run=6;
 times=8;
-sub='s01_run';
-datadir='/Volumes/WD_D/gufei/7T_odor/S01_yyt/behavior/';
-cd(datadir);
+% sub='s01_run';
+datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% cd(datadir);
 timing=zeros(run,times,4);
+% change sub to match filename
+sub=[lower(sub) '_run'];
 
 for i=1:run
-    data=dir([sub num2str(i) '*.mat']);
+    if strcmp(sub,'s01_run')
+        % S01 is named from run7
+        data=dir([datadir sub num2str(i+6) '*.mat']);
+    else
+        data=dir([datadir sub num2str(i) '*.mat']);
+    end
     dataname=data(1).name;
-    load(dataname);
+    load([datadir filesep dataname]);
     disp([sub num2str(i)]);
     % response number
     resnum=length(result(result(:,6)~=0,7));
@@ -29,10 +37,10 @@ end
 names={'lim','tra','car','cit'};
 for i=1:length(names)
     % timing for each odor(all runs)
-    dlmwrite([names{i} '.txt'],timing(:,:,i),'delimiter',' ');
+    dlmwrite([datadir filesep names{i} '.txt'],timing(:,:,i),'delimiter',' ');
     % timing for each odor(each run)
     for runi=1:run
-        dlmwrite([names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
+        dlmwrite([datadir filesep names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
     end
 end
-
+end

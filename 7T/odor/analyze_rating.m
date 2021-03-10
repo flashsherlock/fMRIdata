@@ -1,17 +1,25 @@
+function analyze_rating(sub)
 run=6;
 times=8;
-sub='s01_run';
-datadir='/Volumes/WD_D/gufei/7T_odor/S01_yyt/behavior/';
-cd(datadir);
+% sub='s01_run';
+datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% cd(datadir);
 timing=zeros(run,times,4);
 intensity=zeros(run*times/2,4);
 valence=intensity;
 odors={'Lim','Tra','Car','Cit'};
+% change sub to match filename
+sub=[lower(sub) '_run'];
 
 for i=1:run
-    data=dir([sub num2str(i) '*.mat']);
+    if strcmp(sub,'s01_run')
+        % S01 is named from run7
+        data=dir([datadir sub num2str(i+6) '*.mat']);
+    else
+        data=dir([datadir sub num2str(i) '*.mat']);
+    end
     dataname=data(1).name;
-    load(dataname);
+    load([datadir filesep dataname]);
     disp(['analyze' sub num2str(i)]);
     
     % rating    

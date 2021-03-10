@@ -1,5 +1,7 @@
 # 7T experiment for odor representation
 
+# gendata.m
+Gernerate data files, including images, timing files, and phy files.
 ## analyze_timing.m
 Generate timing files for each run and a file including all runs.
 
@@ -73,9 +75,6 @@ Use ft_preproc_lowpassfilter to filt respiration from Biopac. Align and compare 
 ## resp_savebio.m
 Save respiration from Biopac to 1d file that used in physiology correction.
 
-## nophy
-Analysis same as above but without physioloy correction (pade). This can be a backup for all of the analysis.
-
 # MVPA
 
 ## RSA
@@ -104,3 +103,6 @@ Results for different regions of amygdala.
 
 ## results_labels.Rmd
 Analyze true labels and predicted labels, which can obtain accuracy and confusion matrices for each run.
+
+# nophy
+Analysis same as above but without physioloy correction (pade). This can be a backup for all of the analysis.

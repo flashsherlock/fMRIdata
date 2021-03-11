@@ -58,9 +58,12 @@ runvalence(4,:)=nanmean(valence(13:16,:));
 runvalence(5,:)=nanmean(valence(17:20,:));
 runvalence(6,:)=nanmean(valence(21:24,:));
 disp(runvalence)
+figure
 plot(runvalence,'-d')
 legend(odors)
-axis([1 6 4.5 7])
+title([sub '_valence'],'Interpreter','none')
+axis([1 6 1 7])
+
 disp('intensity_run')
 runintensity(1,:)=nanmean(intensity(1:4,:));
 runintensity(2,:)=nanmean(intensity(5:8,:));
@@ -69,6 +72,8 @@ runintensity(4,:)=nanmean(intensity(13:16,:));
 runintensity(5,:)=nanmean(intensity(17:20,:));
 runintensity(6,:)=nanmean(intensity(21:24,:));
 disp(runintensity)
+figure
 plot(runintensity,'-d')
 legend(odors)
-axis([1 6 4.5 7])
+title([sub '_intensity'],'Interpreter','none')
+axis([1 6 1 7])

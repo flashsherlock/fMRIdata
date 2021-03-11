@@ -5,13 +5,13 @@ function [data,error]=marker_trans(data)
 %error 
 % bin to dec
 data=pinlv(data);
-%È¥µôÁ¬ĞøµÄÖØ¸´µÄmarker
+%å»æ‰è¿ç»­çš„é‡å¤çš„marker
 data(:,2)=quchong(data(:,2));
-%Í³¼Æ¸÷¸ömarkerµÄÆµÊı
+%ç»Ÿè®¡å„ä¸ªmarkerçš„é¢‘æ•°
 t=tabulate(data(:,2));
-%È¥µôÎŞmarkerµÄÄÇÒ»ĞĞ
+%å»æ‰æ— markerçš„é‚£ä¸€è¡Œ
 t(7,:)=[];
-% ÅĞ¶ÏmarkerÊıÁ¿ÊÇ²»ÊÇ¶ÔµÄ
+% åˆ¤æ–­markeræ•°é‡æ˜¯ä¸æ˜¯å¯¹çš„
 times=[15 3 3 3 3 3 3 3 3 3 3 15];
 error=t((t(:,2)'==times)~=1,1)';
 if isempty(error)
@@ -19,42 +19,50 @@ if isempty(error)
 else
     disp('Error in marker!')
 end
-%±£´æ×ª»»Ö®ºóµÄ
+%ä¿å­˜è½¬æ¢ä¹‹åçš„
 % save(['.\trans\' filename(i).name(1:end-4) '_trans.mat'],'data');
 
 end
 
 function [temp] = pinlv( matrix )
-%½øĞĞmarkerµÄ¶ş½øÖÆ×ªÊ®½øÖÆ
+%è¿›è¡Œmarkerçš„äºŒè¿›åˆ¶è½¬åè¿›åˆ¶
 % for i=2:9
 % tabulate(matrix(:,i));
 % end
 temp=matrix(:,2:7);
-temp=num2str(temp/5);
-temp(isspace(temp)) = [];
-temp=reshape(temp,[],6);
-%·´×ª
-temp=temp(:,end:-1:1);
-%¶ş½øÖÆ×ªÊ®½øÖÆ
-temp=bin2dec(temp);
+
+% %old code
+% temp=num2str(temp/5);
+% temp(isspace(temp)) = [];
+% temp=reshape(temp,[],6);
+% %åè½¬
+% temp=temp(:,end:-1:1);
+% %äºŒè¿›åˆ¶è½¬åè¿›åˆ¶
+% temp=bin2dec(temp);
+
+% convert to integer values
+temp=round(temp/5);
+% convert to digits
+temp=temp*[1;2;4;8;16;32];
+
 %tabulate(temp);
-%°ÑÊı¾İºÍ×ªºóµÄmarkerºÏ²¢
+%æŠŠæ•°æ®å’Œè½¬åçš„markeråˆå¹¶
 temp=[matrix(:,1) temp];
 %save('sub01','temp');
 end
 
 function temp = quchong( matrix )
-%ĞŞ¸Ä±àºÅ£¬ÆøÎ¶Îª1-5£¬¿ÕÆøÊÇ6
+%ä¿®æ”¹ç¼–å·ï¼Œæ°”å‘³ä¸º1-5ï¼Œç©ºæ°”æ˜¯6
 matrix(matrix==4)=3;
 matrix(matrix==8)=4;
 matrix(matrix==16)=5;
 matrix(matrix==32)=6;
-%°ÑÁ¬ĞøµÄ²¿·Ö±£ÁôµÚÒ»¸ö
+%æŠŠè¿ç»­çš„éƒ¨åˆ†ä¿ç•™ç¬¬ä¸€ä¸ª
 matrix1=zeros(length(matrix),1);
-%´íÒ»Î»
+%é”™ä¸€ä½
 matrix1(2:end)=matrix(1:end-1);
-%Ô­Ê¼µÄ¼õÈ¥ºó´íÒ»Î»µÄ
-%Ê×¸ö±ê¼Ç±£Áô£¬Ö®ºóÊ×¸ö0»á³ÉÎª¸ºÖµ
+%åŸå§‹çš„å‡å»åé”™ä¸€ä½çš„
+%é¦–ä¸ªæ ‡è®°ä¿ç•™ï¼Œä¹‹åé¦–ä¸ª0ä¼šæˆä¸ºè´Ÿå€¼
 temp=matrix-matrix1;
 end
 

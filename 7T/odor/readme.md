@@ -23,7 +23,7 @@ Only for testing, because high resolution results will be used.
 ## proc_anatomy_hires.tcsh
 Use `@SSwarper` to preprocessing anatomical image, then do recon (keep 0.7mm) to show data on surface (SUMA).
 Amygdala can be automatically segmented to 9 nucleis by command `segmentHA_T1.sh`, and `3dAllineate` to EPI grid.
-## proc_anatomy_hires.tcsh
+## proc_anatomy_alignUACepi.tcsh
 Use `@SSwarper` to preprocessing anatomical image, then align it to EPI and do recon (keep 0.7mm) to show data on surface (SUMA).
 It may improve accuracy (avoid transformation) after align to EPI.
 ## proc_fmri.tcsh

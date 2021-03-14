@@ -34,8 +34,8 @@ for i=1:run
     valencedu(valencedu>4.5)=4.5;
     % intensity duration
     intensitydu=-2.5+result(result(:,2)==2,7)';
-    intensitydu(valencedu==-2.5)=4.5;
-    intensitydu(valencedu>4.5)=4.5;
+    intensitydu(intensitydu==-2.5)=4.5;
+    intensitydu(intensitydu>4.5)=4.5;
     % combine onset and duration by :
     timing(i,:,1)=strcat(strsplit(num2str(valenceon)),{':'},strsplit(num2str(valencedu)));
     timing(i,:,2)=strcat(strsplit(num2str(intensityon)),{':'},strsplit(num2str(intensitydu)));

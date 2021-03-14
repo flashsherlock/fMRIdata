@@ -1,5 +1,5 @@
 % generate images, timing files, and phy files for each subject
-for subi=3
+for subi=1:3
     sub=sprintf('S%02d',subi);
     % disp(sub)
     datafolder=['/Volumes/WD_E/gufei/7T_odor/' sub];       
@@ -37,4 +37,11 @@ for subi=3
     unix(['tcsh phy.tcsh ' sub ' "' num2str(runs) '"'])
     resp_campare(sub);
     % S03 run2 lose one point 989 at the end 
+    
+    %% use 3dresample in afni to match pa and run
+    input = [datafolder '/' sub '.pa+orig'];
+    output = [datafolder '/' sub '.par+orig'];
+    master = [datafolder '/' sub '.run1+orig'];
+    afni_resample=['3dresample -input ' input ' -master ' master ' -prefix ' output];
+    unix(afni_resample)
 end

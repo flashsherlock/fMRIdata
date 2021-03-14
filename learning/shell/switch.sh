@@ -25,10 +25,10 @@
 #     default:
 #             echo "There is no selection: $input_line"
 # endsw
-# # unsecessful
+# # successful
 # echo $1
 switch ($1)
-    case b:
+    case b:
         set analysis=pabiode
         echo ${analysis}
         breaksw

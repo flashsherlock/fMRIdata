@@ -56,8 +56,14 @@ Dimon -infile_pattern "*FMRI.00$6.*" \
 -no_wait
 
 cd ..
-# # denoise
+# denoise
 LN_MP2RAGE_DNOISE -INV1 ${sub}.inv1.nii -INV2 ${sub}.inv2.nii -UNI ${sub}.uni.nii -beta 1.5 -output ${sub}.uniden15.nii
+
+# processing anatomical image
+@SSwarper -input   ${sub}.uniden15.nii             \
+                   -subid ${sub}                    \
+                   -odir  ${sub}_anat_warped        \
+                   -base  MNI152_2009_template_SSW.nii.gz
 
 else
  echo "Usage: $0 <Subjname> <runs> <pa> <inv1> <inv2> <uni>"

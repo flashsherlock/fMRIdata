@@ -1,9 +1,19 @@
 #!/bin/tcsh
-set sub=S01_yyt
-set analysis=pabiode
-
-set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+# set sub=S01_yyt
+# use input as sub
+if ( $# > 0 ) then
+set sub = $1
+set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
+
+if ($2 == bio) then
+        set bio=.biop.
+        set analysis=pabiode
+else
+        set bio=.
+        set analysis=paphde
+endif
 
 # run the regression analysis
 set subj = ${sub}.${analysis}
@@ -30,7 +40,7 @@ set filedec = odorVI_noblur
     -stim_label 5 val                                          \
     -stim_times_AM1 6 ../behavior/intensity.txt 'dmBLOCK(1)'   \
     -stim_label 6 int                                          \
-    -jobs 22                                                   \
+    -jobs 14                                                   \
     -x1D X.xmat.${filedec}.1D -xjpeg X.${filedec}.jpg          \
     -noFDR                                                     \
     -cbucket cbucket.${subj}.${filedec}
@@ -52,3 +62,8 @@ rm Decon*
 
 # an easyway to check alignment
 # @snapshot_volreg anat_final.S01_yyt.pabiode+orig pb05.S01_yyt.pabiode.r01.volreg+orig checkalign
+
+else
+ echo "Usage: $0 <Subjname> <analysis>"
+
+endif

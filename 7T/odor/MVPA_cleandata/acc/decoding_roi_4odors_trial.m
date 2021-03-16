@@ -11,12 +11,13 @@
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 subn=1;
 sub='S01_yyt';
+datafolder='/Volumes/WD_E/gufei/7T_odor/';
 analysis_all={'pabiode','paphde','pade'};
 rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
 for region=[1 3 5 6 7 8 9 10 15]
     rois=[rois {['Amy_' num2str(region) 'seg']}];
 end
-rois=[rois {'Amy9_align'}];
+rois=[rois {'Amy9_align','corticalAmy_align'}];
 for region=[1 3 5 6 7 8 9 10 15]
     rois=[rois {['Amy_align' num2str(region) 'seg']}];
 end
@@ -25,9 +26,10 @@ shift=6;
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
     % Amy_seg starts from 7
+    % Amy_align stars from 16
 parfor i=16:length(rois)
     roi=rois{i};
-    mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpamask/' roi '*+orig.HEAD']);
+    mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
     % Amy will match too many files
     if i==1
         mask=mask(1,:);
@@ -44,7 +46,7 @@ parfor i=16:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -58,7 +60,7 @@ parfor i=16:length(rois)
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)

@@ -7,19 +7,45 @@ set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
 # set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
-if ($2 == bio) then
-        set bio=.biop.
+# can be achieved by switch case stucture
+# if ($2 == bio) then
+#         set pb=pb05
+#         set analysis=pabiode
+#     else
+#         if ($2 == phy) then
+#         set pb=pb05
+#         set analysis=paphde
+#         else
+#         set pb=pb04
+#         set analysis=pade
+#         endif
+# endif
+
+switch ($2)
+    case bio:
+        set pb=pb05
         set analysis=pabiode
-else
-        set bio=.
+        breaksw
+    case phy:
+        set pb=pb05
         set analysis=paphde
-endif
+        breaksw
+    case no:
+        set pb=pb04
+        set analysis=pade
+        breaksw
+    default:
+        echo The second input must be bio, phy or no.
+        echo ${analysis}
+endsw
+
+echo ${sub} ${analysis}
 
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 set filedec = odorVI_noblur
-3dDeconvolve -input pb05.${subj}.r*.volreg+orig.HEAD              \
+3dDeconvolve -input ${pb}.${subj}.r*.volreg+orig.HEAD              \
     -ortvec mot_demean.r01.1D mot_demean_r01                   \
     -ortvec mot_demean.r02.1D mot_demean_r02                   \
     -ortvec mot_demean.r03.1D mot_demean_r03                   \
@@ -50,7 +76,7 @@ set filedec = odorVI_noblur
 rm Decon*
 
 # cat all runs
-3dTcat -prefix allrun.volreg.${subj} pb05.${subj}.r*.volreg+orig.HEAD
+3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
 # synthesize fitts of no interests, use -dry for debug
 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.xmat.${filedec}.1D -select baseline val int -prefix NIfitts.${subj}.${filedec}
 # subtract fitts of no interests from all runs

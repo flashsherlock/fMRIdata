@@ -127,6 +127,9 @@ cp Amy.freesurfer+orig.HEAD ../mask/Amy9_align.freesurfer+orig.HEAD
 # cp ../mask/Amy9_align.freesurfer+orig* ../${sub}.pabiode.results/../mask/
 
 # Print number of voxels for each ROI
+if (-e ../mask/voxels.txt) then
+    rm ../mask/voxels.txt
+endif
 3dROIstats -nzvoxels -mask Amy.seg.freesurfer+orig.HEAD Amy.seg.freesurfer+orig.HEAD > ../mask/voxels.txt
 
 # create cortical amygdala mask

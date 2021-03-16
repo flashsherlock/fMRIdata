@@ -2,11 +2,21 @@
 
 # gendata.m
 Gernerate data files, including images, timing files, and phy files.
+
 ## analyze_timing.m
 Generate timing files for each run and a file including all runs.
 
+## analyze_timing_rating.m
+Generate timing files for the presentation of cue words.
+
 ## analyze_rating.m
 Analyze ratings for four odors.
+
+## bottlerate.m
+Analyze ratings for odors presented by bottles.
+
+## mrirate.m
+Analyze ratings for odors presented by the olfactometer.
 
 ## generate_img.tcsh
 Convert DICOM files.
@@ -16,6 +26,9 @@ Generate ROI masks (iszero(a-roi_label)) and resample to fit functional images.
 
 ## phy.tcsh
 Generate parameters for physiology correction.
+
+## prodata.m
+Generate proc files for each subject by running `afni_proc.py` and command files for parallel analysis.
 
 ## proc_anatomy.tcsh
 Use `@SSwarper` to preprocessing anatomical image, then do recon (resample to 1mm by default) to show data on surface (SUMA).

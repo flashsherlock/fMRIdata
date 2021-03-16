@@ -1,4 +1,8 @@
-function data=bottlerate()
+function data=bottlerate(sub)
+% sub is the number of subject
+if nargin<1
+    sub=999;
+end
 % load sequence
 fullpath=mfilename('fullpath');
 [path,~]=fileparts(fullpath);
@@ -39,10 +43,19 @@ for i=1:size(si,1)
     simRDM(:,:,i)=squareform(d);
 end
 % save to data
-data.valence=valence;
-data.intensity=intensity;
-data.similarity=similarity;
-data.simRDM=simRDM;
-data.valRDM=valRDM;
-data.intRDM=intRDM;
+if sub>=1 && sub<=size(si,1)
+    data.valence=valence(sub,:);
+    data.intensity=intensity(sub,:);
+    data.similarity=similarity(sub,:);
+    data.simRDM=simRDM(:,:,sub);
+    data.valRDM=valRDM(:,:,sub);
+    data.intRDM=intRDM(:,:,sub);
+else
+    data.valence=valence;
+    data.intensity=intensity;
+    data.similarity=similarity;
+    data.simRDM=simRDM;
+    data.valRDM=valRDM;
+    data.intRDM=intRDM;
+end
 end

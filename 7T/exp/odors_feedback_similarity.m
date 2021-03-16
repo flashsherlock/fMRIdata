@@ -114,7 +114,7 @@ end
 ins(1)=Screen('MakeTexture', windowPtr, imread('similarity.bmp'));
 cd ..
 HideCursor;
-ListenChar(2);      %¹Ø±ÕMatlab×Ô´ø¼üÅÌ¼àÌý
+ListenChar(2);      % turn off keyboard
 ett('set',ettport,air); 
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
@@ -187,7 +187,7 @@ for cyc=1:length(seq)
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
     vbl=Screen('Flip', windowPtr, vbl + (fps*cuetime-0.1)*ifi);
     trialtime=GetSecs;
-    result(cyc,5)=trialtime-zerotime;% should be 9s
+    result(cyc,5)=trialtime-zerotime;% should be 11s after result(cyc,4)
     
     % close 
     WaitSecs(odortime-offset);
@@ -228,7 +228,7 @@ for cyc=1:length(seq)
             fbpoint=GetSecs;
             end
         elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
+            ListenChar(0);      %restore keyboard
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -252,7 +252,7 @@ for cyc=1:length(seq)
         if touch && ismember(1,ifkey)
             if find(ifkey==1,1,'first')~=result(cyc,6)
             result(cyc,6)=find(ifkey==1,1,'first');
-            result(cyc,7)=secs-trialtime;
+            result(cyc,7)=secs-trialtime;% 2.5odorblank+(4.5ratetime+3.5jitter)=10.5s to response
             response{cyc,1}=[response{cyc,1} result(cyc,6)];
             response{cyc,2}=[response{cyc,2} result(cyc,7)];
             % feedback
@@ -263,7 +263,7 @@ for cyc=1:length(seq)
             fbpoint=GetSecs;
             end
         elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
+            ListenChar(0);      %restore keyboard
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -276,7 +276,7 @@ toc;
 % restore
 Priority(oldPriority);
 ShowCursor;
-ListenChar(0);      %»¹Ô­Matlab¼üÅÌ¼àÌý
+ListenChar(0);      %restore keyboard
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);

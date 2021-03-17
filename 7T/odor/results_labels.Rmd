@@ -1,8 +1,15 @@
 ---
-title: "Amygdala_decoding"
-author: "Fei"
-date: "2021/1/21"
 output: html_document
+params:
+    path: "/Volumes/WD_E/gufei/7T_odor/"
+    sub: "S01_yyt"
+    analysis: ["pade","paphde","pabiode"]
+    mvpa_pattern: "roi_VIodor_l1_label_6"
+    roi: !r c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
+    set_title: "Amygdala_decoding"
+title: "`r params$set_title`"
+author: "Fei"
+date: "`r Sys.time()`"
 ---
 
 ```{r, setup, include=FALSE}
@@ -71,12 +78,19 @@ readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
 
 # Accuracy_align
 
-```{r}
-path <- "/Volumes/WD_D/gufei/7T_odor/"
-sub <- "S01_yyt"
-analysis <- c("pade","paphde","pabiode")
-mvpa_pattern <- c("roi_VIodor_l1_label_6")
-roi <- c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
+```{r echo=FALSE}
+# path <- "/Volumes/WD_E/gufei/7T_odor/"
+# sub <- "S01_yyt"
+# analysis <- c("pade","paphde","pabiode")
+# mvpa_pattern <- c("roi_VIodor_l1_label_6")
+# roi <- c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
+
+path <- params$path
+sub <- params$sub
+analysis <- params$analysis
+mvpa_pattern <- params$mvpa_pattern
+roi <- params$roi
+cat(sub)
 ```
 
 ## align labels
@@ -169,7 +183,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
     figure <- ggplot(dataplot, aes(x=roi, y=acc, fill=phy)) + 
       labs(title = m ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
       geom_bar(position="dodge", stat="identity") +
-      coord_cartesian(ylim=c(0,45)) +
+      coord_cartesian(ylim=c(0,65)) +
       scale_y_continuous(breaks=waiver(),expand = c(0,0))+
       geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+
       # scale_fill_manual(values = colors[1:2])+ #颜色
@@ -186,7 +200,7 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
     n <- 192/6
     dataplot <- subset(acc4odor_run, sub ==sub & beta==m & roi==r)
     figure <- ggplot(dataplot, aes(x=run, y=acc, group=phy, color=phy)) + 
-      labs(title = paste0(m,'_',r) ,x='ROI',y='ACC',group='PHY')+#设置坐标轴
+      labs(title = paste0(r) ,x='ROI',y='ACC',group='PHY')+#设置坐标轴
       geom_line() +
       geom_point()+
       coord_cartesian(ylim=c(0,80)) +
@@ -224,7 +238,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
 ```
 
 ### accuracy for each run 2 odors
-```{r echo=FALSE, fig.height=3, fig.width=4}
+```{r echo=FALSE, fig.height=3, fig.width=5}
 acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     for (r in roi) {
@@ -234,7 +248,7 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
       for (o in odor2){
         dataplot <- subset(acc2odor_run, sub ==sub & beta==m & roi==r & odor==o)
         figure <- ggplot(dataplot, aes(x=run, y=acc, group=phy, color=phy)) + 
-          labs(title = paste(m,r,o,sep = '_') ,x='ROI',y='ACC',group='PHY')+#设置坐标轴
+          labs(title = paste(r,o,sep = '_') ,x='ROI',y='ACC',group='PHY')+#设置坐标轴
           geom_line() +
           geom_point()+
           coord_cartesian(ylim=c(0,100)) +

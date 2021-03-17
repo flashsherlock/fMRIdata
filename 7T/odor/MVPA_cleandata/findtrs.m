@@ -1,15 +1,22 @@
-function timing = findtrs( shift,subnum )
+function timing = findtrs( shift,sub )
 % find TRs when odor evoked activity reaches peak
 % shift is the time shift (seconds) after inhalation
 run=6;
 times=8;
-prefix=dir(sprintf('/Volumes/WD_D/gufei/7T_odor/S%02d*',subnum));
-sub=sprintf('s%02d_run',subnum);
-datadir=[prefix.folder filesep prefix.name filesep 'behavior/'];
+datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+sub=[lower(sub) '_run'];
 timing=zeros(2,4*times,run);
 
 for i=1:run
-    data=dir([datadir sub num2str(i) '*.mat']);
+    if strcmp(sub,'s01_run')
+        % S01 is named from s01_run7
+        data=dir([datadir sub num2str(i+6) '*.mat']);
+    elseif strcmp(sub,'s01_yyt_run')
+        % S01_yyt is named from s01_run1
+        data=dir([datadir 's01_run' num2str(i) '*.mat']);
+    else
+        data=dir([datadir sub num2str(i) '*.mat']);
+    end
     dataname=data(1).name;
     load([datadir dataname]);
 

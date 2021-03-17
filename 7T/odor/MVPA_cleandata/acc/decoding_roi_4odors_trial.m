@@ -1,3 +1,4 @@
+function decoding_roi_4odors_trial(sub)
 % This script is a template that can be used for a decoding analysis on 
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
@@ -9,8 +10,8 @@
 % (e.g. addpath('/home/decoding_toolbox') )
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
-subn=1;
-sub='S01_yyt';
+% subn=1;
+% sub='S01_yyt';
 datafolder='/Volumes/WD_E/gufei/7T_odor/';
 analysis_all={'pabiode','paphde','pade'};
 rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
@@ -51,7 +52,7 @@ parfor i=16:length(rois)
         mkdir(cfg.results.dir)
     end
     
-    timing=findtrs(shift,subn);
+    timing=findtrs(shift,sub);
     % Full path to file names (1xn cell array) (e.g.
     % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
     % lim tra car cit
@@ -105,6 +106,7 @@ parfor i=16:length(rois)
 
     % Run decoding
     results = decoding(cfg);    
+end
 end
 end
 % some warnings

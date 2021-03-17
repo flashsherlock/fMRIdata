@@ -29,8 +29,11 @@ sub=[lower(sub) '_run'];
 
 for i=1:run
     if strcmp(sub,'s01_run')
-        % S01 is named from run7
+        % S01 is named from s01_run7
         data=dir([datadir sub num2str(i+6) '*.mat']);
+    elseif strcmp(sub,'s01_yyt_run')
+        % S01_yyt is named from s01_run1
+        data=dir([datadir 's01_run' num2str(i) '*.mat']);
     else
         data=dir([datadir sub num2str(i) '*.mat']);
     end

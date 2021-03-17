@@ -1,4 +1,4 @@
-function analyze_rating(sub)
+function dataout=analyze_rating(sub)
 run=6;
 times=8;
 % sub='s01_run';
@@ -48,10 +48,11 @@ intensity(intensity==0)=nan;
 
 disp('valence')
 disp(nanmean(valence))
-[p1,tbl1,stats1]=anova1(valence,odors,'on');
+% [p1,tbl1,stats1]=anova1(valence,odors,'on');
 disp('intensity')
 disp(nanmean(intensity))
-[p2,tbl2,stats2]=anova1(intensity,odors,'on');
+% [p2,tbl2,stats2]=anova1(intensity,odors,'on');
+dataout.trial=[valence intensity];
 
 disp('valence_run')
 runvalence(1,:)=nanmean(valence(1:4,:));
@@ -61,11 +62,11 @@ runvalence(4,:)=nanmean(valence(13:16,:));
 runvalence(5,:)=nanmean(valence(17:20,:));
 runvalence(6,:)=nanmean(valence(21:24,:));
 disp(runvalence)
-figure
-plot(runvalence,'-d')
-legend(odors)
-title([sub '_valence'],'Interpreter','none')
-axis([1 6 1 7])
+% figure
+% plot(runvalence,'-d')
+% legend(odors)
+% title([sub '_valence'],'Interpreter','none')
+% axis([1 6 1 7])
 
 disp('intensity_run')
 runintensity(1,:)=nanmean(intensity(1:4,:));
@@ -75,8 +76,9 @@ runintensity(4,:)=nanmean(intensity(13:16,:));
 runintensity(5,:)=nanmean(intensity(17:20,:));
 runintensity(6,:)=nanmean(intensity(21:24,:));
 disp(runintensity)
-figure
-plot(runintensity,'-d')
-legend(odors)
-title([sub '_intensity'],'Interpreter','none')
-axis([1 6 1 7])
+dataout.run=[runvalence runintensity];
+% figure
+% plot(runintensity,'-d')
+% legend(odors)
+% title([sub '_intensity'],'Interpreter','none')
+% axis([1 6 1 7])

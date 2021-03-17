@@ -1,8 +1,14 @@
 % generate images, timing files, and phy files for each subject
-for subi=1:3
+subs=1:3;
+rootfolder='/Volumes/WD_E/gufei/7T_odor/';
+% save all subject ratings
+[rate_avg,rate_run]=saverate(subs);
+save([rootfolder 'rating.mat'],'rate_avg','rate_run');
+% generate files for each subject
+for subi=subs
     sub=sprintf('S%02d',subi);
     % disp(sub)
-    datafolder=['/Volumes/WD_E/gufei/7T_odor/' sub];       
+    datafolder=[rootfolder sub];       
     % define image IDs
     switch subi
         case 1
@@ -30,7 +36,6 @@ for subi=1:3
     % generate timing files
     analyze_timing(sub);
     analyze_timing_rating(sub);
-    analyze_rating(sub)
 
     % generate phy files
     resp_savebio(sub);

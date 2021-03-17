@@ -5,7 +5,7 @@ date: "2021/1/21"
 output: html_document
 ---
 
-```{r setup include=FALSE}
+```{r, setup, include=FALSE}
 knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
 library(psych)
@@ -21,7 +21,7 @@ library(tidyr)
 ggthemr('fresh',layout = "clean")
 ```
 
-```{r include=FALSE}
+```{r, include=FALSE}
 # function for loading mvpa labels (true and predicted)
 readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
   data <- list()
@@ -80,7 +80,7 @@ roi <- c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
 ```
 
 ## align labels
-```{r}
+```{r echo=FALSE, fig.height=3, fig.width=4}
 data_labels <- readlabel(path,sub,analysis,mvpa_pattern,roi)
 
 mvpa <- c("roi_VIodor_l1_label_6")
@@ -133,7 +133,7 @@ for (ana in analysis) {
         scale_fill_distiller(palette="Greens", direction=1,limits=c(0, 60) ) +
         # sc+
         guides(fill=F) + # removing legend for `fill`
-        labs(title = cname) + # using a title instead
+        labs(title = paste(ana,r,sep = "_")) + # using a title instead
         geom_text(aes(label=value), color="black") # printing values
       print(figure)
       
@@ -159,7 +159,7 @@ acc_run$phy <- factor(acc_run$phy,levels = analysis)
 ```
 
 ### accuracy all runs 4 odors
-```{r}
+```{r echo=FALSE, fig.height=5, fig.width=12}
 acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4",unique(acc_run$odor))])
 # acc4odor$roi <- factor(acc4odor$roi,levels = roi)
 # acc4odor$phy <- factor(acc4odor$phy,levels = analysis)
@@ -179,7 +179,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
 ```
 
 ### accuracy for each run 4 odors
-```{r}
+```{r echo=FALSE, fig.height=3, fig.width=5}
 acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^4",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     for (r in roi) {
@@ -200,7 +200,7 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
 
 
 ### accuracy all runs 2 odors
-```{r}
+```{r echo=FALSE, fig.height=5, fig.width=12}
 acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
 
   for (m in mvpa_pattern){
@@ -222,8 +222,9 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
   }
 # }
 ```
+
 ### accuracy for each run 2 odors
-```{r}
+```{r echo=FALSE, fig.height=3, fig.width=4}
 acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     for (r in roi) {

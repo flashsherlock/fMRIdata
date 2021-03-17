@@ -5,3 +5,6 @@
 *.m~
 *.asv
 /7T/exp/Data
+/7T/odor/results_labels_cache
+/7T/odor/results_labels_files
+/7T/odor/results_labels.html

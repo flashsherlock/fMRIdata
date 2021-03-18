@@ -1,4 +1,4 @@
-function decoding_roi_4odors_trial(sub)
+function decoding_roi_4odors_trial(sub,analysis_all,rois,shift)
 % This script is a template that can be used for a decoding analysis on 
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
@@ -13,22 +13,22 @@ function decoding_roi_4odors_trial(sub)
 % subn=1;
 % sub='S01_yyt';
 datafolder='/Volumes/WD_E/gufei/7T_odor/';
-analysis_all={'pabiode','paphde','pade'};
-rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
-for region=[1 3 5 6 7 8 9 10 15]
-    rois=[rois {['Amy_' num2str(region) 'seg']}];
-end
-rois=[rois {'Amy9_align','corticalAmy_align'}];
-for region=[1 3 5 6 7 8 9 10 15]
-    rois=[rois {['Amy_align' num2str(region) 'seg']}];
-end
+% analysis_all={'pabiode','paphde','pade'};
+% rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
+% for region=[1 3 5 6 7 8 9 10 15]
+%     rois=[rois {['Amy_' num2str(region) 'seg']}];
+% end
+% rois=[rois {'Amy9_align','corticalAmy_align'}];
+% for region=[1 3 5 6 7 8 9 10 15]
+%     rois=[rois {['Amy_align' num2str(region) 'seg']}];
+% end
 % time shift for peak response
-shift=6;
+% shift=6;
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
     % Amy_seg starts from 7
     % Amy_align stars from 16
-parfor i=16:length(rois)
+parfor i=1:length(rois)
     roi=rois{i};
     mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
     % Amy will match too many files

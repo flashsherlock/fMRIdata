@@ -36,13 +36,20 @@ for i=1:run
     valence((i-1)*times/2+1:i*times/2,2)=result(result(:,1)==8&result(:,2)==1,6);
     valence((i-1)*times/2+1:i*times/2,3)=result(result(:,1)==9&result(:,2)==1,6);
     valence((i-1)*times/2+1:i*times/2,4)=result(result(:,1)==10&result(:,2)==1,6);
+    vo=sum(sum(valence((i-1)*times/2+1:i*times/2,:)==0));
+    io=sum(sum(intensity((i-1)*times/2+1:i*times/2,:)==0));
+    % acc=(vo+io)/6*8*4;
+    disp(vo+io);
     % may be affected by unresponsed values
 %     disp('valence')
 %     disp(mean(valence((i-1)*times/2+1:i*times/2,:)));
 %     disp('intensity')
 %     disp(mean(intensity((i-1)*times/2+1:i*times/2,:)));
 end
-
+vo=sum(valence==0);
+io=sum(intensity==0);
+% acc=(vo+io)/6*8*4;
+disp([sum(vo+io)]);
 valence(valence==0)=nan;
 intensity(intensity==0)=nan;
 
@@ -54,28 +61,28 @@ disp(nanmean(intensity))
 % [p2,tbl2,stats2]=anova1(intensity,odors,'on');
 dataout.trial=[valence intensity];
 
-disp('valence_run')
+% disp('valence_run')
 runvalence(1,:)=nanmean(valence(1:4,:));
 runvalence(2,:)=nanmean(valence(5:8,:));
 runvalence(3,:)=nanmean(valence(9:12,:));
 runvalence(4,:)=nanmean(valence(13:16,:));
 runvalence(5,:)=nanmean(valence(17:20,:));
 runvalence(6,:)=nanmean(valence(21:24,:));
-disp(runvalence)
+% disp(runvalence)
 % figure
 % plot(runvalence,'-d')
 % legend(odors)
 % title([sub '_valence'],'Interpreter','none')
 % axis([1 6 1 7])
 
-disp('intensity_run')
+% disp('intensity_run')
 runintensity(1,:)=nanmean(intensity(1:4,:));
 runintensity(2,:)=nanmean(intensity(5:8,:));
 runintensity(3,:)=nanmean(intensity(9:12,:));
 runintensity(4,:)=nanmean(intensity(13:16,:));
 runintensity(5,:)=nanmean(intensity(17:20,:));
 runintensity(6,:)=nanmean(intensity(21:24,:));
-disp(runintensity)
+% disp(runintensity)
 dataout.run=[runvalence runintensity];
 % figure
 % plot(runintensity,'-d')

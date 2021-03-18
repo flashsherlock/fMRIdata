@@ -121,16 +121,12 @@ end
 # different regions of amygdala
 3dcalc -a lAmy.seg.freesurfer+orig -b rAmy.seg.freesurfer+orig -expr 'a+b' -prefix Amy.seg.freesurfer+orig
 # copy Amy9_align masks
-cp Amy.freesurfer+orig.BRIK.gz ../mask/Amy9_align.freesurfer+orig.BRIK.gz
-cp Amy.freesurfer+orig.HEAD ../mask/Amy9_align.freesurfer+orig.HEAD
+3dcopy Amy.freesurfer+orig ../mask/Amy9_align.freesurfer+orig
 # cp ../mask/Amy9_align.freesurfer+orig* ../${sub}.paphde.results/../mask/
 # cp ../mask/Amy9_align.freesurfer+orig* ../${sub}.pabiode.results/../mask/
 
 # Print number of voxels for each ROI
-if (-e ../mask/voxels.txt) then
-    rm ../mask/voxels.txt
-endif
-3dROIstats -nzvoxels -mask Amy.seg.freesurfer+orig.HEAD Amy.seg.freesurfer+orig.HEAD > ../mask/voxels.txt
+3dROIstats -nzvoxels -mask Amy.seg.freesurfer+orig.HEAD Amy.seg.freesurfer+orig.HEAD >! ../mask/voxels.txt
 
 # create cortical amygdala mask
 3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,7,9)' -prefix ../mask/corticalAmy_align.freesurfer+orig

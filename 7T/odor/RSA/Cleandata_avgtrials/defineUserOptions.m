@@ -79,7 +79,10 @@ userOptions.afni.software = 'AFNI';
         for region=[1 3 5 6 7 8 9 10 15]
             userOptions.maskNames=[userOptions.maskNames {['Amy_align' num2str(region) 'seg']}];
         end
-
+        userOptions.maskNames={'Amy9_at165','corticalAmy_at165'};
+        for region=[1 3 7 8 9 10 15]
+            userOptions.maskNames=[userOptions.maskNames {['Amy_at165' num2str(region) 'seg']}];
+        end
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %% SEARCHLIGHT OPTIONS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%

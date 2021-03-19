@@ -26,6 +26,7 @@ library(R.matlab)
 library(dplyr)
 library(tidyr)
 ggthemr('fresh',layout = "clean")
+google <-  c("#41AB5D","#4292C6","#5380E4","#FFBF03","#00B723","#E12A3C")
 ```
 
 ```{r, include=FALSE}
@@ -186,7 +187,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
       coord_cartesian(ylim=c(0,65)) +
       scale_y_continuous(breaks=waiver(),expand = c(0,0))+
       geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+
-      # scale_fill_manual(values = colors[1:2])+ #颜色
+      # scale_fill_manual(values = google) #颜色
       scale_fill_brewer(palette = "Greens",direction = 1) #颜色
     print(figure)
   }
@@ -206,6 +207,7 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
       coord_cartesian(ylim=c(0,80)) +
       scale_y_continuous(breaks=waiver(),expand = c(0,0))+
       scale_color_brewer(palette = "Greens",direction = 1)+ #颜色
+      # scale_color_manual(values = google)+ #颜色
       geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")
     print(figure)
     }
@@ -229,7 +231,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
       coord_cartesian(ylim=c(0,100)) +
       scale_y_continuous(breaks=waiver(),expand = c(0,0))+
         geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
-      # scale_fill_manual(values = colors[1:2])+ #颜色
+      # scale_fill_manual(values = google) #颜色
       scale_fill_brewer(palette = "Greens",direction = 1) #颜色
       print(figure)
     }
@@ -254,6 +256,7 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
           coord_cartesian(ylim=c(0,100)) +
           scale_y_continuous(breaks=waiver(),expand = c(0,0))+
           scale_color_brewer(palette = "Greens",direction = 1)+ #颜色
+          # scale_color_manual(values = google)+ #颜色
           geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")
         print(figure)
       }

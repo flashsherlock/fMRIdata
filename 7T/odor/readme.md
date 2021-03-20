@@ -1,6 +1,6 @@
 # 7T experiment for odor representation
 
-# gendata.m
+## gendata.m
 Gernerate data files, including images, timing files, and phy files.
 
 ## analyze_timing.m
@@ -18,11 +18,17 @@ Analyze ratings for odors presented by bottles.
 ## mrirate.m
 Analyze ratings for odors presented by the olfactometer.
 
+## saverate.m
+Save ratings to mat file.
+
 ## generate_img.tcsh
 Convert DICOM files.
 
 ## generate_roi.tcsh
 Generate ROI masks (iszero(a-roi_label)) and resample to fit functional images.
+
+## generate_statas.tcsh
+Generate activation masks and statistics for each ROI. Try to extract time course from TENT deconvolution
 
 ## phy.tcsh
 Generate parameters for physiology correction.
@@ -116,6 +122,9 @@ Results for different regions of amygdala.
 
 ## results_labels.Rmd
 Analyze true labels and predicted labels, which can obtain accuracy and confusion matrices for each run.
+
+## results_labels_render.R
+Render results_labels.Rmd with parameters.
 
 # nophy
 Analysis same as above but without physioloy correction (pade). This can be a backup for all of the analysis.

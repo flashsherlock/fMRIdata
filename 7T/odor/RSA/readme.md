@@ -8,7 +8,7 @@ Use all of the trials to construct RDMs.
 Average all trials for each odor and then construct RDMs.
 
 ## Cleandata_avgruns
-Average trials in each run for each odor and then construct RDMs.
+Average trials in each run for each odor and then construct RDMs. Currently active.
 
 ## figureDendrogram.m
 Changed this function in rsatoolbox to match labels and colors on dendrograms.
@@ -32,7 +32,7 @@ RSA options.
 Read intensity and valence ratings. Return a n_odors × 2 (valence, intensity) matrix, the first column is valence, the second column is intensity.
 
 ## modelRDMs_7T.m
-Hypothesis RDMs to be tested.
+Hypothesis RDMs to be tested, which have been updated in Cleandaa_trial.
 * all separate (only 0 on diagonal)
 * absolute (0 and 1) quality
 * absolute (0 and 1) structure
@@ -44,7 +44,7 @@ Hypothesis RDMs to be tested.
 * random
 
 ## Recipe_fMRI.m
-Main workflow for ROI analysis.
+Main workflow for ROI analysis. Currently, it average all trials for each odor condition.
 
 ## Recipe_fMRI_searchlight.m
 Main workflow for searchlignt analysis (have not been edited).

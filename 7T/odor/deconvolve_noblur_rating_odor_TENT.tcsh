@@ -1,15 +1,37 @@
 #!/bin/tcsh
-set sub=S01_yyt
-set analysis=pabiode
-
-set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+# set sub=S01_yyt
+# use input as sub
+if ( $# > 0 ) then
+set sub = $1
+set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
+
+switch ($2)
+    case bio:
+        set pb=pb05
+        set analysis=pabiode
+        breaksw
+    case phy:
+        set pb=pb05
+        set analysis=paphde
+        breaksw
+    case no:
+        set pb=pb04
+        set analysis=pade
+        breaksw
+    default:
+        echo The second input must be bio, phy or no.
+        echo ${analysis}
+endsw
+
+echo ${sub} ${analysis}
 
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 set filedec = odorVI_noblur
-3dDeconvolve -input pb05.${subj}.r*.volreg+orig.HEAD              \
+3dDeconvolve -input ${pb}.${subj}.r*.volreg+orig.HEAD              \
     -ortvec mot_demean.r01.1D mot_demean_r01                   \
     -ortvec mot_demean.r02.1D mot_demean_r02                   \
     -ortvec mot_demean.r03.1D mot_demean_r03                   \
@@ -30,8 +52,14 @@ set filedec = odorVI_noblur
     -stim_label 5 val                                          \
     -stim_times_AM1 6 ../behavior/intensity.txt 'dmBLOCK(1)'   \
     -stim_label 6 int                                          \
-    -jobs 22                                                   \
+    -jobs 16                                                   \
     -x1D X.xmat.tent.${filedec}.1D -xjpeg X.tent.${filedec}.jpg \
     -noFDR                                                     \
     -bucket tent.${subj}.${filedec}
+
+
+else
+ echo "Usage: $0 <Subjname> <analysis>"
+
+endif
 

@@ -1,0 +1,186 @@
+---
+output: html_document
+params:
+    path: "/Volumes/WD_E/gufei/7T_odor/"
+title: "Ratings"
+author: "Fei"
+date: "`r Sys.time()`"
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(plotly)
+library(R.matlab)
+library(dplyr)
+library(tidyr)
+ggthemr('fresh',layout = "clean")
+```
+
+```{r}
+odors <- c("lim","tra","car","cit")
+pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
+WORD_SIZE <- 14
+pd <- position_dodge(0.5)
+gf_color <- c("#4375c2","#ec7b38")
+gf_color <- c("#4CA5CF","#F18549")
+# avgdata is a dataframe
+avgdata <- as.data.frame(data$rate.avg)
+snum <- nrow(avgdata)
+row.names(avgdata) <- sprintf("S%02d",c(1:snum))
+avgdata <- cbind(avgdata,row.names(avgdata))
+names(avgdata) <- c(paste("valence",odors,"bottle",sep = "_"),
+                    paste("intensity",odors,"bottle",sep = "_"),
+                    paste("similarity",pairs,"bottle",sep = "_"),
+                    paste("valence",odors,"olfactometer",sep = "_"),
+                    paste("intensity",odors,"olfactometer",sep = "_"),
+                    paste("similarity",pairs,"olfactometer",sep = "_"),
+                    "sub")
+avgdata <- as.data.table(avgdata)
+avgdata <- separate(melt(id.vars="sub",avgdata),variable,c("dimension","odor","presentation"),sep = "_")
+
+for (dim in unique(avgdata$dimension)) {
+  current <- subset(avgdata,dimension==dim)
+  analyze_current <- describeBy(current$value,list(current$presentation,current$odor),mat = TRUE)
+  datachosen <- subset(analyze_current,select = c(group1,group2,mean,se))
+  names(datachosen) <- c("presentation","odor","mean","se")
+  if (dim == "similarity") {
+    datachosen <- mutate(datachosen,odor = factor(odor,pairs))
+  }else{
+    datachosen <- mutate(datachosen,odor = factor(odor,odors))
+  }
+    figure <- ggplot(datachosen,aes(x=odor,y=mean,fill=presentation,
+                                    group=interaction(odor,presentation))) + 
+    #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+    labs(title = dim ,x='Odor',y=dim,fill='Presentation')+#设置坐标轴
+    theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+          axis.text.y = element_text(size=WORD_SIZE), 
+          axis.title.x = element_text(size=WORD_SIZE), 
+          axis.title.y = element_text(size=WORD_SIZE),
+          legend.title = element_text(size=WORD_SIZE),
+          legend.text = element_text(size=WORD_SIZE),
+          plot.title = element_text(hjust = 0.5)) + 
+    scale_y_continuous(expand = c(0,0.1))+
+    coord_cartesian(ylim=c(1,7)) + 
+    # scale_fill_manual(values = colors[1:2])+ #颜色
+    scale_fill_manual(values = gf_color)+ #自选颜色
+    geom_bar(position="dodge", stat="identity")+
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                    position=position_dodge(.9))
+  print(figure)
+}
+# intensity <- subset(avgdata,dimension=="intensity")
+# valence <- subset(avgdata,dimension=="valence")
+# similarity <- subset(avgdata,dimension=="similarity")
+# analyze_intensity <- describeBy(intensity$value,list(intensity$presentation,intensity$odor),mat = TRUE)
+# analyze_valence <- describeBy(valence$value,list(valence$presentation,valence$odor),mat = TRUE)
+# analyze_similarity <- describeBy(similarity$value,list(similarity$presentation,similarity$odor),mat = TRUE)
+```
+
+```{r}
+# rundata is a 3d matrix, change it to dataframe
+gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556")
+rundata <- as.data.frame(data$rate.run)
+rundata <- cbind(rundata,paste("run",c(1:6),sep = "_"))
+names(rundata) <- c(paste0(rep(sprintf("S%02d_",c(1:snum)),each=8),
+                         rep(c(paste("valence",odors,sep = "_"),
+                               paste("intensity",odors,sep = "_"))
+                             ,times=snum)),"run")
+# change to data.table so that melt will not redirect to reshape method
+rundata <- as.data.table(rundata)
+rundata <- separate(melt(id.vars="run",rundata),variable,c("sub","dimension","odor"),sep = "_")
+intensity <- subset(rundata,dimension=="intensity")
+valence <- subset(rundata,dimension=="valence")
+analyze_intensity <- describeBy(intensity$value,list(intensity$run,intensity$odor),mat = TRUE)
+analyze_valence <- describeBy(valence$value,list(valence$run,valence$odor),mat = TRUE)
+
+# Intensity
+datachosen <- subset(analyze_intensity,select = c(group1,group2,mean,se))
+names(datachosen) <- c("run","odor","mean","se")
+datachosen <- mutate(datachosen,odor = factor(odor,c("lim","tra","car","cit")))
+title <- "intensity"
+figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
+  #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+  labs(title = title ,x='Run',y='Intensity',color='Odor')+#设置坐标轴
+  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+        axis.text.y = element_text(size=WORD_SIZE), 
+        axis.title.x = element_text(size=WORD_SIZE), 
+        axis.title.y = element_text(size=WORD_SIZE),
+        legend.title = element_text(size=WORD_SIZE),
+        legend.text = element_text(size=WORD_SIZE),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(expand = c(0,0.1))+
+  coord_cartesian(ylim=c(3,6.5)) + 
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0.1))+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_line(position = pd) +
+  geom_point(position = pd)
+print(figure_int)
+# valence
+datachosen <- subset(analyze_valence,select = c(group1,group2,mean,se))
+names(datachosen) <- c("run","odor","mean","se")
+datachosen <- mutate(datachosen,odor = factor(odor,c("lim","tra","car","cit")))
+title <- "valence"
+figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
+  #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+  labs(title = title ,x='Run',y='Valence',color='Odor')+#设置坐标轴
+  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+        axis.text.y = element_text(size=WORD_SIZE), 
+        axis.title.x = element_text(size=WORD_SIZE), 
+        axis.title.y = element_text(size=WORD_SIZE),
+        legend.title = element_text(size=WORD_SIZE),
+        legend.text = element_text(size=WORD_SIZE),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(expand = c(0,0.1))+
+  coord_cartesian(ylim=c(2,7)) + 
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0.1))+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_line(position = pd) +
+  geom_point(position = pd)
+print(figure_val)
+```
+
+```{r}
+# average across subjects
+run_avg <- apply(data$rate.run,c(1,2),mean)
+run_avg <- as.data.frame(run_avg,row.names = paste("run",c(1:6),sep = "_"))
+run_avg <- cbind(run_avg,row.names(run_avg))
+names(run_avg) <- c(paste("valence",odors,sep = "_"),paste("intensity",odors,sep = "_"),"run")
+# reshape dataframes
+run_avg <- melt(id.vars="run",run_avg)
+run_avg <- separate(run_avg,variable,c("dimension","odor"),sep = "_")
+
+WORD_SIZE <- 14
+pd <- position_dodge(0)
+datachosen <- subset(run_avg,dimension=="intensity")
+title <- "Intensity for each run"
+figure_4 <- ggplot(datachosen, aes(x=run, y=value,color=odor,group=odor)) + 
+  #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+  labs(title = title ,x='Run',y='Intensity',color='Odor')+#设置坐标轴
+  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+        axis.text.y = element_text(size=WORD_SIZE), 
+        axis.title.x = element_text(size=WORD_SIZE), 
+        axis.title.y = element_text(size=WORD_SIZE),
+        legend.title = element_text(size=WORD_SIZE),
+        legend.text = element_text(size=WORD_SIZE),
+        plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(expand = c(0,0.1))+
+  coord_cartesian(ylim=c(3,6.5)) + 
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0.1))+
+  geom_line(position = pd) +
+  geom_point(position = pd)
+print(figure_4)
+```
+

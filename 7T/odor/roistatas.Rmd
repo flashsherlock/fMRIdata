@@ -1,0 +1,36 @@
+---
+output: html_document
+params:
+    path: "/Volumes/WD_E/gufei/7T_odor/"
+title: "ROIs"
+author: "Fei"
+date: "`r Sys.time()`"
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(plotly)
+library(R.matlab)
+library(dplyr)
+library(tidyr)
+library(ggprism)
+ggthemr('fresh',layout = "clean")
+```
+
+```{r}
+odors <- c("lim","tra","car","cit")
+pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
+# WORD_SIZE <- 14
+pd <- position_dodge(0.5)
+roi_name <- c("La","Ba","Ce","Me","Co","AB","CAT","AAA","PL")
+roi_color <- c("#4884b5","#cf3f4f","#c53cf8","#159515","#ddf9a6","#e89223","#143c78","#fafa30","#2dcda5")
+gf_color <- c("#4CA5CF","#F18549")
+
+```

@@ -20,13 +20,14 @@ library(plotly)
 library(R.matlab)
 library(dplyr)
 library(tidyr)
+library(ggprism)
 ggthemr('fresh',layout = "clean")
 ```
 
-```{r}
+```{r fig.height=4, fig.width=7}
 odors <- c("lim","tra","car","cit")
 pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
-WORD_SIZE <- 14
+# WORD_SIZE <- 14
 pd <- position_dodge(0.5)
 gf_color <- c("#4375c2","#ec7b38")
 gf_color <- c("#4CA5CF","#F18549")
@@ -60,22 +61,25 @@ for (dim in unique(avgdata$dimension)) {
     figure <- ggplot(datachosen,aes(x=odor,y=mean,fill=presentation,
                                     group=interaction(odor,presentation))) + 
     #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
-    labs(title = dim ,x='Odor',y=dim,fill='Presentation')+#设置坐标轴
-    theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
-          axis.text.y = element_text(size=WORD_SIZE), 
-          axis.title.x = element_text(size=WORD_SIZE), 
-          axis.title.y = element_text(size=WORD_SIZE),
-          legend.title = element_text(size=WORD_SIZE),
-          legend.text = element_text(size=WORD_SIZE),
-          plot.title = element_text(hjust = 0.5)) + 
+    labs(title = str_to_title(dim) ,x='Odor',y=dim,fill='Presentation')+#设置坐标轴
+    # theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
+    #       axis.text.y = element_text(size=WORD_SIZE), 
+    #       axis.title.x = element_text(size=WORD_SIZE), 
+    #       axis.title.y = element_text(size=WORD_SIZE),
+    #       legend.title = element_text(size=WORD_SIZE),
+    #       legend.text = element_text(size=WORD_SIZE),
+    #       plot.title = element_text(hjust = 0.5)) + 
     scale_y_continuous(expand = c(0,0))+
     coord_cartesian(ylim=c(1,7)) + 
     # scale_fill_manual(values = colors[1:2])+ #颜色
     scale_fill_manual(values = gf_color)+ #自选颜色
     geom_bar(position="dodge", stat="identity")+
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
-                    position=position_dodge(.9))
-  print(figure)
+                  position=position_dodge(.9))
+    # print(figure)
+    # test ggprism theme
+    pfigure <- figure + theme_prism(base_line_size = 0.5)
+    print(pfigure)
 }
 # intensity <- subset(avgdata,dimension=="intensity")
 # valence <- subset(avgdata,dimension=="valence")
@@ -85,7 +89,7 @@ for (dim in unique(avgdata$dimension)) {
 # analyze_similarity <- describeBy(similarity$value,list(similarity$presentation,similarity$odor),mat = TRUE)
 ```
 
-```{r}
+```{r fig.height=3, fig.width=5}
 # rundata is a 3d matrix, change it to dataframe
 gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556")
 rundata <- as.data.frame(data$rate.run)
@@ -106,17 +110,10 @@ analyze_valence <- describeBy(valence$value,list(valence$run,valence$odor),mat =
 datachosen <- subset(analyze_intensity,select = c(group1,group2,mean,se))
 names(datachosen) <- c("run","odor","mean","se")
 datachosen <- mutate(datachosen,odor = factor(odor,c("lim","tra","car","cit")))
-title <- "intensity"
+title <- "Intensity"
 figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
   #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
   labs(title = title ,x='Run',y='Intensity',color='Odor')+#设置坐标轴
-  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
-        axis.text.y = element_text(size=WORD_SIZE), 
-        axis.title.x = element_text(size=WORD_SIZE), 
-        axis.title.y = element_text(size=WORD_SIZE),
-        legend.title = element_text(size=WORD_SIZE),
-        legend.text = element_text(size=WORD_SIZE),
-        plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(expand = c(0,0))+
   coord_cartesian(ylim=c(3,6)) + 
   # scale_fill_manual(values = colors[1:2])+ #颜色
@@ -125,22 +122,18 @@ figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
   geom_line(position = pd) +
   geom_point(position = pd)
-print(figure_int)
+# print(figure_int)
+pfigure <- figure_int + theme_prism(base_line_size = 0.5)
+print(pfigure)
+
 # valence
 datachosen <- subset(analyze_valence,select = c(group1,group2,mean,se))
 names(datachosen) <- c("run","odor","mean","se")
 datachosen <- mutate(datachosen,odor = factor(odor,c("lim","tra","car","cit")))
-title <- "valence"
+title <- "Valence"
 figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
   #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
   labs(title = title ,x='Run',y='Valence',color='Odor')+#设置坐标轴
-  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
-        axis.text.y = element_text(size=WORD_SIZE), 
-        axis.title.x = element_text(size=WORD_SIZE), 
-        axis.title.y = element_text(size=WORD_SIZE),
-        legend.title = element_text(size=WORD_SIZE),
-        legend.text = element_text(size=WORD_SIZE),
-        plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(expand = c(0,0))+
   coord_cartesian(ylim=c(2,7)) + 
   # scale_fill_manual(values = colors[1:2])+ #颜色
@@ -149,7 +142,9 @@ figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
   geom_line(position = pd) +
   geom_point(position = pd)
-print(figure_val)
+# print(figure_val)
+pfigure <- figure_val + theme_prism(base_line_size = 0.5)
+print(pfigure)
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -162,20 +157,12 @@ names(run_avg) <- c(paste("valence",odors,sep = "_"),paste("intensity",odors,sep
 run_avg <- melt(id.vars="run",run_avg)
 run_avg <- separate(run_avg,variable,c("dimension","odor"),sep = "_")
 
-WORD_SIZE <- 14
 pd <- position_dodge(0)
 datachosen <- subset(run_avg,dimension=="intensity")
 title <- "Intensity for each run"
 figure_4 <- ggplot(datachosen, aes(x=run, y=value,color=odor,group=odor)) + 
   #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
   labs(title = title ,x='Run',y='Intensity',color='Odor')+#设置坐标轴
-  theme(axis.text.x = element_text(size=WORD_SIZE),  # 设置x轴字体大小，以下同理
-        axis.text.y = element_text(size=WORD_SIZE), 
-        axis.title.x = element_text(size=WORD_SIZE), 
-        axis.title.y = element_text(size=WORD_SIZE),
-        legend.title = element_text(size=WORD_SIZE),
-        legend.text = element_text(size=WORD_SIZE),
-        plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(expand = c(0,0.1))+
   coord_cartesian(ylim=c(3,6.5)) + 
   # scale_fill_manual(values = colors[1:2])+ #颜色
@@ -183,6 +170,8 @@ figure_4 <- ggplot(datachosen, aes(x=run, y=value,color=odor,group=odor)) +
   scale_x_discrete(labels=as.character(1:6),expand = c(0,0.1))+
   geom_line(position = pd) +
   geom_point(position = pd)
-print(figure_4)
+# print(figure_4)
+pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
+print(pfigure)
 ```
 

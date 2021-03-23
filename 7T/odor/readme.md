@@ -117,14 +117,21 @@ Display results for ROI based mvpa analysis.
 
 ## results.Rmd
 Results for piriform and amygdala.
+
 ## results_Amy.Rmd
 Results for different regions of amygdala.
 
 ## results_labels.Rmd
 Analyze true labels and predicted labels, which can obtain accuracy and confusion matrices for each run.
 
+## ratings.Rmd
+Plot valence, intensity, and similarity ratings for odors presented by bottles or the olfactometer. Then, plot valence and intensity ratings for each run during the fMRI scan.
+
+## roistatas.Rmd
+Compute and plot mean voxel numbers for each ROI, and plot time courses.
+
 ## results_labels_render.R
-Render results_labels.Rmd with parameters.
+Render results_labels.Rmd, rating.Rmd, and roistatas.Rmd with parameters.
 
 # nophy
 Analysis same as above but without physioloy correction (pade). This can be a backup for all of the analysis.

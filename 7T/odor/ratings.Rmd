@@ -30,6 +30,8 @@ WORD_SIZE <- 14
 pd <- position_dodge(0.5)
 gf_color <- c("#4375c2","#ec7b38")
 gf_color <- c("#4CA5CF","#F18549")
+# read mat file
+data <- readMat(file.path(params$path,'rating.mat'))
 # avgdata is a dataframe
 avgdata <- as.data.frame(data$rate.avg)
 snum <- nrow(avgdata)
@@ -66,7 +68,7 @@ for (dim in unique(avgdata$dimension)) {
           legend.title = element_text(size=WORD_SIZE),
           legend.text = element_text(size=WORD_SIZE),
           plot.title = element_text(hjust = 0.5)) + 
-    scale_y_continuous(expand = c(0,0.1))+
+    scale_y_continuous(expand = c(0,0))+
     coord_cartesian(ylim=c(1,7)) + 
     # scale_fill_manual(values = colors[1:2])+ #颜色
     scale_fill_manual(values = gf_color)+ #自选颜色
@@ -115,8 +117,8 @@ figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
         legend.title = element_text(size=WORD_SIZE),
         legend.text = element_text(size=WORD_SIZE),
         plot.title = element_text(hjust = 0.5)) + 
-  scale_y_continuous(expand = c(0,0.1))+
-  coord_cartesian(ylim=c(3,6.5)) + 
+  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(3,6)) + 
   # scale_fill_manual(values = colors[1:2])+ #颜色
   scale_color_manual(values = gf_color)+ #自选颜色
   scale_x_discrete(labels=as.character(1:6),expand = c(0,0.1))+
@@ -139,7 +141,7 @@ figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
         legend.title = element_text(size=WORD_SIZE),
         legend.text = element_text(size=WORD_SIZE),
         plot.title = element_text(hjust = 0.5)) + 
-  scale_y_continuous(expand = c(0,0.1))+
+  scale_y_continuous(expand = c(0,0))+
   coord_cartesian(ylim=c(2,7)) + 
   # scale_fill_manual(values = colors[1:2])+ #颜色
   scale_color_manual(values = gf_color)+ #自选颜色
@@ -150,7 +152,7 @@ figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
 print(figure_val)
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 # average across subjects
 run_avg <- apply(data$rate.run,c(1,2),mean)
 run_avg <- as.data.frame(run_avg,row.names = paste("run",c(1:6),sep = "_"))

@@ -2,9 +2,12 @@
 .Rhistory
 *.Rproj
 .vscode
+# matlab temp files
 *.m~
 *.asv
+# exp data
 /7T/exp/Data
-/7T/odor/results_labels_cache
-/7T/odor/results_labels_files
-/7T/odor/results_labels.html
+# rmarkdown files and cache
+/7T/odor/*_cache
+/7T/odor/*_files
+/7T/odor/*.html

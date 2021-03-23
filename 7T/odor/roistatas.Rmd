@@ -2,6 +2,8 @@
 output: html_document
 params:
     path: "/Volumes/WD_E/gufei/7T_odor/"
+    roi: !r c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
+    sub: !r c("S01_yyt",sprintf('S%02d',c(1:3)))
 title: "ROIs"
 author: "Fei"
 date: "`r Sys.time()`"
@@ -24,7 +26,7 @@ library(ggprism)
 ggthemr('fresh',layout = "clean")
 ```
 
-```{r}
+```{r include=FALSE}
 odors <- c("lim","tra","car","cit")
 pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
 # WORD_SIZE <- 14
@@ -32,5 +34,134 @@ pd <- position_dodge(0.5)
 roi_name <- c("La","Ba","Ce","Me","Co","AB","CAT","AAA","PL")
 roi_color <- c("#4884b5","#cf3f4f","#c53cf8","#159515","#ddf9a6","#e89223","#143c78","#fafa30","#2dcda5")
 gf_color <- c("#4CA5CF","#F18549")
+gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556")
+pd <- position_dodge(0.1)
+# path <- "/Volumes/WD_E/gufei/7T_odor/"
+# sub <- c("S01_yyt",sprintf('S%02d',c(1:3)))
+# analysis <- c("pade","paphde","pabiode")
+# mvpa_pattern <- c("roi_VIodor_l1_label_6")
+# roi <- c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
 
+# function to extract time courses from txt file
+extractdata <- function(txtname){
+# use comment.char = "" to avoid problems caused by "#"
+data <- read.table(txtname,header = TRUE,comment.char = "",
+                   colClasses = c("character","character","NULL","character"),
+                   col.names = c("Sub","TimePoints","Null","NZmean"))
+# 去掉每个被试开头的标题的那一行
+data$Sub[data$Sub=="File"] <- NA
+data <- na.omit(data)
+
+# data1 <- data[c(-3)]
+sub <- strsplit(data$Sub,"\\.")
+sub <- sapply(sub,"[",2)
+data$Sub <- sub
+#fixed = T拒绝使用正则表达式
+tp <- strsplit(data$TimePoints,fixed = T,"[")
+tp <- strsplit(sapply(tp,"[",2),fixed = T,"_")
+data$TimePoints <- sapply(tp,"[",1)
+data$NZmean <- as.numeric(data$NZmean)
+roi <- strsplit(txtname,fixed = T,"/")
+roi <- strsplit(sapply(roi,"[",length(roi[[1]])),fixed = T,"_tent")
+roi <- sapply(roi,"[",1)
+data <- cbind(data,rep(roi,each=nrow(data)))
+names(data)[4] <- "roi"
+# separate TimePoints
+data1 <- separate(data,TimePoints,c("odor","time"),sep = "#")
+return(data1)
+}
+
+# function to extract voxel numbers from txt file
+extractvoxel <- function(txtname){
+# use comment.char = "" to avoid problems caused by "#"
+data <- read.table(txtname,header = TRUE,comment.char = "",
+                   colClasses = c("character","character","NULL","character"),
+                   col.names = c("Sub","TimePoints","Null","NZmean"))
+# 去掉每个被试开头的标题的那一行
+data$Sub[data$Sub=="File"] <- NA
+data <- na.omit(data)
+
+# data1 <- data[c(-3)]
+sub <- strsplit(data$Sub,"\\.")
+sub <- sapply(sub,"[",2)
+data$Sub <- sub
+#fixed = T拒绝使用正则表达式
+tp <- strsplit(data$TimePoints,fixed = T,"[")
+tp <- strsplit(sapply(tp,"[",2),fixed = T,"_")
+data$TimePoints <- sapply(tp,"[",1)
+data$NZmean <- as.numeric(data$NZmean)
+roi <- strsplit(txtname,fixed = T,"/")
+roi <- strsplit(sapply(roi,"[",length(roi[[1]])),fixed = T,"_tent")
+roi <- sapply(roi,"[",1)
+data <- cbind(data,rep(roi,each=8))
+names(data)[4] <- "roi"
+# separate TimePoints
+data1 <- separate(data,TimePoints,c("odor","time"),sep = "#")
+return(data1)
+}
 ```
+
+```{r}
+# data_tent stores time courses for each subject and each region
+data_tent <- data.frame(Sub=0,odor=0,time=0,NZmean=0,roi=0)
+data_tent <- data_tent[-1,]
+for (sub_i in params$sub) {
+  # file path
+  name <- file.path(params$path,"stats",sub_i,paste0(params$roi,"_tent.txt"))
+  for (region in 1:length(name)) {
+  data_tent <- rbind(data_tent,extractdata(name[region]))
+  }
+}
+```
+
+```{r}
+for (sub_i in params$sub) {
+  for (region in params$roi) {
+  # choose data
+  datachosen <- subset(data_tent,Sub==sub_i & roi==region)
+  datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
+  # plot time course
+  figure_4 <- ggplot(datachosen, aes(x=time, y=NZmean,color=odor,group=odor)) + 
+    labs(title = paste(sub_i,region,sep = "_"),
+         x='Time(s)',y='Percent of signal change(%)',color='Odor')+#设置坐标轴
+    scale_y_continuous(expand = c(0,0))+
+    coord_cartesian(ylim=c(min(datachosen$NZmean)-1,max(datachosen$NZmean+1))) + 
+    # scale_fill_manual(values = colors[1:2])+ #颜色
+    scale_color_manual(values = gf_color)+ #自选颜色
+    scale_x_discrete(expand = c(0,0.1))+
+    geom_line(position = pd) +
+    geom_hline(yintercept=0, linetype="dotted")+
+    geom_point(position = pd)
+  # print(figure_4)
+  pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
+  print(pfigure)
+}
+}
+```
+```{r}
+for (region in params$roi) {
+# choose data
+datachosen <- subset(data_tent,roi==region)
+datachosen <- describeBy(datachosen$NZmean,list(datachosen$odor,datachosen$time),mat = T)
+datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+names(datachosen) <- c("odor","time","mean","se")
+datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
+# plot time course
+figure_4 <- ggplot(datachosen, aes(x=time, y=mean,color=odor,group=odor)) + 
+  labs(title = paste(sub_i,region,sep = "_"),
+       x='Time(s)',y='Percent of signal change(%)',color='Odor')+#设置坐标轴
+  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1))) + 
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(expand = c(0,0.1))+
+  geom_line(position = pd) +
+  geom_hline(yintercept=0, linetype="dotted")+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_point(position = pd)
+# print(figure_4)
+pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
+print(pfigure)
+}
+```
+

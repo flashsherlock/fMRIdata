@@ -87,9 +87,9 @@ endif
 
 foreach region (1 3 5 6 7 8 9 10 15)
     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy_${maskdec}_seg${region}_tent.txt
+    -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_tent.txt
     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
-    -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy_${maskdec}_seg${region}_beta.txt
+    -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_beta.txt
 end
 
 else

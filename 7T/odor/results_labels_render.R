@@ -40,3 +40,8 @@ for (i_sub in sub) {
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/ratings.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0("Raings"))
+# render roistats
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/roistatas.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("ROIstatas"),
+                  params = list(sub = sub))

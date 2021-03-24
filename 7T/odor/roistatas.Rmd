@@ -9,6 +9,12 @@ author: "Fei"
 date: "`r Sys.time()`"
 ---
 
+<style>
+.html-widget {
+    margin: auto;
+}
+</style>
+
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
@@ -20,6 +26,7 @@ library(ggpubr)
 library(ggrepel)
 library(plotly)
 library(R.matlab)
+library(plyr)
 library(dplyr)
 library(tidyr)
 library(ggprism)
@@ -41,21 +48,22 @@ pd <- position_dodge(0.1)
 # analysis <- c("pade","paphde","pabiode")
 # mvpa_pattern <- c("roi_VIodor_l1_label_6")
 # roi <- c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
-
+##################################################
 # function to extract time courses from txt file
+##################################################
 extractdata <- function(txtname){
 # use comment.char = "" to avoid problems caused by "#"
 data <- read.table(txtname,header = TRUE,comment.char = "",
                    colClasses = c("character","character","NULL","character"),
-                   col.names = c("Sub","TimePoints","Null","NZmean"))
+                   col.names = c("sub","TimePoints","Null","NZmean"))
 # 去掉每个被试开头的标题的那一行
-data$Sub[data$Sub=="File"] <- NA
+data$sub[data$sub=="File"] <- NA
 data <- na.omit(data)
 
 # data1 <- data[c(-3)]
-sub <- strsplit(data$Sub,"\\.")
+sub <- strsplit(data$sub,"\\.")
 sub <- sapply(sub,"[",2)
-data$Sub <- sub
+data$sub <- sub
 #fixed = T拒绝使用正则表达式
 tp <- strsplit(data$TimePoints,fixed = T,"[")
 tp <- strsplit(sapply(tp,"[",2),fixed = T,"_")
@@ -70,40 +78,34 @@ names(data)[4] <- "roi"
 data1 <- separate(data,TimePoints,c("odor","time"),sep = "#")
 return(data1)
 }
-
+##################################################
 # function to extract voxel numbers from txt file
+##################################################
 extractvoxel <- function(txtname){
 # use comment.char = "" to avoid problems caused by "#"
-data <- read.table(txtname,header = TRUE,comment.char = "",
-                   colClasses = c("character","character","NULL","character"),
-                   col.names = c("Sub","TimePoints","Null","NZmean"))
+data <- read.table(txtname,header = TRUE,comment.char = "")
 # 去掉每个被试开头的标题的那一行
-data$Sub[data$Sub=="File"] <- NA
+data$File[data$sub=="File"] <- NA
 data <- na.omit(data)
-
-# data1 <- data[c(-3)]
-sub <- strsplit(data$Sub,"\\.")
-sub <- sapply(sub,"[",2)
-data$Sub <- sub
-#fixed = T拒绝使用正则表达式
-tp <- strsplit(data$TimePoints,fixed = T,"[")
-tp <- strsplit(sapply(tp,"[",2),fixed = T,"_")
-data$TimePoints <- sapply(tp,"[",1)
-data$NZmean <- as.numeric(data$NZmean)
-roi <- strsplit(txtname,fixed = T,"/")
-roi <- strsplit(sapply(roi,"[",length(roi[[1]])),fixed = T,"_tent")
-roi <- sapply(roi,"[",1)
-data <- cbind(data,rep(roi,each=8))
-names(data)[4] <- "roi"
-# separate TimePoints
-data1 <- separate(data,TimePoints,c("odor","time"),sep = "#")
-return(data1)
+# extract useful columns
+data <- data[seq(4,ncol(data),2)]
+# extract sub name
+sub <- sapply(strsplit(txtname,fixed=T,"/"),"[",7)
+data <- cbind(sub,data)
+# change column names
+setnames(data, old = c("NZcount_1","NZcount_3","NZcount_5","NZcount_6","NZcount_7","NZcount_8","NZcount_9","NZcount_10","NZcount_15"), new = roi_name, skip_absent=TRUE)
+# change to num
+data[2:ncol(data)] <- as.numeric(data[2:ncol(data)])
+# names(data)[1] <- "sub"
+return(data)
 }
 ```
+# Time course
 
+## load data
 ```{r}
 # data_tent stores time courses for each subject and each region
-data_tent <- data.frame(Sub=0,odor=0,time=0,NZmean=0,roi=0)
+data_tent <- data.frame(sub=0,odor=0,time=0,NZmean=0,roi=0)
 data_tent <- data_tent[-1,]
 for (sub_i in params$sub) {
   # file path
@@ -114,16 +116,17 @@ for (sub_i in params$sub) {
 }
 ```
 
+## Separate
 ```{r}
 for (sub_i in params$sub) {
   for (region in params$roi) {
   # choose data
-  datachosen <- subset(data_tent,Sub==sub_i & roi==region)
+  datachosen <- subset(data_tent,sub==sub_i & roi==region)
   datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
   # plot time course
   figure_4 <- ggplot(datachosen, aes(x=time, y=NZmean,color=odor,group=odor)) + 
     labs(title = paste(sub_i,region,sep = "_"),
-         x='Time(s)',y='Percent of signal change(%)',color='Odor')+#设置坐标轴
+         x='Time(s)',y='Percent of signal change (%)',color='Odor')+#设置坐标轴
     scale_y_continuous(expand = c(0,0))+
     coord_cartesian(ylim=c(min(datachosen$NZmean)-1,max(datachosen$NZmean+1))) + 
     # scale_fill_manual(values = colors[1:2])+ #颜色
@@ -138,6 +141,8 @@ for (sub_i in params$sub) {
 }
 }
 ```
+
+## Average sub
 ```{r}
 for (region in params$roi) {
 # choose data
@@ -148,8 +153,8 @@ names(datachosen) <- c("odor","time","mean","se")
 datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
 # plot time course
 figure_4 <- ggplot(datachosen, aes(x=time, y=mean,color=odor,group=odor)) + 
-  labs(title = paste(sub_i,region,sep = "_"),
-       x='Time(s)',y='Percent of signal change(%)',color='Odor')+#设置坐标轴
+  labs(title = paste("All",region,sep = "_"),
+       x='Time(s)',y='Percent of signal change (%)',color='Odor')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
   coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1))) + 
   # scale_fill_manual(values = colors[1:2])+ #颜色
@@ -163,5 +168,118 @@ figure_4 <- ggplot(datachosen, aes(x=time, y=mean,color=odor,group=odor)) +
 pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
 print(pfigure)
 }
+```
+
+## Average sub and odor
+```{r}
+for (region in params$roi) {
+# choose data
+datachosen <- subset(data_tent,roi==region)
+datachosen <- describeBy(datachosen$NZmean,list(datachosen$time),mat = T)
+datachosen <- subset(datachosen,select = c(group1,mean,se))
+names(datachosen) <- c("time","mean","se")
+datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
+# plot time course
+figure_4 <- ggplot(datachosen, aes(x=time, y=mean,group=1)) + 
+  labs(title = paste("All",region,sep = "_"),
+       x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
+  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1))) + 
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(expand = c(0,0.1))+
+  geom_line(position = pd) +
+  geom_hline(yintercept=0, linetype="dotted")+
+  geom_ribbon(aes(ymin = mean - se,
+                  ymax = mean + se), alpha = 0.2)+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_point(position = pd)
+# print(figure_4)
+pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
+print(pfigure)
+}
+```
+# Voxel numbers
+## Without activation mask
+```{r}
+data_voxel_no <- data.frame(matrix(ncol = 1+length(roi_name), nrow = 0))
+names(data_voxel_no) <- c("sub",roi_name)
+# load and plot voxel numbers for each subjecy
+for (sub_i in params$sub) {
+  txtname <- file.path(params$path,sub_i,"mask","voxels.txt")
+  data_voxel_no <- rbind.fill(data_voxel_no,extractvoxel(txtname))
+  # replace NA values with zeros
+  data_voxel_no[is.na(data_voxel_no)] <- 0
+}
+data_voxel_no <- as.data.table(data_voxel_no)
+# add mask field
+data_voxel_no$mask <- rep("all",times=nrow(data_voxel_no))
+```
+
+## With activation mask
+```{r}
+data_voxel_act <- data.frame(matrix(ncol = 1+length(roi_name), nrow = 0))
+names(data_voxel_act) <- c("sub",roi_name)
+# load and plot voxel numbers for each subjecy
+for (sub_i in params$sub) {
+  txtname <- file.path(params$path,sub_i,"mask","voxels_act.txt")
+  data_voxel_act <- rbind.fill(data_voxel_act,extractvoxel(txtname))
+  # replace NA values with zeros
+  data_voxel_act[is.na(data_voxel_act)] <- 0
+}
+data_voxel_act <- as.data.table(data_voxel_act)
+# add mask field
+data_voxel_act$mask <- rep("activated",times=nrow(data_voxel_act))
+```
+
+## Plot
+```{r}
+data_voxel <- rbind(data_voxel_no,data_voxel_act)
+data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
+voxel_analyze <- describeBy(data_voxel$value,list(data_voxel$mask,data_voxel$variable),mat = TRUE)
+datachosen <- subset(voxel_analyze,select = c(group1,group2,mean,se))
+names(datachosen) <- c("mask","roi","mean","se")
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+datachosen <- mutate(datachosen,mask = factor(mask,levels=c("all","activated")))
+# bar plot
+gf_color <- c("#4CA5CF","#F18549")
+figure <- ggplot(datachosen,aes(x=roi,y=mean,fill=mask,
+                                group=interaction(roi,mask))) + 
+labs(title = str_to_title("voxel count") ,x='ROI',y="Mean",fill='Mask')+#设置坐标轴
+scale_y_continuous(expand = c(0,0))+
+coord_cartesian(ylim=c(0,max(datachosen$mean)+20)) + 
+# scale_fill_manual(values = colors[1:2])+ #颜色
+scale_fill_manual(values = gf_color)+ #自选颜色
+geom_bar(position="dodge", stat="identity")+
+geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+              position=position_dodge(.9))
+# print(figure)
+pfigure <- figure + theme_prism(base_line_size = 0.5)
+print(pfigure)
+
+# 箱线图
+# 建立一个list保存plotyly的结果
+plotly_plots <- htmltools::tagList()
+# ppc <- htmltools::div()  # Result is now an HTML object
+# change to factors
+data_voxel <- mutate(data_voxel,variable = factor(variable,levels=roi_name))
+data_voxel <- mutate(data_voxel,mask = factor(mask,levels=c("all","activated")))
+figure <- ggplot(data_voxel, aes(x=variable, y=value, label=sub,
+                            fill=mask,group=interaction(variable,mask))) + 
+  coord_cartesian(ylim=c(0,max(data_voxel$value)+20))+  # 设置y轴坐标范围
+  scale_y_continuous(expand = c(0,0))+
+  labs(title = title ,x='ROI',y='Voxel Count',fill='Mask')+#设置坐标轴
+  geom_boxplot() +
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  geom_point(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
+             col=2,pch=16,cex=1)+
+  # geom_text(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
+  #                 aes(label=sub),hjust=-0.3,size=2)+ 
+  theme_prism(base_line_size = 0.5)
+print(figure)
+# 互动式的图
+plotly_plots <- ggplotly(figure,tooltip = c("label","y"))%>%layout(boxmode="group")
+#输出交互式绘图的结果
+plotly_plots
 ```
 

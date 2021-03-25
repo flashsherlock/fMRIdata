@@ -37,7 +37,7 @@ ggthemr('fresh',layout = "clean")
 odors <- c("lim","tra","car","cit")
 pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
 # WORD_SIZE <- 14
-pd <- position_dodge(0.5)
+pd <- position_dodge(0)
 roi_name <- c("La","Ba","Ce","Me","Co","AB","CAT","AAA","PL")
 roi_color <- c("#4884b5","#cf3f4f","#c53cf8","#159515","#ddf9a6","#e89223","#143c78","#fafa30","#2dcda5")
 gf_color <- c("#4CA5CF","#F18549")
@@ -184,10 +184,11 @@ figure_4 <- ggplot(datachosen, aes(x=time, y=mean,group=1)) +
   labs(title = paste("All",region,sep = "_"),
        x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1))) + 
-  # scale_fill_manual(values = colors[1:2])+ #颜色
+  coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1)),
+                  clip = 'off') + 
+  scale_fill_manual(values = gf_color)+ #颜色
   scale_color_manual(values = gf_color)+ #自选颜色
-  scale_x_discrete(expand = c(0,0.1))+
+  scale_x_discrete(expand = c(0,0))+
   geom_line(position = pd) +
   geom_hline(yintercept=0, linetype="dotted")+
   geom_ribbon(aes(ymin = mean - se,

@@ -28,7 +28,7 @@ ggthemr('fresh',layout = "clean")
 odors <- c("lim","tra","car","cit")
 pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
 # WORD_SIZE <- 14
-pd <- position_dodge(0.5)
+pd <- position_dodge(0)
 gf_color <- c("#4375c2","#ec7b38")
 gf_color <- c("#4CA5CF","#F18549")
 # read mat file
@@ -112,15 +112,21 @@ names(datachosen) <- c("run","odor","mean","se")
 datachosen <- mutate(datachosen,odor = factor(odor,c("lim","tra","car","cit")))
 title <- "Intensity"
 figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
-  #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
   labs(title = title ,x='Run',y='Intensity',color='Odor')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(3,6)) + 
-  # scale_fill_manual(values = colors[1:2])+ #颜色
+  coord_cartesian() + 
+  scale_fill_manual(values = gf_color)+ #颜色
   scale_color_manual(values = gf_color)+ #自选颜色
-  scale_x_discrete(labels=as.character(1:6),expand = c(0,0.1))+
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0))+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
   geom_line(position = pd) +
+  # use linetype=0 or color=NA to remove border
+  geom_ribbon(aes(ymin = mean - se,
+                  ymax = mean + se,fill = odor), alpha = 0.1,linetype=0)+
+  guides(fill = F,color = guide_legend(
+    order = 1,# set legend order
+    override.aes = list(fill = gf_color)))+
+  coord_cartesian(ylim=c(3,6),clip = 'off')+
   geom_point(position = pd)
 # print(figure_int)
 pfigure <- figure_int + theme_prism(base_line_size = 0.5)
@@ -131,16 +137,22 @@ datachosen <- subset(analyze_valence,select = c(group1,group2,mean,se))
 names(datachosen) <- c("run","odor","mean","se")
 datachosen <- mutate(datachosen,odor = factor(odor,c("lim","tra","car","cit")))
 title <- "Valence"
-figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
-  #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
   labs(title = title ,x='Run',y='Valence',color='Odor')+#设置坐标轴
-  scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(2,7)) + 
-  # scale_fill_manual(values = colors[1:2])+ #颜色
+  # minor_breaks can be seen when grid is on
+  scale_y_continuous(breaks=seq(1, 7, 1),minor_breaks = seq(0.5,6.5,1),expand = c(0,0))+
   scale_color_manual(values = gf_color)+ #自选颜色
-  scale_x_discrete(labels=as.character(1:6),expand = c(0,0.1))+
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0))+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
   geom_line(position = pd) +
+  # use linetype=0 or color=NA to remove border
+  geom_ribbon(aes(ymin = mean - se,
+                  ymax = mean + se,fill = odor), alpha = 0.1,linetype=0)+
+  guides(fill = F,color = guide_legend(
+    order = 1,# set legend order
+    override.aes = list(fill = gf_color)))+
+  coord_cartesian(ylim=c(2,7),clip = 'off')+
   geom_point(position = pd)
 # print(figure_val)
 pfigure <- figure_val + theme_prism(base_line_size = 0.5)

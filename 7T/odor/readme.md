@@ -124,6 +124,9 @@ Results for different regions of amygdala.
 ## results_labels.Rmd
 Analyze true labels and predicted labels, which can obtain accuracy and confusion matrices for each run.
 
+## results_labels_mean.Rmd
+Analyze true labels and predicted labels for all subject, computing group means.
+
 ## ratings.Rmd
 Plot valence, intensity, and similarity ratings for odors presented by bottles or the olfactometer. Then, plot valence and intensity ratings for each run during the fMRI scan.
 

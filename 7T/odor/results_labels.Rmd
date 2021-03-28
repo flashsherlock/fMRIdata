@@ -146,7 +146,6 @@ for (ana in analysis) {
       figure <- ggplot(cmatrix, aes(x=prediction, y=odor, fill=value)) +
         geom_tile() + theme_bw() + coord_equal() +
         scale_fill_distiller(palette="Greens", direction=1,limits=c(0, 60) ) +
-        # sc+
         guides(fill=F) + # removing legend for `fill`
         labs(title = paste(ana,r,sep = "_")) + # using a title instead
         geom_text(aes(label=value), color="black") # printing values
@@ -201,7 +200,7 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
     n <- 192/6
     dataplot <- subset(acc4odor_run, sub ==sub & beta==m & roi==r)
     figure <- ggplot(dataplot, aes(x=run, y=acc, group=phy, color=phy)) + 
-      labs(title = paste0(r) ,x='ROI',y='ACC',group='PHY')+#设置坐标轴
+      labs(title = paste0(r) ,x='Run',y='ACC',group='PHY')+#设置坐标轴
       geom_line() +
       geom_point()+
       coord_cartesian(ylim=c(0,80)) +
@@ -250,7 +249,7 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
       for (o in odor2){
         dataplot <- subset(acc2odor_run, sub ==sub & beta==m & roi==r & odor==o)
         figure <- ggplot(dataplot, aes(x=run, y=acc, group=phy, color=phy)) + 
-          labs(title = paste(r,o,sep = '_') ,x='ROI',y='ACC',group='PHY')+#设置坐标轴
+          labs(title = paste(r,o,sep = '_') ,x='Run',y='ACC',group='PHY')+#设置坐标轴
           geom_line() +
           geom_point()+
           coord_cartesian(ylim=c(0,100)) +

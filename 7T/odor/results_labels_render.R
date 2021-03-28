@@ -36,10 +36,17 @@ for (i_sub in sub) {
   # params = list(path = path, analysis = analysis, mvpa_pattern = mvpa_pattern, roi = roi)
 }
 
+# render mean mvpa results
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/results_labels_mean.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("Mean"),
+                  params = list(sub = sub, analysis = analysis, roi = roi))
+
 # render ratings
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/ratings.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0("Raings"))
+
 # render roistats
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/roistatas.Rmd",
                   output_dir = paste0(path,"results_labels_r"),

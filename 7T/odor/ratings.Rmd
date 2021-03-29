@@ -114,7 +114,6 @@ title <- "Intensity"
 figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
   labs(title = title ,x='Run',y='Intensity',color='Odor')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian() + 
   scale_fill_manual(values = gf_color)+ #颜色
   scale_color_manual(values = gf_color)+ #自选颜色
   scale_x_discrete(labels=as.character(1:6),expand = c(0,0))+

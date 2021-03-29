@@ -98,7 +98,6 @@ cat(sub)
 ```
 
 ## align labels
-### extract data
 ```{r echo=FALSE, fig.height=3, fig.width=4}
 mvpa <- c("roi_VIodor_l1_label_6")
 run_num <- 6
@@ -144,7 +143,6 @@ for (sub_i in sub) {
         cmatrix <- cbind(cmatrix,c("lim","tra","car","cit"))
         names(cmatrix) <- c(paste0('p_',c("lim","tra","car","cit")),"odor")
         cmatrix <- gather(cmatrix, prediction, value, p_lim:p_cit)
-        cmatrix[,3] <- round(100*cmatrix[,3],digits = 2)
         cmatrix <- cbind(rep(sub_i,times=nrow(cmatrix)),
                          rep(ana,times=nrow(cmatrix)),
                          rep(m,times=nrow(cmatrix)),
@@ -263,7 +261,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
         coord_cartesian(ylim=c(0,100)) +
         scale_y_continuous(breaks=waiver(),expand = c(0,0))+
         scale_x_discrete(labels=roiname)+
-        geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+
+        geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
         scale_fill_brewer(palette = "Greens",direction = 1)+ #颜色
         geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                       position=position_dodge(.9))+
@@ -303,7 +301,7 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
           geom_ribbon(aes(ymin = mean - se,
                       ymax = mean + se,fill = phy), alpha = 0.1,linetype=0)+
           # scale_color_manual(values = google)+ #颜色
-          geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+
+          geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
           theme_prism(base_line_size = 0.5)
         print(figure)
       }
@@ -312,14 +310,17 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
 ```
 
 ### confusion matrices
-```{r}
+```{r fig.height=3, fig.width=4}
 for (ana in analysis) {
   for (m in mvpa) {
     for (r in roi) {
-      cmatrix <- subset(matrix_all, phy=ana & beta==m & roi==r)
+      cmatrix <- subset(matrix_all, phy==ana & beta==m & roi==r)
       # calculate mean values
       cmatrix <- aggregate(cmatrix$value, list(cmatrix$odor,cmatrix$prediction), mean)
       names(cmatrix) <- c("odor","prediction","value")
+      cmatrix[,3] <- round(100*cmatrix[,3],digits = 2)
+      cmatrix <- mutate(cmatrix,odor = factor(odor,rev(c("lim","tra","car","cit"))), # alphabetical order by default
+                        prediction = factor(prediction, levels = paste0('p_',c("lim","tra","car","cit")))) # force reverse alphabetical order
       # test <- aggregate(matrix_all$value, list(matrix_all$odor,matrix_all$prediction), mean)
       figure <- ggplot(cmatrix, aes(x=prediction, y=odor, fill=value)) +
         geom_tile() + theme_bw() + coord_equal() +

@@ -134,7 +134,7 @@ Plot valence, intensity, and similarity ratings for odors presented by bottles o
 Compute and plot mean voxel numbers for each ROI, and plot time courses.
 
 ## results_labels_render.R
-Render results_labels.Rmd, rating.Rmd, and roistatas.Rmd with parameters.
+Render results_labels.Rmd, results_labels_mean.Rmd, rating.Rmd, and roistatas.Rmd with parameters.
 
 # nophy
 Analysis same as above but without physioloy correction (pade). This can be a backup for all of the analysis.

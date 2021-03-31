@@ -24,6 +24,8 @@ library(plyr)
 library(dplyr)
 library(tidyr)
 library(ggprism)
+library(patchwork)
+library(gridExtra)
 ggthemr('fresh',layout = "clean")
 ```
 
@@ -80,18 +82,42 @@ data_diff <- as.data.table(data_diff)
 ```{r}
 # row numbers
 ys <- 50
+# threshold
+t <- 1.65
+figure <- list()
+i <- 0
 for (sub_i in params$sub) {
   data_diff_i <- subset(data_diff,sub == sub_i)
+  # reverse lim-tra to tra-lim, but the column name remain unchanged
   data_diff_i$`b_lim-tra` <- -data_diff_i$`b_lim-tra`
+  # set some voxels to 0 according to t value
   for (op in opair) {
-    op <- ifelse(op=="lim-tra","tra-lim",op)
-    figure <- plotmap(data_diff_i,paste0("b_",op),ys) +
+    # set unsignificant voxels to NA
+    data_diff_i[[paste0("b_",op)]] <- ifelse(abs(data_diff_i[[paste0("t_",op)]])<t,
+                                             NA,
+                                             data_diff_i[[paste0("b_",op)]])
+  }
+  
+  for (op in opair[c(1,4,5)]) {
+    i <- i+1
+    opn <- ifelse(op=="lim-tra","tra-lim",op)
+    figure[[i]] <- plotmap(data_diff_i,paste0("b_",op),ys) +
         # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
-      labs(title = paste(sub_i,op,sep = "_"))+
+      labs(title = paste(sub_i,opn,sep = "_"))+
       scale_fill_gradient2(low="blue", high="red",midpoint = 0, 
         limits=c(-2, 2),oob = scales::squish)
-    print(figure)
+    # print(figure[[i]])
   }
+  # average car-lim and cit-lim
+  # i <- i+1
+  # data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
+  # figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
+  #   # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
+  # labs(title = paste(sub_i,"addup",sep = "_"))+
+  # scale_fill_gradient2(low="blue", high="red",midpoint = 0, 
+  #   limits=c(-2, 2),oob = scales::squish)
 }
+# do.call('grid.arrange',c(figure, ncol = 3))
+wrap_plots(figure,nrow = 4,guides = 'collect')
 ```
 

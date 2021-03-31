@@ -6,21 +6,22 @@ set sub = $1
 set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
 # set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
+set analysis=pabiode
 
-switch ($2)
-    case bio:
-        set analysis=pabiode
-        breaksw
-    case phy:
-        set analysis=paphde
-        breaksw
-    case no:
-        set analysis=pade
-        breaksw
-    default:
-        echo The second input must be bio, phy or no.
-        echo ${analysis}
-endsw
+# switch ($2)
+#     case bio:
+#         set analysis=pabiode
+#         breaksw
+#     case phy:
+#         set analysis=paphde
+#         breaksw
+#     case no:
+#         set analysis=pade
+#         breaksw
+#     default:
+#         echo The second input must be bio, phy or no.
+#         echo ${analysis}
+# endsw
 
 echo ${sub} ${analysis}
 
@@ -78,19 +79,28 @@ if (! -e ../../stats/${sub}) then
 endif
 
 # # extract tent data (without blur)
-3dROIstats -mask ../mask/Amy9_${maskdec}.freesurfer+orig \
--nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy9_${maskdec}_tent.txt
+# 3dROIstats -mask ../mask/Amy9_${maskdec}.freesurfer+orig \
+# -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy9_${maskdec}_tent.txt
 
-# extract betas from blurred statas
-3dROIstats -mask ../mask/Amy9_${maskdec}.freesurfer+orig \
--nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy9_${maskdec}_beta.txt
+# # extract betas from blurred statas
+# 3dROIstats -mask ../mask/Amy9_${maskdec}.freesurfer+orig \
+# -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy9_${maskdec}_beta.txt
 
-foreach region (1 3 5 6 7 8 9 10 15)
-    3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_tent.txt
-    3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
-    -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_beta.txt
-end
+# foreach region (1 3 5 6 7 8 9 10 15)
+#     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
+#     -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_tent.txt
+#     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
+#     -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_beta.txt
+# end
+
+# extract beta values from each voxel
+3dmaskdump -mask ../mask/sAmy.freesurfer+orig   \
+    -mrange 1 15                                \
+    -o ../../stats/${sub}/sAmy_betadiff.txt     \
+    ../mask/sAmy.freesurfer+orig                \
+    ${data_beta}"[`seq -s , 19 3 33`34,`seq -s , 20 3 34`35]"
+    # -o option can not replace exsisting files
+    # >! ../../stats/${sub}/sAmy_betadiff.txt
 
 else
  echo "Usage: $0 <Subjname> <analysis>"

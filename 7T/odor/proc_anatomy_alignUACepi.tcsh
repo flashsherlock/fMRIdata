@@ -122,6 +122,9 @@ end
 3dcalc -a lAmy.seg.freesurfer+orig -b rAmy.seg.freesurfer+orig -expr 'a+b' -prefix Amy.seg.freesurfer+orig
 # copy Amy9_align masks
 3dcopy Amy.freesurfer+orig ../mask/Amy9_align.freesurfer+orig
+# copy Amy.seg masks to mask dir as sAmy
+3dcopy Amy.seg.freesurfer+orig ../mask/sAmy.freesurfer+orig
+
 # cp ../mask/Amy9_align.freesurfer+orig* ../${sub}.paphde.results/../mask/
 # cp ../mask/Amy9_align.freesurfer+orig* ../${sub}.pabiode.results/../mask/
 

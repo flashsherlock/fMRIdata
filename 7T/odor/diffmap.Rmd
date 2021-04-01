@@ -7,6 +7,7 @@ params:
     path: "/Volumes/WD_E/gufei/7T_odor/stats"
     roi: !r c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
     sub: !r c("S01_yyt",sprintf('S%02d',c(1:3)))
+    t: 0
 ---
 
 ```{r, setup, include=FALSE}
@@ -83,7 +84,7 @@ data_diff <- as.data.table(data_diff)
 # row numbers
 ys <- 50
 # threshold
-t <- 1.65
+# t <- 1.65
 figure <- list()
 i <- 0
 for (sub_i in params$sub) {
@@ -93,7 +94,7 @@ for (sub_i in params$sub) {
   # set some voxels to 0 according to t value
   for (op in opair) {
     # set unsignificant voxels to NA
-    data_diff_i[[paste0("b_",op)]] <- ifelse(abs(data_diff_i[[paste0("t_",op)]])<t,
+    data_diff_i[[paste0("b_",op)]] <- ifelse(abs(data_diff_i[[paste0("t_",op)]])<params$t,
                                              NA,
                                              data_diff_i[[paste0("b_",op)]])
   }
@@ -116,6 +117,15 @@ for (sub_i in params$sub) {
   # labs(title = paste(sub_i,"addup",sep = "_"))+
   # scale_fill_gradient2(low="blue", high="red",midpoint = 0, 
   #   limits=c(-2, 2),oob = scales::squish)
+  
+  # avarage lim-car and cit-tra to show valence diff map
+  i <- i+1
+  data_diff_i <- mutate(data_diff_i,addup=(-`b_car-lim`+`b_cit-tra`)/2)
+  figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
+    # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
+  labs(title = paste(sub_i,"addup",sep = "_"))+
+  scale_fill_gradient2(low="blue", high="red",midpoint = 0,
+    limits=c(-2, 2),oob = scales::squish)
 }
 # do.call('grid.arrange',c(figure, ncol = 3))
 wrap_plots(figure,nrow = 4,guides = 'collect')

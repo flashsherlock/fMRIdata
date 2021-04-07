@@ -7,7 +7,11 @@
 %  
 %  Cai Wingfield 11-2009
 
-function Models = modelRDMs_7T(subjID,session)
+function Models = modelRDMs_7T(subjID,session,subjname)
+% 
+if nargin < 3
+    subjname = sprintf('S%02d',subjID);
+end
 % kron with k
 k=192/session/4;
 % subjID = 1;
@@ -60,7 +64,7 @@ odorspace = [  0 0.392 0.116 0.294
 odorspace = odorspace'+odorspace;
 Models.Odorspace = kron(odorspace, ones(k,k));
 % RDMs based on mri ratings
-mrirating = mrirate(subjID);
+mrirating = mrirate(subjname);
 % valence
 Models.mrvalence = kron(mrirating.valRDM, ones(k,k));
 % intensity

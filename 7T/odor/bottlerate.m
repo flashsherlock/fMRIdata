@@ -43,6 +43,7 @@ for i=1:size(si,1)
     simRDM(:,:,i)=squareform(d);
 end
 % save to data
+% out put certain subject if specified
 if sub>=1 && sub<=size(si,1)
     data.valence=valence(sub,:);
     data.intensity=intensity(sub,:);
@@ -50,6 +51,7 @@ if sub>=1 && sub<=size(si,1)
     data.simRDM=simRDM(:,:,sub);
     data.valRDM=valRDM(:,:,sub);
     data.intRDM=intRDM(:,:,sub);
+% is subject not in the range, output all data
 else
     data.valence=valence;
     data.intensity=intensity;

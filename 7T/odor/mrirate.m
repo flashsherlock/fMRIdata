@@ -4,11 +4,17 @@ function rating=mrirate(sub)
 
 run=6;
 times=8;
-sub=sprintf('S%02d',sub);
+if ~ischar(sub)
+    sub=sprintf('S%02d',sub);
+end
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
 
 %% similarity
-data=dir([datadir lower(sub) '_similarity*.mat']);
+if strcmp(sub,'S01_yyt')
+    data=dir([datadir lower('S01') '_similarity*.mat']);
+else
+    data=dir([datadir lower(sub) '_similarity*.mat']);
+end
 dataname=data(1).name;
 load([datadir filesep dataname]);
 % change odors to 1-4

@@ -29,11 +29,12 @@ sRDMs = rsa.rdm.averageRDMs_subjectSession(RDMs, 'session');
 % RDMs  = rsa.rdm.averageRDMs_subjectSession(RDMs, 'session', 'subject');
 % RDMs  = rsa.rdm.averageRDMs_subjectSession(sRDMs(:,[1 3 4]),'subject');
 RDMs  = rsa.rdm.averageRDMs_subjectSession(sRDMs, 'subject');
-
-Models = rsa.constructModelRDMs(modelRDMs_7T(1,userOptions.sessions), userOptions);
+% construct model RDMs
+Models = rsa.constructModelRDMs(modelRDMs_7T(1,userOptions.sessions,'S01_yyt'), userOptions);
 for i=1:3
     Models = [Models;rsa.constructModelRDMs(modelRDMs_7T(i,userOptions.sessions), userOptions)];
 end
+% average model RDMs across subjects (Apairs etc. remains the same but ratings are averaged)
 Models =Models';
 Modelsavg = Models(:,1);
 for i=1:length(Modelsavg)
@@ -62,7 +63,10 @@ for i=1:4
     rsa.pairwiseCorrelateRDMs({sRDMs(:,i), Models(:,i)}, userOptions);
     saveas(gcf, ['pair' num2str(i) '.jpg']);
 end
-% average
+% average activities before constructing RDM
+% must in standard space (same voxel size)
+
+% average RDMs after constructing RDM
 rsa.pairwiseCorrelateRDMs({RDMs, Modelsavg}, userOptions);
 saveas(gcf, 'pair_avg.jpg');
 

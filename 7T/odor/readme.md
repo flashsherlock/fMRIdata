@@ -6,6 +6,9 @@ Gernerate data files, including images, timing files, and phy files.
 ## analyze_timing.m
 Generate timing files for each run and a file including all runs.
 
+## analyze_timing_valence.m
+Generate timing files for odor valence (amplitude modulated).
+
 ## analyze_timing_rating.m
 Generate timing files for the presentation of cue words.
 
@@ -63,6 +66,9 @@ Use `TENT(0,10,11)` function to do deconvolution.(${filedec}=odorVI_noblur)
 
 ## deconvolve_noblur_rating_odor.tcsh
 Deconvole with the same regressors as rating_odor, but use the data without blur and scale. Then, subtract fits of no interest from the original data to obtain clean data.(${filedec}=odorVI_noblur)
+
+## deconvolve_noblur_rating_odor_va.tcsh
+Deconvole with the regressors in noblur_rating_odor plus amplitude modulated valence regressors.
 
 ## deconvolve_rating_odor.tcsh
 Add valence and intensity ratings to regressors, including regressors for odors.(${filedec}=odorVI)

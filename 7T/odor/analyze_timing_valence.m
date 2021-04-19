@@ -4,7 +4,9 @@ times=8;
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
 % cd(datadir);
-timing=zeros(run,times,4);
+timing=zeros(run,times*4);
+rating=timing;
+va=cell(run,4*times);
 % change sub to match filename
 sub=[lower(sub) '_run'];
 
@@ -21,29 +23,56 @@ for i=1:run
     dataname=data(1).name;
     load([datadir filesep dataname]);
     disp([sub num2str(i)]);
-    % response number
-    resnum=length(result(result(:,6)~=0,7));
-    rt=mean(result(result(:,6)~=0,7));
-    % rt-2.5(green cross and black cross) is real rt
-    disp([resnum rt-2.5]);
-    % odor numbers
-    odors=unique(result(:,1));    
-    % for each odor, find timing
-    for oi=1:length(odors)
-        odor=odors(oi);        
-        inhale=result(result(:,1)==odor,5)';
-        timing(i,:,oi)=inhale;
-    end
     
+    % for each odor, find timing and rating
+    % timing
+    timing(i,:)=result(:,5)';
+    % rating    
+    % compute new valence rating
+    rating(i,:)=changeva(result)';
+    
+    % combine onset and duration by *
+    va(i,:)=strcat(strsplit(num2str(timing(i,:))),{'*'},strsplit(num2str(rating(i,:))));
 end
 
-names={'lim','tra','car','cit'};
-for i=1:length(names)
-    % timing for each odor(all runs)
-    dlmwrite([datadir filesep names{i} '.txt'],timing(:,:,i),'delimiter',' ');
-    % timing for each odor(each run)
-    for runi=1:run
-        dlmwrite([datadir filesep names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
-    end
+% timing for odor valence(all runs)
+fid=fopen([datadir filesep 'odor_va.txt'],'w');
+for i=1:run
+    temp=strjoin(va(i,:));
+    fprintf(fid,'%s\r\n',temp);
 end
+fclose(fid);
+
+end
+
+% compute new valence
+function va=changeva(result)
+% change rating results intensity->0
+result(result(:,2)==2,6)=0;
+va=result(:,6);
+% odor numbers
+odors=unique(result(:,1));    
+% for each odor, find timing
+for oi=1:length(odors)
+    odor=odors(oi);        
+    valence=result(result(:,1)==odor,6);
+    position=find(result(:,1)==odor);
+    % interval
+    d_before=[999;diff(position)];
+    d_after=[diff(position);999];
+    % zero positions
+    zero=find(valence==0);
+    for i=zero'
+        if d_before(i)==d_after(i)
+            valence(i)=mean(valence(i-1),valence(i+1));
+        % close to the next one
+        elseif d_before(i)>d_after(i)
+            valence(i)=valence(i+1);
+        else
+            valence(i)=valence(i-1);
+        end
+    end
+    va(position)=valence;
+end
+
 end

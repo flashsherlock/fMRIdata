@@ -36,6 +36,7 @@ for subi=subs
     % generate timing files
     analyze_timing(sub);
     analyze_timing_rating(sub);
+    analyze_timing_valence(sub);
 
     % generate phy files
     resp_savebio(sub);

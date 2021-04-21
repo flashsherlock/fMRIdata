@@ -7,20 +7,6 @@ set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
 # set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
-# can be achieved by switch case stucture
-# if ($2 == bio) then
-#         set pb=pb05
-#         set analysis=pabiode
-#     else
-#         if ($2 == phy) then
-#         set pb=pb05
-#         set analysis=paphde
-#         else
-#         set pb=pb04
-#         set analysis=pade
-#         endif
-# endif
-
 switch ($2)
     case bio:
         set pb=pb05
@@ -35,8 +21,8 @@ switch ($2)
         set analysis=pade
         breaksw
     default:
-        echo The second input must be bio, phy or no.
-        echo ${analysis}
+        set pb=pb05
+        set analysis=pabiode
 endsw
 
 echo ${sub} ${analysis}
@@ -44,7 +30,7 @@ echo ${sub} ${analysis}
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
-set filedec = odorVI_noblur
+set filedec = odorVIva_noblur
 3dDeconvolve -input ${pb}.${subj}.r*.volreg+orig.HEAD              \
     -ortvec mot_demean.r01.1D mot_demean_r01                   \
     -ortvec mot_demean.r02.1D mot_demean_r02                   \
@@ -53,7 +39,7 @@ set filedec = odorVI_noblur
     -ortvec mot_demean.r05.1D mot_demean_r05                   \
     -ortvec mot_demean.r06.1D mot_demean_r06                   \
     -polort 3                                                  \
-    -num_stimts 6                                              \
+    -num_stimts 7                                              \
     -stim_times 1 ../behavior/lim.txt 'BLOCK(2,1)'             \
     -stim_label 1 lim                                          \
     -stim_times 2 ../behavior/tra.txt 'BLOCK(2,1)'             \
@@ -66,6 +52,8 @@ set filedec = odorVI_noblur
     -stim_label 5 val                                          \
     -stim_times_AM1 6 ../behavior/intensity.txt 'dmBLOCK(1)'   \
     -stim_label 6 int                                          \
+    -stim_times_AM1 7 ../behavior/odor_va.txt 'BLOCK(2,1)'     \
+    -stim_label 7 odor_va                                      \
     -jobs 14                                                   \
     -x1D X.xmat.${filedec}.1D -xjpeg X.${filedec}.jpg          \
     -noFDR                                                     \
@@ -76,9 +64,12 @@ set filedec = odorVI_noblur
 rm Decon*
 
 # cat all runs
-3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
+if (! -e allrun.volreg.${subj}+orig.HEAD) then
+# 3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
+echo nodata
+endif
 # synthesize fitts of no interests, use -dry for debug
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.xmat.${filedec}.1D -select baseline val int -prefix NIfitts.${subj}.${filedec}
+3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.xmat.${filedec}.1D -select baseline val int odor_va -prefix NIfitts.${subj}.${filedec}
 # subtract fitts of no interests from all runs
 3dcalc -a allrun.volreg.${subj}+orig -b NIfitts.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.${filedec}
 

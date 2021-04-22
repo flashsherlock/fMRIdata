@@ -1,8 +1,8 @@
 analysis_all={'pabiode'};
 shift=6;
-rois={'Amy9_at165','corticalAmy_at165'};
+rois={'Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'};
 for region=[1 3 5 6 7 8 9 10 15]
-    rois=[rois {['Amy_at165' num2str(region) 'seg']}];
+    rois=[rois {['Amy_align' num2str(region) 'seg']}];
 end
 % S01_yyt
 sub='S01_yyt';
@@ -10,17 +10,17 @@ decoding_roi_4odors_trial(sub,analysis_all,rois,shift);
 decoding_roi_trial(sub,analysis_all,rois,shift);
 % S01-S03
 for i=1:3
-    if i==1
-        rois(5)=[];
-    end
+    % if i==1
+    %     rois(5)=[];
+    % end
     sub=sprintf('S%02d',i);
     decoding_roi_4odors_trial(sub,analysis_all,rois,shift);
 end
 
 for i=1:3
-    if i==1
-        rois(5)=[];
-    end
+    % if i==1
+    %     rois(5)=[];
+    % end
     sub=sprintf('S%02d',i);
     decoding_roi_trial(sub,analysis_all,rois,shift);
 end

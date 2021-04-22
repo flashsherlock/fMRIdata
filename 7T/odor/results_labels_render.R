@@ -34,6 +34,15 @@ for (i_sub in sub) {
                     output_file = paste0(i_sub,'_bioact'),
                     params = list(sub = i_sub, set_title = title, analysis = analysis, roi = roi))
   # params = list(path = path, analysis = analysis, mvpa_pattern = mvpa_pattern, roi = roi)
+
+  # bio analysis, add odor_va regressor, combine to three large ROIs
+  analysis <- c("pabiode")
+  roi <- c('Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align', paste0('Amy_align',c(1,3,5:10,15),'seg'))
+  mp <- "roi_VIvaodor_l1_label_6"
+  rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/results_labels.Rmd",
+                    output_dir = paste0(path,"results_labels_r"),
+                    output_file = paste0(i_sub,'_bio'),
+                    params = list(sub = i_sub, set_title = title, analysis = analysis, roi = roi, mvpa_pattern = mp))
 }
 
 # render mean mvpa results

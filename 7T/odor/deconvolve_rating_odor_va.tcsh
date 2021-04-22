@@ -52,7 +52,7 @@ set filedec = odorVIva
     -stim_label 6 int                                                   \
     -stim_times_AM1 7 ../behavior/odor_va.txt 'BLOCK(2,1)'              \
     -stim_label 7 odor_va                                               \
-    -jobs 8                                                             \
+    -jobs 12                                                             \
     -gltsym 'SYM: lim -tra'                                             \
     -glt_label 1 lim-tra                                                \
     -gltsym 'SYM: car -tra'                                             \

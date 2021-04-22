@@ -54,7 +54,7 @@ set filedec = odorVIva_noblur
     -stim_label 6 int                                          \
     -stim_times_AM1 7 ../behavior/odor_va.txt 'BLOCK(2,1)'     \
     -stim_label 7 odor_va                                      \
-    -jobs 14                                                   \
+    -jobs 12                                                   \
     -x1D X.xmat.${filedec}.1D -xjpeg X.${filedec}.jpg          \
     -noFDR                                                     \
     -cbucket cbucket.${subj}.${filedec}
@@ -65,8 +65,8 @@ rm Decon*
 
 # cat all runs
 if (! -e allrun.volreg.${subj}+orig.HEAD) then
-# 3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
-echo nodata
+# echo nodata
+3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
 endif
 # synthesize fitts of no interests, use -dry for debug
 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.xmat.${filedec}.1D -select baseline val int odor_va -prefix NIfitts.${subj}.${filedec}

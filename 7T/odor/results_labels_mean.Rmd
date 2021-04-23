@@ -99,7 +99,7 @@ cat(sub)
 
 ## align labels
 ```{r echo=FALSE, fig.height=3, fig.width=4}
-mvpa <- c("roi_VIodor_l1_label_6")
+mvpa <- mvpa_pattern
 run_num <- 6
 campares <- c("2odors_car_cit", "2odors_lim_car", "2odors_lim_cit", "2odors_lim_tra", "2odors_tra_car", "2odors_tra_cit")
 acc_run <- data.frame(sub=0,phy=0,beta=0,roi=0,odor=0,acc=0,run=0)
@@ -195,7 +195,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
       scale_y_continuous(breaks=waiver(),expand = c(0,0))+
       scale_x_discrete(labels=roiname)+
       geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+
-      scale_fill_brewer(palette = "Greens",direction = 1)+ #颜色
+      scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
       geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                   position=position_dodge(.9))+
       theme_prism(base_line_size = 0.5)
@@ -225,8 +225,8 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
       coord_cartesian(ylim=c(0,80),clip = 'off') +
       scale_x_discrete(labels=as.character(1:run_num),expand = c(0,0))+
       scale_y_continuous(breaks=waiver(),expand = c(0,0))+
-      scale_color_brewer(palette = "Greens",direction = 1)+ #颜色
-      scale_fill_brewer(palette = "Greens",direction = 1)+ #颜色
+      scale_color_brewer(palette = "Paired",direction = 1)+ #颜色
+      scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
       geom_ribbon(aes(ymin = mean - se,
                   ymax = mean + se,fill = phy), alpha = 0.1,linetype=0)+
       # scale_color_manual(values = google)+ #颜色
@@ -262,7 +262,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
         scale_y_continuous(breaks=waiver(),expand = c(0,0))+
         scale_x_discrete(labels=roiname)+
         geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
-        scale_fill_brewer(palette = "Greens",direction = 1)+ #颜色
+        scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
         geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                       position=position_dodge(.9))+
         theme_prism(base_line_size = 0.5)
@@ -296,8 +296,8 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
           coord_cartesian(ylim=c(0,100),clip = 'off') +
           scale_x_discrete(labels=as.character(1:run_num),expand = c(0,0))+
           scale_y_continuous(breaks=waiver(),expand = c(0,0))+
-          scale_color_brewer(palette = "Greens",direction = 1)+ #颜色
-          scale_fill_brewer(palette = "Greens",direction = 1)+ #颜色
+          scale_color_brewer(palette = "Paired",direction = 1)+ #颜色
+          scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
           geom_ribbon(aes(ymin = mean - se,
                       ymax = mean + se,fill = phy), alpha = 0.1,linetype=0)+
           # scale_color_manual(values = google)+ #颜色
@@ -324,7 +324,7 @@ for (ana in analysis) {
       # test <- aggregate(matrix_all$value, list(matrix_all$odor,matrix_all$prediction), mean)
       figure <- ggplot(cmatrix, aes(x=prediction, y=odor, fill=value)) +
         geom_tile() + theme_bw() + coord_equal() +
-        scale_fill_distiller(palette="Greens", direction=1,limits=c(0, 60) ) +
+        scale_fill_distiller(palette="Greens", direction=1,limits=c(0, 80) ) +
         guides(fill=F) + # removing legend for `fill`
         labs(title = paste(ana,r,sep = "_")) + # using a title instead
         geom_text(aes(label=value), color="black") # printing values

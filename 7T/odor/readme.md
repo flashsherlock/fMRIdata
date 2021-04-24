@@ -64,17 +64,20 @@ Seperate motion files for deconvolve each run.
 ## deconvolve_noblur_rating_odor_TENT.tcsh
 Use `TENT(0,10,11)` function to do deconvolution.(${filedec}=odorVI_noblur)
 
+## deconvolve_noblur_rating_odor_va_TENT.tcsh
+Use `TENT(0,10,11)` function and odor_va regressor to do deconvolution.(${filedec}=odorVIva_noblur)
+
 ## deconvolve_noblur_rating_odor.tcsh
 Deconvole with the same regressors as rating_odor, but use the data without blur and scale. Then, subtract fits of no interest from the original data to obtain clean data.(${filedec}=odorVI_noblur)
 
 ## deconvolve_noblur_rating_odor_va.tcsh
-Deconvole with the regressors in noblur_rating_odor plus amplitude modulated valence regressors.
+Deconvole with the regressors in noblur_rating_odor plus amplitude modulated valence regressors.(${filedec}=odorVIva_noblur)
 
 ## deconvolve_rating_odor.tcsh
 Add valence and intensity ratings to regressors, including regressors for odors.(${filedec}=odorVI)
 
-## deconvolve_rating.tcsh
-Add valence and intensity ratings to regressors.(${filedec}=VI)
+## deconvolve_rating_odor_va.tcsh
+Add odor_va to regressors.(${filedec}=odorVIva)
 
 ## deconvolve_run.tcsh
 Deconvolve for each run (one beta one conditon in each run).(${filedec}=Run)

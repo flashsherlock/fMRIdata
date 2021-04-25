@@ -42,17 +42,23 @@ Generate proc files for each subject by running `afni_proc.py` and command files
 ## proc_anatomy.tcsh
 Use `@SSwarper` to preprocessing anatomical image, then do recon (resample to 1mm by default) to show data on surface (SUMA).
 Only for testing, because high resolution results will be used.
+
 ## proc_anatomy_hires.tcsh
 Use `@SSwarper` to preprocessing anatomical image, then do recon (keep 0.7mm) to show data on surface (SUMA).
 Amygdala can be automatically segmented to 9 nucleis by command `segmentHA_T1.sh`, and `3dAllineate` to EPI grid.
+
 ## proc_anatomy_alignUACepi.tcsh
 Use `@SSwarper` to preprocessing anatomical image, then align it to EPI and do recon (keep 0.7mm) to show data on surface (SUMA).
 It may improve accuracy (avoid transformation) after align to EPI.
-## proc_fmri.tcsh
-Use afni_proc.py to do preprocessing and deconvolve for all runs (one beta one conditon).
 
 ## proc_fmri2xsmooth.tcsh
-Use `afni_proc.py` to do preprocessing and deconvolve for all runs (one beta one conditon, adding valence and intensity rating as regressors). Set to 2.2mm smooth.
+Use `afni_proc.py` to do preprocessing and deconvolve for all runs (one beta one conditon, adding valence and intensity rating as regressors). Set to 2.2mm smooth. Add odor_va regressor.
+
+## proc_fmri2xsmooth_e2a.tcsh
+Same as `proc_fmri2xsmooth.tcsh` but align EPI to anatomical image.
+
+## proc_fmri2xsmooth_censor.tcsh
+Same as `proc_fmri2xsmooth.tcsh` but censor motions.
 
 ## change_label.tcsh
 Change labels in stats file because of a mistake in pro_fmri.tcsh leads to wrong label for a regressor.

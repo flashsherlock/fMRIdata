@@ -14,13 +14,13 @@ else
         set pa=pa
 endif
 
-if ($2 == bio) then
+# if ($2 == bio) then
         set bio=.biop.
-        set analysis=pabiode
-else
-        set bio=.
-        set analysis=paphde
-endif
+        set analysis=pabioe2a
+# else
+#         set bio=.
+#         set analysis=paphe2a
+# endif
 
 # echo ${pa} ${bio} ${analysis}
 # ==========================processing========================== # 
@@ -42,8 +42,8 @@ endif
                 ${sub}_anat_warped/anatQQ.${sub}.aff12.1D                                       \
                 ${sub}_anat_warped/anatQQ.${sub}_WARP.nii                                       \
         -volreg_align_to MIN_OUTLIER                                                            \
-        # -volreg_align_e2a                                                                       \
-        # -volreg_tlrc_warp                                                                       \
+        -volreg_align_e2a                                                                       \
+        -volreg_tlrc_warp                                                                       \
         -blur_size 2.2                                                                          \
         -regress_stim_times                                                                     \
                 behavior/lim.txt                                                                \
@@ -58,7 +58,7 @@ endif
         -regress_stim_types                                                                     \
                 times times times times AM1 AM1 AM1                                             \
         -regress_basis_multi                                                                    \
-                'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'dmBLOCK(1)' 'dmBLOCK(1)' 'BLOCK(2,1)'  \
+                'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'dmBLOCK(1)' 'dmBLOCK(1)' 'BLOCK(2,1)' \
         -regress_opts_3dD                                                                       \
                 -jobs 12                                                                        \
                 -gltsym 'SYM: lim -tra'       -glt_label 1 lim-tra                              \

@@ -14,13 +14,13 @@ else
         set pa=pa
 endif
 
-if ($2 == bio) then
+# if ($2 == bio) then
         set bio=.biop.
-        set analysis=pabiode
-else
-        set bio=.
-        set analysis=paphde
-endif
+        set analysis=pabiocen
+# else
+#         set bio=.
+#         set analysis=paphde
+# endif
 
 # echo ${pa} ${bio} ${analysis}
 # ==========================processing========================== # 
@@ -68,6 +68,7 @@ endif
                 -gltsym 'SYM: cit -lim'       -glt_label 5 cit-lim                              \
                 -gltsym 'SYM: car -cit'       -glt_label 6 car-cit                              \
         -regress_motion_per_run                                                                 \
+        -regress_censor_motion 0.3                                                              \
         -regress_run_clustsim no                                                                \
         -regress_make_cbucket yes                                                               
         # -execute

@@ -4,6 +4,7 @@ params:
     path: "/Volumes/WD_E/gufei/7T_odor/"
     roi: !r c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
     sub: !r c("S01_yyt",sprintf('S%02d',c(1:3)))
+    suffix: "_tent.txt"
 title: "ROIs"
 author: "Fei"
 date: "`r Sys.time()`"
@@ -109,7 +110,7 @@ data_tent <- data.frame(sub=0,odor=0,time=0,NZmean=0,roi=0)
 data_tent <- data_tent[-1,]
 for (sub_i in params$sub) {
   # file path
-  name <- file.path(params$path,"stats",sub_i,paste0(params$roi,"_tent.txt"))
+  name <- file.path(params$path,"stats",sub_i,paste0(params$roi,params$suffix))
   for (region in 1:length(name)) {
   data_tent <- rbind(data_tent,extractdata(name[region]))
   }
@@ -122,7 +123,9 @@ for (sub_i in params$sub) {
   for (region in params$roi) {
   # choose data
   datachosen <- subset(data_tent,sub==sub_i & roi==region)
-  datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
+  # set time and odor levels
+  datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10)))
+  datachosen$odor <- factor(datachosen$odor,levels = odors)
   # plot time course
   figure_4 <- ggplot(datachosen, aes(x=time, y=NZmean,color=odor,group=odor)) + 
     labs(title = paste(sub_i,region,sep = "_"),
@@ -150,7 +153,9 @@ datachosen <- subset(data_tent,roi==region)
 datachosen <- describeBy(datachosen$NZmean,list(datachosen$odor,datachosen$time),mat = T)
 datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
 names(datachosen) <- c("odor","time","mean","se")
+# set time and odor levels
 datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
+datachosen$odor <- factor(datachosen$odor,levels = odors)
 # plot time course
 figure_4 <- ggplot(datachosen, aes(x=time, y=mean,color=odor,group=odor)) + 
   labs(title = paste("All",region,sep = "_"),
@@ -178,7 +183,8 @@ datachosen <- subset(data_tent,roi==region)
 datachosen <- describeBy(datachosen$NZmean,list(datachosen$time),mat = T)
 datachosen <- subset(datachosen,select = c(group1,mean,se))
 names(datachosen) <- c("time","mean","se")
-datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10))) 
+# set time and odor levels
+datachosen$time <- factor(datachosen$time,levels = as.character(c(0:10)))
 # plot time course
 figure_4 <- ggplot(datachosen, aes(x=time, y=mean,group=1)) + 
   labs(title = paste("All",region,sep = "_"),
@@ -246,14 +252,14 @@ datachosen <- mutate(datachosen,mask = factor(mask,levels=c("all","activated")))
 gf_color <- c("#4CA5CF","#F18549")
 figure <- ggplot(datachosen,aes(x=roi,y=mean,fill=mask,
                                 group=interaction(roi,mask))) + 
-labs(title = str_to_title("voxel count") ,x='ROI',y="Mean",fill='Mask')+#设置坐标轴
-scale_y_continuous(expand = c(0,0))+
-coord_cartesian(ylim=c(0,max(datachosen$mean)+20)) + 
-# scale_fill_manual(values = colors[1:2])+ #颜色
-scale_fill_manual(values = gf_color)+ #自选颜色
-geom_bar(position="dodge", stat="identity")+
-geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
-              position=position_dodge(.9))
+  labs(title = str_to_title("voxel count") ,x='ROI',y="Mean",fill='Mask')+#设置坐标轴
+  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(0,max(datachosen$mean)+20)) + 
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  geom_bar(position="dodge", stat="identity")+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))
 # print(figure)
 pfigure <- figure + theme_prism(base_line_size = 0.5)
 print(pfigure)
@@ -269,7 +275,7 @@ figure <- ggplot(data_voxel, aes(x=variable, y=value, label=sub,
                             fill=mask,group=interaction(variable,mask))) + 
   coord_cartesian(ylim=c(0,max(data_voxel$value)+20))+  # 设置y轴坐标范围
   scale_y_continuous(expand = c(0,0))+
-  labs(title = title ,x='ROI',y='Voxel Count',fill='Mask')+#设置坐标轴
+  labs(title = str_to_title("voxel count") ,x='ROI',y='Voxel Count',fill='Mask')+#设置坐标轴
   geom_boxplot() +
   scale_fill_manual(values = gf_color)+ #自选颜色
   geom_point(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),

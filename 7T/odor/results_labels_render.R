@@ -77,3 +77,11 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/results_labels_m
                   output_file = paste0("Mean_va"),
                   params = list(sub = sub, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))
+
+# render roistats
+suffix <- "_tentva.txt"
+roi <- c('Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align', paste0('Amy_align',c(1,3,5:10,15),'seg'))
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/roistatas.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("ROIstatas_va"),
+                  params = list(sub = sub, roi = roi, suffix = suffix))

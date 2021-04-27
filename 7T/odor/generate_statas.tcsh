@@ -65,7 +65,7 @@ cd ${subj}.results
 # end
 
 # extract tent and beta values
-set filedec = odorVI_noblur
+set filedec = odorVIva_noblur
 set maskdec = align # at165 or align
 set data_tent=tent.${subj}.${filedec}+orig
 set data_beta=stats.${subj}+orig
@@ -78,20 +78,23 @@ if (! -e ../../stats/${sub}) then
     mkdir ../../stats/${sub}
 endif
 
-# # extract tent data (without blur)
-# 3dROIstats -mask ../mask/Amy9_${maskdec}.freesurfer+orig \
-# -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy9_${maskdec}_tent.txt
+foreach region (Amy9 corticalAmy CeMeAmy BaLaAmy)
+    # extract tent data (without blur)
+    3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/${region}_${maskdec}_tentva.txt
 
-# # extract betas from blurred statas
-# 3dROIstats -mask ../mask/Amy9_${maskdec}.freesurfer+orig \
-# -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy9_${maskdec}_beta.txt
+    # extract betas from blurred statas
+    # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
+    # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
+end
 
-# foreach region (1 3 5 6 7 8 9 10 15)
-#     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
-#     -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_tent.txt
-#     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
-#     -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_beta.txt
-# end
+foreach region (1 3 5 6 7 8 9 10 15)
+    3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_tentva.txt
+
+    # 3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
+    # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_beta.txt
+end
 
 # extract beta values from each voxel
 3dmaskdump -mask ../mask/sAmy.freesurfer+orig   \

@@ -68,8 +68,8 @@ endif
                 -gltsym 'SYM: cit -lim'       -glt_label 5 cit-lim                              \
                 -gltsym 'SYM: car -cit'       -glt_label 6 car-cit                              \
         -regress_motion_per_run                                                                 \
-        -regress_run_clustsim no                                                                \
-        -regress_make_cbucket yes                                                               
+        -regress_run_clustsim no
+        # -regress_make_cbucket yes                                                               
         # -execute
         # more options for 3dD can be added by -regress_opts_3dD
         # -volreg_align_e2a                                        \    

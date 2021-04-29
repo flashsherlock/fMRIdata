@@ -1,4 +1,4 @@
-function decoding_roi_trial(sub,analysis_all,rois,shift,run)
+function decoding_roi_trial(sub,analysis_all,rois,shift,run,fname)
 % This script is a template that can be used for a decoding analysis on 
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
@@ -12,10 +12,12 @@ function decoding_roi_trial(sub,analysis_all,rois,shift,run)
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % subn=1;
 % sub='S01_yyt';
+if nargin<6
+    fname='odorVIva_noblur';
+end
 if nargin<5
     run=1:6;
 end
-fname='odorVIva5run_noblur';
 datafolder='/Volumes/WD_E/gufei/7T_odor/';
 % analysis_all={'pabiode','paphde','pade'};
 % rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
@@ -61,7 +63,11 @@ for i=1:length(comb)
     end
     
     % all of images
-    timing = findtrs(shift,sub,run);
+    timing1 = findtrs(shift,'S01_yyt');
+    timing2 = findtrs(shift,sub,run(1:6));
+    timing2(:,2)=timing2(:,2)+780;
+    timing = [timing1;timing2];
+    timing = sortrows(timing);
     % images selected by odornumber
     tr = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), 2);
     numtr=length(run)*8*2;

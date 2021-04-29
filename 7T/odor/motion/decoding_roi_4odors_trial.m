@@ -1,4 +1,4 @@
-function decoding_roi_4odors_trial(sub,analysis_all,rois,shift,run)
+function decoding_roi_4odors_trial(sub,analysis_all,rois,shift,run,fname)
 % This script is a template that can be used for a decoding analysis on 
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
@@ -12,6 +12,9 @@ function decoding_roi_4odors_trial(sub,analysis_all,rois,shift,run)
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % subn=1;
 % sub='S01_yyt';
+if nargin<6
+    fname='odorVIva_noblur';
+end
 if nargin<5
     run=1:6;
 end
@@ -55,7 +58,11 @@ parfor i=1:length(rois)
         mkdir(cfg.results.dir)
     end
     
-    timing=findtrs(shift,sub,run);
+    timing1 = findtrs(shift,'S01_yyt');
+    timing2 = findtrs(shift,sub,run(1:6));
+    timing2(:,2)=timing2(:,2)+780;
+    timing = [timing1;timing2];
+    timing = sortrows(timing);
     % Full path to file names (1xn cell array) (e.g.
     % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
     % lim tra car cit
@@ -64,7 +71,7 @@ parfor i=1:length(rois)
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva5run_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.' fname '+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)

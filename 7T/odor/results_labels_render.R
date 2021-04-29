@@ -85,3 +85,16 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/roistatas.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0("ROIstatas_va"),
                   params = list(sub = sub, roi = roi, suffix = suffix))
+
+# S01 compare motion
+i_sub <- "S01"
+analysis <- c("pabiode","pabiocen","pabio5r")
+roi <- c('Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align', paste0('Amy_align',c(1,3,5:10,15),'seg'))
+roiname <- c("Amy","Cortical","CeMe","BaLa","La","Ba","Ce","Me","Co","AB","CAT","AAA","PL")
+mp <- "roi_VIvaodor_l1_label_6"
+title <-  paste("Amygdala_decoding", i_sub, mp,"motion",sep = "_")
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/results_labels.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0(i_sub,'_motion'),
+                  params = list(sub = i_sub, set_title = title, analysis = analysis, 
+                                roi = roi, roiname = roiname, mvpa_pattern = mp))

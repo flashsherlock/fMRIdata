@@ -17,8 +17,16 @@ end
 % decoding_roi_trial(sub,analysis_all,rois,shift,run,fname);
 
 % S01 12run
+% sub='S01';
+% analysis_all={'pabio12run'};
+% run=1:12;
+% decoding_roi_4odors_trial(sub,analysis_all,rois,shift,run);
+% decoding_roi_trial(sub,analysis_all,rois,shift,run);
+
+% S01 11run
 sub='S01';
-analysis_all={'pabio12run'};
-run=1:12;
-decoding_roi_4odors_trial(sub,analysis_all,rois,shift,run);
-decoding_roi_trial(sub,analysis_all,rois,shift,run);
+analysis_all={'pabio11run'};
+fname='odorVIva11run_noblur';
+run=[1:10 12];
+decoding_roi_4odors_trial(sub,analysis_all,rois,shift,run,fname);
+decoding_roi_trial(sub,analysis_all,rois,shift,run,fname);

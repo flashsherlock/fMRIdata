@@ -59,7 +59,7 @@ parfor i=1:length(rois)
     end
     
     timing1 = findtrs(shift,'S01_yyt');
-    timing2 = findtrs(shift,sub,run(1:6));
+    timing2 = findtrs(shift,sub,run(7:end)-6);
     timing2(:,2)=timing2(:,2)+780;
     timing = [timing1;timing2];
     timing = sortrows(timing);

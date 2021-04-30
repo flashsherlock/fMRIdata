@@ -7,23 +7,8 @@ set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
 # set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
-switch ($2)
-    case bio:
-        set pb=pb05
-        set analysis=pabiode
-        breaksw
-    case phy:
-        set pb=pb05
-        set analysis=paphde
-        breaksw
-    case no:
-        set pb=pb04
-        set analysis=pade
-        breaksw
-    default:
-        set pb=pb01
-        set analysis=pabio12run
-endsw
+set pb=pb01
+set analysis=pabio12run
 
 echo ${sub} ${analysis}
 
@@ -71,7 +56,7 @@ rm Decon*
 # cat all runs
 if (! -e all11run.volreg.${subj}+orig.HEAD) then
     # echo nodata
-    3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r{01,02,03,04,05,06,07,08,09,10,12}.volreg+orig.HEAD
+    3dTcat -prefix all11run.volreg.${subj} ${pb}.${subj}.r{01,02,03,04,05,06,07,08,09,10,12}.volreg+orig.HEAD
 endif
 
 # synthesize fitts of no interests, use -dry for debug
@@ -81,7 +66,7 @@ endif
 # 3dSynthesize -cbucket all_betas.${subj}+orig -matrix X.xmat.1D -select baseline val int odor_va -prefix NIfitts.${subj}.${filedec}
 
 # subtract fitts of no interests from all runs
-3dcalc -a allrun.volreg.${subj}+orig -b NIfitts.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.${filedec}
+3dcalc -a all11run.volreg.${subj}+orig -b NIfitts.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.${filedec}
 
 # visualize regressors in X.xmat
 # 1dplot.py -infiles 'X.xmat.odorVI_noblur.1D[24..29]{0..129}' -xvals 1 130 1 -prefix run1.jpg  -ylabels lim tra car cit val int

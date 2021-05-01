@@ -130,12 +130,12 @@ for (ana in analysis) {
       # accuracy
       acc = 100*sum(diag(cmatrix))/n # overall accuracy
       acc_run[nrow(acc_run)+1,] <- c(sub,ana,m,r,paste0("4odors_",r),acc,"run_all")
-      sep_cmatrix <- split(current_data,rep(1:run_num, each = n/run_num))
-      for (i_run in 1:run_num) {
-        run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
-        acc = compute_acc(run_matrix) # overall accuracy
-        acc_run[nrow(acc_run)+1,] <- c(sub,ana,m,r,paste0("4odors_",r),acc,paste("run_",i_run))
-      }
+      # sep_cmatrix <- split(current_data,rep(1:run_num, each = n/run_num))
+      # for (i_run in 1:run_num) {
+      #   run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
+      #   acc = compute_acc(run_matrix) # overall accuracy
+      #   acc_run[nrow(acc_run)+1,] <- c(sub,ana,m,r,paste0("4odors_",r),acc,paste("run_",i_run))
+      # }
       
 
       # confusion matrix
@@ -160,12 +160,12 @@ for (ana in analysis) {
         current_data <- data_labels[[cname]]
         acc <-  compute_acc(current_data) # overall accuracy
         acc_run[nrow(acc_run)+1,] <- c(sub,ana,m,r,campare,acc,"run_all")
-        sep_cmatrix <- split(current_data,rep(1:run_num, each = n/run_num))
-        for (i_run in 1:run_num) {
-          run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
-          acc  <-  compute_acc(run_matrix) # overall accuracy
-          acc_run[nrow(acc_run)+1,] <- c(sub,ana,m,r,campare,acc,paste("run_",i_run))
-        }
+        # sep_cmatrix <- split(current_data,rep(1:run_num, each = n/run_num))
+        # for (i_run in 1:run_num) {
+        #   run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
+        #   acc  <-  compute_acc(run_matrix) # overall accuracy
+        #   acc_run[nrow(acc_run)+1,] <- c(sub,ana,m,r,campare,acc,paste("run_",i_run))
+        # }
       }
     }
   }
@@ -186,7 +186,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
     figure <- ggplot(dataplot, aes(x=roi, y=acc, fill=phy)) + 
       labs(title = m ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
       geom_bar(position="dodge", stat="identity") +
-      coord_cartesian(ylim=c(0,65)) +
+      coord_cartesian(ylim=c(0,80)) +
       scale_x_discrete(labels=roiname)+
       scale_y_continuous(breaks=waiver(),expand = c(0,0))+
       geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+

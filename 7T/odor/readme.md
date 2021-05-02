@@ -153,3 +153,6 @@ Render results_labels.Rmd, results_labels_mean.Rmd, rating.Rmd, and roistatas.Rm
 
 # nophy
 Analysis same as above but without physioloy correction (pade). This can be a backup for all of the analysis.
+
+# motion
+Compare different methods that deal with head movement in the 5th run of S01.

@@ -18,3 +18,6 @@ Deconvolve 4 runs with blur or volreg images of S01.
 
 ## run_decoding.m & decoding*.m
 Do MVPA with 4, 11, or 12 runs (change variable `timing`).
+
+## compare2day.tcsh
+Compare 2 days of results of S01. 

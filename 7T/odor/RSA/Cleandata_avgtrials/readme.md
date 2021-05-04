@@ -5,7 +5,7 @@ Representation similarity analysis. Trials for each odor are averaged.
 List of condition names. For example, *'[[subjectName]]_exp1_lim1'*.
 
 ## get_name_afni.m
-Generate image file names used in `fMRIDataPreparation_afni.m`. Make use of names in Useroptions.subn to list image file names.
+Generate image file names used in `fMRIDataPreparation_afni.m`. Make use of names in Useroptions.subn to list image file names. Different `filedec` in used for file name in deconvolve should be set here.
 
 ## fMRIDataPreparation_afni.m
 Load data from BRIK files (requiring functions in the decoding toolbox). Each **column** is a **conditon** corresponding to names defined in `betaCorrespondence.m`. Results will be saved to folder "imagedata".
@@ -34,4 +34,4 @@ Hypothesis RDMs to be tested.
 * random
 
 ## Recipe_fMRI.m
-Main workflow for ROI analysis.
+Main workflow for ROI analysis. Correlation matrice for model and neuro RDMs are averaged across subjects or use the averaged model and neuro RDMs to compute.

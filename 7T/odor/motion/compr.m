@@ -4,8 +4,8 @@ datadir='/Volumes/WD_E/gufei/7T_odor/S01/12blip/';
 % whole Amy and 3 subregions
 figure;
 for i=1:length(maskNames)
-    day1=load([datadir 'day1_' maskNames{i} '_beta.txt']);
-    day2=load([datadir 'day2_' maskNames{i} '_beta.txt']);
+    day1=load([datadir 'day1_' maskNames{i} '_beta_noblur.txt']);
+    day2=load([datadir 'day2_' maskNames{i} '_5runbeta_noblur.txt']);
     r(i,:)=diag(corr(day1(:,end-3:end),day2(:,end-3:end)));    
     subplot(length(maskNames),4,(i-1)*4+1)
     scatter(day1(:,end-3),day2(:,end-3))
@@ -17,8 +17,8 @@ for i=1:length(maskNames)
     scatter(day1(:,end-0),day2(:,end-0))
 end
 % 9 regions
-day1=load([datadir 'day1_Amy_beta.txt']);
-day2=load([datadir 'day2_Amy_beta.txt']);
+day1=load([datadir 'day1_Amy_beta_noblur.txt']);
+day2=load([datadir 'day2_Amy_5runbeta_noblur.txt']);
 roi=unique(day1(:,4));
 figure;
 for i=1:length(roi)

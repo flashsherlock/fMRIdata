@@ -38,28 +38,43 @@ foreach region (Amy9 corticalAmy CeMeAmy BaLaAmy)
   # extract betas from blurred statas
   # 3dROIstats -mask mask/${region}_${maskdec}.freesurfer+orig \
   # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! 12blip/S01_yyt_${region}_${maskdec}_beta.txt
-  3dmaskdump -mask mask/${region}_${maskdec}.freesurfer+orig   \
-    -o 12blip/day1_${region}_${maskdec}_beta_noblur.txt     \
-    ${data_beta}"[`seq -s , 1 3 9`10]"
   # 3dmaskdump -mask mask/${region}_${maskdec}.freesurfer+orig   \
-  #   -o 12blip/day2_${region}_${maskdec}_beta.txt     \
-  #   S01.pabiode.results/stats.S01.pabiode.odorVIva+orig"[`seq -s , 1 3 9`10]"
+  #   -o 12blip/day1_${region}_${maskdec}_beta_noblur.txt     \
+  #   ${data_beta}"[`seq -s , 1 3 9`10]"
+  # 3dmaskdump -mask mask/${region}_${maskdec}.freesurfer+orig   \
+  #   -o 12blip/day2_${region}_${maskdec}_beta_noblur.txt     \
+  #   S01.pabiode.results/NIerrts.S01.pabiode.odorVIva_noblur+orig"[`seq -s , 1 3 9`10]"
+  # 5 runs
+  # 3dmaskdump -mask mask/${region}_${maskdec}.freesurfer+orig   \
+  #   -o 12blip/day2_${region}_${maskdec}_5runbeta.txt     \
+  #   S01.pabiocen.results/stats.S01.pabiocen.odorVIva5run+orig"[`seq -s , 1 3 9`10]"
+  # 5 runs noblur
   3dmaskdump -mask mask/${region}_${maskdec}.freesurfer+orig   \
-    -o 12blip/day2_${region}_${maskdec}_5runbeta.txt     \
-    S01.pabiocen.results/stats.S01.pabiocen.odorVIva5run+orig"[`seq -s , 1 3 9`10]"
+    -o 12blip/day2_${region}_${maskdec}_5runbeta_noblur.txt     \
+    S01.pabio5r.results/NIerrts.S01.pabio5r.odorVIva5run_noblur+orig"[`seq -s , 1 3 9`10]"
 end
 
+# 5 runs
+# 3dmaskdump -mask mask/sAmy.freesurfer+orig   \
+#   -o 12blip/day2_Amy_5runbeta.txt     \
+#   mask/sAmy.freesurfer+orig   \
+#   S01.pabiocen.results/stats.S01.pabiocen.odorVIva5run+orig"[`seq -s , 1 3 9`10]"
+# 5 runs noblur
 3dmaskdump -mask mask/sAmy.freesurfer+orig   \
-  -mrange 1 15                                \
-  -o 12blip/day1_Amy_beta_noblur.txt     \
-  mask/sAmy.freesurfer+orig                \
-  ${data_beta}"[`seq -s , 1 3 9`10]"
+  -o 12blip/day2_Amy_5runbeta_noblur.txt     \
+  mask/sAmy.freesurfer+orig   \
+  S01.pabio5r.results/NIerrts.S01.pabio5r.odorVIva5run_noblur+orig"[`seq -s , 1 3 9`10]"
+# 3dmaskdump -mask mask/sAmy.freesurfer+orig   \
+#   -mrange 1 15                                \
+#   -o 12blip/day1_Amy_beta_noblur.txt     \
+#   mask/sAmy.freesurfer+orig                \
+#   ${data_beta}"[`seq -s , 1 3 9`10]"
 
-3dmaskdump -mask mask/sAmy.freesurfer+orig   \
-  -mrange 1 15                                \
-  -o 12blip/day2_Amy_beta_noblur.txt     \
-  mask/sAmy.freesurfer+orig                \
-  S01.pabiode.results/NIerrts.S01.pabiode.odorVIva_noblur+orig"[`seq -s , 1 3 9`10]"
+# 3dmaskdump -mask mask/sAmy.freesurfer+orig   \
+#   -mrange 1 15                                \
+#   -o 12blip/day2_Amy_beta_noblur.txt     \
+#   mask/sAmy.freesurfer+orig                \
+#   S01.pabiode.results/NIerrts.S01.pabiode.odorVIva_noblur+orig"[`seq -s , 1 3 9`10]"
 
 # foreach region (1 3 5 6 7 8 9 10 15)
   # 3dROIstats -mask mask/Amy_${maskdec}${region}seg.freesurfer+orig \

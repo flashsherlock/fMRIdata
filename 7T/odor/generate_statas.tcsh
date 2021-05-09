@@ -69,6 +69,7 @@ set filedec = odorVIva_noblur
 set maskdec = align # at165 or align
 set data_tent=tent.${subj}.${filedec}+orig
 set data_beta=stats.${subj}+orig
+set data_beta_va=stats.${subj}.odorVIva+orig
 
 # make dir
 if (! -e ../../stats) then
@@ -104,6 +105,13 @@ end
     ${data_beta}"[`seq -s , 19 3 33`34,`seq -s , 20 3 34`35]"
     # -o option can not replace exsisting files
     # >! ../../stats/${sub}/sAmy_betadiff.txt
+
+# extract beta values from odor_va
+3dmaskdump -mask ../mask/sAmy.freesurfer+orig   \
+    -mrange 1 15                                \
+    -o ../../stats/${sub}/sAmy_betadiff_va.txt     \
+    ../mask/sAmy.freesurfer+orig                \
+    ${data_beta_va}"[`seq -s , 19 3 33`34,`seq -s , 20 3 34`35]"
 
 else
  echo "Usage: $0 <Subjname> <analysis>"

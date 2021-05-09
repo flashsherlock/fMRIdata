@@ -30,6 +30,7 @@ library(gridExtra)
 ggthemr('fresh',layout = "clean")
 ```
 
+# odor_va not excluded
 ```{r}
 ####################################################
 # function to extract beta difference from txt file
@@ -67,7 +68,7 @@ plotmap <- function(data,var,ys, ...){
 ```
 
 
-```{r}
+```{r,load}
 # sub i j k roi 6beta 6t
 data_diff <- data.frame(matrix(ncol = 1+16, nrow = 0))
 opair <- c("lim-tra","car-tra","cit-tra","car-lim","cit-lim","car-cit")
@@ -80,7 +81,7 @@ data_diff <- as.data.table(data_diff)
 
 ```
 
-```{r}
+```{r,plot}
 # row numbers
 ys <- 50
 # threshold
@@ -91,9 +92,11 @@ for (sub_i in params$sub) {
   data_diff_i <- subset(data_diff,sub == sub_i)
   # reverse lim-tra to tra-lim, but the column name remain unchanged
   data_diff_i$`b_lim-tra` <- -data_diff_i$`b_lim-tra`
+  # sort rows according to tra-lim
+  data_diff_i <- arrange(data_diff_i,desc(`b_lim-tra`))
   # set some voxels to 0 according to t value
   for (op in opair) {
-    # set unsignificant voxels to NA
+    # set insignificant voxels to NA
     data_diff_i[[paste0("b_",op)]] <- ifelse(abs(data_diff_i[[paste0("t_",op)]])<params$t,
                                              NA,
                                              data_diff_i[[paste0("b_",op)]])
@@ -120,7 +123,7 @@ for (sub_i in params$sub) {
   
   # avarage lim-car and cit-tra to show valence diff map
   i <- i+1
-  data_diff_i <- mutate(data_diff_i,addup=(-`b_car-lim`+`b_cit-tra`)/2)
+  data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
   figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
     # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
   labs(title = paste(sub_i,"addup",sep = "_"))+
@@ -131,3 +134,105 @@ for (sub_i in params$sub) {
 wrap_plots(figure,nrow = 4,guides = 'collect')
 ```
 
+# odor_va excluded
+```{r}
+####################################################
+# function to extract beta difference from txt file
+####################################################
+extractdata <- function(path,sub){
+data <- read.table(file.path(path,sub,"sAmy_betadiff_va.txt"))
+# add subject name to the first column
+data <- cbind(rep(sub,times=nrow(data)),data)
+return(data)
+}
+####################################################
+# function to plot beta difference map
+####################################################
+plotmap <- function(data,var,ys, ...){
+  # add x and y to data
+  voxels <- nrow(data)
+  xs <- ceiling( voxels/ys )
+  x = as.numeric( rep(1:xs,each=ys)[1:voxels] )
+  y = as.numeric( rep(1:ys,times=xs)[1:voxels] )
+  data <- cbind(data,x,y)
+  # plot
+  ggplot(data, aes(x,y))+
+    geom_raster(aes_(fill=as.name(var)))+
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0), trans = 'reverse') +
+    theme(panel.border = element_rect(size = 0,fill=NA),
+          plot.title = element_text(size = rel(1.2)),
+          axis.text = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank(),
+          legend.title = element_blank(),
+          axis.line=element_blank(),
+          legend.position = "right")
+}
+```
+
+```{r,load}
+# sub i j k roi 6beta 6t
+data_diff <- data.frame(matrix(ncol = 1+16, nrow = 0))
+opair <- c("lim-tra","car-tra","cit-tra","car-lim","cit-lim","car-cit")
+# extract data for each subject
+for (sub_i in params$sub) {
+  data_diff <- rbind(data_diff,extractdata(params$path,sub_i))
+}
+names(data_diff) <- c("sub","i","j","k","roi",paste("b",opair,sep = "_"),paste("t",opair,sep = "_"))
+data_diff <- as.data.table(data_diff)
+
+```
+
+```{r,plot}
+# row numbers
+ys <- 50
+# threshold
+# t <- 1.65
+figure <- list()
+i <- 0
+for (sub_i in params$sub) {
+  data_diff_i <- subset(data_diff,sub == sub_i)
+  # reverse lim-tra to tra-lim, but the column name remain unchanged
+  data_diff_i$`b_lim-tra` <- -data_diff_i$`b_lim-tra`
+  # sort rows according to tra-lim
+  data_diff_i <- arrange(data_diff_i,desc(`b_lim-tra`))
+  # set some voxels to 0 according to t value
+  for (op in opair) {
+    # set insignificant voxels to NA
+    data_diff_i[[paste0("b_",op)]] <- ifelse(abs(data_diff_i[[paste0("t_",op)]])<params$t,
+                                             NA,
+                                             data_diff_i[[paste0("b_",op)]])
+  }
+  
+  for (op in opair[c(1,4,5)]) {
+    i <- i+1
+    opn <- ifelse(op=="lim-tra","tra-lim",op)
+    figure[[i]] <- plotmap(data_diff_i,paste0("b_",op),ys) +
+        # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
+      labs(title = paste(sub_i,opn,sep = "_"))+
+      scale_fill_gradient2(low="blue", high="red",midpoint = 0, 
+        limits=c(-2, 2),oob = scales::squish)
+    # print(figure[[i]])
+  }
+  # average car-lim and cit-lim
+  # i <- i+1
+  # data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
+  # figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
+  #   # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
+  # labs(title = paste(sub_i,"addup",sep = "_"))+
+  # scale_fill_gradient2(low="blue", high="red",midpoint = 0, 
+  #   limits=c(-2, 2),oob = scales::squish)
+  
+  # avarage lim-car and cit-tra to show valence diff map
+  i <- i+1
+  data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
+  figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
+    # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
+  labs(title = paste(sub_i,"addup",sep = "_"))+
+  scale_fill_gradient2(low="blue", high="red",midpoint = 0,
+    limits=c(-2, 2),oob = scales::squish)
+}
+# do.call('grid.arrange',c(figure, ncol = 3))
+wrap_plots(figure,nrow = 4,guides = 'collect')
+```

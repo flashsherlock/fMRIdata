@@ -29,6 +29,7 @@ library(tidyr)
 library(ggprism)
 ggthemr('fresh',layout = "clean")
 google <-  c("#41AB5D","#4292C6","#5380E4","#FFBF03","#00B723","#E12A3C")
+gf_color <- c("#f0803b","#55b96f","#56a2d4","#ECB556")
 ```
 
 ```{r, include=FALSE}
@@ -192,7 +193,8 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
       labs(title = m ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
       geom_bar(position="dodge", stat="identity") +
       coord_cartesian(ylim=c(0,65)) +
-      scale_y_continuous(breaks=waiver(),expand = c(0,0))+
+      scale_y_continuous(breaks = scales::breaks_width(5),
+                         expand = c(0,0))+
       scale_x_discrete(labels=roiname)+
       geom_hline(yintercept=c(25,100*qbinom(0.95,n,0.25)/n), linetype="dotted")+
       scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
@@ -259,7 +261,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
         labs(title = paste(m,r,sep = "_") ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
         geom_bar(position="dodge", stat="identity") +
         coord_cartesian(ylim=c(0,100)) +
-        scale_y_continuous(breaks=waiver(),expand = c(0,0))+
+        scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
         scale_x_discrete(labels=roiname)+
         geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
         scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
@@ -268,6 +270,27 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
         theme_prism(base_line_size = 0.5)
       print(figure)
     }
+    # interested comparison
+    r <- paste0("2odors_",c("lim_tra","lim_car","lim_cit"))
+    acc2odor_r <- subset(acc2odor,odor %in% r)
+    datachosen <- describeBy(acc2odor_r$acc,list(acc2odor_r$odor,acc2odor_r$roi),mat=T)
+    datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+    names(datachosen) <- c("odor","roi","mean","se")
+    datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi))
+    datachosen <- mutate(datachosen,odor = factor(odor,levels=r,labels = c("lim_tra","lim_car","lim_cit")))
+    # plot
+    figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=odor)) + 
+      labs(title = m ,x='ROI',y='ACC',fill='Odor')+#设置坐标轴
+      geom_bar(position="dodge", stat="identity") +
+      coord_cartesian(ylim=c(0,100)) +
+      scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
+      scale_x_discrete(labels=roiname)+
+      geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
+      scale_fill_manual(values=gf_color[2:4])+ #颜色
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                    position=position_dodge(.9))+
+      theme_prism(base_line_size = 0.5)
+    print(figure)
   }
 ```
 
@@ -330,6 +353,41 @@ for (ana in analysis) {
         geom_text(aes(label=value), color="black") # printing values
       print(figure)
     }
+  }
+}
+```
+
+### errors
+```{r ,fig.height=5, fig.width=12}
+errors <- subset(matrix_all, odor == "lim" & prediction != "p_lim" | odor != "lim" & prediction == "p_lim")
+errors <- mutate(errors, error=str_extract(paste(odor,prediction,sep = "_"),"tra|car|cit"))
+errors <- mutate(errors, value=(1-value)*100)
+# calculate mean values
+errors <- aggregate(errors$value, list(errors$sub,errors$phy,errors$beta,errors$roi,errors$error), mean)
+names(errors) <- c("sub","phy","beta","roi","error","value")
+
+# plot
+for (ana in analysis) {
+  for (m in mvpa) {
+    # choose according to ana and m
+    error_i <- subset(errors,phy == ana & beta ==m)
+    datachosen <- describeBy(error_i$value,list(error_i$error,error_i$roi),mat=T)
+    datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+    names(datachosen) <- c("odor","roi","mean","se")
+    datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi))
+    datachosen <- mutate(datachosen,odor = factor(odor,levels=c("tra","car","cit"),
+                                                  labels = c("lim_tra","lim_car","lim_cit")))
+    figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=odor)) + 
+      labs(title = paste(m,ana,sep = "_") ,x='ROI',y='100-Error rate',fill='Odor')+#设置坐标轴
+      geom_bar(position="dodge", stat="identity") +
+      coord_cartesian(ylim=c(0,100)) +
+      scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
+      scale_x_discrete(labels=roiname)+
+      scale_fill_manual(values=gf_color[2:4])+ #颜色
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                    position=position_dodge(.9))+
+      theme_prism(base_line_size = 0.5)
+    print(figure)
   }
 }
 ```

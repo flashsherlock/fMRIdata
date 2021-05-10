@@ -64,6 +64,8 @@ rm ../mask/*at165*
 3dcalc -a Amy.seg_t165.freesurfer+orig -expr 'amongst(a,5,6)' -prefix ../mask/CeMeAmy_at165.freesurfer+orig
 # create lateralbasal amygdala mask
 3dcalc -a Amy.seg_t165.freesurfer+orig -expr 'amongst(a,1,3,8,15)' -prefix ../mask/BaLaAmy_at165.freesurfer+orig
+# create amygdala mask without AAA
+3dcalc -a Amy.seg_t165.freesurfer+orig -expr 'amongst(a,1,3,5,6,7,8,9,15)' -prefix ../mask/Amy8_at165.freesurfer+orig
 
 # create mask for each region
 foreach region (1 3 5 6 7 8 9 10 15)

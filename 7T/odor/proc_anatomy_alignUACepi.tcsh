@@ -137,6 +137,8 @@ end
 3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,5,6)' -prefix ../mask/CeMeAmy_align.freesurfer+orig
 # create lateralbasal amygdala mask
 3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,1,3,8,15)' -prefix ../mask/BaLaAmy_align.freesurfer+orig
+# creat amygdala mask without AAA
+3dcalc -a Amy.seg.freesurfer+orig -expr 'amongst(a,1,3,5,6,7,8,9,15)' -prefix ../mask/Amy8_align.freesurfer+orig
 # cp ../mask/corticalAmy_align* ../${sub}.paphde.results/../mask/
 # cp ../mask/corticalAmy_align* ../${sub}.pabiode.results/../mask/
 

@@ -39,7 +39,8 @@ odors <- c("lim","tra","car","cit")
 pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
 # WORD_SIZE <- 14
 pd <- position_dodge(0)
-roi_name <- c("La","Ba","Ce","Me","Co","AB","CAT","AAA","PL")
+roi_9 <- c("La","Ba","Ce","Me","Co","AB","CAT","AAA","PL")
+roi_name <- c("Amy","Cortical","CeMe","BaLa",roi_9)
 roi_color <- c("#4884b5","#cf3f4f","#c53cf8","#159515","#ddf9a6","#e89223","#143c78","#fafa30","#2dcda5")
 gf_color <- c("#4CA5CF","#F18549")
 gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556")
@@ -94,9 +95,11 @@ data <- data[seq(4,ncol(data),2)]
 sub <- sapply(strsplit(txtname,fixed=T,"/"),"[",7)
 data <- cbind(sub,data)
 # change column names
-setnames(data, old = c("NZcount_1","NZcount_3","NZcount_5","NZcount_6","NZcount_7","NZcount_8","NZcount_9","NZcount_10","NZcount_15"), new = roi_name, skip_absent=TRUE)
+setnames(data, old = c("NZcount_1","NZcount_3","NZcount_5","NZcount_6","NZcount_7","NZcount_8","NZcount_9","NZcount_10","NZcount_15"), new = roi_9, skip_absent=TRUE)
 # change to num
 data[2:ncol(data)] <- as.numeric(data[2:ncol(data)])
+# calculate 3 regions
+data <- mutate(data, BaLa=Ba+La+AB+PL,CeMe=Ce+Me,Cortical=Co+CAT,Amy=BaLa+CeMe+Cortical+AAA)
 # names(data)[1] <- "sub"
 return(data)
 }
@@ -239,8 +242,24 @@ data_voxel_act <- as.data.table(data_voxel_act)
 data_voxel_act$mask <- rep("activated",times=nrow(data_voxel_act))
 ```
 
-## Plot
+## With odor_va
 ```{r}
+data_voxel_va <- data.frame(matrix(ncol = 1+length(roi_name), nrow = 0))
+names(data_voxel_va) <- c("sub",roi_name)
+# load and plot voxel numbers for each subjecy
+for (sub_i in params$sub) {
+  txtname <- file.path(params$path,sub_i,"mask","voxels_va.txt")
+  data_voxel_va <- rbind.fill(data_voxel_va,extractvoxel(txtname))
+  # replace NA values with zeros
+  data_voxel_va[is.na(data_voxel_va)] <- 0
+}
+data_voxel_va <- as.data.table(data_voxel_va)
+# add mask field
+data_voxel_va$mask <- rep("odor_va",times=nrow(data_voxel_va))
+```
+
+## Plot_all-activated
+```{r fig.height=5, fig.width=12}
 data_voxel <- rbind(data_voxel_no,data_voxel_act)
 data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
 voxel_analyze <- describeBy(data_voxel$value,list(data_voxel$mask,data_voxel$variable),mat = TRUE)
@@ -253,8 +272,9 @@ gf_color <- c("#4CA5CF","#F18549")
 figure <- ggplot(datachosen,aes(x=roi,y=mean,fill=mask,
                                 group=interaction(roi,mask))) + 
   labs(title = str_to_title("voxel count") ,x='ROI',y="Mean",fill='Mask')+#设置坐标轴
-  scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(0,max(datachosen$mean)+20)) + 
+  # scale_y_continuous(expand = c(0,0),trans = "log2")+
+  scale_y_continuous(expand = c(0,0),breaks = scales::breaks_width(250))+
+  coord_cartesian(ylim=c(0,max(datachosen$mean)+250)) +
   # scale_fill_manual(values = colors[1:2])+ #颜色
   scale_fill_manual(values = gf_color)+ #自选颜色
   geom_bar(position="dodge", stat="identity")+
@@ -273,8 +293,9 @@ data_voxel <- mutate(data_voxel,variable = factor(variable,levels=roi_name))
 data_voxel <- mutate(data_voxel,mask = factor(mask,levels=c("all","activated")))
 figure <- ggplot(data_voxel, aes(x=variable, y=value, label=sub,
                             fill=mask,group=interaction(variable,mask))) + 
-  coord_cartesian(ylim=c(0,max(data_voxel$value)+20))+  # 设置y轴坐标范围
-  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(0,max(data_voxel$value)+250))+  # 设置y轴坐标范围
+  # scale_y_continuous(expand = c(0,0),trans = "log2")+
+  scale_y_continuous(expand = c(0,0),breaks = scales::breaks_width(250))+
   labs(title = str_to_title("voxel count") ,x='ROI',y='Voxel Count',fill='Mask')+#设置坐标轴
   geom_boxplot() +
   scale_fill_manual(values = gf_color)+ #自选颜色
@@ -288,5 +309,114 @@ print(figure)
 plotly_plots <- ggplotly(figure,tooltip = c("label","y"))%>%layout(boxmode="group")
 #输出交互式绘图的结果
 plotly_plots
+```
+
+## compute percentage
+```{r fig.height=5, fig.width=12}
+data_voxel <- rbind(data_voxel_no,data_voxel_act)
+data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
+data_voxel <- dcast(data_voxel,sub+variable~mask)
+data_voxel <- mutate(data_voxel,per=100*activated/all)
+# data_voxel <- subset(data_voxel,select = c(sub,))
+voxel_analyze <- describeBy(data_voxel$per,list(data_voxel$variable),mat = TRUE)
+datachosen <- subset(voxel_analyze,select = c(group1,mean,se))
+names(datachosen) <- c("roi","mean","se")
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+# bar plot
+gf_color <- c("#4CA5CF","#F18549")
+figure <- ggplot(datachosen,aes(x=roi,y=mean)) + 
+  labs(title = str_to_title("activated voxel percentage") ,x='ROI',y="Mean")+#设置坐标轴
+  # scale_y_continuous(expand = c(0,0),trans = "log2")+
+  scale_y_continuous(expand = c(0,0),breaks = scales::breaks_width(10))+
+  coord_cartesian(ylim=c(0,50)) +
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  geom_bar(position="dodge", stat="identity")+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))
+# print(figure)
+pfigure <- figure + theme_prism(base_line_size = 0.5)
+print(pfigure)
+```
+
+## Plot_all-odorva
+```{r fig.height=5, fig.width=12}
+data_voxel <- rbind(data_voxel_no,data_voxel_va)
+data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
+voxel_analyze <- describeBy(data_voxel$value,list(data_voxel$mask,data_voxel$variable),mat = TRUE)
+datachosen <- subset(voxel_analyze,select = c(group1,group2,mean,se))
+names(datachosen) <- c("mask","roi","mean","se")
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+datachosen <- mutate(datachosen,mask = factor(mask,levels=c("all","odor_va")))
+# bar plot
+gf_color <- c("#4CA5CF","#F18549")
+figure <- ggplot(datachosen,aes(x=roi,y=mean,fill=mask,
+                                group=interaction(roi,mask))) + 
+  labs(title = str_to_title("voxel count") ,x='ROI',y="Mean",fill='Mask')+#设置坐标轴
+  # scale_y_continuous(expand = c(0,0),trans = "log2")+
+  scale_y_continuous(expand = c(0,0),breaks = scales::breaks_width(250))+
+  coord_cartesian(ylim=c(0,max(datachosen$mean)+250)) +
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  geom_bar(position="dodge", stat="identity")+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))
+# print(figure)
+pfigure <- figure + theme_prism(base_line_size = 0.5)
+print(pfigure)
+
+# 箱线图
+# 建立一个list保存plotyly的结果
+plotly_plots <- htmltools::tagList()
+# ppc <- htmltools::div()  # Result is now an HTML object
+# change to factors
+data_voxel <- mutate(data_voxel,variable = factor(variable,levels=roi_name))
+data_voxel <- mutate(data_voxel,mask = factor(mask,levels=c("all","odor_va")))
+figure <- ggplot(data_voxel, aes(x=variable, y=value, label=sub,
+                            fill=mask,group=interaction(variable,mask))) + 
+  coord_cartesian(ylim=c(0,max(data_voxel$value)+250))+  # 设置y轴坐标范围
+  # scale_y_continuous(expand = c(0,0),trans = "log2")+
+  scale_y_continuous(expand = c(0,0),breaks = scales::breaks_width(250))+
+  labs(title = str_to_title("voxel count") ,x='ROI',y='Voxel Count',fill='Mask')+#设置坐标轴
+  geom_boxplot() +
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  geom_point(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
+             col=2,pch=16,cex=1)+
+  # geom_text(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
+  #                 aes(label=sub),hjust=-0.3,size=2)+ 
+  theme_prism(base_line_size = 0.5)
+print(figure)
+# 互动式的图
+plotly_plots <- ggplotly(figure,tooltip = c("label","y"))%>%layout(boxmode="group")
+#输出交互式绘图的结果
+plotly_plots
+```
+
+## compute percentage
+```{r fig.height=5, fig.width=12}
+data_voxel <- rbind(data_voxel_no,data_voxel_va)
+data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
+data_voxel <- dcast(data_voxel,sub+variable~mask)
+data_voxel <- mutate(data_voxel,per=100*odor_va/all)
+# data_voxel <- subset(data_voxel,select = c(sub,))
+voxel_analyze <- describeBy(data_voxel$per,list(data_voxel$variable),mat = TRUE)
+datachosen <- subset(voxel_analyze,select = c(group1,mean,se))
+names(datachosen) <- c("roi","mean","se")
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+# bar plot
+gf_color <- c("#4CA5CF","#F18549")
+figure <- ggplot(datachosen,aes(x=roi,y=mean)) + 
+  labs(title = str_to_title("activated voxel percentage") ,x='ROI',y="Mean")+#设置坐标轴
+  # scale_y_continuous(expand = c(0,0),trans = "log2")+
+  scale_y_continuous(expand = c(0,0),breaks = scales::breaks_width(10))+
+  coord_cartesian(ylim=c(0,50)) +
+  # scale_fill_manual(values = colors[1:2])+ #颜色
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  geom_bar(position="dodge", stat="identity")+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))
+# print(figure)
+pfigure <- figure + theme_prism(base_line_size = 0.5)
+print(pfigure)
 ```
 

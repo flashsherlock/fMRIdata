@@ -125,24 +125,19 @@ for (roi_i in roi_name) {
           limits=c(-2, 2),oob = scales::squish)
       # print(figure[[i]])
     }
-    # average car-lim and cit-lim
-    # i <- i+1
-    # data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
-    # figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
-    #   # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
-    # labs(title = paste(sub_i,"addup",sep = "_"))+
-    # scale_fill_gradient2(low="blue", high="red",midpoint = 0, 
-    #   limits=c(-2, 2),oob = scales::squish)
     
     # avarage lim-car and cit-tra to show valence diff map
     i <- i+1
+    # average car-lim and cit-lim
+    # data_diff_i <- mutate(data_diff_i,addup=(-`b_car-lim`+`b_cit-tra`)/2)
     data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
     # correlation to tra-lim
     r <- cor(subset(data_diff_i,select = c("b_lim-tra","addup")),use = "complete")[2]
     r <- round(r,digits = 2)
+    cap <- ifelse(i==length(params$sub)*4,roi_i,"")
     figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
       # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
-    labs(title = paste(sub_i,"addup",sep = "_"),subtitle=r,caption = roi_i)+
+    labs(title = paste(sub_i,"addup",sep = "_"),subtitle=r,caption = cap)+
     scale_fill_gradient2(low="blue", high="red",midpoint = 0,
       limits=c(-2, 2),oob = scales::squish)
   }
@@ -214,24 +209,15 @@ for (roi_i in roi_name) {
           limits=c(-2, 2),oob = scales::squish)
       # print(figure[[i]])
     }
-    # average car-lim and cit-lim
-    # i <- i+1
-    # data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
-    # figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
-    #   # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
-    # labs(title = paste(sub_i,"addup",sep = "_"))+
-    # scale_fill_gradient2(low="blue", high="red",midpoint = 0, 
-    #   limits=c(-2, 2),oob = scales::squish)
-    
-    # avarage lim-car and cit-tra to show valence diff map
     i <- i+1
     data_diff_i <- mutate(data_diff_i,addup=(`b_car-lim`+`b_cit-lim`)/2)
     # correlation to tra-lim
     r <- cor(subset(data_diff_i,select = c("b_lim-tra","addup")),use = "complete")[2]
     r <- round(r,digits = 2)
+    cap <- ifelse(i==length(params$sub)*4,roi_i,"")
     figure[[i]] <- plotmap(data_diff_i,"addup",ys) +
       # scale_fill_distiller(palette="Greens", direction=1,limits=c(-2, 2) )
-    labs(title = paste(sub_i,"addup",sep = "_"),subtitle=r,caption = roi_i)+
+    labs(title = paste(sub_i,"addup",sep = "_"),subtitle=r,caption = cap)+
     scale_fill_gradient2(low="blue", high="red",midpoint = 0,
       limits=c(-2, 2),oob = scales::squish)
   }

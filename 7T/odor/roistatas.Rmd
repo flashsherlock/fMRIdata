@@ -180,6 +180,8 @@ print(pfigure)
 
 ## Average sub and odor
 ```{r}
+# store tent for each roi
+roi_tent <- data.frame(matrix(ncol = 4, nrow = 0))
 for (region in params$roi) {
 # choose data
 datachosen <- subset(data_tent,roi==region)
@@ -207,7 +209,27 @@ figure_4 <- ggplot(datachosen, aes(x=time, y=mean,group=1)) +
 # print(figure_4)
 pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
 print(pfigure)
+# save datachosen to roi_tent
+datachosen <- cbind(datachosen,rep(region,each=nrow(datachosen)))
+roi_tent <- rbind(roi_tent,datachosen)
 }
+# change name
+names(roi_tent)[4] <- "roi"
+# plot time course
+figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) + 
+  labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
+  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(min(roi_tent$mean)-1,max(roi_tent$mean+1)),
+                  clip = 'off') + 
+  scale_color_brewer(palette = "Paired")+ #自选颜色
+  scale_x_discrete(expand = c(0,0))+
+  geom_line(position = pd) +
+  geom_hline(yintercept=0, linetype="dotted")+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_point(position = pd)
+# print(figure_4)
+pfigure <- figure_roi + theme_prism(base_line_size = 0.5)
+print(pfigure)
 ```
 # Voxel numbers
 ## Without activation mask

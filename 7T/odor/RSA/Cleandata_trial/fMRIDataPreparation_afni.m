@@ -112,9 +112,11 @@ if overwriteFlag
             userOptions.afni.files.name=get_name_afni(userOptions,readPath,subject);
             userOptions.afni.files.mask='all voxels';
             brainMatrix = decoding_load_data(userOptions.afni);
-            % reshape to （voxel,condition,session）
-            fullBrainVols.(thisSubject) = reshape(brainMatrix.data',[],nConditions,nSessions);
-            
+            % reshape to （voxel,session,condition）, because files are
+            % organized by odors
+            fullBrainVols.(thisSubject) = reshape(brainMatrix.data',[],nSessions,nConditions);
+            % switch condition and session dimension
+            fullBrainVols.(thisSubject) = permute(fullBrainVols.(thisSubject), [1 3 2]);
         else   % original code         
 		for session = 1:nSessions % For each session...
 			for condition = 1:nConditions % and each condition...

@@ -92,7 +92,7 @@ if overwriteFlag
 			readPath = replaceWildcards(userOptions.maskPath, '[[subjectName]]', subject, '[[maskName]]', mask);
 			% load data from afni
             if isfield(userOptions,'afni')
-                    userOptions.afni.files.name=readPath;
+                    userOptions.afni.files.name=get_filenames_afni(readPath);
                     userOptions.afni.files.mask='all voxels';
                     maskMatrix = decoding_load_data(userOptions.afni);
                     maskMatrix = maskMatrix.data;

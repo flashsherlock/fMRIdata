@@ -1,34 +1,31 @@
 #! /bin/csh
+foreach sub (S01_yyt S01 S02 S03)
+# set sub=S01_yyt
+set analysis=pabiode
 
-set sub=S01_yyt
-set analysis=pade
-
-set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
 cd ${sub}.${analysis}.results
 
-# apply masks to stats
-cd mvpamask
-foreach mask (corticalAmy corticalAmy_align Amy_9seg Amy_align9seg)
-    3dcalc -a ../stats.${sub}.${analysis}.odorVI+orig -b ${mask}.freesurfer+orig -expr 'a*b' -prefix ../stats_mask.${mask}
-end
-# 3dcalc -a APC.${sub}.${analysis}+orig -b PPC_Amy.${sub}.${analysis}+orig -expr 'a+b+notzero(b)' -prefix ${sub}.ROI
+# resample Piriform mask
+3dresample  -input COPY_anat_final.${sub}.${analysis}+orig      \
+            -master stats.${sub}.${analysis}+orig               \
+            -rmode NN                                           \
+            -prefix Piriform.seg
+# creat piriform mask
+3dcalc -a Piriform.seg+orig -expr 'amongst(a,21,22,29)' -prefix ../mask/Pir_new.draw+orig
+# creat old piriform mask
+3dcalc -a Piriform.seg+orig -expr 'amongst(a,21,22)' -prefix ../mask/Pir_old.draw+orig
+# create APC_new
+3dcalc -a Piriform.seg+orig -expr 'amongst(a,21,29)' -prefix ../mask/APC_new.draw+orig
+# create APC_old
+3dcalc -a Piriform.seg+orig -expr 'amongst(a,21)' -prefix ../mask/APC_old.draw+orig
+# creat PPC
+3dcalc -a Piriform.seg+orig -expr 'amongst(a,22)' -prefix ../mask/PPC.draw+orig
 
-# iszero and not can be used to extract certain area
-# 3dcalc -a ${sub}.ROI+orig -expr 'iszero(a-1)' -prefix APC.${sub}
-# 3dcalc -a ${sub}.ROI+orig -expr 'iszero(a-2)' -prefix PPC.${sub}
-# 3dcalc -a ${sub}.ROI+orig -expr 'iszero(a-3)' -prefix Amy.${sub}
 
-# 3dcalc -a APC.${sub}+orig -b PPC.${sub}+orig -expr 'a+b' -prefix Piriform.${sub} 
 
-# foreach mask (`ls {APC,PPC,Amy,Piriform}.${sub}+orig.HEAD`)
-#     # echo ${mask}
-#     3dresample  -input ${mask}                       \
-#                 -master pb07.${sub}.${analysis}.r01.scale+orig.HEAD      \
-#                 -rmode NN                                \
-#                 -prefix ./mvpamask/${mask}      
-# end
 
 # normalize Anatomical img to mni space
 # @auto_tlrc -no_ss -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${sub}.${analysis}+orig
@@ -60,3 +57,4 @@ end
 # #              -prefix ../${sub}.${analysis}.results/mvpamask/${name}+tlrc
 # end
 
+end

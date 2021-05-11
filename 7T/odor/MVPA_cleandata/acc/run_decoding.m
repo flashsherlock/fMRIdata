@@ -1,9 +1,11 @@
 analysis_all={'pabiode'};
 shift=6;
-rois={'Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'};
-for region=[1 3 5 6 7 8 9 10 15]
-    rois=[rois {['Amy_align' num2str(region) 'seg']}];
-end
+% rois={'Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'};
+% for region=[1 3 5 6 7 8 9 10 15]
+%     rois=[rois {['Amy_align' num2str(region) 'seg']}];
+% end
+% piriform roi
+rois={'Amy8_align','Pir_new','Pir_old','APC_new','APC_old','PPC'};
 % S01_yyt
 sub='S01_yyt';
 decoding_roi_4odors_trial(sub,analysis_all,rois,shift);

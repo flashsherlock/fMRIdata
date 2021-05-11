@@ -74,11 +74,11 @@ userOptions.afni.software = 'AFNI';
 	userOptions.maskPath = [datafolder filesep '[[subjectName]]' '/mask/[[maskName]].*orig.HEAD'];%'/imaging/mb01/lexpro/multivariate/ffx_simple/[[subjectName]]/[[maskName]].img';
 		
 		% The list of mask filenames (minus .hdr extension) to be used.
-% 		userOptions.maskNames = {'Amy','Piriform','APC','PPC'};
-        userOptions.maskNames={'Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'};
-        for region=[1 3 5 6 7 8 9 10 15]
-            userOptions.maskNames=[userOptions.maskNames {['Amy_align' num2str(region) 'seg']}];
-        end
+		userOptions.maskNames = {'Pir_new','Pir_old','APC_new','APC_old','PPC'};
+        userOptions.maskNames=[userOptions.maskNames {'Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'}];
+%         for region=[1 3 5 6 7 8 9 10 15]
+%             userOptions.maskNames=[userOptions.maskNames {['Amy_align' num2str(region) 'seg']}];
+%         end
 %         userOptions.maskNames={'Amy9_at165','corticalAmy_at165'};
 %         for region=[1 3 7 8 9 10 15]
 %             userOptions.maskNames=[userOptions.maskNames {['Amy_at165' num2str(region) 'seg']}];

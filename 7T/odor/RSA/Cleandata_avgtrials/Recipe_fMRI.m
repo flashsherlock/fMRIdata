@@ -47,14 +47,14 @@ end
 rsa.figureRDMs(RDMs, userOptions, struct('fileName', 'RoIRDMs', 'figureNumber', 1));
 % save model RDMs
 rsa.figureRDMs(Models(:,1), userOptions, struct('fileName', 'ModelRDMs', 'figureNumber', 2));
-saveas(gcf, 'model_yyt.jpg');
+saveas(gcf, [userOptions.rootPath filesep 'model_yyt.jpg']);
 for i=2:4
     rsa.figureRDMs(Models(:,i), userOptions, struct('fileName', 'ModelRDMs', 'figureNumber', 2));
-    saveas(gcf, ['model' num2str(i-1) '.jpg']);
+    saveas(gcf, [userOptions.rootPath filesep 'model' num2str(i-1) '.jpg']);
 end
 
 rsa.figureRDMs(Modelsavg, userOptions, struct('fileName', 'ModelRDMs', 'figureNumber', 2));
-saveas(gcf, 'model_avg.jpg');
+saveas(gcf, [userOptions.rootPath filesep 'model_avg.jpg']);
 
 rsa.MDSConditions(RDMs, userOptions);
 rsa.dendrogramConditions(RDMs, userOptions);
@@ -64,12 +64,12 @@ rsa.dendrogramConditions(RDMs, userOptions);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % calculate averaged correlation using model RDMs
 corrmat=rsa.pairwiseCorrelateRDMs({RDMs, Modelsavg}, userOptions);
-saveas(gcf, 'pair_avg.jpg');
+saveas(gcf, [userOptions.rootPath filesep 'pair_avg.jpg']);
 % allocate space for results
 corrmat=repmat(corrmat,[1 1 4]);
 for i=1:4
     corrmat(:,:,i)=rsa.pairwiseCorrelateRDMs({sRDMs(:,i), Models(:,i)}, userOptions);
-    saveas(gcf, ['pair' num2str(i) '.jpg']);
+    saveas(gcf, [userOptions.rootPath filesep 'pair' num2str(i) '.jpg']);
 end
 % average correlation matrices
 mcorr=nanmean(corrmat,3);
@@ -77,10 +77,11 @@ mcorr=nanmean(corrmat,3);
 figure;
 imagesc(mcorr,[-1 1]);
 % set color
+import rsa.fig.*
 cols=colorScale([0 0 1; 0.5 0.5 0.5; 1 0 0],256);
 colormap(cols); colorbar;
 axis square off;
-saveas(gcf, 'pair_sub_mean.jpg');
+saveas(gcf, [userOptions.rootPath filesep 'pair_sub_mean.jpg']);
 % could not plot MDS, disparities undefined (maybe caused by distance measures in useroptions)
 % rsa.MDSRDMs({RDMs, Models}, userOptions);
 

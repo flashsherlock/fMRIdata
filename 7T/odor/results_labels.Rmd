@@ -26,7 +26,9 @@ library(plotly)
 library(R.matlab)
 library(dplyr)
 library(tidyr)
-ggthemr('fresh',layout = "clean")
+library(ggprism)
+# ggthemr('fresh',layout = "clean")
+theme_set(theme_prism(base_line_size = 0.5))
 google <-  c("#4CA5CF","#4292C6","#41AB5D","#5380E4","#FFBF03","#00B723","#E12A3C")
 gf_color <- c("#f0803b","#55b96f","#56a2d4","#ECB556")
 ```
@@ -241,19 +243,22 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
       print(figure)
     }
     # interested comparison
-    r <- paste0("2odors_",c("lim_tra","lim_car","lim_cit"))
-    acc2odor_r <- subset(acc2odor,odor %in% r)
-    # plot
-    figure <- ggplot(datachosen, aes(x=roi, y=acc, fill=odor)) + 
-      labs(title = paste(m,r,sep = "_") ,x='ROI',y='ACC',fill='Odor')+#设置坐标轴
-      geom_bar(position="dodge", stat="identity") +
-      coord_cartesian(ylim=c(0,100)) +
-      scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
-      scale_x_discrete(labels=roiname)+
-      geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
-      scale_fill_manual(values=gf_color[2:4])+ #颜色
-      theme_prism(base_line_size = 0.5)
-    print(figure)
+    for (ana in analysis) {
+      r <- paste0("2odors_",c("lim_tra","lim_car","lim_cit"))
+      acc2odor_r <- subset(acc2odor,odor %in% r)
+      acc2odor_r <- mutate(acc2odor_r,roi = factor(roi,levels=params$roi))
+      acc2odor_r <- mutate(acc2odor_r,odor = factor(odor,levels=r,labels = c("lim_tra","lim_car","lim_cit")))
+      # plot
+      figure <- ggplot(acc2odor_r, aes(x=roi, y=acc, fill=odor)) + 
+        labs(title = paste(m,ana,sep = "_") ,x='ROI',y='ACC',fill='Odor')+#设置坐标轴
+        geom_bar(position="dodge", stat="identity") +
+        coord_cartesian(ylim=c(0,100)) +
+        scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
+        scale_x_discrete(labels=roiname)+
+        geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
+        scale_fill_manual(values=gf_color[2:4]) #颜色
+      print(figure)
+    }
   }
 # }
 ```

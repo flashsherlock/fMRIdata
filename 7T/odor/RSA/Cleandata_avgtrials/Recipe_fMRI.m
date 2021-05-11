@@ -38,7 +38,7 @@ end
 Models =Models';
 Modelsavg = Models(:,1);
 for i=1:length(Modelsavg)
-    Modelsavg(i).RDM=mean(reshape([Models(i,:).RDM],4,4,[]),3);
+    Modelsavg(i).RDM=mean(reshape([Models(i,:).RDM],192/userOptions.sessions,192/userOptions.sessions,[]),3);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% First-order visualisation %%

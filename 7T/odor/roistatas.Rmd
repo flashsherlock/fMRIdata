@@ -2,9 +2,11 @@
 output: html_document
 params:
     path: "/Volumes/WD_E/gufei/7T_odor/"
-    roi: !r c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
+    roi: !r c('Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align','Pir_new','Pir_old','APC_new','APC_old','PPC')
+    roiname: !r c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
     sub: !r c("S01_yyt",sprintf('S%02d',c(1:3)))
     suffix: "_tent.txt"
+    rname: !r c('odor_va_trial','odor_trial')
 title: "ROIs"
 author: "Fei"
 date: "`r Sys.time()`"
@@ -104,6 +106,59 @@ data <- mutate(data, BaLa=Ba+La+AB+PL,CeMe=Ce+Me,Cortical=Co+CAT,Amy=BaLa+CeMe+C
 return(data)
 }
 ```
+
+# Correlation
+```{r fig.height=5, fig.width=12}
+readrclass <- function(txtname){
+  rclass <- readMat(file.path(params$path,'results_RSA',paste0(txtname,'.mat')))
+  label <- unlist(rclass$label)
+  results <- rclass$results
+  rclass <- separate(data.frame(results,label),label,c('roi','sub','r','run'),sep = "\\s?\\|\\s?")
+  return(rclass)
+}
+
+for (t in params$rname) {
+  rclass <- readrclass(t)
+  runs <- unique(rclass$run)
+  for (ir in runs) {
+    datachosen <- subset(rclass,run==ir&r!="diff")
+    datachosen <- describeBy(datachosen$results,list(datachosen$r,datachosen$roi),mat=T)
+    datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+    names(datachosen) <- c("odor","roi","mean","se")
+    datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi,labels = params$roiname))
+    datachosen <- mutate(datachosen,odor = factor(odor,levels=c("within","between")))
+    # plot
+    figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=odor)) + 
+      labs(title = paste(t,ir,sep = "_"),x='ROI',y='Correlation',fill='Odor')+#设置坐标轴
+      geom_bar(position="dodge", stat="identity") +
+      scale_y_continuous(expand = c(0,0))+
+      scale_fill_manual(values = c("#4CA5CF","#F18549"))+ #颜色
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                  position=position_dodge(.9))+
+      theme_prism(base_line_size = 0.5)
+    print(figure)
+  }
+  # plot diff
+  datachosen <- subset(rclass,r=="diff")
+  datachosen <- describeBy(datachosen$results,list(datachosen$run,datachosen$roi),mat=T)
+  datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+  names(datachosen) <- c("run","roi","mean","se")
+  datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi,labels = params$roiname))
+  datachosen <- mutate(datachosen,run = factor(run,levels=runs,label=c("all","within","between")))
+  # plot
+  figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=run)) + 
+    labs(title = t,x='ROI',y='Correlation',fill='Run')+#设置坐标轴
+    geom_bar(position="dodge", stat="identity") +
+    scale_y_continuous(expand = c(0,0))+
+    scale_fill_brewer(palette = "Paired")+ #颜色
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+    theme_prism(base_line_size = 0.5)
+  print(figure)
+}
+```
+
+
 # Time course
 
 ## load data

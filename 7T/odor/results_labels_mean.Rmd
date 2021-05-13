@@ -273,7 +273,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
     # interested comparison
     for (ana in analysis) {
       r <- paste0("2odors_",c("lim_tra","lim_car","lim_cit"))
-      acc2odor_r <- subset(acc2odor,odor %in% r)
+      acc2odor_r <- subset(acc2odor,phy == ana & odor %in% r)
       datachosen <- describeBy(acc2odor_r$acc,list(acc2odor_r$odor,acc2odor_r$roi),mat=T)
       datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
       names(datachosen) <- c("odor","roi","mean","se")

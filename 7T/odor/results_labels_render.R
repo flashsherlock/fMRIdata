@@ -29,6 +29,12 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/roistatas.Rmd",
                   output_file = paste0("ROIstatas_va"),
                   params = list(sub = subs, roi = roi, suffix = suffix))
 
+# render diffmap
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/diffmap.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("diffmap"),
+                  params = list(sub = subs, roi = roi))
+
 # S01 compare run
 i_sub <- "S01"
 analysis <- c("pabiode","pabio5r","pabio12run","pabio11run")

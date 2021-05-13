@@ -8,6 +8,7 @@ params:
     roi: !r c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
     sub: !r c("S01_yyt",sprintf('S%02d',c(1:3)))
     t: 0
+    threshold: 1.65
 ---
 
 ```{r, setup, include=FALSE}
@@ -35,11 +36,39 @@ ggthemr('fresh',layout = "clean")
 ####################################################
 # function to extract beta difference from txt file
 ####################################################
-extractdata <- function(path,sub){
-data <- read.table(file.path(path,sub,"sAmy_betadiff.txt"))
-# add subject name to the first column
-data <- cbind(rep(sub,times=nrow(data)),data)
-return(data)
+extractdata <- function(path,sub,txtname){
+  data <- read.table(file.path(path,sub,txtname))
+  # add subject name to the first column
+  data <- cbind(rep(sub,times=nrow(data)),data)
+  return(data)
+}
+####################################################
+# function to calculate activated voxels
+####################################################
+calcact <- function(data_diff,roilist,threshold){
+  c <- ifelse(dim(data_diff)[2]==17,6,7)
+  data <- data.frame(matrix(ncol = c, nrow = 0))
+  
+  for (roi_i in names(roilist)) {
+  # select ROI
+  roi_label <- roilist[[roi_i]]
+  data_diff_r <- subset(data_diff,roi %in% roi_label,select = c((6+c):(5+c+c)))
+  subs <- subset(data_diff,roi %in% roi_label,select = 1)
+  # check if activated
+  data_diff_r <- ifelse(abs(data_diff_r)>threshold,1,0)
+  act <- cbind(subs,rep(1,times=nrow(subs)),data_diff_r)
+  # calculate number and ratio
+  number <- aggregate(.~sub, act, sum)
+  ratio <- aggregate(.~sub, act, mean)
+  # add roi name
+  act <- cbind(rep(roi_i,times=nrow(number)),number,ratio[c(3:(2+c))])
+  data <- rbind(data,act)
+  }
+  names(data)[1:3] <- c("roi","sub","all")
+  names(data)[c(4:(3+c))] <- str_replace(names(data)[c(4:(3+c))],"t_","c_")
+  names(data)[c((4+c):(3+c+c))] <- str_replace(names(data)[c((4+c):(3+c+c))],"t_","r_")
+  data <- reshape2::melt(data,c("sub","roi"))
+  return(data)
 }
 ####################################################
 # function to plot beta difference map
@@ -66,28 +95,34 @@ plotmap <- function(data,var,ys, ...){
           legend.position = "right")
 }
 # roi labels
-roi_name <- c("Amy","BaLa","CeMe","Cortical")
-A <- c(1,3,5,6,7,8,9,10,15)
+roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
+A <- c(1,3,5,6,7,8,9,15)
 B <- c(1,3,8,15)
 Ce <- c(5,6)
 Co <- c(7,9)
-roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co)
+Pn <- c(21,22,29)
+Po <- c(21,22)
+An <- c(21,29)
+Ao <- 21
+PPC <- 22
+roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
 ```
 
 
-```{r,load}
+```{r}
 # sub i j k roi 6beta 6t
 data_diff <- data.frame(matrix(ncol = 1+16, nrow = 0))
 opair <- c("lim-tra","car-tra","cit-tra","car-lim","cit-lim","car-cit")
 # extract data for each subject
 for (sub_i in params$sub) {
-  data_diff <- rbind(data_diff,extractdata(params$path,sub_i))
+  data_diff <- rbind(data_diff,extractdata(params$path,sub_i,"sAmy_betadiff.txt"))
+  data_diff <- rbind(data_diff,extractdata(params$path,sub_i,"sPir_betadiff.txt"))
 }
 names(data_diff) <- c("sub","i","j","k","roi",paste("b",opair,sep = "_"),paste("t",opair,sep = "_"))
 data_diff <- as.data.table(data_diff)
 ```
 
-```{r,plot}
+```{r}
 for (roi_i in roi_name) {
   # select ROI
   roi_label <- roilist[[roi_i]]
@@ -146,32 +181,62 @@ for (roi_i in roi_name) {
 }
 ```
 
-# odor_va excluded
-```{r}
-####################################################
-# function to extract beta difference from txt file
-####################################################
-extractdata <- function(path,sub){
-data <- read.table(file.path(path,sub,"sAmy_betadiff_va.txt"))
-# add subject name to the first column
-data <- cbind(rep(sub,times=nrow(data)),data)
-return(data)
-}
+## activated voxels
+```{r fig.height=5, fig.width=12}
+data_act <- calcact(data_diff,roilist,params$threshold)
+s <- c("all",paste0("c_",c("lim-tra","car-lim","cit-lim")))
+data_act_mean <- describeBy(data_act$value,list(data_act$variable,data_act$roi),mat=T)
+data_act_mean <- subset(data_act_mean,select = c(group1,group2,mean,se))
+names(data_act_mean) <- c("voxels","roi","mean","se")
+data_act_mean <- mutate(data_act_mean,roi = factor(roi,levels=roi_name))
+datachosen <- subset(data_act_mean,voxels %in% s)
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("all","lim-tra","lim-car","lim-cit")))
+# plot
+gf_color <- c("#f0803b","#55b96f","#56a2d4","#ECB556")
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[1:4])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# ratio
+s <- c(paste0("r_",c("lim-tra","car-lim","cit-lim")))
+datachosen <- subset(data_act_mean,voxels %in% s)
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("lim-tra","lim-car","lim-cit")))
+# plot
+gf_color <- c("#55b96f","#56a2d4","#ECB556")
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[1:4])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
 ```
 
-```{r,load}
+
+# odor_va excluded
+
+```{r}
 # sub i j k roi 6beta 6t
-data_diff <- data.frame(matrix(ncol = 1+16, nrow = 0))
+data_diff <- data.frame(matrix(ncol = 1+18, nrow = 0))
 opair <- c("lim-tra","car-tra","cit-tra","car-lim","cit-lim","car-cit")
 # extract data for each subject
 for (sub_i in params$sub) {
-  data_diff <- rbind(data_diff,extractdata(params$path,sub_i))
+  data_diff <- rbind(data_diff,extractdata(params$path,sub_i,"sAmy_betadiff_va.txt"))
+  data_diff <- rbind(data_diff,extractdata(params$path,sub_i,"sPir_betadiff_va.txt"))
 }
-names(data_diff) <- c("sub","i","j","k","roi",paste("b",opair,sep = "_"),paste("t",opair,sep = "_"))
+names(data_diff) <- c("sub","i","j","k","roi","va",paste("b",opair,sep = "_"),"t_va",paste("t",opair,sep = "_"))
 data_diff <- as.data.table(data_diff)
 ```
 
-```{r,plot}
+```{r}
 for (roi_i in roi_name) {
   # select ROI
   roi_label <- roilist[[roi_i]]
@@ -224,4 +289,74 @@ for (roi_i in roi_name) {
   # do.call('grid.arrange',c(figure, ncol = 3))
   print(wrap_plots(figure,nrow = 4,guides = 'collect'))
 }
+```
+
+## activated voxels
+```{r fig.height=5, fig.width=12}
+data_act <- calcact(data_diff,roilist,params$threshold)
+s <- c("all",paste0("c_",c("lim-tra","car-lim","cit-lim")))
+data_act_mean <- describeBy(data_act$value,list(data_act$variable,data_act$roi),mat=T)
+data_act_mean <- subset(data_act_mean,select = c(group1,group2,mean,se))
+names(data_act_mean) <- c("voxels","roi","mean","se")
+data_act_mean <- mutate(data_act_mean,roi = factor(roi,levels=roi_name))
+datachosen <- subset(data_act_mean,voxels %in% s)
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("all","lim-tra","lim-car","lim-cit")))
+# plot
+gf_color <- c("#f0803b","#55b96f","#56a2d4","#ECB556")
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[1:4])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# all and va
+datachosen <- subset(data_act_mean,voxels %in% c("all","c_va"))
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=c("all","c_va"),labels = c("all","valence")))
+# plot
+gf_color <- c("#4CA5CF","#F18549")
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[1:4])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# ratio
+s <- c("r_va",paste0("r_",c("lim-tra","car-lim","cit-lim")))
+datachosen <- subset(data_act_mean,voxels %in% s)
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("valence","lim-tra","lim-car","lim-cit")))
+# plot
+gf_color <- c("#f0803b","#55b96f","#56a2d4","#ECB556")
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[1:4])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# ratio without va
+s <- c(paste0("r_",c("lim-tra","car-lim","cit-lim")))
+datachosen <- subset(data_act_mean,voxels %in% s)
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("lim-tra","lim-car","lim-cit")))
+# plot
+gf_color <- c("#55b96f","#56a2d4","#ECB556")
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[1:4])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
 ```

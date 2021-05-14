@@ -21,3 +21,9 @@ Do MVPA with 4, 11, or 12 runs (change variable `timing`).
 
 ## compare2day.tcsh
 Compare 2 days of results of S01. 
+
+## compr.m
+Calculate correlations between two sessions.
+
+## Cleandata*
+RSA for 11 runs.

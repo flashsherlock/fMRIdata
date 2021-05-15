@@ -64,9 +64,12 @@ calcact <- function(data_diff,roilist,threshold){
   act <- cbind(rep(roi_i,times=nrow(number)),number,ratio[c(3:(2+c))])
   data <- rbind(data,act)
   }
+  # change column names
   names(data)[1:3] <- c("roi","sub","all")
   names(data)[c(4:(3+c))] <- str_replace(names(data)[c(4:(3+c))],"t_","c_")
   names(data)[c((4+c):(3+c+c))] <- str_replace(names(data)[c((4+c):(3+c+c))],"t_","r_")
+  # change to percentage
+  data[c((4+c):(3+c+c))] <- data[c((4+c):(3+c+c))]*100
   data <- reshape2::melt(data,c("sub","roi"))
   return(data)
 }
@@ -210,7 +213,7 @@ datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("lim-
 # plot
 gf_color <- c("#55b96f","#56a2d4","#ECB556")
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
-  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  labs(x='ROI',y='Percentage',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
   scale_fill_manual(values=gf_color[1:4])+ #颜色
@@ -335,10 +338,23 @@ datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("vale
 # plot
 gf_color <- c("#f0803b","#55b96f","#56a2d4","#ECB556")
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
-  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  labs(x='ROI',y='Percentage',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
   scale_fill_manual(values=gf_color[1:4])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# ratio
+s <- c("r_va")
+datachosen <- subset(data_act_mean,voxels %in% s)
+# plot
+figure <- ggplot(datachosen, aes(x=roi, y=mean)) + 
+  labs(x='ROI',y='Percentage',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                 position=position_dodge(.9))+
   theme_prism(base_line_size = 0.5)
@@ -351,7 +367,7 @@ datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("lim-
 # plot
 gf_color <- c("#55b96f","#56a2d4","#ECB556")
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
-  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  labs(x='ROI',y='Percentage',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
   scale_fill_manual(values=gf_color[1:4])+ #颜色

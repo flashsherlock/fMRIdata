@@ -6,7 +6,6 @@ params:
     roiname: !r c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
     sub: !r c("S01_yyt",sprintf('S%02d',c(1:3)))
     suffix: "_tent.txt"
-    rname: !r c('odor_va_trial','odor_trial')
 title: "ROIs"
 author: "Fei"
 date: "`r Sys.time()`"
@@ -116,8 +115,8 @@ readrclass <- function(txtname){
   rclass <- separate(data.frame(results,label),label,c('roi','sub','r','run'),sep = "\\s?\\|\\s?")
   return(rclass)
 }
-
-for (t in params$rname) {
+rname <- ifelse(params$suffix=='_tentva.txt','odor_va_trial','odor_trial')
+for (t in rname) {
   rclass <- readrclass(t)
   runs <- unique(rclass$run)
   for (ir in runs) {
@@ -126,7 +125,7 @@ for (t in params$rname) {
     datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
     names(datachosen) <- c("odor","roi","mean","se")
     datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi,labels = params$roiname))
-    datachosen <- mutate(datachosen,odor = factor(odor,levels=c("within","between")))
+    datachosen <- mutate(datachosen,odor = factor(odor,levels=c("within","between"),labels=c("within-class","between-class")))
     # plot
     figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=odor)) + 
       labs(title = paste(t,ir,sep = "_"),x='ROI',y='Correlation',fill='Odor')+#设置坐标轴
@@ -144,10 +143,10 @@ for (t in params$rname) {
   datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
   names(datachosen) <- c("run","roi","mean","se")
   datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi,labels = params$roiname))
-  datachosen <- mutate(datachosen,run = factor(run,levels=runs,label=c("all","within","between")))
+  datachosen <- mutate(datachosen,run = factor(run,levels=runs,label=c("all","within-run","between-run")))
   # plot
   figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=run)) + 
-    labs(title = t,x='ROI',y='Correlation',fill='Run')+#设置坐标轴
+    labs(title = t,x='ROI',y='Correlation difference',fill='Run')+#设置坐标轴
     geom_bar(position="dodge", stat="identity") +
     scale_y_continuous(expand = c(0,0))+
     scale_fill_brewer(palette = "Paired")+ #颜色
@@ -270,6 +269,8 @@ roi_tent <- rbind(roi_tent,datachosen)
 }
 # change name
 names(roi_tent)[4] <- "roi"
+# set levels
+roi_tent$roi <- factor(roi_tent$roi,levels = params$roi,labels = params$roiname)
 # plot time course
 figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) + 
   labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
@@ -336,7 +337,7 @@ data_voxel_va$mask <- rep("odor_va",times=nrow(data_voxel_va))
 ```
 
 ## Plot_all-activated
-```{r fig.height=5, fig.width=12}
+```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
 data_voxel <- rbind(data_voxel_no,data_voxel_act)
 data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
 voxel_analyze <- describeBy(data_voxel$value,list(data_voxel$mask,data_voxel$variable),mat = TRUE)
@@ -389,7 +390,7 @@ plotly_plots
 ```
 
 ## compute percentage
-```{r fig.height=5, fig.width=12}
+```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
 data_voxel <- rbind(data_voxel_no,data_voxel_act)
 data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
 data_voxel <- dcast(data_voxel,sub+variable~mask)
@@ -417,7 +418,7 @@ print(pfigure)
 ```
 
 ## Plot_all-odorva
-```{r fig.height=5, fig.width=12}
+```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
 data_voxel <- rbind(data_voxel_no,data_voxel_va)
 data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
 voxel_analyze <- describeBy(data_voxel$value,list(data_voxel$mask,data_voxel$variable),mat = TRUE)
@@ -470,7 +471,7 @@ plotly_plots
 ```
 
 ## compute percentage
-```{r fig.height=5, fig.width=12}
+```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
 data_voxel <- rbind(data_voxel_no,data_voxel_va)
 data_voxel <- melt(id.vars=c("sub","mask"),data_voxel)
 data_voxel <- dcast(data_voxel,sub+variable~mask)

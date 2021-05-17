@@ -10,7 +10,7 @@ Generate timing files for each run and a file including all runs.
 Generate timing files for odor valence (amplitude modulated).
 
 ## analyze_timing_valence_avg.m
-Generate timing files for averaged odor valence (amplitude modulated).
+Generate timing files that contain averaged odor valence for each run (amplitude modulated).
 
 ## analyze_timing_rating.m
 Generate timing files for the presentation of cue words.

@@ -47,32 +47,15 @@ end
 
 % compute new valence
 function va=changeva(result)
-% change rating results intensity->0
-result(result(:,2)==2,6)=0;
 va=result(:,6);
 % odor numbers
 odors=unique(result(:,1));    
 % for each odor, find timing
 for oi=1:length(odors)
-    odor=odors(oi);        
-    valence=result(result(:,1)==odor,6);
-    position=find(result(:,1)==odor);
-    % interval
-    d_before=[999;diff(position)];
-    d_after=[diff(position);999];
-    % zero positions
-    zero=find(valence==0);
-    for i=zero'
-        if d_before(i)==d_after(i)
-            valence(i)=mean(valence(i-1),valence(i+1));
-        % close to the next one
-        elseif d_before(i)>d_after(i)
-            valence(i)=valence(i+1);
-        else
-            valence(i)=valence(i-1);
-        end
-    end
-    va(position)=valence;
+    odor=odors(oi);
+    valence=result(result(:,1)==odor&result(:,2)==1,6);
+    % calculate means
+    valence(valence==0)=nan;
+    va(result(:,1)==odor)=nanmean(valence);
 end
-
 end

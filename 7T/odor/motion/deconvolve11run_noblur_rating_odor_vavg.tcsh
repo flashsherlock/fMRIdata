@@ -15,7 +15,7 @@ echo ${sub} ${analysis}
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
-set filedec = odorVIva11run_noblurAM2
+set filedec = odorVIva11run_nobluravg
 3dDeconvolve -input ${pb}.${subj}.r{01,02,03,04,05,06,07,08,09,10,12}.volreg+orig.HEAD              \
     -ortvec ../behavior_11run/mot_demean.r01.1D mot_demean_r01                   \
     -ortvec ../behavior_11run/mot_demean.r02.1D mot_demean_r02                   \
@@ -42,7 +42,7 @@ set filedec = odorVIva11run_noblurAM2
     -stim_label 5 val                                          \
     -stim_times_AM1 6 ../behavior_11run/intensity.txt 'dmBLOCK(1)'   \
     -stim_label 6 int                                          \
-    -stim_times_AM2 7 ../behavior_11run/odor_va.txt 'BLOCK(2,1)'     \
+    -stim_times_AM1 7 ../behavior_11run/odor_vavg.txt 'BLOCK(2,1)'     \
     -stim_label 7 odor_va                                      \
     -jobs 24                                                   \
     -x1D X.xmat.${filedec}.1D -xjpeg X.${filedec}.jpg          \

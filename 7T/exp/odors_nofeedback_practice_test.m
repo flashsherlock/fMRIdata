@@ -50,8 +50,9 @@ imageSizey=75;
 StimSize=[0 0 imageSizex imageSizey];
 StimSize_num=[0 0 450 75];
 StimSize_circle=[0 0 35 35];
-StimSize_rect=[0 0 20 3];
+StimSize_rect=[0 0 32 45];
 circle_w=2;
+rect_w=2;
 % feedbackSizex=75;
 % feedbackSizey=75;
 % StimSizef=[0 0 feedbackSizex feedbackSizey];
@@ -118,7 +119,7 @@ StimRect=OffsetRect(CenterRect(StimSize,rect),offcenter_x,offcenter_y);
 % StimRectf=OffsetRect(CenterRect(StimSizef,rect),offcenter_x,offcenter_y+50);
 StimRect_num=OffsetRect(CenterRect(StimSize_num,rect),offcenter_x,offcenter_y+50);
 % StimRect_circle=OffsetRect(CenterRect(StimSize_circle,rect),offcenter_x,offcenter_y+55);
-choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+75);
+choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+55);
 choose=repmat(choose,[7 1])';
 choose([1 3],:)=choose([1 3],:)+repmat(44*[-3:3],[2 1]);
 
@@ -209,7 +210,7 @@ for cyc=1:length(seq)
     point=4;
     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
     Screen('DrawTexture',windowPtr,number,[],StimRect_num);
-    Screen('FillRect',windowPtr,black,choose(:,point));
+    Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
 %     Screen('FrameOval',windowPtr,black,StimRect_circle,circle_w);
 %     [r1,r2]=Screen('TextBounds',windowPtr,text_rate{seq(cyc,2)});
 %     disp([r1 r2])
@@ -230,7 +231,7 @@ for cyc=1:length(seq)
                     response{cyc,2}=[response{cyc,2} secs-trialtime];
                     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
                     Screen('DrawTexture',windowPtr,number,[],StimRect_num);
-                    Screen('FillRect',windowPtr,black,choose(:,point));
+                    Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
                     Screen('Flip', windowPtr);
                     lastsecs=secs;
                     end
@@ -242,7 +243,7 @@ for cyc=1:length(seq)
                     response{cyc,2}=[response{cyc,2} secs-trialtime];
                     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
                     Screen('DrawTexture',windowPtr,number,[],StimRect_num);
-                    Screen('FillRect',windowPtr,black,choose(:,point));
+                    Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
                     Screen('Flip', windowPtr);
                     lastsecs=secs;
                     end

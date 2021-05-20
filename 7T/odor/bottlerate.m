@@ -19,8 +19,10 @@ vi=vi(1:size(valence,1),:);
 [~,indx_vi]=sort(vi,2);
 si=cellfun(@(x) (sort(x)*[10;1]),si);
 [~,indx_si]=sort(si,2);
+% get odor numbers
+odornum=size(vi,2);
 % sort ratings
-valRDM=zeros(4,4,size(vi,1));
+valRDM=zeros(odornum,odornum,size(vi,1));
 intRDM=valRDM;
 for i=1:size(vi,1)
     valence(i,:)=valence(i,indx_vi(i,:));
@@ -33,7 +35,7 @@ for i=1:size(vi,1)
     intRDM(:,:,i)=pdist2(intensity(i,:)',intensity(i,:)')/6;
 %     intRDM(:,:,i)=pdist2(intensity(i,:)',intensity(i,:)')/max(intensity(i,:));
 end
-simRDM=zeros(4,4,size(si,1));
+simRDM=zeros(odornum,odornum,size(si,1));
 for i=1:size(si,1)
     similarity(i,:)=similarity(i,indx_si(i,:));
     % 1-7 similarity to 0-1 distance

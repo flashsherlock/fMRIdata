@@ -19,6 +19,8 @@ dataname=data(1).name;
 load([datadir filesep dataname]);
 % change odors to 1-4
 result(:,1:2)=sort(result(:,1:2),2)-6;
+% get odornumber
+odornum=length(unique([result(:,1);result(:,2)]));
 % sort rows
 result=sortrows(result,[1 2]);
 % reshape to 2 rows
@@ -28,7 +30,7 @@ similarity(similarity==0)=nan;
 rating.similarity=nanmean(similarity);
 
 %% intensity and valence
-intensity=zeros(run*times/2,4);
+intensity=zeros(run*times/2,odornum);
 valence=intensity;
 % change sub to match filename
 sub=[lower(sub) '_run'];

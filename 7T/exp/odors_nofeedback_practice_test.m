@@ -1,6 +1,6 @@
 function odors_nofeedback_practice_test(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
-% Scan = 390s, TR = 3s, 130TR
+% Scan = 396s, TR = 3s, 132TR
 times=2;% even number
 % times
 waittime=1;
@@ -41,24 +41,23 @@ Key7 = KbName('8*');
 Key8 = KbName('9(');
 escapeKey = KbName('ESCAPE');
 triggerKey = KbName('s');
-% text_rate={double('愉 悦 度'),double('强 度')};
-text_rate={'愉 悦 度','强 度'};
-text_rate={'Valence','Intensity'};
+
 % rating instruction
 imageSizex=100;
 imageSizey=75;
 StimSize=[0 0 imageSizex imageSizey];
-StimSize_num=[0 0 450 75];
-StimSize_circle=[0 0 35 35];
-StimSize_rect=[0 0 32 45];
-circle_w=2;
+StimSize_num=[0 0 315 70];
+% StimSize_circle=[0 0 35 35];
+StimSize_rect=[0 0 36 45];
+distance=25;
+% circle_w=2;
 rect_w=2;
 % feedbackSizex=75;
 % feedbackSizey=75;
 % StimSizef=[0 0 feedbackSizex feedbackSizey];
 % block config
 % odor seq
-odors=[7 8 9 10];
+odors=[7 8 9 10 11];
 air=0;
 odors=repmat(odors,[times 1]);
 % rating 1 valence 2 intensity
@@ -115,13 +114,13 @@ datafile=sprintf('Data%s%s_nofeed%s.mat',filesep,subject,datestr(now,30));
 
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-StimRect=OffsetRect(CenterRect(StimSize,rect),offcenter_x,offcenter_y);
+StimRect=OffsetRect(CenterRect(StimSize,rect),offcenter_x,offcenter_y-distance);
 % StimRectf=OffsetRect(CenterRect(StimSizef,rect),offcenter_x,offcenter_y+50);
-StimRect_num=OffsetRect(CenterRect(StimSize_num,rect),offcenter_x,offcenter_y+50);
+StimRect_num=OffsetRect(CenterRect(StimSize_num,rect),offcenter_x-1,offcenter_y+distance);
 % StimRect_circle=OffsetRect(CenterRect(StimSize_circle,rect),offcenter_x,offcenter_y+55);
-choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+55);
+choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+distance);
 choose=repmat(choose,[7 1])';
-choose([1 3],:)=choose([1 3],:)+repmat(44*[-3:3],[2 1]);
+choose([1 3],:)=choose([1 3],:)+repmat((StimSize_num(3)/7)*[-3:3],[2 1]);
 
 fixationp1=OffsetRect(CenterRect([0 0 fix_thick fix_size],rect),offcenter_x,offcenter_y);
 fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offcenter_y);
@@ -225,7 +224,7 @@ for cyc=1:length(seq)
             switch find(ifkey==1,1,'first')
                 % left
                 case 1
-                    if secs-lastsecs>0.2
+                    if secs-lastsecs>0.2 && ~ismember(3,response{cyc,1})
                     point=max(1,point-1);
                     response{cyc,1}=[response{cyc,1} 1];
                     response{cyc,2}=[response{cyc,2} secs-trialtime];
@@ -237,7 +236,7 @@ for cyc=1:length(seq)
                     end
                 % right
                 case 2
-                    if secs-lastsecs>0.2
+                    if secs-lastsecs>0.2 && ~ismember(3,response{cyc,1})
                     point=min(7,point+1);
                     response{cyc,1}=[response{cyc,1} 2];
                     response{cyc,2}=[response{cyc,2} secs-trialtime];

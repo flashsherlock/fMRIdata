@@ -1,6 +1,7 @@
 function odors_nofeedback_practice_test(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
 % Scan = 396s, TR = 3s, 132TR
+% Scan = 366s, TR = 3s, 122TR
 times=2;% even number
 % times
 waittime=1;
@@ -79,9 +80,6 @@ response=cell(length(seq),2);
 % input
 [subject, runnum] = inputsubinfo;
 Screen('Preference', 'SkipSyncTests', 1);
-% text encoding
-Screen('Preference', 'TextEncodingLocale', 'UTF-8');
-
 if nargin < 2
     offcenter_x=0; offcenter_y=-150;
 end
@@ -98,8 +96,7 @@ delete(instrfindall('Type','serial'));
 % s = serial(ttlport, 'BaudRate',115200);
 % fopen(s); 
 
-%每次重启matlab时的随机种子都是相同的，所以随机数是一样的
-%所以通过系统时间设置随机数的种子
+% rand according to time
 ctime = datestr(now, 30);
 tseed = str2num(ctime((end - 5) : end));
 rng(tseed);
@@ -135,7 +132,7 @@ ins(2)=Screen('MakeTexture', windowPtr, imread('intensity.bmp'));
 number=Screen('MakeTexture', windowPtr, imread('number.bmp'));
 cd ..
 HideCursor;
-ListenChar(2);      %关闭Matlab自带键盘监听
+ListenChar(2);      % close keyboard
 % ett('set',ettport,air); 
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
@@ -259,7 +256,7 @@ for cyc=1:length(seq)
                     end
             end
         elseif touch && keyCode(escapeKey)
-            ListenChar(0);      %还原Matlab键盘监听
+            ListenChar(0);      % open keyboard
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -273,7 +270,7 @@ for cyc=1:length(seq)
     while GetSecs-trialtime<odortime+blanktime+ratetime+seq(cyc,3)%jitter
         [touch, ~, keyCode] = KbCheck;
         if touch && keyCode(escapeKey)
-            ListenChar(0);      %还原Matlab键盘监听
+            ListenChar(0);      % open keyboard
             Screen('CloseAll');
             save(datafile,'result','response');
             return
@@ -286,7 +283,7 @@ toc;
 % restore
 Priority(oldPriority);
 ShowCursor;
-ListenChar(0);      %还原Matlab键盘监听
+ListenChar(0);      % open keyboard
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);

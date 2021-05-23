@@ -13,9 +13,10 @@ for i=1:2
 end
 % generate sequence for similarity rating
 subjs=48;
-si=cell(subjs,6);
+combine=odornum*(odornum-1)/2;
+si=cell(subjs,combine);
 comb=nchoosek(1:odornum,2);
-temp=perms(1:6);
+temp=perms(1:combine);
 temp=[randperm(length(temp))' temp];
 temp=sortrows(temp);
 temp=temp(1:subjs,2:end);

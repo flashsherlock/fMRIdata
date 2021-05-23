@@ -1,7 +1,7 @@
-function odors_nofeedback_exp(offcenter_x, offcenter_y)
+function odors_exp(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
 % Scan = 366s, TR = 3s, 122TR
-times=8;% even number
+times=6;% even number
 % times
 waittime=6;
 cuetime=1.5;
@@ -25,9 +25,9 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM4';
+port='COM3';
 % open ttl port
-ttlport='COM3';
+ttlport='COM5';
 
 % keys
 KbName('UnifyKeyNames');
@@ -57,7 +57,7 @@ rect_w=2;
 % StimSizef=[0 0 feedbackSizex feedbackSizey];
 % block config
 % odor seq
-odors=[7 8 9 10 11];
+odors=[7 8 9 10 11]-6;
 air=0;
 odors=repmat(odors,[times 1]);
 % rating 1 valence 2 intensity

@@ -1,5 +1,6 @@
 function odors_exp(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
+% Scan = 396s, TR = 3s, 132TR
 % Scan = 366s, TR = 3s, 122TR
 times=6;% even number
 % times
@@ -8,8 +9,8 @@ cuetime=1.5;
 odortime=2;
 offset=1;
 blanktime=0.5;
-ratetime=4.5;
-jmean=12-ratetime-blanktime-odortime-cuetime;
+ratetime=7;
+jmean=13-ratetime-blanktime-odortime-cuetime;
 % jitter
 if ~mod(times/2,2)
     jitter=jmean-(times/4-0.5):jmean+(times/4-0.5);   
@@ -46,7 +47,7 @@ triggerKey = KbName('s');
 imageSizex=100;
 imageSizey=75;
 StimSize=[0 0 imageSizex imageSizey];
-StimSize_num=[0 0 315 70];
+StimSize_num=[0 0 315+260 70];
 % StimSize_circle=[0 0 35 35];
 StimSize_rect=[0 0 36 45];
 distance=25;
@@ -116,7 +117,7 @@ StimRect_num=OffsetRect(CenterRect(StimSize_num,rect),offcenter_x-1,offcenter_y+
 % StimRect_circle=OffsetRect(CenterRect(StimSize_circle,rect),offcenter_x,offcenter_y+55);
 choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+distance);
 choose=repmat(choose,[7 1])';
-choose([1 3],:)=choose([1 3],:)+repmat((StimSize_num(3)/7)*[-3:3],[2 1]);
+choose([1 3],:)=choose([1 3],:)+repmat(((StimSize_num(3)-260)/7)*[-3:3],[2 1]);
 
 fixationp1=OffsetRect(CenterRect([0 0 fix_thick fix_size],rect),offcenter_x,offcenter_y);
 fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offcenter_y);
@@ -128,7 +129,8 @@ oldPriority=Priority(MaxPriority(windowPtr));
 cd ins
 ins(1)=Screen('MakeTexture', windowPtr, imread('valence.bmp'));
 ins(2)=Screen('MakeTexture', windowPtr, imread('intensity.bmp'));
-number=Screen('MakeTexture', windowPtr, imread('number.bmp'));
+number(1)=Screen('MakeTexture', windowPtr, imread('number1.bmp'));
+number(2)=Screen('MakeTexture', windowPtr, imread('number2.bmp'));
 cd ..
 HideCursor;
 ListenChar(2);      % close keyboard
@@ -202,9 +204,9 @@ for cyc=1:length(seq)
     WaitSecs(blanktime);
     
     % rating
-    point=4;
+    point=1;
     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-    Screen('DrawTexture',windowPtr,number,[],StimRect_num);
+    Screen('DrawTexture',windowPtr,number(seq(cyc,2)),[],StimRect_num);
     Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
 %     Screen('FrameOval',windowPtr,black,StimRect_circle,circle_w);
 %     [r1,r2]=Screen('TextBounds',windowPtr,text_rate{seq(cyc,2)});
@@ -215,35 +217,26 @@ for cyc=1:length(seq)
     lastsecs=0;
     while GetSecs-trialtime<(fps*(odortime+blanktime+ratetime)-0.9)*ifi        
         [touch, secs, keyCode] = KbCheck;
-        ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3)];
+        ifkey=[keyCode(Key1) keyCode(Key2)];
         if touch && ismember(1,ifkey)             
             switch find(ifkey==1,1,'first')
-                % left
+                % right
                 case 1
                     if secs-lastsecs>0.2 && ~ismember(3,response{cyc,1})
-                    point=max(1,point-1);
-                    response{cyc,1}=[response{cyc,1} 1];
-                    response{cyc,2}=[response{cyc,2} secs-trialtime];
-                    Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-                    Screen('DrawTexture',windowPtr,number,[],StimRect_num);
-                    Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
-                    Screen('Flip', windowPtr);
-                    lastsecs=secs;
+                    point=mod(point+1,7);
+                    if point == 0
+                        point =7;
                     end
-                % right
-                case 2
-                    if secs-lastsecs>0.2 && ~ismember(3,response{cyc,1})
-                    point=min(7,point+1);
                     response{cyc,1}=[response{cyc,1} 2];
                     response{cyc,2}=[response{cyc,2} secs-trialtime];
                     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-                    Screen('DrawTexture',windowPtr,number,[],StimRect_num);
+                    Screen('DrawTexture',windowPtr,number(seq(cyc,2)),[],StimRect_num);
                     Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
                     Screen('Flip', windowPtr);
                     lastsecs=secs;
                     end
                 % confirm
-                case 3
+                case 2
                     if ~ismember(3,response{cyc,1})      
                     result(cyc,6)=point;
                     result(cyc,7)=secs-trialtime;

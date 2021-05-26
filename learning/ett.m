@@ -8,13 +8,19 @@ function ettport = ett(command, port, number)
 %           close-close the port (all valves will be closed).
 %           read-read all the unread feedback from the olfactometer.
 %   port-the port name (e.g. 'COM1', only for 'init') 
-%        or object (created by 'init').
+%        or object (created by 'init'). Do nothing if it is 'test'.
 %   number-matrix(only needed in 'set') that contains the number of 
-%          the valves to be open, 0 means close all the valves.
-% Gu Fei, 2020/07/05.
+%          valves to open, 0 means close all the valves.
+% Gu Fei, 2020/07/18.
 
 if nargin==2
     number=[];
+end
+
+% for debug
+if strcmp(port,'test')
+    ettport=port;
+    return
 end
 
 % valve assignments (crucial)

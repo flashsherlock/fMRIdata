@@ -204,7 +204,7 @@ for cyc=1:length(seq)
     WaitSecs(blanktime);
     
     % rating
-    point=1;
+    point=7;
     Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
     Screen('DrawTexture',windowPtr,number(seq(cyc,2)),[],StimRect_num);
     Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
@@ -223,7 +223,7 @@ for cyc=1:length(seq)
                 % right
                 case 1
                     if secs-lastsecs>0.2 && ~ismember(3,response{cyc,1})
-                    point=mod(point+1,7);
+                    point=mod(point-1,7);
                     if point == 0
                         point =7;
                     end

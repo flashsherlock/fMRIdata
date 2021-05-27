@@ -1,22 +1,16 @@
-function odors_exp(offcenter_x, offcenter_y)
+function odors_inva(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
-% Scan = 396s, TR = 3s, 132TR
-% Scan = 366s, TR = 3s, 122TR
-times=6;% even number
+% rate similarity
+times=2;
 % times
-waittime=6;
+waittime=2;
 cuetime=1.5;
 odortime=2;
 offset=1;
 blanktime=0.5;
-ratetime=7;
-jmean=13-ratetime-blanktime-odortime-cuetime;
-% jitter
-if ~mod(times/2,2)
-    jitter=jmean-(times/4-0.5):jmean+(times/4-0.5);   
-else
-    jitter=jmean-floor(times/4):jmean+floor(times/4);
-end
+% ratetime=14;
+iti=5;
+jitter=2;
 
 % fixation
 fix_size=18;
@@ -26,10 +20,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM3';
-% open ttl port
-ttlport='COM5';
-
+port='test';%COM3
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');
@@ -58,9 +49,25 @@ rect_w=2;
 % StimSizef=[0 0 feedbackSizex feedbackSizey];
 % block config
 % odor seq
-odors=[7 8 9 10 11]-6;
+% odors=[7 8 9 10 11]-6;% controled by randrating
 air=0;
-odors=repmat(odors,[times 1]);
+
+% input
+[subject, runnum] = inputsubinfo;
+Screen('Preference', 'SkipSyncTests', 1);
+if nargin < 2
+    offcenter_x=0; offcenter_y=-150;
+end
+% odor seq
+% odors=[7 8 9 10 11]-6;
+% air=0;
+% odors=repmat(odors,[times 1]);
+id=str2double(subject(end-1:end));
+load('randrating.mat','vi')
+id=min(size(vi,1),id);
+id=max(1,id);
+vi=vi(id,:);
+odors=repmat(vi,[times 1]);
 % rating 1 valence 2 intensity
 rating=[ones(times/2,size(odors,2));ones(times/2,size(odors,2))*2];
 % jitter
@@ -70,19 +77,19 @@ jitter=repmat(jitter',[2 size(odors,2)]);
 seq=[reshape(odors,[],1) reshape(rating,[],1) reshape(jitter,[],1)];
 seq=randseq(seq);
 seq=seq(:,1:3);
+% double seq
+% valence
+seq(:,2)=2;
+seq2=seq;
+% intensity
+seq(:,2)=1;
+seq=[seq2;seq];
 
 % record
 result=zeros(length(seq),7);
 result(:,1:3)=seq;
 % record all keystrokes
 response=cell(length(seq),2);
-
-% input
-[subject, runnum] = inputsubinfo;
-Screen('Preference', 'SkipSyncTests', 1);
-if nargin < 2
-    offcenter_x=0; offcenter_y=-150;
-end
 
 AssertOpenGL;
 whichscreen=max(Screen('Screens'));
@@ -93,8 +100,6 @@ Screen('Resolution', whichscreen, 800, 600);
 % ettport
 delete(instrfindall('Type','serial'));
 ettport=ett('init',port);
-s = serial(ttlport, 'BaudRate',115200);
-fopen(s); 
 
 % rand according to time
 ctime = datestr(now, 30);
@@ -107,7 +112,7 @@ white=WhiteIndex(whichscreen);
 gray=round((white+black)*4/5);
 backcolor=gray;
 
-datafile=sprintf('Data%s%s_run%d%s.mat',filesep,subject,runnum,datestr(now,30));
+datafile=sprintf('Data%s%s_inva%s.mat',filesep,subject,datestr(now,30));
 
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -127,13 +132,16 @@ ifi=Screen('GetFlipInterval',windowPtr);
 oldPriority=Priority(MaxPriority(windowPtr));
 % load pictures
 cd ins
+% for i=1:7
+%     feedback(i)=Screen('MakeTexture', windowPtr, imread([num2str(i) '.bmp']));    
+% end
 ins(1)=Screen('MakeTexture', windowPtr, imread('valence.bmp'));
 ins(2)=Screen('MakeTexture', windowPtr, imread('intensity.bmp'));
 number(1)=Screen('MakeTexture', windowPtr, imread('number1.bmp'));
 number(2)=Screen('MakeTexture', windowPtr, imread('number2.bmp'));
 cd ..
 HideCursor;
-ListenChar(2);      % close keyboard
+ListenChar(2);      % turn off keyboard
 ett('set',ettport,air); 
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
@@ -145,8 +153,6 @@ errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, wh
 
 tic;
 zerotime=GetSecs;
-% start marker
-fwrite(s, 1);
 
 % start
 Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
@@ -155,11 +161,8 @@ Screen('Flip',windowPtr);
 
 % wait time
 WaitSecs(waittime);
-% after wait
-fwrite(s, 0);
 
-
-for cyc=1:length(seq)
+for cyc=1:length(seq)/2
     
     odor=seq(cyc,1);
     
@@ -169,14 +172,10 @@ for cyc=1:length(seq)
     vbl=Screen('Flip',windowPtr);
     starttime=GetSecs;
     result(cyc,4)=starttime-zerotime;
-    % trial start
-    fwrite(s, 2);
     
     % open
     WaitSecs(cuetime-offset);
     ett('set',ettport,odor);
-    % odor
-    fwrite(s, odor);
     
     % offset
     % WaitSecs(offset);
@@ -191,8 +190,6 @@ for cyc=1:length(seq)
     % close 
     WaitSecs(odortime-offset);
     ett('set',ettport,air);    
-    % odor off
-    fwrite(s, air);
 
     % offset
     WaitSecs(offset);
@@ -205,17 +202,13 @@ for cyc=1:length(seq)
     
     % rating
     point=7;
-    Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-    Screen('DrawTexture',windowPtr,number(seq(cyc,2)),[],StimRect_num);
+    % intensity first
+    Screen('DrawTexture',windowPtr,ins(2),[],StimRect);
+    Screen('DrawTexture',windowPtr,number(2),[],StimRect_num);
     Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
-%     Screen('FrameOval',windowPtr,black,StimRect_circle,circle_w);
-%     [r1,r2]=Screen('TextBounds',windowPtr,text_rate{seq(cyc,2)});
-%     disp([r1 r2])
-%     Screen('FrameRect',windowPtr,0,r2);
-%     Screen('DrawText',windowPtr,text_rate{seq(cyc,2)});
     vbl=Screen('Flip',windowPtr);
     lastsecs=0;
-    while GetSecs-trialtime<(fps*(odortime+blanktime+ratetime)-0.9)*ifi        
+    while 1     
         [touch, secs, keyCode] = KbCheck;
         ifkey=[keyCode(Key1) keyCode(Key2)];
         if touch && ismember(1,ifkey)             
@@ -228,9 +221,9 @@ for cyc=1:length(seq)
                         point =7;
                     end
                     response{cyc,1}=[response{cyc,1} 1];
-                    response{cyc,2}=[response{cyc,2} secs-trialtime];
-                    Screen('DrawTexture',windowPtr,ins(seq(cyc,2)),[],StimRect);
-                    Screen('DrawTexture',windowPtr,number(seq(cyc,2)),[],StimRect_num);
+                    response{cyc,2}=[response{cyc,2} secs-vbl];
+                    Screen('DrawTexture',windowPtr,ins(2),[],StimRect);
+                    Screen('DrawTexture',windowPtr,number(2),[],StimRect_num);
                     Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
                     Screen('Flip', windowPtr);
                     lastsecs=secs;
@@ -239,12 +232,10 @@ for cyc=1:length(seq)
                 case 2
                     if ~ismember(2,response{cyc,1})      
                     result(cyc,6)=point;
-                    result(cyc,7)=secs-trialtime;
+                    result(cyc,7)=secs-vbl;
                     response{cyc,1}=[response{cyc,1} 2];
                     response{cyc,2}=[response{cyc,2} result(cyc,7)];
-                    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
-                    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
-                    Screen('Flip', windowPtr);
+                    break
                     end
             end
         elseif touch && keyCode(escapeKey)
@@ -254,12 +245,74 @@ for cyc=1:length(seq)
             return
         end
     end
+    
+    % valence second
+    [~,~,~]=KbReleaseWait;
+    cyc=cyc+length(seq)/2;
+    point=7;    
+    Screen('DrawTexture',windowPtr,ins(1),[],StimRect);
+    Screen('DrawTexture',windowPtr,number(1),[],StimRect_num);
+    Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
+    vbl=Screen('Flip',windowPtr);
+    lastsecs=0;
+    while 1     
+        [touch, secs, keyCode] = KbCheck;
+        ifkey=[keyCode(Key1) keyCode(Key2)];
+        if touch && ismember(1,ifkey)             
+            switch find(ifkey==1,1,'first')
+                % right
+                case 1
+                    if secs-lastsecs>0.2 && ~ismember(2,response{cyc,1})
+                    point=mod(point-1,7);
+                    if point == 0
+                        point =7;
+                    end
+                    response{cyc,1}=[response{cyc,1} 1];
+                    response{cyc,2}=[response{cyc,2} secs-vbl];
+                    Screen('DrawTexture',windowPtr,ins(1),[],StimRect);
+                    Screen('DrawTexture',windowPtr,number(1),[],StimRect_num);
+                    Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
+                    Screen('Flip', windowPtr);
+                    lastsecs=secs;
+                    end
+                % confirm
+                case 2
+                    if ~ismember(2,response{cyc,1})      
+                    result(cyc,6)=point;
+                    result(cyc,7)=secs-vbl;
+                    response{cyc,1}=[response{cyc,1} 2];
+                    response{cyc,2}=[response{cyc,2} result(cyc,7)];
+                    break
+                    end
+            end
+        elseif touch && keyCode(escapeKey)
+            ListenChar(0);      % open keyboard
+            Screen('CloseAll');
+            save(datafile,'result','response');
+            return
+        end
+    end
+    
+    % if not the last trial
+    if cyc~=length(seq)/2
+    % count down iti
+    timer=iti;
+    Screen('TextSize', windowPtr, 32);
+    [norm,~]=Screen('TextBounds', windowPtr, num2str(timer));
+    count=OffsetRect(CenterRect(norm,rect),offcenter_x,offcenter_y);
+    Screen('DrawText', windowPtr, num2str(timer),count(1),count(2),0);
+    vbl = Screen('Flip', windowPtr);
 
-    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
-    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
-    vbl = Screen('Flip', windowPtr, vbl + (fps*ratetime-0.1)*ifi);
-
-    while GetSecs-trialtime<odortime+blanktime+ratetime+seq(cyc,3)%jitter
+    while GetSecs-vbl<iti
+        % flip every 1 second
+        if floor(GetSecs-vbl)>iti-timer+0.9
+            timer=timer-1;
+            Screen('TextSize', windowPtr, 32);
+            [norm,~]=Screen('TextBounds', windowPtr, num2str(timer));
+            count=OffsetRect(CenterRect(norm,rect),offcenter_x,offcenter_y);
+            Screen('DrawText', windowPtr, num2str(timer),count(1),count(2),0);
+            Screen('Flip', windowPtr);
+        end
         [touch, ~, keyCode] = KbCheck;
         if touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
@@ -269,13 +322,20 @@ for cyc=1:length(seq)
         end
     end
     
+    % wait time 2s
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+    Screen('Flip',windowPtr);
+    WaitSecs(waittime);    
+    end
+    
 end
 
 toc;
 % restore
 Priority(oldPriority);
 ShowCursor;
-ListenChar(0);      % open keyboard
+ListenChar(0);      %restore keyboard
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);

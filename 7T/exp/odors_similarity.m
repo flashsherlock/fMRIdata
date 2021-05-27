@@ -8,10 +8,10 @@ cuetime=1.5;
 odortime=2;
 offset=1;
 blanktime=0.5;
-ratetime=4.5;
-% feedbacktime=1;
-interval=6;
-jitter=3.5;
+% ratetime=7;
+interval=3.5;% +1.5=time between firs odor finished and second start
+iti=5;
+jitter=2;
 
 % fixation
 fix_size=18;
@@ -21,7 +21,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM3';
+port='COM3';%COM3
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');
@@ -39,7 +39,7 @@ triggerKey = KbName('s');
 imageSizex=100;
 imageSizey=75;
 StimSize=[0 0 imageSizex imageSizey];
-StimSize_num=[0 0 315 70];
+StimSize_num=[0 0 315+260 70];
 % StimSize_circle=[0 0 35 35];
 StimSize_rect=[0 0 36 45];
 distance=25;
@@ -69,6 +69,18 @@ si=si(id,:);
 jitter=ones(length(si)*2,1).*jitter;
 seq=[reshape(cell2mat(si),2,[])'; reshape(fliplr(cell2mat(si)),2,[])'];
 seq=[seq jitter];
+
+% randseq
+limcit=find(seq(:,1)==1 & seq(:,2)==4);
+limcar=find(seq(:,1)==1 & seq(:,2)==3);
+% move to the first 4 rows
+temp=[1:4, size(seq,1)+1-limcit, size(seq,1)+1-limcar, limcit, limcar];
+
+seq(temp,:)=seq(fliplr(temp),:);
+% seq([size(seq,1)+1-limcit, size(seq,1)+1, limcit, limcar],:)=temp;
+% random
+seq(1:4,:)=seq(randperm(4),:);
+seq(5:end,:)=seq(randperm(size(seq,1)-4)+4,:);
 
 % record
 result=zeros(length(seq),7);
@@ -107,7 +119,7 @@ StimRect_num=OffsetRect(CenterRect(StimSize_num,rect),offcenter_x-1,offcenter_y+
 % StimRect_circle=OffsetRect(CenterRect(StimSize_circle,rect),offcenter_x,offcenter_y+55);
 choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+distance);
 choose=repmat(choose,[7 1])';
-choose([1 3],:)=choose([1 3],:)+repmat((StimSize_num(3)/7)*[-3:3],[2 1]);
+choose([1 3],:)=choose([1 3],:)+repmat(((StimSize_num(3)-260)/7)*[-3:3],[2 1]);
 
 fixationp1=OffsetRect(CenterRect([0 0 fix_thick fix_size],rect),offcenter_x,offcenter_y);
 fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offcenter_y);
@@ -117,11 +129,11 @@ ifi=Screen('GetFlipInterval',windowPtr);
 oldPriority=Priority(MaxPriority(windowPtr));
 % load pictures
 cd ins
-for i=1:7
-    feedback(i)=Screen('MakeTexture', windowPtr, imread([num2str(i) '.bmp']));    
-end
+% for i=1:7
+%     feedback(i)=Screen('MakeTexture', windowPtr, imread([num2str(i) '.bmp']));    
+% end
 ins(1)=Screen('MakeTexture', windowPtr, imread('similarity.bmp'));
-number=Screen('MakeTexture', windowPtr, imread('number.bmp'));
+number=Screen('MakeTexture', windowPtr, imread('numbersi.bmp'));
 cd ..
 HideCursor;
 ListenChar(2);      % turn off keyboard
@@ -212,39 +224,26 @@ for cyc=1:length(seq)
     WaitSecs(blanktime);
     
     % rating    
-    point=4;
+    point=7;
     Screen('DrawTexture',windowPtr,ins(1),[],StimRect);
     Screen('DrawTexture',windowPtr,number,[],StimRect_num);
     Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
-%     Screen('FrameOval',windowPtr,black,StimRect_circle,circle_w);
-%     [r1,r2]=Screen('TextBounds',windowPtr,text_rate{seq(cyc,2)});
-%     disp([r1 r2])
-%     Screen('FrameRect',windowPtr,0,r2);
-%     Screen('DrawText',windowPtr,text_rate{seq(cyc,2)});
     vbl=Screen('Flip',windowPtr);
     lastsecs=0;
-    while GetSecs-trialtime<(fps*(odortime+blanktime+ratetime)-0.9)*ifi        [touch, secs, keyCode] = KbCheck;
+    while 1
+        [touch, secs, keyCode] = KbCheck;
         ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3)];
         if touch && ismember(1,ifkey)             
             switch find(ifkey==1,1,'first')
                 % left
                 case 1
-                    if secs-lastsecs>0.2 && ~ismember(3,response{cyc,1})
-                    point=max(1,point-1);
-                    response{cyc,1}=[response{cyc,1} 1];
-                    response{cyc,2}=[response{cyc,2} secs-trialtime];
-                    Screen('DrawTexture',windowPtr,ins(1),[],StimRect);
-                    Screen('DrawTexture',windowPtr,number,[],StimRect_num);
-                    Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
-                    Screen('Flip', windowPtr);
-                    lastsecs=secs;
+                    if secs-lastsecs>0.2 && ~ismember(2,response{cyc,1})
+                    point=mod(point-1,7);
+                    if point == 0
+                        point =7;
                     end
-                % right
-                case 2
-                    if secs-lastsecs>0.2 && ~ismember(3,response{cyc,1})
-                    point=min(7,point+1);
-                    response{cyc,1}=[response{cyc,1} 2];
-                    response{cyc,2}=[response{cyc,2} secs-trialtime];
+                    response{cyc,1}=[response{cyc,1} 1];
+                    response{cyc,2}=[response{cyc,2} secs-vbl];
                     Screen('DrawTexture',windowPtr,ins(1),[],StimRect);
                     Screen('DrawTexture',windowPtr,number,[],StimRect_num);
                     Screen('FrameRect',windowPtr,black,choose(:,point),rect_w);
@@ -252,15 +251,13 @@ for cyc=1:length(seq)
                     lastsecs=secs;
                     end
                 % confirm
-                case 3
-                    if ~ismember(3,response{cyc,1})      
+                case 2
+                    if ~ismember(2,response{cyc,1})      
                     result(cyc,6)=point;
-                    result(cyc,7)=secs-trialtime;
-                    response{cyc,1}=[response{cyc,1} 3];
+                    result(cyc,7)=secs-vbl;
+                    response{cyc,1}=[response{cyc,1} 2];
                     response{cyc,2}=[response{cyc,2} result(cyc,7)];
-                    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
-                    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
-                    Screen('Flip', windowPtr);
+                    break
                     end
             end
         elseif touch && keyCode(escapeKey)
@@ -271,11 +268,26 @@ for cyc=1:length(seq)
         end
     end
 
-    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
-    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
-    vbl = Screen('Flip', windowPtr, vbl + (fps*ratetime-0.1)*ifi);
+    % if not the last trial
+    if cyc~=length(seq)
+    % count down iti
+    timer=iti;
+    Screen('TextSize', windowPtr, 32);
+    [norm,~]=Screen('TextBounds', windowPtr, num2str(timer));
+    count=OffsetRect(CenterRect(norm,rect),offcenter_x,offcenter_y);
+    Screen('DrawText', windowPtr, num2str(timer),count(1),count(2),0);
+    vbl = Screen('Flip', windowPtr);
 
-    while GetSecs-trialtime<odortime+blanktime+ratetime+seq(cyc,3)%jitter
+    while GetSecs-vbl<iti
+        % flip every 1 second
+        if floor(GetSecs-vbl)>iti-timer+0.9
+            timer=timer-1;
+            Screen('TextSize', windowPtr, 32);
+            [norm,~]=Screen('TextBounds', windowPtr, num2str(timer));
+            count=OffsetRect(CenterRect(norm,rect),offcenter_x,offcenter_y);
+            Screen('DrawText', windowPtr, num2str(timer),count(1),count(2),0);
+            Screen('Flip', windowPtr);
+        end
         [touch, ~, keyCode] = KbCheck;
         if touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
@@ -283,6 +295,13 @@ for cyc=1:length(seq)
             save(datafile,'result','response');
             return
         end
+    end
+    
+    % wait time 2s
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
+    Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
+    Screen('Flip',windowPtr);
+    WaitSecs(waittime);    
     end
     
 end

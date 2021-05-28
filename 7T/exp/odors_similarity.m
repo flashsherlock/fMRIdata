@@ -10,7 +10,7 @@ offset=1;
 blanktime=0.5;
 % ratetime=7;
 interval=3.5;% +1.5=time between firs odor finished and second start
-iti=5;
+iti=2;
 jitter=2;
 
 % fixation
@@ -73,11 +73,16 @@ seq=[seq jitter];
 % randseq
 limcit=find(seq(:,1)==1 & seq(:,2)==4);
 limcar=find(seq(:,1)==1 & seq(:,2)==3);
+% find others
+temp=[size(seq,1)+1-limcit, size(seq,1)+1-limcar, limcit, limcar];
+% remove 1-4
+temp14=temp(ismember(temp,1:4));
+temp(ismember(temp,1:4))=[];
+four=1:4;
+four(ismember(1:4,temp14))=[];
 % move to the first 4 rows
-temp=[1:4, size(seq,1)+1-limcit, size(seq,1)+1-limcar, limcit, limcar];
-
+temp=[four temp];
 seq(temp,:)=seq(fliplr(temp),:);
-% seq([size(seq,1)+1-limcit, size(seq,1)+1, limcit, limcar],:)=temp;
 % random
 seq(1:4,:)=seq(randperm(4),:);
 seq(5:end,:)=seq(randperm(size(seq,1)-4)+4,:);
@@ -134,6 +139,7 @@ cd ins
 % end
 ins(1)=Screen('MakeTexture', windowPtr, imread('similarity.bmp'));
 number=Screen('MakeTexture', windowPtr, imread('numbersi.bmp'));
+bye=Screen('MakeTexture', windowPtr, imread('bye.bmp'));
 cd ..
 HideCursor;
 ListenChar(2);      % turn off keyboard
@@ -267,7 +273,22 @@ for cyc=1:length(seq)
             return
         end
     end
-
+    
+    % screen subjects by similarity
+    if cyc==4
+        % compare lim-cit and lim-car
+        limcar=mean(result(result(1:4,1)==3 | result(1:4,2)==3,6));
+        limcit=mean(result(result(1:4,1)==4 | result(1:4,2)==4,6));
+        % lim-cit must be more similar
+        if limcar>=limcit
+            % show bye for 5s
+            Screen('DrawTexture',windowPtr,bye,[],StimRect_num);
+            Screen('Flip',windowPtr);
+            WaitSecs(5)
+            break
+        end
+    end
+    
     % if not the last trial
     if cyc~=length(seq)
     % count down iti

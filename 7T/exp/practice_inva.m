@@ -11,6 +11,7 @@ blanktime=0.5;
 % ratetime=14;
 iti=5;
 jitter=2;
+trials=2;
 
 % fixation
 fix_size=18;
@@ -76,7 +77,7 @@ jitter=repmat(jitter',[2 size(odors,2)]);
 % final seq
 seq=[reshape(odors,[],1) reshape(rating,[],1) reshape(jitter,[],1)];
 seq=randseq(seq);
-seq=seq(:,1:3);
+seq=seq(1:trials,1:3);
 % double seq
 % valence
 seq(:,2)=2;
@@ -162,7 +163,7 @@ Screen('Flip',windowPtr);
 % wait time
 WaitSecs(waittime);
 
-for cyc=1:length(seq)/2
+for cyc=1:trials
     
     odor=seq(cyc,1);
     
@@ -294,7 +295,7 @@ for cyc=1:length(seq)/2
     end
     
     % if not the last trial
-    if cyc~=length(seq)/2
+    if cyc~=trials
     % count down iti
     timer=iti;
     Screen('TextSize', windowPtr, 32);
@@ -339,6 +340,6 @@ ListenChar(0);      %restore keyboard
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
-%save
-save(datafile,'result','response');
+% do not save
+% save(datafile,'result','response');
 return

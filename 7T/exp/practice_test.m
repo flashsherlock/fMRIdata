@@ -3,6 +3,7 @@ function practice_test(offcenter_x, offcenter_y)
 % Scan = 396s, TR = 3s, 132TR
 % Scan = 366s, TR = 3s, 122TR
 times=2;% even number
+trials=2;
 % times
 waittime=1;
 cuetime=1.5;
@@ -26,7 +27,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM4';
+port='test';
 % open ttl port
 % ttlport='COM3';
 
@@ -159,7 +160,7 @@ WaitSecs(waittime);
 % fwrite(s, 0);
 
 
-for cyc=1:length(seq)
+for cyc=1:trials
     
     odor=seq(cyc,1);
     
@@ -279,6 +280,6 @@ ListenChar(0);      % open keyboard
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
-%save
-save(datafile,'result','response');
+% do not save
+% save(datafile,'result','response');
 return

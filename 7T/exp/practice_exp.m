@@ -107,7 +107,7 @@ white=WhiteIndex(whichscreen);
 gray=round((white+black)*4/5);
 backcolor=gray;
 
-datafile=sprintf('Data%s%s_run%d%s.mat',filesep,subject,runnum,datestr(now,30));
+datafile=sprintf('Data%s%s_practice%s.mat',filesep,subject,datestr(now,30));
 
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

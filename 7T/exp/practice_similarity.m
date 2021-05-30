@@ -12,6 +12,7 @@ blanktime=0.5;
 interval=3.5;% +1.5=time between firs odor finished and second start
 iti=2;
 jitter=2;
+trials=2;
 
 % fixation
 fix_size=18;
@@ -21,7 +22,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM3';%COM3
+port='test';%COM3
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');
@@ -70,25 +71,11 @@ jitter=ones(length(si)*2,1).*jitter;
 seq=[reshape(cell2mat(si),2,[])'; reshape(fliplr(cell2mat(si)),2,[])'];
 seq=[seq jitter];
 
-% randseq
-limcit=find(seq(:,1)==1 & seq(:,2)==4);
-limcar=find(seq(:,1)==1 & seq(:,2)==3);
-% find others
-temp=[size(seq,1)+1-limcit, size(seq,1)+1-limcar, limcit, limcar];
-% remove 1-4
-temp14=temp(ismember(temp,1:4));
-temp(ismember(temp,1:4))=[];
-four=1:4;
-four(ismember(1:4,temp14))=[];
-% move to the first 4 rows
-temp=[four temp];
-seq(temp,:)=seq(fliplr(temp),:);
-% random
-seq(1:4,:)=seq(randperm(4),:);
-seq(5:end,:)=seq(randperm(size(seq,1)-4)+4,:);
+% random select
+seq=seq(randperm(size(seq,1),trials),:);
 
 % record
-result=zeros(length(seq),7);
+result=zeros(size(seq,1),7);
 result(:,1:3)=seq;
 % record all keystrokes
 response=cell(length(seq),2);
@@ -163,7 +150,7 @@ Screen('Flip',windowPtr);
 % wait time
 WaitSecs(waittime);
 
-for cyc=1:length(seq)
+for cyc=1:trials
     
     odor=seq(cyc,1);
     
@@ -274,23 +261,8 @@ for cyc=1:length(seq)
         end
     end
     
-    % screen subjects by similarity
-    if cyc==4
-        % compare lim-cit and lim-car
-        limcar=mean(result(result(1:4,1)==3 | result(1:4,2)==3,6));
-        limcit=mean(result(result(1:4,1)==4 | result(1:4,2)==4,6));
-        % lim-cit must be more similar
-        if limcar>=limcit
-            % show bye for 5s
-            Screen('DrawTexture',windowPtr,bye,[],StimRect_num);
-            Screen('Flip',windowPtr);
-            WaitSecs(5)
-            break
-        end
-    end
-    
     % if not the last trial
-    if cyc~=length(seq)
+    if cyc~=trials
     % count down iti
     timer=iti;
     Screen('TextSize', windowPtr, 32);
@@ -335,6 +307,6 @@ ListenChar(0);      %restore keyboard
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
-%save
-save(datafile,'result','response');
+% do not save
+% save(datafile,'result','response');
 return

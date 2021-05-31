@@ -57,7 +57,7 @@ air=0;
 [subject, runnum] = inputsubinfo;
 Screen('Preference', 'SkipSyncTests', 1);
 if nargin < 2
-    offcenter_x=0; offcenter_y=-150;
+    offcenter_x=0; offcenter_y=0;
 end
 
 % final seq

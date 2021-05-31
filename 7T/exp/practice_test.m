@@ -251,7 +251,7 @@ for cyc=1:trials
         elseif touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
             Screen('CloseAll');
-            save(datafile,'result','response');
+%             save(datafile,'result','response');
             return
         end
     end
@@ -265,7 +265,7 @@ for cyc=1:trials
         if touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
             Screen('CloseAll');
-            save(datafile,'result','response');
+%             save(datafile,'result','response');
             return
         end
     end

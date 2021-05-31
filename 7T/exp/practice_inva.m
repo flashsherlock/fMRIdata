@@ -57,7 +57,7 @@ air=0;
 [subject, runnum] = inputsubinfo;
 Screen('Preference', 'SkipSyncTests', 1);
 if nargin < 2
-    offcenter_x=0; offcenter_y=-150;
+    offcenter_x=0; offcenter_y=0;
 end
 % odor seq
 % odors=[7 8 9 10 11]-6;
@@ -242,7 +242,7 @@ for cyc=1:trials
         elseif touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
             Screen('CloseAll');
-            save(datafile,'result','response');
+%             save(datafile,'result','response');
             return
         end
     end
@@ -289,7 +289,7 @@ for cyc=1:trials
         elseif touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
             Screen('CloseAll');
-            save(datafile,'result','response');
+%             save(datafile,'result','response');
             return
         end
     end

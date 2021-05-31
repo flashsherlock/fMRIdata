@@ -22,7 +22,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM32';%COM3
+port='COM3';%COM3
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');
@@ -58,7 +58,7 @@ air=0;
 [subject, runnum] = inputsubinfo;
 Screen('Preference', 'SkipSyncTests', 1);
 if nargin < 2
-    offcenter_x=0; offcenter_y=-150;
+    offcenter_x=0; offcenter_y=0;
 end
 
 % final seq
@@ -256,7 +256,7 @@ for cyc=1:trials
         elseif touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
             Screen('CloseAll');
-            save(datafile,'result','response');
+%             save(datafile,'result','response');
             return
         end
     end
@@ -285,7 +285,7 @@ for cyc=1:trials
         if touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
             Screen('CloseAll');
-            save(datafile,'result','response');
+%             save(datafile,'result','response');
             return
         end
     end

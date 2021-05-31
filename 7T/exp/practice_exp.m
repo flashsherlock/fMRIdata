@@ -28,7 +28,7 @@ fixcolor_inhale=[0 154 70];  %[0 0 240];
 % port
 port='COM3';
 % open ttl port
-ttlport='COM5';
+% ttlport='COM5';
 
 % keys
 KbName('UnifyKeyNames');
@@ -93,8 +93,8 @@ Screen('Resolution', whichscreen, 800, 600);
 % ettport
 delete(instrfindall('Type','serial'));
 ettport=ett('init',port);
-s = serial(ttlport, 'BaudRate',115200);
-fopen(s); 
+% s = serial(ttlport, 'BaudRate',115200);
+% fopen(s); 
 
 % rand according to time
 ctime = datestr(now, 30);
@@ -146,7 +146,7 @@ errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, wh
 tic;
 zerotime=GetSecs;
 % start marker
-fwrite(s, 1);
+% fwrite(s, 1);
 
 % start
 Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
@@ -156,7 +156,7 @@ Screen('Flip',windowPtr);
 % wait time
 WaitSecs(waittime);
 % after wait
-fwrite(s, 0);
+% fwrite(s, 0);
 
 
 for cyc=1:length(seq)
@@ -170,13 +170,13 @@ for cyc=1:length(seq)
     starttime=GetSecs;
     result(cyc,4)=starttime-zerotime;
     % trial start
-    fwrite(s, 2);
+%     fwrite(s, 2);
     
     % open
     WaitSecs(cuetime-offset);
     ett('set',ettport,odor);
     % odor
-    fwrite(s, odor);
+%     fwrite(s, odor);
     
     % offset
     % WaitSecs(offset);
@@ -192,7 +192,7 @@ for cyc=1:length(seq)
     WaitSecs(odortime-offset);
     ett('set',ettport,air);    
     % odor off
-    fwrite(s, air);
+%     fwrite(s, air);
 
     % offset
     WaitSecs(offset);

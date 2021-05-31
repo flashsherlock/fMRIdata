@@ -10,7 +10,7 @@ offset=1;
 blanktime=0.5;
 % ratetime=7;
 interval=3.5;% +1.5=time between firs odor finished and second start
-iti=2;
+iti=30;
 jitter=2;
 
 % fixation

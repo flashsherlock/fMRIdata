@@ -10,7 +10,7 @@ offset=1;
 blanktime=0.5;
 % ratetime=7;
 interval=3.5;% +1.5=time between firs odor finished and second start
-iti=2;
+iti=30;
 jitter=2;
 trials=2;
 
@@ -22,7 +22,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='test';%COM3
+port='COM32';%COM3
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');

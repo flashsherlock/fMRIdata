@@ -9,7 +9,7 @@ odortime=2;
 offset=1;
 blanktime=0.5;
 % ratetime=14;
-iti=5;
+iti=30;
 jitter=2;
 
 % fixation
@@ -20,7 +20,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='test';%COM3
+port='COM3';%COM3
 % keys
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');
@@ -294,7 +294,7 @@ for cyc=1:length(seq)/2
     end
     
     % if not the last trial
-    if cyc~=length(seq)/2
+    if cyc~=length(seq)
     % count down iti
     timer=iti;
     Screen('TextSize', windowPtr, 32);

@@ -5,7 +5,7 @@ function practice_test(offcenter_x, offcenter_y)
 times=2;% even number
 trials=2;
 % times
-waittime=1;
+waittime=4;
 cuetime=1.5;
 odortime=2;
 offset=1;
@@ -27,7 +27,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='test';
+port='COM3';
 % open ttl port
 % ttlport='COM3';
 
@@ -79,7 +79,7 @@ result(:,1:3)=seq;
 response=cell(length(seq),2);
 
 % input
-[subject, runnum] = inputsubinfo;
+subject='s99';
 Screen('Preference', 'SkipSyncTests', 1);
 if nargin < 2
     offcenter_x=0; offcenter_y=-150;
@@ -93,7 +93,7 @@ Screen('Resolution', whichscreen, 800, 600);
 
 % ettport
 delete(instrfindall('Type','serial'));
-% ettport=ett('init',port);
+ettport=ett('init',port);
 % s = serial(ttlport, 'BaudRate',115200);
 % fopen(s); 
 
@@ -135,7 +135,7 @@ number(2)=Screen('MakeTexture', windowPtr, imread('number2.bmp'));
 cd ..
 HideCursor;
 ListenChar(2);      % close keyboard
-% ett('set',ettport,air); 
+ett('set',ettport,air); 
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
 errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, white);
@@ -175,7 +175,7 @@ for cyc=1:trials
     
     % open
     WaitSecs(cuetime-offset);
-%     ett('set',ettport,odor);
+    ett('set',ettport,odor);
     % odor
 %     fwrite(s, odor);
     
@@ -191,7 +191,7 @@ for cyc=1:trials
     
     % close 
     WaitSecs(odortime-offset);
-%     ett('set',ettport,air);    
+    ett('set',ettport,air);    
     % odor off
 %     fwrite(s, air);
 

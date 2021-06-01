@@ -341,4 +341,19 @@ Screen('CloseAll');
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
 %save
 save(datafile,'result','response');
+
+% display results
+int=zeros(2,5);
+for i=1:5
+    % valence
+    temp=result(result(:,1)==i&result(:,2)==1,6);
+    temp(temp==0)=nan;
+    int(1,i)=nanmean(temp);
+    % intensity
+    temp=result(result(:,1)==i&result(:,2)==2,6);
+    temp(temp==0)=nan;
+    int(2,i)=nanmean(temp);
+end
+disp(int)
+
 return

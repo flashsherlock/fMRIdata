@@ -21,6 +21,8 @@ load([datadir filesep dataname]);
 result(:,1:2)=sort(result(:,1:2),2)-6;
 % get odornumber
 odornum=length(unique([result(:,1);result(:,2)]));
+% sort columns
+result(:,1:2)=sort(result(:,1:2),2);
 % sort rows
 result=sortrows(result,[1 2]);
 % reshape to 2 rows

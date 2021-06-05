@@ -18,6 +18,9 @@ Practice a whole run.
 ## practice_test
 Practice keyboards before 7T experiment.
 
+## analyze_rating
+Analyze behavior experiments results.
+
 ## odors_exp
 Final 7T experiment.
 
@@ -35,3 +38,6 @@ Input subject information.
 
 ## ShowInstructionSE_UMNVAL
 Wait for trigger.
+
+## template1125.gtl
+Biopac template.

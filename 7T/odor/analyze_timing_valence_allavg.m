@@ -1,0 +1,61 @@
+function analyze_timing_valence_avg(sub)
+run=6;
+times=8;
+% sub='s01_run';
+datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% cd(datadir);
+timing=zeros(run,times*4);
+rating=timing;
+va=cell(run,4*times);
+% change sub to match filename
+sub=[lower(sub) '_run'];
+
+for i=1:run
+    if strcmp(sub,'s01_run')
+        % S01 is named from s01_run7
+        data=dir([datadir sub num2str(i+6) '*.mat']);
+    elseif strcmp(sub,'s01_yyt_run')
+        % S01_yyt is named from s01_run1
+        data=dir([datadir 's01_run' num2str(i) '*.mat']);
+    else
+        data=dir([datadir sub num2str(i) '*.mat']);
+    end
+    dataname=data(1).name;
+    load([datadir filesep dataname]);
+    disp([sub num2str(i)]);
+    
+    % for each odor, find timing and rating
+    % timing
+    timing(i,:)=result(:,5)';
+    % rating    
+    % compute new valence rating
+    rating(i,:)=changeva(result)';
+    
+    % combine onset and duration by *
+    va(i,:)=strcat(strsplit(num2str(timing(i,:))),{'*'},strsplit(num2str(rating(i,:))));
+end
+
+% timing for odor valence(all runs)
+fid=fopen([datadir filesep 'odor_vavg.txt'],'w');
+for i=1:run
+    temp=strjoin(va(i,:));
+    fprintf(fid,'%s\r\n',temp);
+end
+fclose(fid);
+
+end
+
+% compute new valence
+function va=changeva(result)
+va=result(:,6);
+% odor numbers
+odors=unique(result(:,1));    
+% for each odor, find timing
+for oi=1:length(odors)
+    odor=odors(oi);
+    valence=result(result(:,1)==odor&result(:,2)==1,6);
+    % calculate means
+    valence(valence==0)=nan;
+    va(result(:,1)==odor)=nanmean(valence);
+end
+end

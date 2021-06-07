@@ -17,12 +17,12 @@ else
 end
 dataname=data(1).name;
 load([datadir filesep dataname]);
-% change odors to 1-4
+% change odors to 1-4 and sort columns
 result(:,1:2)=sort(result(:,1:2),2)-6;
+% sort columns
+% result(:,1:2)=sort(result(:,1:2),2);
 % get odornumber
 odornum=length(unique([result(:,1);result(:,2)]));
-% sort columns
-result(:,1:2)=sort(result(:,1:2),2);
 % sort rows
 result=sortrows(result,[1 2]);
 % reshape to 2 rows

@@ -1,7 +1,10 @@
 function odors_exp(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
 % Scan = 396s, TR = 3s, 132TR
-% Scan = 366s, TR = 3s, 122TR
+if nargin < 2
+    offcenter_x=0; offcenter_y=-150;
+end
+% repeat
 times=6;% even number
 % times
 waittime=6;
@@ -34,12 +37,12 @@ ttlport='COM5';
 KbName('UnifyKeyNames');
 Key1 = KbName('1!');
 Key2 = KbName('2@');
-Key3 = KbName('3#');
-Key4 = KbName('4$');
-Key5 = KbName('6^');
-Key6 = KbName('7&');
-Key7 = KbName('8*');
-Key8 = KbName('9(');
+% Key3 = KbName('3#');
+% Key4 = KbName('4$');
+% Key5 = KbName('6^');
+% Key6 = KbName('7&');
+% Key7 = KbName('8*');
+% Key8 = KbName('9(');
 escapeKey = KbName('ESCAPE');
 triggerKey = KbName('s');
 
@@ -53,9 +56,6 @@ StimSize_rect=[0 0 36 45];
 distance=25;
 % circle_w=2;
 rect_w=2;
-% feedbackSizex=75;
-% feedbackSizey=75;
-% StimSizef=[0 0 feedbackSizex feedbackSizey];
 % block config
 % odor seq
 odors=[7 8 9 10 11]-6;
@@ -80,9 +80,6 @@ response=cell(length(seq),2);
 % input
 [subject, runnum] = inputsubinfo;
 Screen('Preference', 'SkipSyncTests', 1);
-if nargin < 2
-    offcenter_x=0; offcenter_y=-150;
-end
 
 AssertOpenGL;
 whichscreen=max(Screen('Screens'));
@@ -112,7 +109,6 @@ datafile=sprintf('Data%s%s_run%d%s.mat',filesep,subject,runnum,datestr(now,30));
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 StimRect=OffsetRect(CenterRect(StimSize,rect),offcenter_x,offcenter_y-distance);
-% StimRectf=OffsetRect(CenterRect(StimSizef,rect),offcenter_x,offcenter_y+50);
 StimRect_num=OffsetRect(CenterRect(StimSize_num,rect),offcenter_x-1,offcenter_y+distance);
 % StimRect_circle=OffsetRect(CenterRect(StimSize_circle,rect),offcenter_x,offcenter_y+55);
 choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+distance);
@@ -135,14 +131,14 @@ cd ..
 HideCursor;
 ListenChar(2);      % close keyboard
 ett('set',ettport,air); 
+
 % start screen
 msg=sprintf('Waiting for the trigger to start...');
 errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, white);
-    if errinfo==1
-		Screen('CloseAll');
-        return
-    end
-
+if errinfo==1
+    Screen('CloseAll');
+    return
+end
 tic;
 zerotime=GetSecs;
 % start marker
@@ -158,7 +154,7 @@ WaitSecs(waittime);
 % after wait
 fwrite(s, 0);
 
-
+% start
 for cyc=1:length(seq)
     
     odor=seq(cyc,1);

@@ -6,6 +6,8 @@ if nargin < 2
 end
 % repeat
 times=6;% even number
+% scale
+scale=1;
 % times
 waittime=6;
 cuetime=1.5;
@@ -24,6 +26,7 @@ end
 % fixation
 fix_size=18;
 fix_thick=3;
+% color
 fixcolor_back=[0 0 0];
 fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
@@ -49,10 +52,10 @@ triggerKey = KbName('s');
 % rating instruction
 imageSizex=100;
 imageSizey=75;
-StimSize=[0 0 imageSizex imageSizey];
-StimSize_num=[0 0 315+260 70];
+StimSize=[0 0 imageSizex imageSizey]*scale;
+StimSize_num=[0 0 315+260 70]*scale;
 % StimSize_circle=[0 0 35 35];
-StimSize_rect=[0 0 36 45];
+StimSize_rect=[0 0 36 45]*scale;
 distance=25;
 % circle_w=2;
 rect_w=2;
@@ -113,7 +116,7 @@ StimRect_num=OffsetRect(CenterRect(StimSize_num,rect),offcenter_x-1,offcenter_y+
 % StimRect_circle=OffsetRect(CenterRect(StimSize_circle,rect),offcenter_x,offcenter_y+55);
 choose=OffsetRect(CenterRect(StimSize_rect,rect),offcenter_x,offcenter_y+distance);
 choose=repmat(choose,[7 1])';
-choose([1 3],:)=choose([1 3],:)+repmat(((StimSize_num(3)-260)/7)*[-3:3],[2 1]);
+choose([1 3],:)=choose([1 3],:)+repmat(((StimSize_num(3)-260*scale)/7)*[-3:3],[2 1]);
 
 fixationp1=OffsetRect(CenterRect([0 0 fix_thick fix_size],rect),offcenter_x,offcenter_y);
 fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offcenter_y);
@@ -172,7 +175,7 @@ for cyc=1:length(seq)
     WaitSecs(cuetime-offset);
     ett('set',ettport,odor);
     % odor
-    fwrite(s, odor);
+    fwrite(s, odor+6);%7-11
     
     % offset
     % WaitSecs(offset);

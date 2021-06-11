@@ -41,3 +41,6 @@ Wait for trigger.
 
 ## template1125.gtl
 Biopac template.
+
+## planB
+Use the other 6 channels (7-10 & 12).

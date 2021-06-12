@@ -60,6 +60,8 @@ cd ..
 LN_MP2RAGE_DNOISE -INV1 ${sub}.inv1.nii -INV2 ${sub}.inv2.nii -UNI ${sub}.uni.nii -beta 1.5 -output ${sub}.uniden15.nii
 
 # processing anatomical image
+# may encounter signal 11 error (RAM problems)
+# -giant_move can be added
 @SSwarper -input   ${sub}.uniden15.nii             \
                    -subid ${sub}                    \
                    -odir  ${sub}_anat_warped        \

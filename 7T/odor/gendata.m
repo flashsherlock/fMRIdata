@@ -1,9 +1,9 @@
 % generate images, timing files, and phy files for each subject
-subs=1:3;
+subs=8;
 rootfolder='/Volumes/WD_E/gufei/7T_odor/';
 % save all subject ratings
-[rate_avg,rate_run]=saverate(subs);
-save([rootfolder 'rating.mat'],'rate_avg','rate_run');
+% [rate_avg,rate_run]=saverate(subs);
+% save([rootfolder 'rating.mat'],'rate_avg','rate_run');
 % generate files for each subject
 for subi=subs
     sub=sprintf('S%02d',subi);
@@ -17,6 +17,12 @@ for subi=subs
             inv1=4;
             inv2=6;
             uni=9;
+        case {4 7 8}
+            runs=10:2:20;
+            pa=22;
+            inv1=3;
+            inv2=8;
+            uni=6;
         otherwise
             runs=10:2:20;
             pa=22;
@@ -33,21 +39,21 @@ for subi=subs
         disp(['Images of ' sub ' has already been generated!'])
     end
     
-    % generate timing files
-    analyze_timing(sub);
-    analyze_timing_rating(sub);
-    analyze_timing_valence(sub);
-
-    % generate phy files
-    resp_savebio(sub);
-    unix(['tcsh phy.tcsh ' sub ' "' num2str(runs) '"'])
-    resp_campare(sub);
-    % S03 run2 lose one point 989 at the end 
-    
-    %% use 3dresample in afni to match pa and run
-    input = [datafolder '/' sub '.pa+orig'];
-    output = [datafolder '/' sub '.par+orig'];
-    master = [datafolder '/' sub '.run1+orig'];
-    afni_resample=['3dresample -input ' input ' -master ' master ' -prefix ' output];
-    unix(afni_resample)
+%     % generate timing files
+%     analyze_timing(sub);
+%     analyze_timing_rating(sub);
+%     analyze_timing_valence(sub);
+% 
+%     % generate phy files
+%     resp_savebio(sub);
+%     unix(['tcsh phy.tcsh ' sub ' "' num2str(runs) '"'])
+%     resp_campare(sub);
+%     % S03 run2 lose one point 989 at the end 
+%     
+%     %% use 3dresample in afni to match pa and run
+%     input = [datafolder '/' sub '.pa+orig'];
+%     output = [datafolder '/' sub '.par+orig'];
+%     master = [datafolder '/' sub '.run1+orig'];
+%     afni_resample=['3dresample -input ' input ' -master ' master ' -prefix ' output];
+%     unix(afni_resample)
 end

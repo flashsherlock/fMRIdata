@@ -1,9 +1,12 @@
-function analyze_timing_valence_avg(sub)
+function analyze_timing_valence_allavg(sub)
 run=6;
 times=8;
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
-% cd(datadir);
+% get mean valence rating
+rating=mrirate(sub);
+valence=rating.valence;
+% variables for timing and rating
 timing=zeros(run,times*4);
 rating=timing;
 va=cell(run,4*times);
@@ -29,14 +32,14 @@ for i=1:run
     timing(i,:)=result(:,5)';
     % rating    
     % compute new valence rating
-    rating(i,:)=changeva(result)';
+    rating(i,:)=changeva(result,valence)';
     
     % combine onset and duration by *
     va(i,:)=strcat(strsplit(num2str(timing(i,:))),{'*'},strsplit(num2str(rating(i,:))));
 end
 
 % timing for odor valence(all runs)
-fid=fopen([datadir filesep 'odor_vavg.txt'],'w');
+fid=fopen([datadir filesep 'odor_allvavg.txt'],'w');
 for i=1:run
     temp=strjoin(va(i,:));
     fprintf(fid,'%s\r\n',temp);
@@ -46,16 +49,13 @@ fclose(fid);
 end
 
 % compute new valence
-function va=changeva(result)
+function va=changeva(result,valence)
 va=result(:,6);
 % odor numbers
 odors=unique(result(:,1));    
 % for each odor, find timing
 for oi=1:length(odors)
     odor=odors(oi);
-    valence=result(result(:,1)==odor&result(:,2)==1,6);
-    % calculate means
-    valence(valence==0)=nan;
-    va(result(:,1)==odor)=nanmean(valence);
+    va(result(:,1)==odor)=valence(oi);
 end
 end

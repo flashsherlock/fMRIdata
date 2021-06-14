@@ -2,8 +2,8 @@ function [data,error]=marker_trans_7T(data)
 %transform markers
 %run start 1, stimuli start -1
 %orange cross 2
-%odor onset 7,8,9,10
-%odor offset -7,-8,-9,-10
+%odor onset 7,8,9,10,11
+%odor offset -7,-8,-9,-10,-11
 %error 
 % bin to dec
 data=pinlv(data);
@@ -12,10 +12,12 @@ data(:,2)=quchong(data(:,2));
 %统计各个marker的频数
 t=tabulate(data(:,2));
 %choose markers
-marker=[7,8,9,10,-7,-8,-9,-10,1,-1,2];
+% marker=[7,8,9,10,-7,-8,-9,-10,1,-1,2];
+marker=[7,8,9,10,11,-7,-8,-9,-10,-11,1,-1,2];
 t=t(ismember(t(:,1),marker),:);
 %check number of each markers
-times=[8 8 8 8 1 1 32 8 8 8 8];
+% times=[8 8 8 8 1 1 32 8 8 8 8];
+times=[6 6 6 6 6 1 1 30 6 6 6 6 6];
 error=t((t(:,2)'==times)~=1,1)';
 if isempty(error)
     error=0;
@@ -47,7 +49,7 @@ temp=matrix(:,2:5);
 temp=ceil(temp/5);
 % convert to digits
 temp=temp*[1;2;4;8];
-expect=[0 1 2 7 8 9 10];
+expect=[0 1 2 7 8 9 10 11];
 % change unexpected values to previous one
 while ~isempty(temp(ismember(temp,expect)==0))
     temp(ismember(temp,expect)==0)=temp(find(ismember(temp,expect)==0)-1);
@@ -78,6 +80,7 @@ matrix1(2:end)=matrix(1:end-1);
 %原始的减去后错一位的
 %首个标记保留，之后首个0会成为负值
 temp=matrix-matrix1;
+temp(temp==9)=11;
 temp(temp==8)=10;
 temp(temp==7)=9;
 temp(temp==6)=8;

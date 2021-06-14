@@ -39,15 +39,17 @@ for subi=subs
         disp(['Images of ' sub ' has already been generated!'])
     end
     
-%     % generate timing files
-%     analyze_timing(sub);
-%     analyze_timing_rating(sub);
-%     analyze_timing_valence(sub);
-% 
-%     % generate phy files
-%     resp_savebio(sub);
-%     unix(['tcsh phy.tcsh ' sub ' "' num2str(runs) '"'])
-%     resp_campare(sub);
+    % generate timing files
+    analyze_timing(sub);
+    analyze_timing_rating(sub);
+    analyze_timing_valence(sub);
+    analyze_timing_valence_avg(sub);
+    analyze_timing_valence_allavg(sub);
+
+    % generate phy files
+    resp_savebio(sub);
+    unix(['tcsh phy.tcsh ' sub ' "' num2str(runs) '"'])
+    resp_campare(sub);
 %     % S03 run2 lose one point 989 at the end 
 %     
 %     %% use 3dresample in afni to match pa and run

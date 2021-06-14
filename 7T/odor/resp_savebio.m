@@ -20,7 +20,7 @@ filename=filename(indx);
 biopac_sprate=500;
 fmri_sprate=50;
 lowpass = 10;
-time = 390;
+time = 396;
 run = 6;
 
 for i = 1:run

@@ -1,15 +1,17 @@
-function analyze_timing_valence_allavg(sub)
+function analyze_timing_valence_allavg(sub,times)
 run=6;
-times=8;
+if nargin<2
+    times=[8 4];
+end
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
 % get mean valence rating
-rating=mrirate(sub);
+rating=mrirate(sub,times(1));
 valence=rating.valence;
 % variables for timing and rating
-timing=zeros(run,times*4);
+timing=zeros(run,times(1)*times(2));
 rating=timing;
-va=cell(run,4*times);
+va=cell(run,times(1)*times(2));
 % change sub to match filename
 sub=[lower(sub) '_run'];
 

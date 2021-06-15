@@ -1,10 +1,12 @@
-function analyze_timing(sub)
+function analyze_timing(sub,times)
 run=6;
-times=8;
+if nargin<2
+    times=[8 4];
+end
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
 % cd(datadir);
-timing=zeros(run,times,4);
+timing=zeros(run,times(1),times(2));
 % change sub to match filename
 sub=[lower(sub) '_run'];
 
@@ -37,7 +39,7 @@ for i=1:run
     
 end
 
-names={'lim','tra','car','cit'};
+names={'lim','tra','car','cit','ind'};
 for i=1:length(names)
     % timing for each odor(all runs)
     dlmwrite([datadir filesep names{i} '.txt'],timing(:,:,i),'delimiter',' ');

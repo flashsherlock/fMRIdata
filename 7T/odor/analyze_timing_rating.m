@@ -1,13 +1,15 @@
-function analyze_timing_rating(sub)
+function analyze_timing_rating(sub,times)
 run=6;
-times=8;
+if nargin<2
+    times=[8 4];
+end
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
 % cd(datadir);
 % change sub to match filename
 sub=[lower(sub) '_run'];
 % timing contains the time of rating onset and duration
-timing=cell(run,4*times/2,2);
+timing=cell(run,times(1)*times(2)/2,2);
 
 for i=1:run
     if strcmp(sub,'s01_run')

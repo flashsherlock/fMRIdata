@@ -1,5 +1,5 @@
 % generate images, timing files, and phy files for each subject
-subs=8;
+subs=6;
 rootfolder='/Volumes/WD_E/gufei/7T_odor/';
 % save all subject ratings
 % [rate_avg,rate_run]=saverate(subs);
@@ -40,11 +40,12 @@ for subi=subs
     end
     
     % generate timing files
-    analyze_timing(sub);
-    analyze_timing_rating(sub);
-    analyze_timing_valence(sub);
-    analyze_timing_valence_avg(sub);
-    analyze_timing_valence_allavg(sub);
+    times=[6 5];
+    analyze_timing(sub,times);
+    analyze_timing_rating(sub,times);
+    analyze_timing_valence(sub,times);
+    analyze_timing_valence_avg(sub,times);
+    analyze_timing_valence_allavg(sub,times);
 
     % generate phy files
     resp_savebio(sub);

@@ -11,11 +11,17 @@ if nargin < 3
 end
 respdir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/respiration/'];
 phydir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/phy/'];
+% make phy dir
+if ~exist(phydir,'dir')
+    mkdir(phydir)
+end
 % filename = dir([respdir filesep 'resp*.mat']);
 filename=dir([respdir filesep '*.acq']);
 % sort by time modified
 [~,indx]=sort([filename.datenum],'ascend');
 filename=filename(indx);
+% remove hx (huxi)
+filename(contains(string({filename.name}),'hx.acq'))=[];
 
 biopac_sprate=500;
 fmri_sprate=50;

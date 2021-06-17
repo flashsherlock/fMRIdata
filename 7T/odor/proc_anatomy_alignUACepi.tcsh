@@ -106,7 +106,7 @@ foreach mask (${masks})
     set output = `echo ${input} | cut -d '/' -f 3 | sed 's/.nii/+orig/'`
     # resample to the EPI grid
     3dAllineate                                                             \
-        -master stats.${subj}+orig                                          \
+        -master vr_base_min_outlier+orig                                          \
         -1Dmatrix_apply surf_hiresalign_align.${subj}.A2E.1D                     \
         -input ../${input}                                                  \
         -prefix ${output}                                                   \

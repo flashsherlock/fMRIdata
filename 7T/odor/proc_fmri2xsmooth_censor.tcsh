@@ -50,15 +50,15 @@ endif
                 behavior/tra.txt                                                                \
                 behavior/car.txt                                                                \
                 behavior/cit.txt                                                                \
+                behavior/ind.txt                                                                \
                 behavior/valence.txt                                                            \
                 behavior/intensity.txt                                                          \
-                behavior/odor_va.txt                                                            \
         -regress_stim_labels                                                                    \
-                lim tra car cit val int odor_va                                                 \
+                lim tra car cit ind val int                                                     \
         -regress_stim_types                                                                     \
-                times times times times AM1 AM1 AM1                                             \
+                times times times times times AM1 AM1                                           \
         -regress_basis_multi                                                                    \
-                'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'dmBLOCK(1)' 'dmBLOCK(1)' 'BLOCK(2,1)'  \
+                'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'dmBLOCK(1)' 'dmBLOCK(1)'   \
         -regress_opts_3dD                                                                       \
                 -jobs 12                                                                        \
                 -gltsym 'SYM: lim -tra'       -glt_label 1 lim-tra                              \
@@ -67,6 +67,10 @@ endif
                 -gltsym 'SYM: car -lim'       -glt_label 4 car-lim                              \
                 -gltsym 'SYM: cit -lim'       -glt_label 5 cit-lim                              \
                 -gltsym 'SYM: car -cit'       -glt_label 6 car-cit                              \
+                -gltsym 'SYM: ind -lim'       -glt_label 7 car-cit                              \
+                -gltsym 'SYM: ind -tra'       -glt_label 8 car-cit                              \
+                -gltsym 'SYM: ind -car'       -glt_label 9 car-cit                              \
+                -gltsym 'SYM: ind -cit'       -glt_label 10 car-cit                             \
         -regress_motion_per_run                                                                 \
         -regress_censor_motion 0.3                                                              \
         -regress_run_clustsim no

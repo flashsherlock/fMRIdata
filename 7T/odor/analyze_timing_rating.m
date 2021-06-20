@@ -2,6 +2,10 @@ function analyze_timing_rating(sub,times)
 run=6;
 if nargin<2
     times=[8 4];
+    maxrt=4.5;
+end
+if times(1)==6
+    maxrt=7;
 end
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
@@ -29,18 +33,24 @@ for i=1:run
     rt=mean(result(result(:,6)~=0,7));
     % rt-2.5(green cross and black cross) is real rt
     disp([resnum rt-2.5]);
+    
+    % check if affected by the wrong maxrt (S06-S08 should be fixed)
+    % if ismember(1,result(:,7)>7) || ismember(1,result(:,7)==0)
+    %     disp('Caution');
+    % end
+    
     % find rating time and duration
     valenceon=2.5+result(result(:,2)==1,5)';
     intensityon=2.5+result(result(:,2)==2,5)';
     % duration = column7 - 2.5
     valencedu=-2.5+result(result(:,2)==1,7)';
-    % durations > 4.5 or ==0 are 4.5
-    valencedu(valencedu==-2.5)=4.5;
-    valencedu(valencedu>4.5)=4.5;
+    % durations > maxrt or ==0 are maxrt
+    valencedu(valencedu==-2.5)=maxrt;
+    valencedu(valencedu>maxrt)=maxrt;
     % intensity duration
     intensitydu=-2.5+result(result(:,2)==2,7)';
-    intensitydu(intensitydu==-2.5)=4.5;
-    intensitydu(intensitydu>4.5)=4.5;
+    intensitydu(intensitydu==-2.5)=maxrt;
+    intensitydu(intensitydu>maxrt)=maxrt;
     % combine onset and duration by :
     timing(i,:,1)=strcat(strsplit(num2str(valenceon)),{':'},strsplit(num2str(valencedu)));
     timing(i,:,2)=strcat(strsplit(num2str(intensityon)),{':'},strsplit(num2str(intensitydu)));

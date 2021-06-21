@@ -1,13 +1,13 @@
-function dataout=analyze_rating(sub)
+function dataout=analyze_rating(sub,times)
 run=6;
-times=8;
+if nargin<2
+    times=[8 4];
+end
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
 % cd(datadir);
-timing=zeros(run,times,4);
-intensity=zeros(run*times/2,4);
+intensity=zeros(run*times(1)/2,times(2));
 valence=intensity;
-odors={'Lim','Tra','Car','Cit'};
 % change sub to match filename
 sub=[lower(sub) '_run'];
 
@@ -26,18 +26,17 @@ for i=1:run
     disp(['analyze' sub num2str(i)]);
     
     % rating    
-    % intensity=mean(result(result(:,1)==10&result(:,2)==2&result(:,6)~=0,6));
-    intensity((i-1)*times/2+1:i*times/2,1)=result(result(:,1)==7&result(:,2)==2,6);
-    intensity((i-1)*times/2+1:i*times/2,2)=result(result(:,1)==8&result(:,2)==2,6);
-    intensity((i-1)*times/2+1:i*times/2,3)=result(result(:,1)==9&result(:,2)==2,6);
-    intensity((i-1)*times/2+1:i*times/2,4)=result(result(:,1)==10&result(:,2)==2,6);
-    % valence
-    valence((i-1)*times/2+1:i*times/2,1)=result(result(:,1)==7&result(:,2)==1,6);
-    valence((i-1)*times/2+1:i*times/2,2)=result(result(:,1)==8&result(:,2)==1,6);
-    valence((i-1)*times/2+1:i*times/2,3)=result(result(:,1)==9&result(:,2)==1,6);
-    valence((i-1)*times/2+1:i*times/2,4)=result(result(:,1)==10&result(:,2)==1,6);
+    % get odor labels
+    odors=unique(result(:,1));
+    for iodors=1:length(odors)
+        % intensity
+        intensity((i-1)*times/2+1:i*times/2,iodors)=result(result(:,1)==odors(iodors)&result(:,2)==2,6);
+        % valence
+        valence((i-1)*times/2+1:i*times/2,iodors)=result(result(:,1)==odors(iodors)&result(:,2)==1,6);
+    end
     vo=sum(sum(valence((i-1)*times/2+1:i*times/2,:)==0));
     io=sum(sum(intensity((i-1)*times/2+1:i*times/2,:)==0));
+    
     % acc=(vo+io)/6*8*4;
     disp(vo+io);
     % may be affected by unresponsed values
@@ -61,13 +60,11 @@ disp(nanmean(intensity))
 % [p2,tbl2,stats2]=anova1(intensity,odors,'on');
 dataout.trial=[valence intensity];
 
+runvalence=zeros(run,times(2));
+runintensity=runvalence;
+for i=1:run
 % disp('valence_run')
-runvalence(1,:)=nanmean(valence(1:4,:));
-runvalence(2,:)=nanmean(valence(5:8,:));
-runvalence(3,:)=nanmean(valence(9:12,:));
-runvalence(4,:)=nanmean(valence(13:16,:));
-runvalence(5,:)=nanmean(valence(17:20,:));
-runvalence(6,:)=nanmean(valence(21:24,:));
+runvalence(i,:)=nanmean(valence(1+(i-1)*times(1)/2:i*times(1)/2,:));
 % disp(runvalence)
 % figure
 % plot(runvalence,'-d')
@@ -76,12 +73,8 @@ runvalence(6,:)=nanmean(valence(21:24,:));
 % axis([1 6 1 7])
 
 % disp('intensity_run')
-runintensity(1,:)=nanmean(intensity(1:4,:));
-runintensity(2,:)=nanmean(intensity(5:8,:));
-runintensity(3,:)=nanmean(intensity(9:12,:));
-runintensity(4,:)=nanmean(intensity(13:16,:));
-runintensity(5,:)=nanmean(intensity(17:20,:));
-runintensity(6,:)=nanmean(intensity(21:24,:));
+runintensity(i,:)=nanmean(intensity(1+(i-1)*times(1)/2:i*times(1)/2,:));
+end
 % disp(runintensity)
 dataout.run=[runvalence runintensity];
 % figure

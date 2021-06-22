@@ -91,6 +91,15 @@ Add valence and intensity ratings to regressors, including regressors for odors.
 ## deconvolve_rating_odor_va.tcsh
 Add odor_va to regressors.(${filedec}=odorVIva)
 
+## deconvolve_censor_odor.tcsh
+Only odor and time modulated regressors (for activation mask).
+
+## deconvolve_censor_odor_TENT.tcsh
+Use TENT function to deconvolve odors (for time course).
+
+## deconvolve_censor_odorva.tcsh
+Amplitude modulated rating regressors but no odor regressor (for clean data).
+
 ## deconvolve_run.tcsh
 Deconvolve for each run (one beta one conditon in each run).(${filedec}=Run)
 

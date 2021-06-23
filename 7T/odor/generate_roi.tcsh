@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach sub (S01_yyt S01 S02 S03)
+foreach sub (S04 S05 S06 S07 S08)
 # set sub=S01_yyt
 set analysis=pabiode
 
@@ -10,19 +10,19 @@ cd ${sub}.${analysis}.results
 
 # resample Piriform mask
 3dresample  -input COPY_anat_final.${sub}.${analysis}+orig      \
-            -master stats.${sub}.${analysis}+orig               \
+            -master vr_base_min_outlier+orig               \
             -rmode NN                                           \
             -prefix Piriform.seg
-# creat piriform mask
-3dcalc -a Piriform.seg+orig -expr 'amongst(a,21,22,29)' -prefix ../mask/Pir_new.draw+orig
+# creat piriform mask and remove voxels in Amy
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22,29)*iszero(b)' -prefix ../mask/Pir_new.draw+orig
 # creat old piriform mask
-3dcalc -a Piriform.seg+orig -expr 'amongst(a,21,22)' -prefix ../mask/Pir_old.draw+orig
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22)*iszero(b)' -prefix ../mask/Pir_old.draw+orig
 # create APC_new
-3dcalc -a Piriform.seg+orig -expr 'amongst(a,21,29)' -prefix ../mask/APC_new.draw+orig
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,29)*iszero(b)' -prefix ../mask/APC_new.draw+orig
 # create APC_old
-3dcalc -a Piriform.seg+orig -expr 'amongst(a,21)' -prefix ../mask/APC_old.draw+orig
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21)*iszero(b)' -prefix ../mask/APC_old.draw+orig
 # creat PPC
-3dcalc -a Piriform.seg+orig -expr 'amongst(a,22)' -prefix ../mask/PPC.draw+orig
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,22)*iszero(b)' -prefix ../mask/PPC.draw+orig
 
 
 

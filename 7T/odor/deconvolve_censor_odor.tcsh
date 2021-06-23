@@ -15,7 +15,7 @@ rm fitts*
 rm stats*
 rm X*
 
-set filedec = odorVI_noblurs
+set filedec = odorVI
 # # convert motion parameters for per-run regression
 # 1d_tool.py -infile motion_demean.1D -set_nruns 6               \
 #            -split_into_pad_runs mot_demean

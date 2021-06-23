@@ -10,7 +10,7 @@ cd "${datafolder}"
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 
-set filedec = odorVI_noblur
+set filedec = odorVI
 
 # run the regression analysis
 3dDeconvolve -input pb07.${subj}.r*.scale+orig.HEAD            \

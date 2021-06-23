@@ -10,11 +10,12 @@ cd "${datafolder}"
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 
+# rm *odorVIva*
 # no regressor for odors, but add mean valence and intensity
-set filedec = odorVIva_noblurs
+set filedec = odorVIva_noblur
 
 # run the regression analysis
-3dDeconvolve -input pb07.${subj}.r*.scale+orig.HEAD                 \
+3dDeconvolve -input pb05.${subj}.r*.volreg+orig.HEAD                 \
     -censor motion_${subj}_censor.1D                                \
     -ortvec mot_demean.r01.1D mot_demean_r01                        \
     -ortvec mot_demean.r02.1D mot_demean_r02                        \

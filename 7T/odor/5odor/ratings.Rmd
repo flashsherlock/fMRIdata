@@ -1,0 +1,148 @@
+---
+output: html_document
+params:
+    path: "/Volumes/WD_E/gufei/7T_odor/"
+title: "Ratings"
+author: "Fei"
+date: "`r Sys.time()`"
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(plotly)
+library(R.matlab)
+library(dplyr)
+library(tidyr)
+library(ggprism)
+ggthemr('fresh',layout = "clean")
+```
+
+```{r fig.height=4, fig.width=7}
+odors <- c("lim","tra","car","cit","ind")
+pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "-"))
+# WORD_SIZE <- 14
+pd <- position_dodge(0)
+gf_color <- c("#4375c2","#ec7b38")
+gf_color <- c("#4CA5CF","#F18549")
+# read mat file
+data <- readMat(file.path(params$path,'rating5odor.mat'))
+# avgdata is a dataframe
+avgdata <- as.data.frame(data$rate.avg)
+# remove zeros
+avgdata <- avgdata[4:8,]
+snum <- nrow(avgdata)
+row.names(avgdata) <- sprintf("S%02d",c(4:(3+snum)))
+avgdata <- cbind(avgdata,row.names(avgdata))
+names(avgdata) <- c(paste("valence",odors,"olfactometer",sep = "_"),
+                    paste("intensity",odors,"olfactometer",sep = "_"),
+                    paste("similarity",pairs,"olfactometer",sep = "_"),
+                    "sub")
+avgdata <- as.data.table(avgdata)
+avgdata <- separate(melt(id.vars="sub",avgdata),variable,c("dimension","odor","presentation"),sep = "_")
+
+for (dim in unique(avgdata$dimension)) {
+  current <- subset(avgdata,dimension==dim)
+  analyze_current <- describeBy(current$value,list(current$presentation,current$odor),mat = TRUE)
+  datachosen <- subset(analyze_current,select = c(group1,group2,mean,se))
+  names(datachosen) <- c("presentation","odor","mean","se")
+  if (dim == "similarity") {
+    datachosen <- mutate(datachosen,odor = factor(odor,pairs))
+  }else{
+    datachosen <- mutate(datachosen,odor = factor(odor,odors))
+  }
+    figure <- ggplot(datachosen,aes(x=odor,y=mean,
+                                    group=interaction(odor,presentation))) + 
+    #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+    labs(title = str_to_title(dim) ,x='Odor',y=dim)+#设置坐标轴
+    scale_y_continuous(expand = c(0,0))+
+    coord_cartesian(ylim=c(1,7)) + 
+    # scale_fill_manual(values = colors[1:2])+ #颜色
+    scale_fill_manual(values = gf_color)+ #自选颜色
+    geom_bar(position="dodge", stat="identity")+
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                  position=position_dodge(.9))
+    # print(figure)
+    # test ggprism theme
+    pfigure <- figure + theme_prism(base_line_size = 0.5)
+    print(pfigure)
+}
+```
+
+```{r fig.height=3, fig.width=5}
+# rundata is a 3d matrix, change it to dataframe
+gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556","#777DDD")
+rundata <- as.data.frame(data$rate.run)
+# remove zeros
+rundata <- rundata[,-c(1:30)]
+rundata <- cbind(rundata,paste("run",c(1:6),sep = "_"))
+names(rundata) <- c(paste0(rep(sprintf("S%02d_",c(4:(3+snum))),each=10),
+                         rep(c(paste("valence",odors,sep = "_"),
+                               paste("intensity",odors,sep = "_"))
+                             ,times=snum)),"run")
+# change to data.table so that melt will not redirect to reshape method
+rundata <- as.data.table(rundata)
+rundata <- separate(melt(id.vars="run",rundata),variable,c("sub","dimension","odor"),sep = "_")
+intensity <- subset(rundata,dimension=="intensity")
+valence <- subset(rundata,dimension=="valence")
+analyze_intensity <- describeBy(intensity$value,list(intensity$run,intensity$odor),mat = TRUE)
+analyze_valence <- describeBy(valence$value,list(valence$run,valence$odor),mat = TRUE)
+
+# Intensity
+datachosen <- subset(analyze_intensity,select = c(group1,group2,mean,se))
+names(datachosen) <- c("run","odor","mean","se")
+datachosen <- mutate(datachosen,odor = factor(odor,odors))
+title <- "Intensity"
+figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
+  labs(title = title ,x='Run',y='Intensity',color='Odor')+#设置坐标轴
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values = gf_color)+ #颜色
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0))+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_line(position = pd) +
+  # use linetype=0 or color=NA to remove border
+  geom_ribbon(aes(ymin = mean - se,
+                  ymax = mean + se,fill = odor), alpha = 0.1,linetype=0)+
+  guides(fill = F,color = guide_legend(
+    order = 1,# set legend order
+    override.aes = list(fill = gf_color)))+
+  coord_cartesian(ylim=c(1,7),clip = 'off')+
+  geom_point(position = pd)
+# print(figure_int)
+pfigure <- figure_int + theme_prism(base_line_size = 0.5)
+print(pfigure)
+
+# valence
+datachosen <- subset(analyze_valence,select = c(group1,group2,mean,se))
+names(datachosen) <- c("run","odor","mean","se")
+datachosen <- mutate(datachosen,odor = factor(odor,odors))
+title <- "Valence"
+figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
+  labs(title = title ,x='Run',y='Valence',color='Odor')+#设置坐标轴
+  # minor_breaks can be seen when grid is on
+  scale_y_continuous(breaks=seq(1, 7, 1),minor_breaks = seq(0.5,6.5,1),expand = c(0,0))+
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0))+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_line(position = pd) +
+  # use linetype=0 or color=NA to remove border
+  geom_ribbon(aes(ymin = mean - se,
+                  ymax = mean + se,fill = odor), alpha = 0.1,linetype=0)+
+  guides(fill = F,color = guide_legend(
+    order = 1,# set legend order
+    override.aes = list(fill = gf_color)))+
+  coord_cartesian(ylim=c(1,7),clip = 'off')+
+  geom_point(position = pd)
+# print(figure_val)
+pfigure <- figure_val + theme_prism(base_line_size = 0.5)
+print(pfigure)
+```
+

@@ -22,20 +22,20 @@ datafolder='/Volumes/WD_E/gufei/7T_odor/';
 % for region=[1 3 5 6 7 8 9 10 15]
 %     rois=[rois {['Amy_align' num2str(region) 'seg']}];
 % end
-odors={'lim','tra','car','cit'};
+odors={'lim','tra','car','cit','ind'};
 comb=nchoosek(1:length(odors), 2);
 % shift=6;
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
     % Amy_seg starts from 7
-parfor roi_i=1:length(rois)
+for roi_i=1:length(rois)
     roi=rois{roi_i};
     mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
     % Amy will match too many files
     if roi_i==1
         mask=mask(1,:);
     end
-for i=1:length(comb)
+parfor i=1:length(comb)
     odornumber=comb(i,:);
     % Set defaults
     cfg = decoding_defaults;
@@ -51,7 +51,7 @@ for i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l1_label_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -60,11 +60,11 @@ for i=1:length(comb)
     timing = findtrs(shift,sub);
     % images selected by odornumber
     tr = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), 2);
-    numtr=6*8*2;
+    numtr=6*6*2;
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -74,13 +74,13 @@ for i=1:length(comb)
     % each run is a chunk
     % cfg.files.chunk = reshape(repmat(1:6,[8 2]),[numtr 1]);
     % each trial is a chunk
-    cfg.files.chunk = reshape(repmat(1:6*8, [1 2]), [numtr 1]);
+    cfg.files.chunk = reshape(repmat(1:6*6, [1 2]), [numtr 1]);
     %
     % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
     % label number (i.e. a nx1 vector)
-    % 1-lim 2-tra 3-car 4-cit
-    cfg.files.label = reshape(repmat([odornumber(1) odornumber(2)],[48 1]),[numtr 1]);
-    cfg.files.labelname = reshape(repmat({labelname1 labelname2},[48 1]),[numtr 1]);
+    % 1-lim 2-tra 3-car 4-cit 5-ind
+    cfg.files.label = reshape(repmat([odornumber(1) odornumber(2)],[36 1]),[numtr 1]);
+    cfg.files.labelname = reshape(repmat({labelname1 labelname2},[36 1]),[numtr 1]);
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
 
@@ -95,7 +95,7 @@ for i=1:length(comb)
     % detailed version of it). Then you set:
 
     % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
-    cfg.results.output = {'accuracy_minus_chance', 'confusion_matrix','predicted_labels','true_labels'};
+    cfg.results.output = {'SVM_pattern', 'confusion_matrix','predicted_labels','true_labels'};
 
     % You can also use all methods that start with "transres_", e.g. use
     %   cfg.results.output = {'SVM_pattern'};

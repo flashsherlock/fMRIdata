@@ -132,7 +132,8 @@ for (sub_i in sub) {
         # accuracy
         acc = 100*sum(diag(cmatrix))/n # overall accuracy
         acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("4odors_",r),acc,"run_all")
-        sep_cmatrix <- split(current_data,rep(1:run_num, each = n/run_num))
+        # current_data has 2 rows (true and predict), so the number of each run should multiply 2
+        sep_cmatrix <- split(current_data,rep(1:run_num, each = 2*n/run_num))
         for (i_run in 1:run_num) {
           run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
           acc = compute_acc(run_matrix) # overall accuracy
@@ -157,6 +158,7 @@ for (sub_i in sub) {
           current_data <- data_labels[[cname]]
           acc <-  compute_acc(current_data) # overall accuracy
           acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,campare,acc,"run_all")
+          # should be n*2*2/nc/run_num, but nc=4
           sep_cmatrix <- split(current_data,rep(1:run_num, each = n/run_num))
           for (i_run in 1:run_num) {
             run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)

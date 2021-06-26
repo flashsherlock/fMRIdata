@@ -171,3 +171,6 @@ Analysis same as above but without physioloy correction (pade). This can be a ba
 
 # motion
 Compare different methods that deal with head movement in the 5th run of S01.
+
+# 5odor
+R scripts to show results of 5 odors experiment.

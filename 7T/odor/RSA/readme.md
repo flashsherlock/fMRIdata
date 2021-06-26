@@ -57,3 +57,6 @@ Generate a big RDM based on trial images.
 
 ### rsa_roi_4odors
 Perform RSA on run betas (with cross validation).
+
+# 5odor
+RSA for 5 odors experiment.

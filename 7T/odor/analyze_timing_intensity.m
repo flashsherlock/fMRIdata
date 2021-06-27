@@ -58,23 +58,13 @@ odors=unique(result(:,1));
 for oi=1:length(odors)
     odor=odors(oi);        
     intensity=result(result(:,1)==odor,6);
-    position=find(result(:,1)==odor);
-    % interval
-    d_before=[999;diff(position)];
-    d_after=[diff(position);999];
+    run_mean=mean(intensity(intensity~=0));
     % zero positions
     zero=find(intensity==0);
     for i=zero'
-        if d_before(i)==d_after(i)
-            intensity(i)=mean(intensity(i-1),intensity(i+1));
-        % close to the next one
-        elseif d_before(i)>d_after(i)
-            intensity(i)=intensity(i+1);
-        else
-            intensity(i)=intensity(i-1);
-        end
+        intensity(i)=run_mean;
     end
-    int(position)=intensity;
+    int(result(:,1)==odor)=intensity;
 end
 
 end

@@ -58,23 +58,13 @@ odors=unique(result(:,1));
 for oi=1:length(odors)
     odor=odors(oi);        
     valence=result(result(:,1)==odor,6);
-    position=find(result(:,1)==odor);
-    % interval
-    d_before=[999;diff(position)];
-    d_after=[diff(position);999];
+    run_mean=mean(valence(valence~=0));
     % zero positions
     zero=find(valence==0);
     for i=zero'
-        if d_before(i)==d_after(i)
-            valence(i)=mean(valence(i-1),valence(i+1));
-        % close to the next one
-        elseif d_before(i)>d_after(i)
-            valence(i)=valence(i+1);
-        else
-            valence(i)=valence(i-1);
-        end
+        valence(i)=run_mean;
     end
-    va(position)=valence;
+    va(result(:,1)==odor)=valence;
 end
 
 end

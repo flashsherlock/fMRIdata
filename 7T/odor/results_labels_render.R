@@ -1,11 +1,11 @@
 # default values
 path <- "/Volumes/WD_E/gufei/7T_odor/"
-mp<- c("roi_VIvaodor_l1_label_6")
+mp<- c("roi_VIviodor_l1_label_6")
 analysis <- c("pabiode")
 # subs 
 subs <- c("S01_yyt",sprintf('S%02d',c(1:3)))
 # rois
-roi <- c('Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align','Pir_new','Pir_old','APC_new','APC_old','PPC')
+roi <- c('Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC')
 roiname <- c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
 
 # render ratings
@@ -15,10 +15,10 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/ratings.Rmd",
 
 # odor_va results
 # render mean mvpa results
-title <- "Mean_odor_va"
+title <- "Mean_odor_vi"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Mean_va"),
+                  output_file = paste0("Mean_viall"),
                   params = list(sub = subs, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))
 

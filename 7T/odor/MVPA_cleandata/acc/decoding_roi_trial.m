@@ -28,14 +28,14 @@ comb=nchoosek(1:length(odors), 2);
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
     % Amy_seg starts from 7
-parfor roi_i=1:length(rois)
+for roi_i=1:length(rois)
     roi=rois{roi_i};
     mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
     % Amy will match too many files
     if roi_i==1
         mask=mask(1,:);
     end
-for i=1:length(comb)
+parfor i=1:length(comb)
     odornumber=comb(i,:);
     % Set defaults
     cfg = decoding_defaults;
@@ -51,7 +51,7 @@ for i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIviodor_l1_label_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -64,7 +64,7 @@ for i=1:length(comb)
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIvi_noblur+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -95,7 +95,7 @@ for i=1:length(comb)
     % detailed version of it). Then you set:
 
     % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
-    cfg.results.output = {'accuracy_minus_chance', 'confusion_matrix','predicted_labels','true_labels'};
+    cfg.results.output = {'SVM_weights', 'SVM_pattern','SVM_pattern_alldata','predicted_labels','true_labels'};
 
     % You can also use all methods that start with "transres_", e.g. use
     %   cfg.results.output = {'SVM_pattern'};

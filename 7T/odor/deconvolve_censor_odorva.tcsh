@@ -12,7 +12,7 @@ cd ${subj}.results
 
 # rm *odorVIva*
 # no regressor for odors, but add mean valence and intensity
-set filedec = odorVIva_noblur
+set filedec = odorVIvat_noblur
 
 # run the regression analysis
 3dDeconvolve -input pb05.${subj}.r*.volreg+orig.HEAD                 \
@@ -29,9 +29,9 @@ set filedec = odorVIva_noblur
     -stim_label 1 val                                               \
     -stim_times_AM1 2 ../behavior/intensity.txt 'dmBLOCK(1)'        \
     -stim_label 2 int                                               \
-    -stim_times_AM1 3 ../behavior/odor_allvavg.txt 'BLOCK(2,1)'     \
+    -stim_times_AM1 3 ../behavior/odor_va.txt 'BLOCK(2,1)'     \
     -stim_label 3 odor_va                                           \
-    -stim_times_AM2 4 ../behavior/odor_alliavg.txt 'BLOCK(2,1)'     \
+    -stim_times_AM2 4 ../behavior/odor_int.txt 'BLOCK(2,1)'     \
     -stim_label 4 odor_in                                           \
     -jobs 24                                                        \
     -x1D_uncensored X.nocensor.${filedec}.xmat.1D                   \

@@ -1,8 +1,10 @@
 #!/bin/tcsh
-set sub=S01_yyt
-set analysis=paphde
-
-set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+# set sub=S01_yyt
+if ( $# > 0 ) then
+set sub = $1
+set analysis=pabiode
+set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
 # run the regression analysis
@@ -47,3 +49,8 @@ set filedec = odorVI
     -fitts fitts.$subj.${filedec}                                        \
     -errts errts.${subj}.${filedec}                                      \
     -bucket stats.$subj.${filedec}
+
+else
+ echo "Usage: $0 <Subjname>"
+
+endif

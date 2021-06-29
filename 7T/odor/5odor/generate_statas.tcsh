@@ -77,8 +77,6 @@ if (! -e ../../stats/${sub}) then
     mkdir ../../stats/${sub}
 endif
 
-rm ../mask/*at165*
-
 foreach region (Pir_new Pir_old APC_new APC_old PPC)
     # generate t threshold masks
     # different regions of amygdala
@@ -86,16 +84,17 @@ foreach region (Pir_new Pir_old APC_new APC_old PPC)
             -b stats.${subjva}+orig'[5]' \
             -c stats.${subjva}+orig'[8]' \
             -d stats.${subjva}+orig'[11]' \
-            -e ../mask/${region}.draw+orig \
-            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65))*e' \
+            -e stats.${subjva}+orig'[14]' \
+            -f ../mask/${region}.draw+orig \
+            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
             -prefix ../mask/${region}_${maskdec_t}.draw
 
     # extract tent data (without blur)
     # 3dROIstats -mask ../mask/${region}.draw+orig \
     # -nzmean ${data_tent_va}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/${region}_tentva.txt
 
-    # 3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
-    # -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
+    3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
 
     # extract betas from blurred statas
     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
@@ -110,12 +109,13 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -b stats.${subjva}+orig'[5]' \
             -c stats.${subjva}+orig'[8]' \
             -d stats.${subjva}+orig'[11]' \
-            -e ../mask/${region}_${maskdec}.freesurfer+orig \
-            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65))*e' \
+            -e stats.${subjva}+orig'[14]' \
+            -f ../mask/${region}_${maskdec}.freesurfer+orig \
+            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
             -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
-    # 3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
-    # -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
+    3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
 
     # extract betas from blurred statas
     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \

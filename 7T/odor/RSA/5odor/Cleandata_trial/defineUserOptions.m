@@ -17,13 +17,13 @@ function userOptions = defineUserOptions()
 %% Project details
 userOptions.analysis='pabiode';
 userOptions.sessions=1;
-userOptions.conditions=192/userOptions.sessions;
+userOptions.conditions=180/userOptions.sessions;
 % This name identifies a collection of files which all belong to the same run of a project.
 userOptions.analysisName = 'Cleandata';
 
 % This is the root directory of the project.
 % some files will be saved in this folder
-userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA';
+userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/5odor_va_trial';
 datafolder = '/Volumes/WD_E/gufei/7T_odor';
 % if ~exist(userOptions.rootPath,'dir')
 %     mkdir(userOptions.rootPath)
@@ -41,8 +41,8 @@ userOptions.betaPath = [datafolder filesep '[[subjectName]]/' ['[[subjectName]]'
 userOptions.shift=6;
 
 % The list of subjects to be included in the study.
-userOptions.subn={'S01_yyt'};
-for sub_i=1:3
+userOptions.subn={};
+for sub_i=4:8
     userOptions.subn=[userOptions.subn sprintf('S%02d',sub_i)];
 end
 userOptions.subjectNames = userOptions.subn';

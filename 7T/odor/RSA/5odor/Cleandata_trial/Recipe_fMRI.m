@@ -30,25 +30,22 @@ sRDMs = rsa.rdm.averageRDMs_subjectSession(RDMs, 'session');
 % RDMs  = rsa.rdm.averageRDMs_subjectSession(sRDMs(:,[1 3 4]),'subject');
 RDMs  = rsa.rdm.averageRDMs_subjectSession(sRDMs, 'subject');
 % construct model RDMs
-Models = rsa.constructModelRDMs(modelRDMs_7T(1,userOptions.sessions,'S01_yyt'), userOptions);
-for i=1:3
+Models = rsa.constructModelRDMs(modelRDMs_7T(4,userOptions.sessions), userOptions);
+for i=5:8
     Models = [Models;rsa.constructModelRDMs(modelRDMs_7T(i,userOptions.sessions), userOptions)];
 end
 % average model RDMs across subjects (Apairs etc. remains the same but ratings are averaged)
 Models =Models';
 Modelsavg = Models(:,1);
 for i=1:length(Modelsavg)
-    Modelsavg(i).RDM=mean(reshape([Models(i,:).RDM],192/userOptions.sessions,192/userOptions.sessions,[]),3);
+    Modelsavg(i).RDM=mean(reshape([Models(i,:).RDM],180/userOptions.sessions,180/userOptions.sessions,[]),3);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% First-order visualisation %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 rsa.figureRDMs(RDMs, userOptions, struct('fileName', 'RoIRDMs', 'figureNumber', 1));
 % save model RDMs
-rsa.figureRDMs(Models(:,1), userOptions, struct('fileName', 'ModelRDMs', 'figureNumber', 2));
-saveas(gcf, [userOptions.rootPath filesep 'model_yyt.jpg']);
-for i=2:4
+for i=1:5
     rsa.figureRDMs(Models(:,i), userOptions, struct('fileName', 'ModelRDMs', 'figureNumber', 2));
     saveas(gcf, [userOptions.rootPath filesep 'model' num2str(i-1) '.jpg']);
 end
@@ -66,8 +63,8 @@ rsa.dendrogramConditions(RDMs, userOptions);
 corrmat=rsa.pairwiseCorrelateRDMs({RDMs, Modelsavg}, userOptions);
 saveas(gcf, [userOptions.rootPath filesep 'pair_avg.jpg']);
 % allocate space for results
-corrmat=repmat(corrmat,[1 1 4]);
-for i=1:4
+corrmat=repmat(corrmat,[1 1 5]);
+for i=1:5
     corrmat(:,:,i)=rsa.pairwiseCorrelateRDMs({sRDMs(:,i), Models(:,i)}, userOptions);
     saveas(gcf, [userOptions.rootPath filesep 'pair' num2str(i) '.jpg']);
 end

@@ -60,14 +60,11 @@ cd ${subj}.results
 # end
 
 # extract tent and beta values
-set filedec = odorVI
-set filedec_va = odorVIva_noblur
+set filedec = odorVI_noblur
 set maskdec = align # at165 or align
-set maskdec_t = at165 # at165 or align
+set maskdec_t = at196 # at165 or align
 set data_tent=tent.${subj}.${filedec}+orig
-set data_tent_va=tent.${subj}.${filedec_va}+orig
-set data_beta=stats.${subj}.${filedec}+orig
-set data_beta_va=stats.${subj}.odorVIva+orig
+set data_beta=stats.${subj}.odorVI+orig
 
 # make dir
 if (! -e ../../stats) then
@@ -77,50 +74,43 @@ if (! -e ../../stats/${sub}) then
     mkdir ../../stats/${sub}
 endif
 
-# foreach region (Pir_new Pir_old APC_new APC_old PPC)
+foreach region (Pir_new Pir_old APC_new APC_old PPC)
     # generate t threshold masks
     # different regions of amygdala
-    # 3dcalc  -a stats.${subjva}+orig'[2]' \
-    #         -b stats.${subjva}+orig'[5]' \
-    #         -c stats.${subjva}+orig'[8]' \
-    #         -d stats.${subjva}+orig'[11]' \
-    #         -e stats.${subjva}+orig'[14]' \
-    #         -f ../mask/${region}.draw+orig \
-    #         -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
-    #         -prefix ../mask/${region}_${maskdec_t}.draw
+    3dcalc  -a stats.${subjva}+orig'[2]' \
+            -b stats.${subjva}+orig'[5]' \
+            -c stats.${subjva}+orig'[8]' \
+            -d stats.${subjva}+orig'[11]' \
+            -e stats.${subjva}+orig'[14]' \
+            -f ../mask/${region}.draw+orig \
+            -expr 'or(astep(a,1.96),astep(b,1.96),astep(c,1.96),astep(d,1.96),astep(e,1.96))*f' \
+            -prefix ../mask/${region}_${maskdec_t}.draw
 
-    # extract tent data (without blur)
-    # 3dROIstats -mask ../mask/${region}.draw+orig \
-    # -nzmean ${data_tent_va}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/${region}_tentva.txt
-
-    # 3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
-    # -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
+    3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
 
     # extract betas from blurred statas
     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
     # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
-# end
+end
 
-# foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
-    # extract tent data (without blur)
-    # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
-    # -nzmean ${data_tent_va}"[`seq -s , 1 43`44]" >! ../../stats/${sub}/${region}_${maskdec}_tentva.txt
-    # 3dcalc  -a stats.${subjva}+orig'[2]' \
-    #         -b stats.${subjva}+orig'[5]' \
-    #         -c stats.${subjva}+orig'[8]' \
-    #         -d stats.${subjva}+orig'[11]' \
-    #         -e stats.${subjva}+orig'[14]' \
-    #         -f ../mask/${region}_${maskdec}.freesurfer+orig \
-    #         -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
-    #         -prefix ../mask/${region}_${maskdec_t}.freesurfer
+foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
+     3dcalc  -a stats.${subjva}+orig'[2]' \
+            -b stats.${subjva}+orig'[5]' \
+            -c stats.${subjva}+orig'[8]' \
+            -d stats.${subjva}+orig'[11]' \
+            -e stats.${subjva}+orig'[14]' \
+            -f ../mask/${region}_${maskdec}.freesurfer+orig \
+            -expr 'or(astep(a,1.96),astep(b,1.96),astep(c,1.96),astep(d,1.96),astep(e,1.96))*f' \
+            -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
-    # 3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
-    # -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
+    3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
 
     # extract betas from blurred statas
     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
     # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
-# end
+end
 
 # foreach region (1 3 5 6 7 8 9 10 15)
 #     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \
@@ -132,21 +122,21 @@ endif
 #     # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/Amy_${maskdec}${region}seg_beta.txt
 # end
 
-# extract beta values from each voxel
-3dmaskdump -mask ../mask/sAmy.freesurfer+orig   \
-    -mrange 1 15                                \
-    -o ../../stats/${sub}/sAmy_betadiff.txt     \
-    ../mask/sAmy.freesurfer+orig                \
-    ${data_beta}"[`seq -s , 1 3 12`13,`seq -s , 2 3 13`14]"
-    # -o option can not replace exsisting files
-    # >! ../../stats/${sub}/sAmy_betadiff.txt
-# Piriform
-3dmaskdump -mask Piriform.seg+orig                   \
-    -o ../../stats/${sub}/sPir_betadiff.txt     \
-    Piriform.seg+orig                                \
-    ${data_beta}"[`seq -s , 1 3 12`13,`seq -s , 2 3 13`14]"
-    # -o option can not replace exsisting files
-    # >! ../../stats/${sub}/sAmy_betadiff.txt
+# # extract beta values from each voxel
+# 3dmaskdump -mask ../mask/sAmy.freesurfer+orig   \
+#     -mrange 1 15                                \
+#     -o ../../stats/${sub}/sAmy_betadiff.txt     \
+#     ../mask/sAmy.freesurfer+orig                \
+#     ${data_beta}"[`seq -s , 1 3 12`13,`seq -s , 2 3 13`14]"
+#     # -o option can not replace exsisting files
+#     # >! ../../stats/${sub}/sAmy_betadiff.txt
+# # Piriform
+# 3dmaskdump -mask Piriform.seg+orig                   \
+#     -o ../../stats/${sub}/sPir_betadiff.txt     \
+#     Piriform.seg+orig                                \
+#     ${data_beta}"[`seq -s , 1 3 12`13,`seq -s , 2 3 13`14]"
+#     # -o option can not replace exsisting files
+#     # >! ../../stats/${sub}/sAmy_betadiff.txt
 
 else
  echo "Usage: $0 <Subjname> <analysis>"

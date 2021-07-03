@@ -25,9 +25,9 @@ userOptions.analysisName = 'Cleandata';
 % some files will be saved in this folder
 userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/5odor_va_trial';
 datafolder = '/Volumes/WD_E/gufei/7T_odor';
-% if ~exist(userOptions.rootPath,'dir')
-%     mkdir(userOptions.rootPath)
-% end
+if ~exist(userOptions.rootPath,'dir')
+    mkdir(userOptions.rootPath)
+end
 % The path leading to where the scans are stored (not including subject-specific identifiers).
 % "[[subjectName]]" should be used as a placeholder to denote an entry in userOptions.subjectNames
 % "[[betaIdentifier]]" should be used as a placeholder to denote an output of betaCorrespondence.m if SPM is not being used; or an arbitrary filename if SPM is being used.
@@ -119,7 +119,7 @@ userOptions.conditionLabels = conditions;
 % userOptions.useAlternativeConditionLabels = false;
 
 % What colours should be given to the conditions?
-userOptions.conditionColours = kron([1 0 0; 0 1 0; 0 0 1; 1 .7 0], ones(length(betas)/4,1));
+userOptions.conditionColours = kron([1 0 0; 0 1 0; 0 0 1; 1 .7 0], ones(length(betas)/userOptions.conditions,1));
 
 % Which distance measure to use when calculating first-order RDMs.
 userOptions.distance = 'Correlation';

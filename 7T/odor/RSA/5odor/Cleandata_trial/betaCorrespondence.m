@@ -28,7 +28,7 @@ preBeta = '[[subjectName]]_';
 
 session=1;
 s_name='exp';
-condition=180;
+condition=180/session;
 odors={'lim' 'tra' 'car' 'cit' 'ind'};
 labelname = reshape(repmat(odors,[36/session 1]),[condition 1]);
 labelname = strcat(labelname,string(1:condition)');

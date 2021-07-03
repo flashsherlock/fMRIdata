@@ -16,18 +16,18 @@ function userOptions = defineUserOptions()
 
 %% Project details
 userOptions.analysis='pabiode';
-userOptions.sessions=32;
-userOptions.conditions=96/userOptions.sessions;
+userOptions.sessions=36;
+userOptions.conditions=180/userOptions.sessions;
 % This name identifies a collection of files which all belong to the same run of a project.
-userOptions.analysisName = 'Cleandata_avg';
+userOptions.analysisName = 'Cleandata';
 
 % This is the root directory of the project.
 % some files will be saved in this folder
-userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/yanqing';
+userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/5odor_va_trialavg';
 datafolder = '/Volumes/WD_E/gufei/7T_odor';
-% if ~exist(userOptions.rootPath,'dir')
-%     mkdir(userOptions.rootPath)
-% end
+if ~exist(userOptions.rootPath,'dir')
+    mkdir(userOptions.rootPath)
+end
 % The path leading to where the scans are stored (not including subject-specific identifiers).
 % "[[subjectName]]" should be used as a placeholder to denote an entry in userOptions.subjectNames
 % "[[betaIdentifier]]" should be used as a placeholder to denote an output of betaCorrespondence.m if SPM is not being used; or an arbitrary filename if SPM is being used.
@@ -41,10 +41,10 @@ userOptions.betaPath = [datafolder filesep '[[subjectName]]/' ['[[subjectName]]'
 userOptions.shift=6;
 
 % The list of subjects to be included in the study.
-userOptions.subn={'yanqing'};
-% for sub_i=1:3
-%     userOptions.subn=[userOptions.subn sprintf('S%02d',sub_i)];
-% end
+userOptions.subn={};
+for sub_i=4:8
+    userOptions.subn=[userOptions.subn sprintf('S%02d',sub_i)];
+end
 userOptions.subjectNames = userOptions.subn';
 % userOptions.subjectNames = cell(length(userOptions.subn),1);
 % for sub_i=1:length(userOptions.subn)
@@ -71,12 +71,11 @@ userOptions.afni.software = 'AFNI';
 	% The path to a stereotypical mask data file is stored (not including subject-specific identifiers).
 	% "[[subjectName]]" should be used as a placeholder to denote an entry in userOptions.subjectNames
 	% "[[maskName]]" should be used as a placeholder to denote an entry in userOptions.maskNames
-	userOptions.maskPath = [datafolder filesep '[[subjectName]]' '/[[maskName]]+orig.HEAD'];%'/imaging/mb01/lexpro/multivariate/ffx_simple/[[subjectName]]/[[maskName]].img';
+	userOptions.maskPath = [datafolder filesep '[[subjectName]]' '/mask/[[maskName]].*orig.HEAD'];%'/imaging/mb01/lexpro/multivariate/ffx_simple/[[subjectName]]/[[maskName]].img';
 		
 		% The list of mask filenames (minus .hdr extension) to be used.
 		userOptions.maskNames = {'Pir_new','Pir_old','APC_new','APC_old','PPC'};
         userOptions.maskNames=[userOptions.maskNames {'Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'}];
-        userOptions.maskNames = {'APC'};
 %         for region=[1 3 5 6 7 8 9 10 15]
 %             userOptions.maskNames=[userOptions.maskNames {['Amy_align' num2str(region) 'seg']}];
 %         end
@@ -120,7 +119,7 @@ userOptions.conditionLabels = conditions;
 % userOptions.useAlternativeConditionLabels = false;
 
 % What colours should be given to the conditions?
-userOptions.conditionColours = kron([1 0 0; 0 1 0; 0 0 1; 1 .7 0], ones(length(betas)/3,1));
+userOptions.conditionColours = kron([1 0 0; 0 1 0; 0 0 1; 1 .7 0], ones(length(betas)/userOptions.conditions,1));
 
 % Which distance measure to use when calculating first-order RDMs.
 userOptions.distance = 'Correlation';

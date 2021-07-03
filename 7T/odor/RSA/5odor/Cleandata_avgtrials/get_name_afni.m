@@ -5,11 +5,10 @@ folder=fileparts(readPath);
 % sub number
 subn=userOptions.subn{subject};
 % find TRs
-load('/Volumes/WD_E/gufei/7T_odor/yanqing/yanqing.pabiode.results/t.mat');
-timing=targets;
+timing=findtrs(userOptions.shift,subn);
 
 tr=timing(:,2);
 % generate image name
-image_name=[folder filesep 'base+orig.BRIK,'];
+image_name=[folder filesep 'NIerrts.' subn '.' userOptions.analysis '.odorVIva_noblur+orig.BRIK,'];
 image_name=strcat(image_name,num2str(tr));
 end

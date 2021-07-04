@@ -193,17 +193,37 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
     # set test times
     n <- 180
     # plot
-    figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=phy)) + 
+    # figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=phy)) + 
+    #   labs(title = m ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
+    #   geom_bar(position="dodge", stat="identity") +
+    #   coord_cartesian(ylim=c(0,65)) +
+    #   scale_y_continuous(breaks = scales::breaks_width(5),
+    #                      expand = c(0,0))+
+    #   scale_x_discrete(labels=roiname)+
+    #   geom_hline(yintercept=c(20,100*qbinom(0.95,n,0.2)/n), linetype="dotted")+
+    #   scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
+    #   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+    #               position=position_dodge(.9))+
+    #   theme_prism(base_line_size = 0.5)
+    # ç
+    # Bar plot of mean +/-se
+    control <- subset(acc4odor,roi == params$roi[1])
+    control$acc <- 20
+    control$roi <- "control"
+    acc4odor <- rbind(acc4odor,control)
+    acc4odor <- mutate(acc4odor,roi = factor(roi,levels=c(params$roi,"control")))
+    figure <- ggbarplot(acc4odor, x = "roi", y = "acc", fill = 'phy', add = "mean_se")+
       labs(title = m ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
-      geom_bar(position="dodge", stat="identity") +
-      coord_cartesian(ylim=c(0,65)) +
+      stat_compare_means(method = "t.test",
+                         ref.group = "control",
+                         paired = TRUE,
+                         label = "p.format")+
+      coord_cartesian(ylim=c(0,50)) +
+      geom_hline(yintercept=c(20), linetype="dotted")+
       scale_y_continuous(breaks = scales::breaks_width(5),
                          expand = c(0,0))+
-      scale_x_discrete(labels=roiname)+
-      geom_hline(yintercept=c(20,100*qbinom(0.95,n,0.2)/n), linetype="dotted")+
+      scale_x_discrete(labels=c(roiname,"control"))+
       scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
-      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
-                  position=position_dodge(.9))+
       theme_prism(base_line_size = 0.5)
     print(figure)
   }
@@ -261,17 +281,38 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
       # set test times
       n <- 72
       # plot
-      figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=phy)) + 
+      # figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=phy)) + 
+      #   labs(title = paste(m,r,sep = "_") ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
+      #   geom_bar(position="dodge", stat="identity") +
+      #   coord_cartesian(ylim=c(0,100)) +
+      #   scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
+      #   scale_x_discrete(labels=roiname)+
+      #   geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
+      #   scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
+      #   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+      #                 position=position_dodge(.9))+
+      #   theme_prism(base_line_size = 0.5)
+      # print(figure)
+      
+      # Bar plot of mean +/-se
+      control <- subset(acc2odor_r,roi == params$roi[1])
+      control$acc <- 50
+      control$roi <- "control"
+      acc2odor_r <- rbind(acc2odor_r,control)
+      acc2odor_r <- mutate(acc2odor_r,roi = factor(roi,levels=c(params$roi,"control")))
+      figure <- ggbarplot(acc2odor_r, x = "roi", y = "acc", fill = 'phy', add = "mean_se")+
         labs(title = paste(m,r,sep = "_") ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
-        geom_bar(position="dodge", stat="identity") +
+        stat_compare_means(method = "t.test",
+                           paired = TRUE,
+                           ref.group = "control",
+                           label = "p.format")+
         coord_cartesian(ylim=c(0,100)) +
-        scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
-        scale_x_discrete(labels=roiname)+
-        geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
-        scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
-        geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
-                      position=position_dodge(.9))+
-        theme_prism(base_line_size = 0.5)
+        scale_y_continuous(breaks = scales::breaks_width(5),
+                           expand = c(0,0))+
+        scale_x_discrete(labels=c(roiname,"chance"))+
+        geom_hline(yintercept=c(50), linetype="dotted")+
+                     scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
+                     theme_prism(base_line_size = 0.5)
       print(figure)
     }
     # interested comparison

@@ -47,6 +47,9 @@ names(avgdata) <- c(paste("valence",odors,"olfactometer",sep = "_"),
 avgdata <- as.data.table(avgdata)
 avgdata <- separate(melt(id.vars="sub",avgdata),variable,c("dimension","odor","presentation"),sep = "_")
 
+# 建立一个list保存plotyly的结果
+plotly_plots <- htmltools::tagList()
+i <- 1
 for (dim in unique(avgdata$dimension)) {
   current <- subset(avgdata,dimension==dim)
   analyze_current <- describeBy(current$value,list(current$presentation,current$odor),mat = TRUE)
@@ -72,7 +75,34 @@ for (dim in unique(avgdata$dimension)) {
     # test ggprism theme
     pfigure <- figure + theme_prism(base_line_size = 0.5)
     print(pfigure)
+    
+    # 箱线图
+    if (dim == "similarity") {
+      current <- mutate(current,odor = factor(odor,pairs))
+    }else{
+      current <- mutate(current,odor = factor(odor,odors))
+    }
+    # ppc <- htmltools::div()  # Result is now an HTML object
+    figure <- ggplot(current,aes(x=odor,y=value,label=sub,
+                                    group=interaction(odor,presentation))) + 
+    #coord_cartesian(ylim=c(0,0.4)) +  # 设置y轴坐标范围
+    labs(title = str_to_title(dim) ,x='Odor',y=dim)+#设置坐标轴
+    scale_y_continuous(expand = c(0,0))+
+    coord_cartesian(ylim=c(1,7)) + 
+    geom_boxplot() +
+    scale_fill_manual(values = gf_color)+ #自选颜色
+    geom_point(col=2,pch=16,cex=1)+
+    # geom_text(position=position_jitterdodge(jitter.width = 0, jitter.height = 0),
+    #                 aes(label=sub),hjust=-0.3,size=2)+ 
+    theme_prism(base_line_size = 0.5)
+
+    print(figure)
+    # 互动式的图
+    plotly_plots[[dim]][[i]] <- ggplotly(figure,tooltip = c("label","y"))%>%layout(boxmode="group")
+    i <- i+1
 }
+#输出交互式绘图的结果
+plotly_plots
 ```
 
 ```{r fig.height=3, fig.width=5}

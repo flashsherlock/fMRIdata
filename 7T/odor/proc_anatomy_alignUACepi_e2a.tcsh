@@ -16,12 +16,23 @@ endif
 # use freesurfer to reconstruct surfaces
 # -sd pass working dir, the default is defined by env var 
 # high resolution reconstruction
+
 recon-all                                                                                   \
     -cm -i ${sub}_anat_warped/anatQQ.${sub}.nii                                             \
     -s ${sub}_surf_e2a -sd ./                                                               \
-    -all -noskullstrip                                                                      \
+    -autorecon1 -noskullstrip                                                                      \
     -parallel -threads 8                                                                    \
     -expert ../freesurfer_expert.txt
+
+cp ${sub}_surf_e2a/mri/T1.mgz ${sub}_surf_e2a/mri/brainmask.auto.mgz
+cp ${sub}_surf_e2a/mri/brainmask.auto.mgz ${sub}_surf_e2a/mri/brainmask.mgz
+
+# expert file has already been copied to subdir
+recon-all                                                                                   \
+    -cm                                                                                     \
+    -s ${sub}_surf_e2a -sd ./                                                               \
+    -autorecon2 -autorecon3                                                                 \
+    -parallel -threads 8
 
 # create files for suma
 # -fs_setup might me useful on macOS according to the help page

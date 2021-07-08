@@ -752,6 +752,16 @@ Runs the mri_watershed program. If the strip fails, users can specify
 seed points (-wsseed) or change the threshold (-wsthresh, -wsmore, -wsless).
 The -autorecon1 stage ends here.
 
+Q. I have already skull-stripped data. Can I submit it to recon-all?
+A: If your skull-stripped volume does not have the cerebellum, then no. If it does, then yes, however you will have to run the data a bit differently.
+
+First you must run only -autorecon1 like this:
+recon-all -autorecon1 -noskullstrip -s <subjid>
+
+Then you will have to make a symbolic link or copy T1.mgz to brainmask.auto.mgz and a link from brainmask.auto.mgz to brainmask.mgz. Finally, open this brainmask.mgz file and check that it looks okay (there is no skull, cerebellum is intact; use the sample subject bert that comes with your FreeSurfer installation to make sure it looks comparable). From there you can run the final stages of recon-all:
+recon-all -autorecon2 -autorecon3 -s <subjid>
+https://surfer.nmr.mgh.harvard.edu/fswiki/UserContributions/FAQ#Q.Ihavealreadyskull-strippeddata.CanIsubmitittorecon-all.3F
+
 NU Intensity Correction (-<no>nuintensitycor)
 
 Non-parametric Non-uniform intensity Normalization (N3), corrects for

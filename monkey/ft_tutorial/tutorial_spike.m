@@ -128,3 +128,87 @@ cfg.latency      = [-1 3];
 cfg.errorbars    = 'std'; % plot with standard deviation
 cfg.interactive  = 'no'; % toggle off interactive mode
 figure, ft_spike_plot_raster(cfg,spikeTrials, sdf)
+% A second output containing the estimated spike densities per trial
+% continuous raw data structure (sdf is a timelock structure)
+cfg         = [];
+cfg.latency = [-1 3];
+cfg.timwin  = [-0.1 0.1];
+cfg.fsample = 1000; % sample at 1000 hz
+[sdf, sdfdata] = ft_spikedensity(cfg,spikeTrials);
+%% Computing average firing rates and noise correlations
+cfg            = [];
+cfg.latency    = [0.3 max(spikeTrials.trialtime(:))]; % sustained response period
+cfg.keeptrials = 'yes';
+rate = ft_spike_rate(cfg,spikeTrials);
+% trial-by-trial fluctuations (called ‘noise correlations’) in their firing rate
+[R,P] = corrcoef(rate.trial);
+%% Computing cross-correlations between spike trains
+% read in the data, select the channels and define the trials
+spike = ft_read_spike(data);
+
+cfg              = [];
+cfg.spikechannel = {'sig001U_wf', 'sig002U_wf', 'sig003U_wf', 'sig004U_wf'}; % select only the MUA
+spike = ft_spike_select(cfg, spike);
+
+cfg          = [];
+cfg.dataset  = data;
+cfg.trialfun = 'trialfun_stimon';
+cfg = ft_definetrial(cfg);
+cfg.timestampspersecond =  spike.hdr.FileHeader.Frequency; % 40000
+spikeTrials = ft_spike_maketrials(cfg,spike);
+% compute the cross-correlogram (and the shift-predictor cross-correlogram)
+cfg             = [];
+cfg.maxlag      = 0.2; % maximum 200 ms
+cfg.binsize     = 0.001; % bins of 1 ms
+cfg.outputunit  = 'proportion'; % make unit area
+cfg.latency     = [-2.5 0];
+cfg.vartriallen = 'no'; % do not allow variable trial lengths
+cfg.method      = 'xcorr'; % compute the normal cross-correlogram
+Xc = ft_spike_xcorr(cfg,spikeTrials);
+
+% compute the shuffled correlogram
+cfg.method      = 'shiftpredictor'; % compute the shift predictor
+Xshuff = ft_spike_xcorr(cfg,spikeTrials);
+
+iCmb = 3;
+jCmb = 4;
+figure
+xcSmoothed = conv(squeeze(Xc.xcorr(iCmb,jCmb,:)),ones(1,5)./5,'same'); % do some smoothing
+hd = plot(Xc.time(3:end-2),xcSmoothed(3:end-2),'k'); % leave out borders (because of smoothing)
+hold on
+xcSmoothed = conv(squeeze(Xshuff.shiftpredictor(iCmb,jCmb,:)),ones(1,5)./5,'same');
+plot(Xc.time(3:end-2),xcSmoothed(3:end-2),'r')
+hold on
+xlabel('delay')
+ylabel('proportion of coincidences')
+title([Xc.label{iCmb} Xc.label{jCmb}])
+axis tight
+%% The joint peri stimulus time histogram
+% compute the spike densities
+cfg         = [];
+cfg.latency = [-1 3];
+cfg.timwin  = [-0.025 0.025];
+cfg.fsample = 200;
+[sdf] = ft_spikedensity(cfg,spikeTrials);
+
+% compute the joint psth
+cfg               = [];
+cfg.normalization = 'no';
+cfg.channelcmb    = spikeTrials.label(3:4);
+cfg.method        = 'jpsth';
+jpsth = ft_spike_jpsth(cfg,sdf);
+
+cfg.method = 'shiftpredictor';
+jpsthShuff = ft_spike_jpsth(cfg,sdf);
+
+% subtract the predictor
+jpsthSubtr = jpsth;
+jpsthSubtr.jpsth = jpsth.jpsth-jpsthShuff.shiftpredictor;
+
+cfg        = [];
+figure
+ft_spike_plot_jpsth(cfg,jpsth)
+figure
+ft_spike_plot_jpsth(cfg,jpsthShuff)
+figure
+ft_spike_plot_jpsth(cfg,jpsthSubtr)

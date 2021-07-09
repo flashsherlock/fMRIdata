@@ -14,6 +14,8 @@ distractorChange = 12000;
 targetChange     = 12001;
 attCnds          = 20001:20004;       % att in/out by target change first/second
 E          = struct2cell(event);
+% ensure empty cells will be remained after cell2mat
+E(cellfun('isempty',E))={NaN};
 samples    = cell2mat(E(1,:));        % now in vector form
 value      = cell2mat(E(2,:));
 timestamps = cell2mat(E(3,:));        % now in vector form
@@ -22,11 +24,11 @@ endmark    = find(value==endtrial);   % loop through the trial beginnings
 trl = [];
 for k=1:length(begmark)
   vals = value(begmark(k):endmark(k));
-  if any(ismember(vals,attCnds)) && ~isempty(find(vals==correctresponse))
+  if any(ismember(vals,attCnds)) && ~isempty(vals(vals==correctresponse))
     ts = timestamps(begmark(k):endmark(k)); % in timestamp units
-    beginTs      = ts(find(vals==stimon));
-    tsDistractor = ts(find(vals==distractorChange));
-    tsTarget     = ts(find(vals==targetChange));
+    beginTs      = ts(vals==stimon);
+    tsDistractor = ts(vals==distractorChange);
+    tsTarget     = ts(vals==targetChange);
     endTs        = min([tsTarget(:);tsDistractor(:)]);    % limit until first change
     offset       = - hdr.Fs*hdr.TimeStampPerSample*2.75;  % 40000 timestamps per second x 2.75 sec
     trl          = [trl; [beginTs+offset endTs offset]];

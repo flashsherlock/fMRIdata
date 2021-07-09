@@ -9,6 +9,8 @@ distractorChange = 12000;
 targetChange     = 12001;
 attCnds          = 20001:20004; % att in/out by target change first/second
 E          = struct2cell(event);
+% ensure empty cells will be remained after cell2mat
+E(cellfun('isempty', E)) = {NaN};
 samples    = cell2mat(E(1,:)); % now in vector form
 value      = cell2mat(E(2,:));
 begmark    = find(value==begintrial); % loop through the trial beginnings
@@ -16,12 +18,12 @@ endmark    = find(value==endtrial); % loop through the trial beginnings
 trl        = []; % initialize the cfg.trl
 for k=1:length(begmark)
     vals = value(begmark(k):endmark(k));
-    if any(ismember(vals,attCnds)) && ~isempty(find(vals==correctresponse))
+    if any(ismember(vals,attCnds)) && ~isempty(vals(vals==correctresponse))
         % create the trl matrix in sample units
         samp = samples(begmark(k):endmark(k)); % in timestamp units	
-        beginSamp      = samp(find(vals==stimon));        
-        sampDistractor = samp(find(vals==distractorChange));
-        sampTarget     = samp(find(vals==targetChange));       
+        beginSamp      = samp(vals==stimon);        
+        sampDistractor = samp(vals==distractorChange);
+        sampTarget     = samp(vals==targetChange);       
         endSamp        = min([sampTarget(:);sampDistractor(:)]); % limit until first change        
         offset         = -round(hdr.Fs*2.75);        
         trl            = [trl; [beginSamp+offset endSamp offset]];

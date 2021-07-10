@@ -57,6 +57,9 @@ Amygdala can be automatically segmented to 9 nucleis by command `segmentHA_T1.sh
 Use `@SSwarper` to preprocessing anatomical image, then align it to EPI and do recon (keep 0.7mm) to show data on surface (SUMA).
 It may improve accuracy (avoid transformation) after align to EPI.
 
+## proc_anatomy_alignUACepi_e2a.tcsh
+Use anatQQ (skull-stripped and normalized image) to do recon-all and generate masks.
+
 ## proc_fmri2xsmooth.tcsh
 Use `afni_proc.py` to do preprocessing and deconvolve for all runs (one beta one conditon, adding valence and intensity rating as regressors). Set to 2.2mm smooth. Add odor_va regressor.
 
@@ -65,6 +68,9 @@ Same as `proc_fmri2xsmooth.tcsh` but align EPI to anatomical image.
 
 ## proc_fmri2xsmooth_censor.tcsh
 Same as `proc_fmri2xsmooth.tcsh` but censor motions.
+
+## proc_fmri2xsmooth_censor_e2a.tcsh
+Same as `proc_fmri2xsmooth_censor.tcsh` but align EPI to anatomy.
 
 ## change_label.tcsh
 Change labels in stats file because of a mistake in pro_fmri.tcsh leads to wrong label for a regressor.

@@ -65,7 +65,7 @@ cd ${subj}.results
 # surf_anat is in different grids and has skull
 # an error will occur if set prefix in -skull_strip_opt
 @SUMA_AlignToExperiment                                                 \
-    -exp_anat anat_final.${subj}+orig.HEAD                              \
+    -exp_anat anat_final.${subj}+tlrc.HEAD                              \
     -surf_anat ../${sub}_surf_e2a/SUMA/${sub}_SurfVol.nii             \
     -prefix surf_e2a_align.${subj}                                    \
     -strip_skull surf_anat                                              \

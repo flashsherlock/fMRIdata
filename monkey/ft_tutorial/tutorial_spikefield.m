@@ -70,6 +70,12 @@ xlabel('time (s)')
 %% Computing the spike triggered average LFP
 % The first step in the analysis of spike-LFP phase-coupling should be
 % the computation of the spike-triggered average (STA) of the LFP.
+% ERROR: cfg.latency is not used in ft_spiketriggeredaverage function
+% cfgSelect.latency = cfg.latency;
+% if length(cfg.trials)~=length(data.trial)
+%     cfgSelect.trials  = cfg.trials;
+% end
+% SOLUTION: add above lines after line 139 (cfgSelect = [])
 cfg              = [];
 cfg.timwin       = [-0.25 0.25]; % take 400 ms
 cfg.spikechannel = spike.label{1}; % first unit
@@ -97,3 +103,74 @@ plot(staPre.time, staPre.avg(:,:)')
 legend(data_lfp.label)
 xlabel('time (s)')
 xlim(cfg.timwin)
+%% Computing the phases of spikes relative to the ongoing LFP
+% The first algorithm ft_spiketriggeredspectrum_fft computes the FFT locally
+% around every spike and uses the same window length for all frequencies.
+cfg              = [];
+cfg.method       = 'mtmfft';
+cfg.foilim       = [20 100]; % cfg.timwin determines spacing
+cfg.timwin       = [-0.05 0.05]; % time window of 100 msec
+cfg.taper        = 'hanning';
+cfg.spikechannel = spike.label{1};
+cfg.channel      = data_lfp.label;
+stsFFT           = ft_spiketriggeredspectrum(cfg, data_all);
+ang = angle(stsFFT.fourierspctrm{1});
+mag = abs(stsFFT.fourierspctrm{1});
+% The other algorithm in ft_spiketriggeredspectrum_convol computes the phase
+% for every frequency separately by computing the DFT for a given frequency through convolution.
+cfg           = [];
+cfg.method    = 'mtmconvol';
+cfg.foi       = 20:10:100;
+cfg.t_ftimwin = 5./cfg.foi; % 5 cycles per frequency
+cfg.taper     = 'hanning';
+% The latter way of calling ft_spiketriggeredspectrum is advantageous
+stsConvol     = ft_spiketriggeredspectrum(cfg, data_all);
+stsConvol2    = ft_spiketriggeredspectrum(cfg, data_lfp, spikeTrials);
+%% Computing statistics on the output from ft_spiketriggeredspectrum.m
+for k = 1:length(stsConvol.label)
+
+  % compute the statistics on the phases
+  cfg               = [];
+  cfg.method        = 'ppc0'; % compute the Pairwise Phase Consistency
+  excludeChan       = str2num(stsConvol.label{k}(6)); % exclude the same channel
+  chan              = true(1,4);
+  chan(excludeChan) = false;
+  cfg.spikechannel  = stsConvol.label{k};
+  cfg.channel       = stsConvol.lfplabel(chan); % selected LFP channels
+  cfg.avgoverchan   = 'unweighted'; % weight spike-LFP phases irrespective of LFP power
+  cfg.timwin        = 'all'; % compute over all available spikes in the window
+  cfg.latency       = [0.3 nanmax(stsConvol.trialtime(:))]; % sustained visual stimulation period
+  statSts           = ft_spiketriggeredspectrum_stat(cfg,stsConvol);
+
+  % plot the results
+  figure
+  plot(statSts.freq,statSts.ppc0')
+  xlabel('frequency')
+  ylabel('PPC')
+end
+
+param = 'ppc0'; % set the desired parameter
+% param = 'plv';
+for k = 1:length(stsConvol.label)
+  cfg                = [];
+  cfg.method         = param;
+  excludeChan        = str2num(stsConvol.label{k}(6)); % this gives us the electrode number of the unit
+  chan = true(1,4);
+  chan(excludeChan)  = false;
+  cfg.spikechannel   = stsConvol.label{k};
+  cfg.channel        = stsConvol.lfplabel(chan);
+  cfg.avgoverchan    = 'unweighted';
+  cfg.winstepsize    = 0.01; % step size of the window that we slide over time
+  cfg.timwin         = 0.5; % duration of sliding window
+  statSts            = ft_spiketriggeredspectrum_stat(cfg,stsConvol);
+
+  statSts.(param) = permute(conv2(squeeze(statSts.(param)), ones(1,20)./20, 'same'),[3 1 2]); % apply some smoothing over 0.2 sec
+
+  figure
+  cfg            = [];
+  cfg.parameter  = param;
+  cfg.refchannel = statSts.labelcmb{1,1};
+  cfg.channel    = statSts.labelcmb{1,2};
+  cfg.xlim       = [-1 2];
+  ft_singleplotTFR(cfg, statSts)
+end

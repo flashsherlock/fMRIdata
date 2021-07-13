@@ -30,7 +30,7 @@ for i_analysis=1:length(analysis_all)
     % Amy_align stars from 16
 parfor i=1:length(rois)
     roi=rois{i};
-    mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
+    mask=get_filenames_afni([datafolder sub '/mask_e2a/' roi '*+orig.HEAD']);
     % Amy will match too many files
     if i==1
         mask=mask(1,:);
@@ -61,7 +61,7 @@ parfor i=1:length(rois)
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+tlrc.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)

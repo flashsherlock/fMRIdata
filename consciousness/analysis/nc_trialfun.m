@@ -44,6 +44,8 @@ try
     % add offset
     offset=offset*ones(size(start));
     trl=[start stop offset label];
+    % time order
+    trl=sortrows(trl);
 catch
     error('The trial numbers of each odor are not equal')
 end

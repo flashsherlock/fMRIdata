@@ -1,5 +1,8 @@
 %% set path
 subjID = 's04';
+anandaw=nc_findawake(subjID);
+trial_an=1:anandaw(1);
+trial_aw=anandaw(2):anandaw(3);
 filepath='/Volumes/WD_D/gufei/consciousness';
 sfix={'','_awake','_sleep'};
 % use bipolar block data
@@ -12,50 +15,105 @@ for i=1:3
     % load and plot if data exist
     if exist(dataset,'file')
         load(dataset);
+      
+        % split into anesthetic and awake
+        cfg         = [];
+        cfg.trials  = trial_an;
+        eeg_an=ft_selectdata(cfg,eeg);
+        cfg.trials  = trial_aw;
+        eeg_aw=ft_selectdata(cfg,eeg);
+        % reject trials
+        cfg          = [];
+        cfg.method   = 'summary';
+        cfg.channel = ft_channelselection({'all','-dc*'}, eeg_an.label);
+        cfg.keepchannel = 'yes';
+        eeg_an        = ft_rejectvisual(cfg,eeg_an);
+        eeg_aw        = ft_rejectvisual(cfg,eeg_aw);
+        % frequency spectrum
+        cfg         = [];
+        cfg.output  = 'pow';
+        cfg.method  = 'mtmfft';
+        cfg.taper   = 'hanning';
+        cfg.foi     = 1:40;
+        cfg.channel = ft_channelselection({'F*'}, eeg.label);
+        spectr_ana  = ft_freqanalysis(cfg, eeg_an);
+        spectr_awake  = ft_freqanalysis(cfg, eeg_aw);
+        figure;
+        hold on;
+        plot(spectr_ana.freq, mean(spectr_ana.powspctrm,1), 'linewidth', 2)
+        plot(spectr_ana.freq, mean(spectr_awake.powspctrm,1), 'linewidth', 2)
+        legend('anesthetic', 'awake')
+        xlabel('Frequency (Hz)')
+        ylabel('Power (\mu V^2)')
+        
         % Baseline-correction options
         cfg = [];
         cfg.demean          = 'yes';
         cfg.baselinewindow  = [-2 0];
-        eeg = ft_preprocessing(cfg, eeg);
+        eeg_an = ft_preprocessing(cfg, eeg_an);
+        eeg_aw = ft_preprocessing(cfg, eeg_aw);
         % prepare layout for ploting
-        lay = nc_prepare_lay(eeg);
-        % plot ERP for each odor
+        % lay = nc_prepare_lay(eeg);
+        
         % 2-lemon 4-chocolate 5-garlic
         for iodor=[2 4 5]
+            
+            % anesthetic
             % define trials to be ploted
             cfg = [];
-            cfg.trials = find(eeg.trialinfo==iodor);
-            % all of the trials
-            cfg.trials = 1:length(eeg.trialinfo);
+            cfg.trials = find(eeg_aw.trialinfo==iodor);
             % timelock analysis
-            odor = ft_timelockanalysis(cfg, eeg);
-            % plot ERP
-            cfg = [];
-            cfg.layout = lay;
-            cfg.interactive = 'yes';
-            cfg.showoutline = 'yes';
-            ft_multiplotER(cfg, odor);
-            
+            odor = ft_timelockanalysis(cfg, eeg_aw);
             % time-frequency analysis
-            cfg            = [];
-            cfg.method     = 'mtmconvol';
-            cfg.toi        = -1:0.01:5;
-            cfg.foi        = 1:5:96;
-            cfg.t_ftimwin  = ones(length(cfg.foi),1).*0.2;
-            cfg.taper      = 'hanning';
-            cfg.output     = 'pow';
-            cfg.keeptrials = 'no';
-            freq = ft_freqanalysis(cfg, eeg);
+            cfgtf=cfg;
+            cfgtf.method     = 'mtmconvol';
+            cfgtf.toi        = -1.5:0.01:5;
+            cfgtf.foi        = 1:1:40;
+            cfgtf.t_ftimwin  = ones(length(cfgtf.foi),1).*1;
+%             cfg.t_ftimwin  = 5./cfg.foi;
+            cfgtf.taper      = 'hanning';
+            cfgtf.output     = 'pow';
+            cfgtf.keeptrials = 'yes';
+            freq = ft_freqanalysis(cfgtf, eeg_aw);
             % baseline correction
             cfg              = [];
-            cfg.baseline     = [-1 0];
-            cfg.baselinetype = 'relchange';
+            cfg.baseline     = [-1.5 0];
+            cfg.baselinetype = 'db';
+            freq_blc = ft_freqbaseline(cfg, freq);
+            % check if some of the trials drive the results
+%             freq_blc.powspctrm=permute(freq_blc.powspctrm,[3 2 1 4]);
+%             freq_blc.freq=freq_blc.freq(1):1:freq_blc.freq(1)+194;
+            % plot
+            cfg             = [];
+            cfg.channel = ft_channelselection({'F*'}, eeg_aw.label);
+%             cfg.channel = ft_channelselection({'all','-dc*'}, eeg.label);
+%             cfg.channel = 'DC05';
+            % plot TF
+            ft_singleplotTFR(cfg, freq_blc);
+            % plot ERP            
+            ft_singleplotER(cfg, odor);            
+            
+            % awake
+            cfg = [];
+            cfg.trials = find(eeg_an.trialinfo==iodor);
+            % timelock analysis
+            odor = ft_timelockanalysis(cfg, eeg_an);
+            % time-frequency analysis
+            cfgtf.trials = cfg.trials;
+            freq = ft_freqanalysis(cfgtf, eeg_an);
+            % baseline correction
+            cfg              = [];
+            cfg.baseline     = [-1.5 0];
+            cfg.baselinetype = 'db';
             freq_blc = ft_freqbaseline(cfg, freq);
             % plot
             cfg             = [];
-            cfg.layout      = lay;
-            cfg.showoutline = 'yes';
-            ft_multiplotTFR(cfg, freq_blc);
+            cfg.channel = ft_channelselection({'F*'}, eeg_an.label);
+            % plot TF
+            ft_singleplotTFR(cfg, freq_blc);
+            % plot ERP            
+            ft_singleplotER(cfg, odor);
+            
         end
     end
 end

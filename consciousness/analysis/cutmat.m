@@ -63,11 +63,11 @@ for i=condition
         % cut to trials
         % get start time points of each trial
         trl = nc_trialfun(eeg);
-        % cut blocks (2s before onset )
-        eeg = nc_trialcut(eeg,trl,fix(-2*eeg.fsample),0);
+        % cut blocks (2s before onset and 0.5s after offset)
+        eeg = nc_trialcut(eeg,trl,fix(-2*eeg.fsample),fix(0.5*eeg.fsample));
         
-        % save data
-%         save([block_path '/' subjID sfix{i} '.mat'],'eeg');
+%         save data
+        save([block_path '/' subjID sfix{i} '.mat'],'eeg');
         
     end
 end

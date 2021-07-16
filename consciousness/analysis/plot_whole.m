@@ -45,10 +45,10 @@ if exist(dataset,'file')
     cfg            = [];
     cfg.method     = 'mtmconvol';
     cfg.toi        = 'all';
-    cfg.foi        = 1:2:27;
+    cfg.foi        = 1:1:27;
     % time window 2s
-    cfg.t_ftimwin  = ones(length(cfg.foi),1).*2;
-    cfg.tapsmofrq  = ones(length(cfg.foi),1).*1;
+    cfg.t_ftimwin  = ones(length(cfg.foi),1).*1;
+    cfg.tapsmofrq  = ones(length(cfg.foi),1).*0.4;
     cfg.taper      = 'hanning';
     cfg.output     = 'pow';
     cfg.keeptrials = 'no';
@@ -57,10 +57,10 @@ if exist(dataset,'file')
     % prepare layout for ploting
 %     lay = nc_prepare_lay(eeg);
     cfg = [];
-%     cfg.baseline     = [-0.5 -0.1];
-%     cfg.baselinetype = 'absolute';
+    cfg.baseline     = [100 110];
+    cfg.baselinetype = 'db';
     cfg.maskstyle    = 'saturation';
-    cfg.zlim         = [0 300];
+    cfg.zlim         = [-15 15];
     cfg.channel      = 1;
     cfg.layout       = 'CTF151_helmet.mat';
     figure

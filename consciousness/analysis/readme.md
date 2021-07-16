@@ -33,12 +33,15 @@ Remove some channels in s02 after converting to bipolar reference be
 ## cutmat.m
 Cut whole data into trials and convert eposition to elec.
 
-## trialdel.m
+## nc_trialdel.m
 Delete some parts of the data that contain incomplete markers.
 
 ## nc_trialfun.m
 Find and convert trial markers into a matrix (trl).
 trl=[start stop offset label];
+
+## nc_findawake.m
+Return anesthetic and awake trials.
 
 ## nc_blockfun.m
 Find and convert block markers into a matrix (trl).
@@ -50,7 +53,7 @@ Cut data by the matrix trl and numbers of timepoints before(-)/after(+) trial st
 Only for test.
 
 ## nc_prepare_elec.m
-Conver information in eposition field to elec field used by frieldtrip.
+Convert information in eposition field to elec field used by frieldtrip.
 
 # Electrodes localization
 

@@ -1,6 +1,6 @@
 % set port
 delete(instrfindall('Type','serial'));
-s = serial('com6', 'BaudRate',115200);
+s = serial('com3', 'BaudRate',115200);
 % open port
 fopen(s);  
 % time
@@ -11,10 +11,14 @@ airt=15                                                                         
 re=5;
 odor=[2 4 5];
 odorname={'ƒ˚√ ','«…øÀ¡¶','œ„À‚'};
-% fwrite(s, 6); %air
-% disp('air')
-% WaitSecs(15); 
 
+% start marker
+fwrite(s, 1);
+WaitSecs(1);
+% 15s air
+fwrite(s, 6);
+disp('air')
+WaitSecs(15);
 for i=1:re
 
     disp(i);
@@ -28,5 +32,10 @@ for i=1:re
     end
 
 end
+% stop marker
+fwrite(s, 1);
+WaitSecs(1);
+fwrite(s, 6);
+% close port
 fclose(s);
 % delete(instrfindall('Type','serial'));

@@ -10,10 +10,14 @@ airt=16                                                                         
 re=1;
 odor=[5 4 2];
 odorname={'œ„À‚','«…øÀ¡¶','ƒ˚√ '};
-% fwrite(s, 6); %air
-% disp('air')
-% WaitSecs(15); 
 
+% start marker
+fwrite(s, 1);
+WaitSecs(1);
+% 15s air
+fwrite(s, 6);
+disp('air')
+WaitSecs(15);
 for i=1:re
 
     disp(i);
@@ -27,5 +31,10 @@ for i=1:re
     end
 
 end
+% stop marker
+fwrite(s, 1);
+WaitSecs(1);
+fwrite(s, 6);
+% close port
 fclose(s);
 % delete(instrfindall('Type','serial'));

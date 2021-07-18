@@ -1,5 +1,5 @@
 %% set path
-subjID = 's04';
+subjID = 's03';
 anandaw=nc_findawake(subjID);
 trial_an=1:anandaw(1);
 trial_aw=anandaw(2):anandaw(3);
@@ -35,7 +35,7 @@ for i=1:3
         cfg.method  = 'mtmfft';
         cfg.taper   = 'hanning';
         cfg.foi     = 1:40;
-        cfg.channel = ft_channelselection({'F*'}, eeg.label);
+        cfg.channel = ft_channelselection({'A*'}, eeg.label);
         spectr_ana  = ft_freqanalysis(cfg, eeg_an);
         spectr_awake  = ft_freqanalysis(cfg, eeg_aw);
         figure;
@@ -63,7 +63,7 @@ for i=1:3
             cfg = [];
             cfg.trials = find(eeg_aw.trialinfo==iodor);
             % timelock analysis
-            odor = ft_timelockanalysis(cfg, eeg_aw);
+%             odor = ft_timelockanalysis(cfg, eeg_aw);
             % time-frequency analysis
             cfgtf=cfg;
             cfgtf.method     = 'mtmconvol';
@@ -85,19 +85,19 @@ for i=1:3
 %             freq_blc.freq=freq_blc.freq(1):1:freq_blc.freq(1)+194;
             % plot
             cfg             = [];
-            cfg.channel = ft_channelselection({'F*'}, eeg_aw.label);
+            cfg.channel = ft_channelselection({'A*'}, eeg_aw.label);
 %             cfg.channel = ft_channelselection({'all','-dc*'}, eeg.label);
 %             cfg.channel = 'DC05';
             % plot TF
             ft_singleplotTFR(cfg, freq_blc);
             % plot ERP            
-            ft_singleplotER(cfg, odor);            
+%             ft_singleplotER(cfg, odor);            
             
             % awake
             cfg = [];
             cfg.trials = find(eeg_an.trialinfo==iodor);
             % timelock analysis
-            odor = ft_timelockanalysis(cfg, eeg_an);
+%             odor = ft_timelockanalysis(cfg, eeg_an);
             % time-frequency analysis
             cfgtf.trials = cfg.trials;
             freq = ft_freqanalysis(cfgtf, eeg_an);
@@ -108,11 +108,11 @@ for i=1:3
             freq_blc = ft_freqbaseline(cfg, freq);
             % plot
             cfg             = [];
-            cfg.channel = ft_channelselection({'F*'}, eeg_an.label);
+            cfg.channel = ft_channelselection({'A*'}, eeg_an.label);
             % plot TF
             ft_singleplotTFR(cfg, freq_blc);
             % plot ERP            
-            ft_singleplotER(cfg, odor);
+%             ft_singleplotER(cfg, odor);
             
         end
     end

@@ -1,5 +1,5 @@
 %% set path
-subjID = 's04';
+subjID = 's03';
 filepath='/Volumes/WD_D/gufei/consciousness';
 % sfix={'','_awake','_sleep'};
 % use bipolar block data
@@ -62,7 +62,5 @@ if exist(dataset,'file')
     cfg.maskstyle    = 'saturation';
     cfg.zlim         = [-15 15];
     cfg.channel      = 1;
-    cfg.layout       = 'CTF151_helmet.mat';
-    figure
     ft_singleplotTFR(cfg, freq);
 end

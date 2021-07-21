@@ -1,4 +1,4 @@
-analysis_all={'pabioe2a'};
+analysis_all={'pabiode'};
 shift=6;
 % rois={'Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'};
 % for region=[1 3 5 6 7 8 9 10 15]
@@ -9,10 +9,14 @@ shift=6;
 % rois={'Amy8_at196','corticalAmy_at196','CeMeAmy_at196','BaLaAmy_at196','Pir_new_at196','Pir_old_at196','APC_new_at196','APC_old_at196','PPC_at196'};
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC'};
 rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy'};
+rois={'whole_brain'};
 
 % S04-S08
-for i=4:8
+for i=5:8
     sub=sprintf('S%02d',i);
-    decoding_roi_5odors_trial(sub,analysis_all,rois,shift);
-    decoding_roi_trial(sub,analysis_all,rois,shift);
+%     decoding_roi_5odors_trial(sub,analysis_all,rois,shift);
+%     decoding_roi_trial(sub,analysis_all,rois,shift);
+    % searchlight
+    decoding_searchlight_5odors_trial(sub,analysis_all,rois,shift);
+    decoding_searchlights_trial(sub,analysis_all,rois,shift);
 end

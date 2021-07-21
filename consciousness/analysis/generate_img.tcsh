@@ -1,11 +1,12 @@
 #! /bin/csh
-
+if ( $# > 0 ) then
+set sub = $1
 set datafolder=/Volumes/WD_D/gufei/consciousness/electrode
 cd "${datafolder}"
 cd use
 # to3d 结果是有问题的，Dimon比较好
 # ==========================transform========================== #
-foreach sub (s02)
+# foreach sub (s02)
 
 cd ${sub}
 
@@ -41,4 +42,9 @@ Dimon -infile_pattern 'I*' \
 -no_wait
 cd ..
 
-end
+# end
+
+else
+ echo "Usage: $0 <Subjname>"
+
+endif

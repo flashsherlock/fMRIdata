@@ -1,5 +1,5 @@
 %% set path and load header from edf file
-subjID = 's05';
+subjID = 's06';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID '/' subjID '/brain3D'];
 %% generate labels manually
 % prefix='POL ';
@@ -19,6 +19,9 @@ switch subjID
     case 's05'
     ename=['A' 'H' 'J' 'O'];
     enum=[14 14 14 16];
+    case 's06'
+    ename=['A' 'H' 'M' 'T'];
+    enum=[14 14 12 12];
 end
 
 names=cell(sum(enum),1);

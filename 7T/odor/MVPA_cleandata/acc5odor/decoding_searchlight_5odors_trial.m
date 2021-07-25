@@ -29,7 +29,7 @@ for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
     % Amy_seg starts from 7
     % Amy_align stars from 16
-parfor i=1:length(rois)
+for i=1:length(rois)
     roi=rois{i};
     mask=get_filenames_afni([datafolder sub '/' sub '.' analysis '.results/' 'mask_epi_anat*+orig.HEAD']);
     % Amy will match too many files

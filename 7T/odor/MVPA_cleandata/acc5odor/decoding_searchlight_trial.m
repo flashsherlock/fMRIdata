@@ -1,4 +1,4 @@
-function decoding_searchlight_trial(sub,analysis_all,rois,shift)
+function decoding_searchlight_trial(sub,analysis_all,rois,shift,comb_i)
 % This script is a template that can be used for a decoding analysis on 
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
@@ -38,7 +38,8 @@ for roi_i=1:length(rois)
     if roi_i==1
         mask=mask(1,:);
     end
-parfor i=1:length(comb)
+% parfor i=1:length(comb)
+    i=comb_i;
     odornumber=comb(i,:);
     % Set defaults
     cfg = decoding_defaults;
@@ -111,7 +112,7 @@ parfor i=1:length(comb)
 
     % Run decoding
     results = decoding(cfg);    
-end
+% end
 end
 end
 end

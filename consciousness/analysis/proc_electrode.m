@@ -1,5 +1,5 @@
 %% set path and load header from edf file
-subjID = 's06';
+subjID = 's07';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 % filename='FA0576HS';
 % hdr = ft_read_header([filepath filesep filename '.edf']);
@@ -28,6 +28,9 @@ switch subjID
     case 's06'
     ename=['A' 'H' 'M' 'T'];
     enum=[14 14 12 12];
+    case 's07'
+    ename=['A' 'B' 'H' 'I'];
+    enum=[14 12 14 12];
 end
 names=cell(sum(enum),1);
 for i=1:length(ename)

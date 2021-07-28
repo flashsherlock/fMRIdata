@@ -16,6 +16,10 @@ switch subjID
         subname='WanRuilong';
     case 's05'
         subname='ZhouYuxuan';
+    case 's06'
+        subname='WuYue';
+    case 's07'
+        subname='ChenJinhao';
     otherwise
         error('No data for this subject');
 end

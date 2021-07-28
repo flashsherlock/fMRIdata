@@ -1,5 +1,5 @@
 % the filename con't contain '-',so change to '_'
-sub		   = 's06';
+sub		   = 's07';
 fshome     = '/Applications/freesurfer/7.1.1/';
 subdir     = ['/Volumes/WD_D/gufei/consciousness/electrode/use/' sub];
 mrfile     = [subdir '/' sub '_MRI_acpc.nii'];

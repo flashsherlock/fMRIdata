@@ -1,7 +1,7 @@
 %% use spm to reorient CT image
 % spm will clear workspace if quit
 % workdir = pwd;
-subjID = 's06';
+subjID = 's07';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 cd(filepath);
 copy = ['cp ' subjID '_CT.nii ' subjID '_CT_acpc.nii'];

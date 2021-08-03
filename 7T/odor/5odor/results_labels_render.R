@@ -1,12 +1,15 @@
 # default values
 path <- "/Volumes/WD_E/gufei/7T_odor/"
 mp<- c("roi_VIvaodor_l1_label_6")
-analysis <- c("pabiode")
+analysis <- c("pabioe2a")
 # subs 
 subs <- c(sprintf('S%02d',c(4:8)))
 # rois
-roi <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
+# roi <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
+roi <- c('Amy8_at196','corticalAmy_at196','CeMeAmy_at196','BaLaAmy_at196','Pir_new_at196','Pir_old_at196','APC_new_at196','APC_old_at196','PPC_at196')
 roiname <- c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
+roi <- c('Amy8_align','corticalAmy','CeMeAmy','BaLaAmy')
+roiname <- c("Amy","Cortical","CeMe","BaLa")
 
 # render ratings
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rmd",
@@ -15,10 +18,10 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rm
 
 # odor_va results
 # render mean mvpa results
-title <- "Mean_odor_va"
+title <- "Mean_odor_vae2a"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Mean_va"),
+                  output_file = paste0("Mean_vae2a"),
                   params = list(sub = subs, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))
 
@@ -26,7 +29,7 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/results_la
 suffix <- "_tent.txt"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/roistatas.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("ROIstatas"),
+                  output_file = paste0("ROIstatas_noblur"),
                   params = list(sub = subs, roi = roi, suffix = suffix))
 
 

@@ -1,4 +1,4 @@
-function [valid_res_plx,resp_points]=find_resp_time(front)
+function [valid_res_plx,resp_points,odor_time]=find_resp_time(front)
 %加载数据
 respname=[front '.mat'];
 plxname=[front '.plx'];
@@ -42,13 +42,18 @@ end
 %进行数据对齐，电生理与呼吸
 plx_time=reshape(ts,7,[]);
 plx_time=reshape(plx_time(3:6,:),2,[])';
-resp_time=marker_info(:,2:3)/sample_rate;
+biop_time=marker_info(:,2:3)/sample_rate;
 %计算两个系统的时间差异
-bia=mean(mean(plx_time-resp_time));
+bia=mean(mean(plx_time-biop_time));
 %将呼吸标记转换为以秒为单位的plx中的时间
 valid_res_plx=valid_res;
+odor_time= cell(6,1);
  for b =1:6
     valid_res_plx{b,1}(:,:)=valid_res{b,1}(:,:)/sample_rate+bia;
  end
 resp_points=points(:,1:3)/sample_rate+bia;
+ for b =1:6
+    odor_time{b,1}(:,:)=marker_info(marker_info(:,1)==b,2:3)/sample_rate+bia;
+ end
+
 end

@@ -35,8 +35,9 @@ for date_i=1:length(date)
             [nspk, tspk] = plx_ts(fl, SPK_chan,0);
             %按照每导读取数据，频率信息存在raw_freq中，数据信息存在raw_ad中
             [raw_freq, raw_n, raw_ts, raw_fn, raw_ad] = plx_ad(fl,CON_chan);
+            ad_time=0:(1/raw_freq):(raw_n-1)/raw_freq;
             %得到plx时间下的呼吸时间点
-            [valid_res_plx,resp_points]=find_resp_time(front);
+            [valid_res_plx,resp_points,~]=find_resp_time(front);
             % 只是取一部分的空气条件
             valid_res_plx{6}=valid_res_plx{6}(randperm(length(valid_res_plx{6}), 4),:);
             pre = 2;

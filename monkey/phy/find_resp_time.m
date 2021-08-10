@@ -12,6 +12,8 @@ points = findpoints(res_data.data);
 marker_time=find(res_data.data(:,2)~=0);
 marker_label=res_data.data(marker_time,2);
 marker_info=[marker_label(1:2:end) reshape(marker_time,2,[])'];
+marker_info_old=marker_info;
+marker_info(marker_info(:,1)==6,2)=marker_info(marker_info(:,1)==6,2)+6*sample_rate;
 
 %找到气味释放区间有效呼吸
 p = 1; % mark the index of current loc 
@@ -42,7 +44,7 @@ end
 %进行数据对齐，电生理与呼吸
 plx_time=reshape(ts,7,[]);
 plx_time=reshape(plx_time(3:6,:),2,[])';
-biop_time=marker_info(:,2:3)/sample_rate;
+biop_time=marker_info_old(:,2:3)/sample_rate;
 %计算两个系统的时间差异
 bia=mean(mean(plx_time-biop_time));
 %将呼吸标记转换为以秒为单位的plx中的时间

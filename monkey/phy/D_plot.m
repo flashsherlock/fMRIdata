@@ -4,16 +4,16 @@ clc;
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 odor_num = 6;
 sample_rate=500;
-date={'200529'};
-chanlist=[43 45 52 63];
+date={'200612'};
+chanlist=[45];
 condition='rm035ana_';
 
+for resposition=1:3
 valid_spk = cell(odor_num,1);
 cat_spk = cell(odor_num,1);
 resp1=cat_spk;
 resp2=cat_spk;
 resp3=cat_spk;
-
 for date_i=1:length(date)
     cur_date=date{date_i};
     for test=1:4
@@ -39,14 +39,14 @@ for date_i=1:length(date)
             %得到plx时间下的呼吸时间点
             [valid_res_plx,resp_points,~]=find_resp_time(front);
             % 只是取一部分的空气条件
-            valid_res_plx{6}=valid_res_plx{6}(randperm(length(valid_res_plx{6}), 4),:);
+%             valid_res_plx{6}=valid_res_plx{6}(randperm(length(valid_res_plx{6}), 4),:);
             pre = 2;
             post = 2;
             win = 0.05; % 50ms/win
             max_y = 30;
             for i = 1:odor_num
                 for res_i = 1:length(valid_res_plx{i})
-                   ref = valid_res_plx{i}(res_i,3);
+                   ref = valid_res_plx{i}(res_i,resposition);
                     valid_spk{i}{end+1} = tspk(tspk>=ref-pre & tspk<=ref+post)-ref;
                     resp1{i}{end+1}=resp_points(resp_points(:,1)>=ref-pre & resp_points(:,1)<=ref+post,1)-ref;
                     resp2{i}{end+1}=resp_points(resp_points(:,2)>=ref-pre & resp_points(:,2)<=ref+post,2)-ref;
@@ -103,4 +103,5 @@ for i = 1:odor_num
 end
 picturename=strcat(condition,date);
 suptitle([picturename{1} num2str(chanlist)])
-saveas(gcf,picturename{1},'fig')
+% saveas(gcf,picturename{1},'fig')
+end

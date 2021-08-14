@@ -1,5 +1,5 @@
 datafolder='/Volumes/WD_E/gufei/7T_odor/results_RSA/';
-pattern={'odor_va_trial','odor_trial'};
+pattern={'5odor_va_trial','5odor_trial'};
 for rsa_i=1:length(pattern)    
     load([datafolder pattern{rsa_i} filesep '/RDMs/Cleandata_RDMs.mat']);
     sRDMs = rsa.rdm.averageRDMs_subjectSession(RDMs, 'session');

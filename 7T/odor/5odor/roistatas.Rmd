@@ -101,7 +101,8 @@ return(data)
 ```
 
 # Correlation
-```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
+Compare within and between class correlation
+```{r echo=FALSE, fig.height=5, fig.width=12}
 readrclass <- function(txtname){
   rclass <- readMat(file.path(params$path,'results_RSA',paste0(txtname,'.mat')))
   label <- unlist(rclass$label)
@@ -109,7 +110,8 @@ readrclass <- function(txtname){
   rclass <- separate(data.frame(results,label),label,c('roi','sub','r','run'),sep = "\\s?\\|\\s?")
   return(rclass)
 }
-rname <- ifelse(params$suffix=='_tentva.txt','odor_va_trial','odor_trial')
+# 5 odor_va_trial
+rname <- ifelse(params$suffix=='_tentva.txt','5odor_va_trial','5odor_va_trial')
 for (t in rname) {
   rclass <- readrclass(t)
   runs <- unique(rclass$run)

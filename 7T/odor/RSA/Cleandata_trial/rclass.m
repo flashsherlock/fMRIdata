@@ -6,8 +6,8 @@ results=zeros(2,3);
 mask=cell(2,3);
 size=length(rdm);
 run=6;
-trial=8;
-odor=4;
+trial=6;
+odor=5;
 % remove diagonal
 d=eye(size);
 all=ones(size)-d;

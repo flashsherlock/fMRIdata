@@ -6,7 +6,7 @@ data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 odor_num = 6;
 sample_rate=500;
 date={'200529'};
-chanlist=[43 45 52 63];
+chanlist=[43];
 condition='rm035ana_';
 
 valid_spk = cell(odor_num,1);
@@ -41,7 +41,7 @@ for date_i=1:length(date)
             [~,resp_points,odor_time]=find_resp_time(front);
             % 只是取一部分的空气条件
             valid_res_plx=odor_time;
-            valid_res_plx{6}=valid_res_plx{6}(randperm(length(valid_res_plx{6}), 3),:);
+            valid_res_plx{6}=valid_res_plx{6}(randperm(length(valid_res_plx{6}), 6),:);
             pre = 2;
             post = 7;
             win = 0.05; % 50ms/win
@@ -94,7 +94,8 @@ for i = 1:odor_num
     trans_spk = floor(cat_spk{i}/win)*win + win/2;
     freq = hist(trans_spk,unique(trans_spk))/(win*res_i);
 %    max_y = max([max_y;smoothcur]);
-    smoothfreq=smooth(freq);
+    smoothfreq=smooth(freq,10);
+%     smoothfreq=smooth(freq);
 %     smoothfreq=freq;
     plot(unique(trans_spk), smoothfreq,'LineWidth',1.5,'color','[0.4940 0.1840 0.5560]');
     %set(gca,'Position',[0.05+(i-1)*0.2,0.1,0.15,0.35])

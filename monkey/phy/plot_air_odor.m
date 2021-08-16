@@ -6,11 +6,13 @@ data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 odor_num = 2;
 sample_rate=500;
 date={'200529'};
-chanlist=[43 45 52 63];
+chanlist=[43];
 condition='rm035ana_';
 
 valid_spk = cell(odor_num,1);
+valid_lfp = cell(odor_num,1);
 cat_spk = cell(odor_num,1);
+lfp=struct('label',{{}},'trial',{{[]}},'time',{{[]}});
 resp1=cat_spk;
 resp2=cat_spk;
 resp3=cat_spk;
@@ -37,8 +39,24 @@ for date_i=1:length(date)
             %按照每导读取数据，频率信息存在raw_freq中，数据信息存在raw_ad中
             [raw_freq, raw_n, raw_ts, raw_fn, raw_ad] = plx_ad(fl,CON_chan);
             ad_time=0:(1/raw_freq):(raw_n-1)/raw_freq;
+%             lfp.label{end+1}=CON_chan;
+%             lfp.trial{1}=[lfp.trial{1};raw_ad'];
+%             lfp.time{1}(end+1,:)=ad_time';
+%             lfp.fsample=raw_freq;
             %得到plx时间下的呼吸时间点
             [~,resp_points,odor_time]=find_resp_time(front);
+            %分割trial 每个test和date是不一样的，但是不同的通道是一样的
+%             trl=[];
+%             for label_i=1:length(odor_time)
+%                 trl=[trl;[odor_time{label_i} zeros(size(odor_time{label_i},1),1) repmat(label_i,size(odor_time{label_i},1),1)]];
+%             end
+%             trl(:,1:2)=round(trl(:,1:2)*lfp.fsample);
+%             trl(:,2)=trl(:,1)+lfp.fsample*7;
+%             cfg=[];
+%             cfg.trl=trl;
+%             d = ft_redefinetrial(cfg, lfp);
+            %
+            
             % 只是取一部分的空气条件
             valid_res_plx{1}=[odor_time{1};odor_time{2};odor_time{3};odor_time{4};odor_time{5}];
             valid_res_plx{2}=odor_time{6};
@@ -50,6 +68,7 @@ for date_i=1:length(date)
                 for res_i = 1:length(valid_res_plx{i})
                    ref = valid_res_plx{i}(res_i,1);
                     valid_spk{i}{end+1} = tspk(tspk>=ref-pre & tspk<=ref+post)-ref;
+                    valid_lfp{i}{end+1} = raw_ad(ad_time>=ref-pre & ad_time<=ref+post);
                     resp1{i}{end+1}=resp_points(resp_points(:,1)>=ref-pre & resp_points(:,1)<=ref+post,1)-ref;
                     resp2{i}{end+1}=resp_points(resp_points(:,2)>=ref-pre & resp_points(:,2)<=ref+post,2)-ref;
                     resp3{i}{end+1}=resp_points(resp_points(:,3)>=ref-pre & resp_points(:,3)<=ref+post,3)-ref;

@@ -30,7 +30,7 @@ for i_analysis=1:length(analysis_all)
     % Amy_align stars from 16
 parfor i=1:length(rois)
     roi=rois{i};
-    mask=get_filenames_afni([datafolder sub '/mask_e2a/' roi '*+orig.HEAD']);
+    mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
     % Amy will match too many files
     if i==1
         mask=mask(1,:);
@@ -47,38 +47,45 @@ parfor i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l1_label_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l1_label_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
     
-    timing=findtrs(shift,sub);
-    % Full path to file names (1xn cell array) (e.g.
-    % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
-    % lim tra car cit
-    tr=timing(:,2);
-    numtr=6*6*5;
-    F=cell(1,numtr);
-    for subi = 1:numtr
-        t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+tlrc.BRIK,' num2str(t)];
+    cfg.files.name={};
+    cfg.files.labelname={};
+    cfg.files.chunk=[];
+    cfg.files.label=[];
+
+    for shift_i=1:length(shift)
+        timing=findtrs(shift(shift_i),sub);
+        % Full path to file names (1xn cell array) (e.g.
+        % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
+        % lim tra car cit
+        tr=timing(:,2);
+        numtr=6*6*5;
+        F=cell(1,numtr);
+        for subi = 1:numtr
+            t=tr(subi);
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+orig.BRIK,' num2str(t)];
+        end
+        cfg.files.name = [cfg.files.name F];
+        % and the other two fields if you use a make_design function (e.g. make_design_cv)
+        %
+        % (1) a nx1 vector to indicate what data you want to keep together for 
+        % cross-validation (typically runs, so enter run numbers)
+        % each run is a chunk
+        % cfg.files.chunk = reshape(repmat(1:6,[8 4]),[numtr 1]);
+        % each trial is a chunk
+        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1 + 36 * (shift_i - 1):shift_i * 36, [1 5]), [numtr 1])];
+        %
+        % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
+        % label number (i.e. a nx1 vector)
+        % 1-lim 2-tra 3-car 4-cit
+        cfg.files.label = [cfg.files.label;reshape(repmat([1 2 3 4 5], [36 1]), [numtr 1])];
+        % cfg.files.label = timing(:, 1);
+        cfg.files.labelname = [cfg.files.labelname;reshape(repmat({'lim' 'tra' 'car' 'cit' 'ind'}, [36 1]), [numtr 1])];
     end
-    cfg.files.name =  F;
-    % and the other two fields if you use a make_design function (e.g. make_design_cv)
-    %
-    % (1) a nx1 vector to indicate what data you want to keep together for 
-    % cross-validation (typically runs, so enter run numbers)
-    % each run is a chunk
-    % cfg.files.chunk = reshape(repmat(1:6,[8 4]),[numtr 1]);
-    % each trial is a chunk
-    cfg.files.chunk = reshape(repmat(1:6 * 6, [1 5]), [numtr 1]);
-    %
-    % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
-    % label number (i.e. a nx1 vector)
-    % 1-lim 2-tra 3-car 4-cit
-    cfg.files.label = reshape(repmat([1 2 3 4 5],[36 1]),[numtr 1]);
-    % cfg.files.label = timing(:, 1);
-    cfg.files.labelname = reshape(repmat({'lim' 'tra' 'car' 'cit' 'ind'},[36 1]),[numtr 1]);
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
 

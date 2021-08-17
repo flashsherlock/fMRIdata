@@ -10,7 +10,7 @@ set analysis=pabioe2a
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 
-rm all_runs*
-rm NIfitts*
+rm allrun.volreg*
+rm pb0[0-4]*
 
 end

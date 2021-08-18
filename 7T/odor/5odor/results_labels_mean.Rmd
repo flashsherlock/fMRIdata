@@ -259,7 +259,7 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
       geom_ribbon(aes(ymin = mean - se,
                   ymax = mean + se,fill = phy), alpha = 0.1,linetype=0)+
       # scale_color_manual(values = google)+ #颜色
-      geom_hline(yintercept=c(20,100*qbinom(0.95,n,0.2)/n), linetype="dotted")+
+      geom_hline(yintercept=c(20), linetype="dotted")+
       theme_prism(base_line_size = 0.5)
     print(figure)
     }
@@ -268,8 +268,38 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
 
 
 ### accuracy all runs 2 odors
-```{r echo=FALSE, fig.height=5, fig.width=12}
+```{r echo=FALSE, fig.height=6, fig.width=6}
 acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
+odors <- c("lim","tra","car","cit","ind")
+pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "_"))
+for (ana in analysis) {
+  for (m in mvpa_pattern){
+    # plot a matrix
+      cmatrix <- subset(acc2odor, phy==ana & beta==m,select = c("sub","roi","odor","acc"))
+      # calculate mean values and p values
+      p <- aggregate(cmatrix$acc, list(cmatrix$odor,cmatrix$roi), FUN= function(x) {t.test(x,mu=50)$p.value})
+      cmatrix <- cbind(aggregate(cmatrix$acc, list(cmatrix$odor,cmatrix$roi), mean),p[,3])
+      names(cmatrix) <- c("odor","roi","acc","p")
+      cmatrix$plabels <- cut(cmatrix$p, breaks=c(-Inf, 0.001, 0.01, 0.05, 0.10, Inf), 
+                           label=c("***", "**", "*", "†", ""))
+      cmatrix[,3] <- round(cmatrix[,3],digits = 2)
+      cmatrix <- mutate(cmatrix,odor = factor(odor,levels = paste0('2odors_',pairs),labels = pairs),
+                        roi = factor(roi, levels = params$roi, labels = params$roiname)) # force reverse alphabetical order
+      # test <- aggregate(matrix_all$value, list(matrix_all$odor,matrix_all$prediction), mean)
+      figure <- ggplot(cmatrix, aes(x=roi, y=odor, fill=acc)) +
+        geom_tile() + theme_bw() + coord_equal() +
+        scale_fill_distiller(palette="Greens", direction=1,limits=c(50, 70) ) +
+        labs(title = paste(ana,m,sep = "_")) + # using a title instead
+        guides(size=F) + # removing legend for `fill`
+        geom_text(aes(label=acc), size=4,vjust=0.5, color="black")+ # printing values
+        geom_text(aes(label=plabels,size=5,vjust=-0.5), color="black") # printing values
+      print(figure)
+  }
+}
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=12}
+# plot each odor pair
   for (m in mvpa_pattern){
     acc2odor <- subset(acc2odor, beta==m)
     odor2 <- unique(acc2odor$odor)
@@ -335,7 +365,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
         coord_cartesian(ylim=c(0,100)) +
         scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
         scale_x_discrete(labels=roiname)+
-        geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
+        geom_hline(yintercept=c(50/n), linetype="dotted")+
         scale_fill_manual(values=gf_color[2:5])+ #颜色
         geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                       position=position_dodge(.9))+
@@ -375,7 +405,7 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
           geom_ribbon(aes(ymin = mean - se,
                       ymax = mean + se,fill = phy), alpha = 0.1,linetype=0)+
           # scale_color_manual(values = google)+ #颜色
-          geom_hline(yintercept=c(50,100*qbinom(0.95,n,0.5)/n), linetype="dotted")+
+          geom_hline(yintercept=c(50/n), linetype="dotted")+
           theme_prism(base_line_size = 0.5)
         print(figure)
       }

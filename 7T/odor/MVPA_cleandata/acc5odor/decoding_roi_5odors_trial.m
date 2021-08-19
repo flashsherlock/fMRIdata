@@ -47,7 +47,7 @@ parfor i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l1_label_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l2_label_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -77,7 +77,8 @@ parfor i=1:length(rois)
         % each run is a chunk
         % cfg.files.chunk = reshape(repmat(1:6,[8 4]),[numtr 1]);
         % each trial is a chunk
-        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1 + 36 * (shift_i - 1):shift_i * 36, [1 5]), [numtr 1])];
+%         cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1 + 36 * (shift_i - 1):shift_i * 36, [1 5]), [numtr 1])];
+        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:36, [1 5]), [numtr 1])];
         %
         % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
         % label number (i.e. a nx1 vector)

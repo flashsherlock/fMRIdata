@@ -365,7 +365,7 @@ for (ana in analysis) {
         coord_cartesian(ylim=c(0,100)) +
         scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
         scale_x_discrete(labels=roiname)+
-        geom_hline(yintercept=c(50/n), linetype="dotted")+
+        geom_hline(yintercept=c(50), linetype="dotted")+
         scale_fill_manual(values=gf_color[2:5])+ #颜色
         geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                       position=position_dodge(.9))+
@@ -405,7 +405,7 @@ acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
           geom_ribbon(aes(ymin = mean - se,
                       ymax = mean + se,fill = phy), alpha = 0.1,linetype=0)+
           # scale_color_manual(values = google)+ #颜色
-          geom_hline(yintercept=c(50/n), linetype="dotted")+
+          geom_hline(yintercept=c(50), linetype="dotted")+
           theme_prism(base_line_size = 0.5)
         print(figure)
       }

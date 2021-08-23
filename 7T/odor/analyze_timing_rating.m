@@ -2,10 +2,11 @@ function analyze_timing_rating(sub,times)
 run=6;
 if nargin<2
     times=[8 4];
-    maxrt=4.5;
 end
 if times(1)==6
     maxrt=7;
+else    
+    maxrt=4.5;
 end
 % sub='s01_run';
 datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];

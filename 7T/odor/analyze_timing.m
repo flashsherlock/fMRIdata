@@ -40,7 +40,7 @@ for i=1:run
 end
 
 names={'lim','tra','car','cit','ind'};
-for i=1:length(names)
+for i=1:times(2)
     % timing for each odor(all runs)
     dlmwrite([datadir filesep names{i} '.txt'],timing(:,:,i),'delimiter',' ');
     % timing for each odor(each run)

@@ -27,7 +27,7 @@ echo ${sub} ${analysis}
 
 # run the regression analysis
 set subj = ${sub}.${analysis}
-set subjva = ${subj}.odorVI
+set subjva = ${subj}
 cd ${subj}.results
 
 # rename

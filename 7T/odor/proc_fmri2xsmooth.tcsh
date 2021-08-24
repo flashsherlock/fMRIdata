@@ -14,14 +14,15 @@ else
         set pa=pa
 endif
 
-if ($2 == bio) then
+# if ($2 == bio) then
         set bio=.biop.
         set analysis=pabiode
-else
-        set bio=.
-        set analysis=paphde
-endif
-
+# else
+#         set bio=.
+#         set analysis=paphde
+# endif
+mv ${sub}.${analysis}.results ${sub}.${analysis}.results.old
+rm proc.${sub}.${analysis}
 # echo ${pa} ${bio} ${analysis}
 # ==========================processing========================== # 
 # run1 刺激完整 phase correction phy despike
@@ -52,13 +53,12 @@ endif
                 behavior/cit.txt                                                                \
                 behavior/valence.txt                                                            \
                 behavior/intensity.txt                                                          \
-                behavior/odor_va.txt                                                            \
         -regress_stim_labels                                                                    \
-                lim tra car cit val int odor_va                                                 \
+                lim tra car cit val int                                                         \
         -regress_stim_types                                                                     \
-                times times times times AM1 AM1 AM1                                             \
+                times times times times AM1 AM1                                                 \
         -regress_basis_multi                                                                    \
-                'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'dmBLOCK(1)' 'dmBLOCK(1)' 'BLOCK(2,1)'  \
+                'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'dmBLOCK(1)' 'dmBLOCK(1)'   \
         -regress_opts_3dD                                                                       \
                 -jobs 12                                                                        \
                 -gltsym 'SYM: lim -tra'       -glt_label 1 lim-tra                              \
@@ -68,6 +68,7 @@ endif
                 -gltsym 'SYM: cit -lim'       -glt_label 5 cit-lim                              \
                 -gltsym 'SYM: car -cit'       -glt_label 6 car-cit                              \
         -regress_motion_per_run                                                                 \
+        -regress_censor_motion 0.3                                                              \
         -regress_run_clustsim no
         # -regress_make_cbucket yes                                                               
         # -execute

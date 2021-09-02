@@ -4,7 +4,8 @@ load([datadir 's06_0719.mat']);
 adisr=1000;
 adires=reshape(data,[],2);
 acqsr=500;
-acqres=load_acq([datadir 's06_0719']);
+acqres=load_acq([datadir 's06_0719.acq']);
+acqres=acqres.data;
 % resample
 adires=resample(adires,acqsr,adisr);
 % change acq markers

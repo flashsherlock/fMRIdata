@@ -23,11 +23,11 @@ userOptions.analysisName = 'Cleandata';
 
 % This is the root directory of the project.
 % some files will be saved in this folder
-userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA';
+userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/4odor_va_trial';
 datafolder = '/Volumes/WD_E/gufei/7T_odor';
-% if ~exist(userOptions.rootPath,'dir')
-%     mkdir(userOptions.rootPath)
-% end
+if ~exist(userOptions.rootPath,'dir')
+    mkdir(userOptions.rootPath)
+end
 % The path leading to where the scans are stored (not including subject-specific identifiers).
 % "[[subjectName]]" should be used as a placeholder to denote an entry in userOptions.subjectNames
 % "[[betaIdentifier]]" should be used as a placeholder to denote an output of betaCorrespondence.m if SPM is not being used; or an arbitrary filename if SPM is being used.
@@ -74,8 +74,8 @@ userOptions.afni.software = 'AFNI';
 	userOptions.maskPath = [datafolder filesep '[[subjectName]]' '/mask/[[maskName]].*orig.HEAD'];%'/imaging/mb01/lexpro/multivariate/ffx_simple/[[subjectName]]/[[maskName]].img';
 		
 		% The list of mask filenames (minus .hdr extension) to be used.
-		userOptions.maskNames = {'Pir_new','Pir_old','APC_new','APC_old','PPC'};
-        userOptions.maskNames=[userOptions.maskNames {'Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'}];
+		userOptions.maskNames = {'Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165'};
+        userOptions.maskNames=[userOptions.maskNames {'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165'}];
 %         for region=[1 3 5 6 7 8 9 10 15]
 %             userOptions.maskNames=[userOptions.maskNames {['Amy_align' num2str(region) 'seg']}];
 %         end
@@ -119,7 +119,7 @@ userOptions.conditionLabels = conditions;
 % userOptions.useAlternativeConditionLabels = false;
 
 % What colours should be given to the conditions?
-userOptions.conditionColours = kron([1 0 0; 0 1 0; 0 0 1; 1 .7 0], ones(length(betas)/4,1));
+userOptions.conditionColours = kron([1 0 0; 0 1 0; 0 0 1; 1 .7 0], ones(length(betas)/userOptions.conditions,1));
 
 % Which distance measure to use when calculating first-order RDMs.
 userOptions.distance = 'Correlation';

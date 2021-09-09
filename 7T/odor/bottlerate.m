@@ -6,7 +6,7 @@ end
 % load sequence
 fullpath=mfilename('fullpath');
 [path,~]=fileparts(fullpath);
-load([path './../exp/randrating.mat'])
+load([path './../exp/randrating4.mat'])
 % load ratings
 datafolder='/Volumes/WD_E/gufei/7T_odor/'; 
 valence=xlsread([datafolder 'rating.xlsx'],'valence');

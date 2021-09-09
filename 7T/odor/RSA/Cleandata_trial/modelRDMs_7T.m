@@ -72,13 +72,13 @@ Models.mrintensity = kron(mrirating.intRDM, ones(k,k));
 % similarity
 Models.mrsimilarity = kron(mrirating.simRDM, ones(k,k));
 % RDMs based on bottle ratings
-borating = bottlerate(subjID);
-% valence
-Models.bovalence = kron(borating.valRDM, ones(k,k));
-% intensity
-Models.bointensity = kron(borating.intRDM, ones(k,k));
-% similarity
-Models.bosimilarity = kron(borating.simRDM, ones(k,k));
+% borating = bottlerate(subjID);
+% % valence
+% Models.bovalence = kron(borating.valRDM, ones(k,k));
+% % intensity
+% Models.bointensity = kron(borating.intRDM, ones(k,k));
+% % similarity
+% Models.bosimilarity = kron(borating.simRDM, ones(k,k));
 % Models.bad_prototype = [kron([0 .5; .5 0], ones(16,16)) ones(32,32); ones(32,32), 1-eye(32,32)];
 Models.random = kron(squareform(pdist(rand(4,4))), ones(k,k));
 

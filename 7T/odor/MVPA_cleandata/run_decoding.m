@@ -10,8 +10,8 @@ rois={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC'};
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy'};
 % rois={'whole_brain'};
-% decoding_roi_4odors_trial('s01_yyt', analysis_all, rois, shift);
-% decoding_roi_trial('s01_yyt', analysis_all, rois, shift);
+decoding_roi_4odors_trial('s01_yyt', analysis_all, rois, shift);
+decoding_roi_trial('s01_yyt', analysis_all, rois, shift);
 % S01-S03
 for i=1:3
     sub=sprintf('S%02d',i);

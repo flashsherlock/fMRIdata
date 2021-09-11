@@ -13,7 +13,7 @@ set pb=pb05
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
-set filedec = odorVIv_noblur
+set filedec = odorVIvAM2_noblur
 3dDeconvolve -input ${pb}.${subj}.r*.volreg+orig.HEAD               \
     -censor motion_${subj}_censor.1D                                \
     -ortvec mot_demean.r01.1D mot_demean_r01                        \
@@ -28,7 +28,7 @@ set filedec = odorVIv_noblur
     -stim_label 1 val                                               \
     -stim_times_AM1 2 ../behavior/intensity.txt 'dmBLOCK(1)'        \
     -stim_label 2 int                                               \
-    -stim_times_AM1 3 ../behavior/odor_allvavg.txt 'BLOCK(2,1)'     \
+    -stim_times_AM2 3 ../behavior/odor_allvavg.txt 'BLOCK(2,1)'     \
     -stim_label 3 odor_va                                           \
     -jobs 12                                                        \
     -x1D_uncensored X.nocensor.${filedec}.xmat.1D                   \

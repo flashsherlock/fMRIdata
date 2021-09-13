@@ -13,7 +13,7 @@ set pb=pb05
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
-set filedec = odorVIvaAM1_noblur
+set filedec = odorVIvao_noblur
 3dDeconvolve -input ${pb}.${subj}.r*.volreg+orig.HEAD               \
     -censor motion_${subj}_censor.1D                                \
     -ortvec mot_demean.r01.1D mot_demean_r01                        \
@@ -23,15 +23,23 @@ set filedec = odorVIvaAM1_noblur
     -ortvec mot_demean.r05.1D mot_demean_r05                        \
     -ortvec mot_demean.r06.1D mot_demean_r06                        \
     -polort 3                                                       \
-    -num_stimts 4                                                   \
-    -stim_times_AM1 1 ../behavior/valence.txt 'dmBLOCK(1)'          \
-    -stim_label 1 val                                               \
-    -stim_times_AM1 2 ../behavior/intensity.txt 'dmBLOCK(1)'        \
-    -stim_label 2 int                                               \
-    -stim_times_AM1 3 ../behavior/odor_allvavg.txt 'BLOCK(2,1)'     \
-    -stim_label 3 odor_va                                           \
-    -stim_times_AM1 4 ../behavior/odor_alliavg.txt 'BLOCK(2,1)'     \
-    -stim_label 4 odor_in                                           \
+    -num_stimts 8                                                   \
+    -stim_times 1 ../behavior/lim.txt 'BLOCK(2,1)'                  \
+    -stim_label 1 lim                                               \
+    -stim_times 2 ../behavior/tra.txt 'BLOCK(2,1)'                  \
+    -stim_label 2 tra                                               \
+    -stim_times 3 ../behavior/car.txt 'BLOCK(2,1)'                  \
+    -stim_label 3 car                                               \
+    -stim_times 4 ../behavior/cit.txt 'BLOCK(2,1)'                  \
+    -stim_label 4 cit                                               \
+    -stim_times_AM1 5 ../behavior/valence.txt 'dmBLOCK(1)'          \
+    -stim_label 5 val                                               \
+    -stim_times_AM1 6 ../behavior/intensity.txt 'dmBLOCK(1)'        \
+    -stim_label 6 int                                               \
+    -stim_times_AM1 7 ../behavior/odor_allvavg.txt 'BLOCK(2,1)'     \
+    -stim_label 7 odor_va                                           \
+    -stim_times_AM1 8 ../behavior/odor_alliavg.txt 'BLOCK(2,1)'     \
+    -stim_label 8 odor_in                                           \
     -jobs 12                                                        \
     -x1D_uncensored X.nocensor.${filedec}.xmat.1D                   \
     -x1D X.xmat.${filedec}.1D -xjpeg X.${filedec}.jpg               \

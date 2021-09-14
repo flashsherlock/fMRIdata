@@ -23,7 +23,7 @@ userOptions.analysisName = 'Cleandata';
 
 % This is the root directory of the project.
 % some files will be saved in this folder
-userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/4odor_v_trial';
+userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/4odor_vao_trial';
 datafolder = '/Volumes/WD_E/gufei/7T_odor';
 if ~exist(userOptions.rootPath,'dir')
     mkdir(userOptions.rootPath)

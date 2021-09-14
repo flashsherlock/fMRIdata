@@ -9,6 +9,6 @@ timing=findtrs(userOptions.shift,subn);
 
 tr=timing(:,2);
 % generate image name
-image_name=[folder filesep 'NIerrts.' subn '.' userOptions.analysis '.odorVIv_noblur+orig.BRIK,'];
+image_name=[folder filesep 'NIerrts.' subn '.' userOptions.analysis '.odorVIvao_noblur+orig.BRIK,'];
 image_name=strcat(image_name,num2str(tr));
 end

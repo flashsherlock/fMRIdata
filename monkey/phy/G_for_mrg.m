@@ -1,15 +1,16 @@
 clear;
 clc;
 % 加载基本信息,以及后续各图片名称
-front='200828_rm035_c2';
+data_dir='/Volumes/WD_D/gufei/monkey_data/0907/';
+front='200807_rm035_c1';
 %fl=strcat('G:\rm35olf\',front,'.plx');
-fl=strcat('G:\新选择的\',front,'-spk_mrg-s','.plx');% 针对sorted 数据
+fl=strcat(data_dir,front,'-spk_mrg-s','.plx');% 针对sorted 数据
 date=front(3:6);
 condition='rm035ana_';
 dig=strcat('c',front(end));
 %chanlist=[33 34 36 58 60 ];%双单元2
-chanlist=[47 ];
-unit=1;%需要手动选择
+chanlist=[34];
+unit=2;%需要手动选择
 ss1=chanlist(1);
 channel=num2str(ss1);
 SPK_chan=strcat('SPK',channel);
@@ -62,9 +63,9 @@ end
 
 spk_com=cell(5,1);
 %test 内3次重复合并
-for oi=1:odor_num;
+for oi=1:odor_num
     
-    for oo=1:4;
+    for oo=1:4
         spk_com{oi,1}{oo}=cat(1,valid_spk{oi,1}{oo*3-2},...
             valid_spk{oi,1}{oo*3-1},valid_spk{oi,1}{oo*3});
         spk_com{oi,1}{oo}=sort(spk_com{oi,1}{oo});
@@ -83,32 +84,31 @@ spk_air=[];
 %win=0.1s
 wi=-1.9:0.1:7;
 comput_Result=cell(5,1);
-for ii=1:4;
-    for i=1:5;
-    for is=1:90;
+for ii=1:4
+    for i=1:5
+    for is=1:90
         ssi=isempty(find(spk_com{i,1}{1,ii}<wi(is)));
-        if ssi==1;
+        if ssi==1
             comput_Result{i,1}{1,ii}(is)=0;
-        elseif ssi==0;  
+        elseif ssi==0
             comput_Result{i,1}{1,ii}(is)=max(find(spk_com{i,1}{1,ii}<wi(is)));
         end
     end
     comput_Result{i,2}{1,ii}(1)= comput_Result{i,1}{1,ii}(1);
-    for iss=2:90;
+    for iss=2:90
     comput_Result{i,2}{1,ii}(1)= comput_Result{i,1}{1,ii}(1);
     comput_Result{i,2}{1,ii}(iss)=comput_Result{i,1}{1,ii}(iss)-comput_Result{i,1}{1,ii}(iss-1);
     end
-    for si=1:90;  %计算发放率，4个test的  
+    for si=1:90  %计算发放率，4个test的  
     comput_Result{i,3}{1,ii}(si)=comput_Result{i,2}{1,ii}(si)./0.3;
 
     end
        
     end
-    
-    end
+end
 %计算释放气味后4个test平均发放率曲线均值、方差，
-for os=1:5;
-       for fi=1:90;% comput_Result 4
+for os=1:5
+       for fi=1:90% comput_Result 4
             comput_Result{os,4}(fi)=(comput_Result{os,3}{1,1}(fi)+...
             comput_Result{os,3}{1,2}(fi)+comput_Result{os,3}{1,3}(fi)+...
             comput_Result{os,3}{1,4}(fi))/4; 
@@ -117,7 +117,7 @@ for os=1:5;
     STANDARD(os)=std(comput_Result{os,4}(21:90),0);
     %进行平滑
     comput_Result{os,5}=smooth(comput_Result{os,4});
-    for kq =1:20;
+    for kq =1:20
     kongqi = cat(1,kongqi,comput_Result{os,4}(kq));    
     end
 end
@@ -132,25 +132,25 @@ clear i;clear is;clear iss;
 wwi=-1.95:0.05:7;
 Com_R2=cell(5,1);
 ENTROPY=[];
-for ss=1:4;
+for ss=1:4
 for i=1:5
-    for is=1:length(wwi);
+    for is=1:length(wwi)
         ssi=isempty(find(spk_com{i,1}{1,ss}<wwi(is)));
-        if ssi==1;
+        if ssi==1
             Com_R2{i,1}{1,ss}(is)=0;
-        elseif ssi==0;  
+        elseif ssi==0 
             Com_R2{i,1}{1,ss}(is)=max(find(spk_com{i,1}{1,ss}<wwi(is)));
-            end
+        end
     end    
-    for R=2:180;
+    for R=2:180
     Com_R2{i,2}{1,ss}(R)=Com_R2{i,1}{1,ss}(R)-Com_R2{i,1}{1,ss}(R-1);
     end
 end
 end
 clear i;
-for op=1:4;
-for i=1:5;
-    for RS=1:180;
+for op=1:4
+for i=1:5
+    for RS=1:180
     %0.1ms发放概率计算,分别除以test内的
     Com_R2{i,3}{1,op}(RS)= Com_R2{i,2}{1,op}(RS)./(comput_Result{i,2}{1,op}(round(RS/2))); 
     Com_R2{i,3}{1,op}(isnan(Com_R2{i,3}{1,op}))=0;
@@ -162,8 +162,8 @@ end
 end
 
 %对熵求均值，进行归一化处理，计算处于空气期间的值
-for ff=1:5;
-       for fi=1:180;% comput_Result 4
+for ff=1:5
+       for fi=1:180% comput_Result 4
             Com_R2{ff,5}(fi)=(Com_R2{ff,4}{1,1}(fi)+...
             Com_R2{ff,4}{1,2}(fi)+Com_R2{ff,4}{1,3}(fi)+...
             Com_R2{ff,4}{1,4}(fi))/4; 
@@ -173,10 +173,10 @@ for ff=1:5;
              
 end
 
-for ip=1:5;
+for ip=1:5
     ENTROPY(ip)=sum(Com_R2{ip,5}(21:90))./7;
     ENT_air(ip)=sum(Com_R2{ip,5}(1:20))./10;
-    end
+end
 ENTROPY(6)=sum(ENT_air);
 
 %计算表格信息：
@@ -184,11 +184,11 @@ ENTROPY(6)=sum(ENT_air);
 mean_compare=[];
 square_compare=[];
 entr_compare=[];
-for com=1:6;
+for com=1:6
    mean_compare(com)=MEAN(com)-MEAN(6);
    square_compare(com)=STANDARD(com)-STANDARD(6);
    entr_compare(com)=ENTROPY(com)-ENTROPY(6);
-   if com==6;
+   if com==6
       mean_compare(com)=MEAN(6);
       square_compare(com)=STANDARD(6);
       entr_compare(com)=ENTROPY(6);
@@ -223,9 +223,9 @@ Z=linkage(Y); % 产生层次聚类树，默认采用最近距离作为类间距�
 
 %% 画图并且保存
 figure('position',[20,10,800,1000]);
-for oi=1:odor_num;
+for oi=1:odor_num
     subplot(3,2,oi);
-    for iis = 1:12;
+    for iis = 1:12
     scatter(valid_spk{oi,1}{iis},ones(length(valid_spk{oi,1}{iis}),1)*0+iis*0.3,7,'k','filled'); hold on  
     %defult =0.3;
     end
@@ -246,7 +246,7 @@ hh=dendrogram(Z); % 图示层次聚类树
 h=uitable(gcf,'Data',data,'Position',[360 23 375 75],...
     'Columnname',column_name,'Rowname',row_name);hold on
 
-saveas(gcf,picturename,'pdf')
+% saveas(gcf,picturename,'pdf')
 
 
 

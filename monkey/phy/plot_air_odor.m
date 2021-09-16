@@ -12,7 +12,6 @@ condition='rm035ana_';
 valid_spk = cell(odor_num,1);
 valid_lfp = cell(odor_num,1);
 cat_spk = cell(odor_num,1);
-lfp=struct('label',{{}},'trial',{{[]}},'time',{{[]}});
 resp1=cat_spk;
 resp2=cat_spk;
 resp3=cat_spk;
@@ -39,24 +38,8 @@ for date_i=1:length(date)
             %按照每导读取数据，频率信息存在raw_freq中，数据信息存在raw_ad中
             [raw_freq, raw_n, raw_ts, raw_fn, raw_ad] = plx_ad(fl,CON_chan);
             ad_time=0:(1/raw_freq):(raw_n-1)/raw_freq;
-%             lfp.label{end+1}=CON_chan;
-%             lfp.trial{1}=[lfp.trial{1};raw_ad'];
-%             lfp.time{1}(end+1,:)=ad_time';
-%             lfp.fsample=raw_freq;
             %得到plx时间下的呼吸时间点
-            [~,resp_points,odor_time]=find_resp_time(front);
-            %分割trial 每个test和date是不一样的，但是不同的通道是一样的
-%             trl=[];
-%             for label_i=1:length(odor_time)
-%                 trl=[trl;[odor_time{label_i} zeros(size(odor_time{label_i},1),1) repmat(label_i,size(odor_time{label_i},1),1)]];
-%             end
-%             trl(:,1:2)=round(trl(:,1:2)*lfp.fsample);
-%             trl(:,2)=trl(:,1)+lfp.fsample*7;
-%             cfg=[];
-%             cfg.trl=trl;
-%             d = ft_redefinetrial(cfg, lfp);
-            %
-            
+            [~,resp_points,odor_time]=find_resp_time(front);            
             % 只是取一部分的空气条件
             valid_res_plx{1}=[odor_time{1};odor_time{2};odor_time{3};odor_time{4};odor_time{5}];
             valid_res_plx{2}=odor_time{6};

@@ -50,10 +50,11 @@ for i=condition
         cfg.channel = ft_channelselection({'all','-dc*'}, eeg.label);
         % define filters
         cfg.bpfilter = 'yes';
-        cfg.bpfreq = [1 100];
+        cfg.bpfilttype = 'fir';
+        cfg.bpfreq = [0.1 80];
         cfg.bsfilter    = 'yes';
-        cfg.bsfiltord   = 3;
-        cfg.bsfreq      = [49 51; 99 101]; 
+        cfg.bsfilttype = 'fir';
+        cfg.bsfreq      = [49 51]; 
         % filt data
         eeg = ft_preprocessing(cfg,eeg);
         % add dcs back
@@ -68,7 +69,7 @@ for i=condition
         % get start time points of each trial
         trl = nc_trialfun(eeg);
         % cut blocks (2s before onset and 0.5s after offset)
-        eeg = nc_trialcut(eeg,trl,fix(-2*eeg.fsample),fix(0.5*eeg.fsample));
+        eeg = nc_trialcut(eeg,trl,fix(-7*eeg.fsample),fix(2*eeg.fsample));
         
 %         save data
         save([block_path '/' subjID sfix{i} '.mat'],'eeg');

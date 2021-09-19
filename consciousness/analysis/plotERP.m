@@ -67,7 +67,7 @@ for i=1:3
             % time-frequency analysis
             cfgtf=[];
             cfgtf.method     = 'mtmconvol';
-            cfgtf.toi        = -2:0.1:5.5;
+            cfgtf.toi        = -7:0.1:7;
             cfgtf.foi     = 1:0.5:40;
 %             cfgtf.foi = logspace(log10(1),log10(40),31);
 %             cfgtf.t_ftimwin  = ones(length(cfgtf.foi),1).*0.5;
@@ -113,6 +113,15 @@ for i=1:3
             cfg.channel = ft_channelselection({'F*'}, eeg_an.label);
             % plot TF
             ft_singleplotTFR(cfg, freq_blc);
+            % plot by contourf
+            figure;
+            contourf(cfgtf.toi,cfgtf.foi,squeeze(mean(freq_blc.powspctrm(1:3,:,:),1)),40,'linecolor','none');
+%             set(gca,'ytick',round(logspace(log10(cfgtf.foi(1)),log10(cfgtf.foi(end)),10)*100)/100,'yscale','log');
+            set(gca,'ylim',[1 40],'xlim',[-5 5],'clim',[-2 2]);
+            xlabel('Time (s)')
+            ylabel('Frequency (Hz)')
+            colormap jet
+            ylabel(colorbar,'Baseline-normalized power (dB)')
             % plot ERP            
 %             ft_singleplotER(cfg, odor);
             

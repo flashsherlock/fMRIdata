@@ -3,6 +3,9 @@
 ## behavior
 Analysis of behavioral experement about odor preference.
 
+## ft_tutorial
+Fieldtrip tutorials for analyzing spike and LFP data.
+
 ## phy
 Analysis of electrophysiological experiments.
 
@@ -11,6 +14,9 @@ A matlab GUI that can mark respiration stages.
 
 ## sample_code
 Sample codes of NeoAnalysis (a Python toolbox)
+
+## align_img.m
+Try to align MRI and CT images.
 
 ## hdf5read.py
 Read hdf5 files in python (use `h5py` package).

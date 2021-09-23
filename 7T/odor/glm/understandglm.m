@@ -10,7 +10,8 @@ odornum = 5;
 odorspoints = reshape(randperm(length(points)),odornum,[]);
 odorspoints = points(odorspoints);
 % set response
-real = [6 4 5 15 13];
+% real = [6 4 5 15 13];
+real = [5 5 5 5 5];
 val = [4.8 4.5 1.5 3.8 3.2];
 int = [2.2 1.8 3.4 3.6 3.2];
 % set time points with odor to 1
@@ -119,3 +120,7 @@ figure
 imagesc(1-rho);
 colormap jet
 colorbar
+% MVPA
+passed_data.data=maxres_re;
+results=decoding_roi_5odors_glm(passed_data);
+disp(results.confusion_matrix.output{1});

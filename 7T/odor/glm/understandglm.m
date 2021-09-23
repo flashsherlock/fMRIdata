@@ -11,12 +11,13 @@ points = 7:13:seconds;
 odorspoints = reshape(randperm(length(points)),odornum,[]);
 odorspoints = points(odorspoints);
 % set response
-real = [11 37 37 29 53];
+% real = [11 37 37 29 53];
+% real = [7 9 13 17 23];
 val = [4.8 4.5 1.5 3.8 3.2];
 red = 1:5;
 % val = [1 3 1 1.1 1.1];
 int = [2.2 1.8 3.4 3.6 3.2];
-% real = [5 5 5 5 5];
+real = [5 5 5 5 5];
 % int = ones(1,5);
 % set time points with odor to 1
 odors = zeros(odornum, seconds);
@@ -34,18 +35,21 @@ vires=zeros(n,2);% 1-valence 2-intensity
 for i=1:n
     % oddvoxel:3 5 4 2 4 even:2-3
 %     realres = mod(i,n)/n*real+normrnd(0,0.05,1,odornum)+mod(i,n)/n;
-%     realres = (1+i/10)*real;
-    realres = normrnd(0,0.5,[1,odornum])+real;
-    noise_time=normrnd(0,0.1,[1,seconds]);
-    noise_block=normrnd(0,0.01,[1,odornum]);
-    noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
-    odors=odors.*(noise_time+noise_block)+odors;
-    odorhrf=[];
-    for i_block=1:odornum
-        realres = normrnd(0,1,[1,odornum])+realres(randperm(5));
-        temp=conv(realres*odors(:,(i_block-1)*oneblock+1:i_block*oneblock),hrf);
-        odorhrf=[odorhrf temp(1:oneblock)];
-    end
+    realres = (1+i/100)*real;
+    odorhrf=conv(realres*odors,hrf);
+    odorhrf=odorhrf(1:seconds);
+    
+%     realres = normrnd(0,0.5,[1,odornum])+real;
+%     noise_time=normrnd(0,0.1,[1,seconds]);
+%     noise_block=normrnd(0,0.01,[1,odornum]);
+%     noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
+%     odors=odors.*(noise_time+noise_block)+odors;
+%     odorhrf=[];
+%     for i_block=1:odornum
+%         realres = normrnd(0,1,[1,odornum])+realres(randperm(5));
+%         temp=conv(realres*odors(:,(i_block-1)*oneblock+1:i_block*oneblock),hrf);
+%         odorhrf=[odorhrf temp(1:oneblock)];
+%     end
     % 30% chance response to valence
     valres = val+normrnd(0,0.02,1,odornum);
     if unifrnd(0,1)>1

@@ -1,4 +1,4 @@
-function results=decoding_roi_5odors_glm(passed_data)
+function results=decoding_roi_5odors_glm(passed_data,odornum)
 
     % Set defaults
     cfg = decoding_defaults;
@@ -16,7 +16,7 @@ function results=decoding_roi_5odors_glm(passed_data)
     cfg.datainfo=[];
     cfg.results.write=0;
 %     cfg.decoding.use_kernel=0;
-    odornum=5;
+%     odornum=5;
     numtr=size(passed_data.data,1);
     cfg.files.name=cell(numtr,1);
     for i=1:numtr
@@ -38,7 +38,7 @@ function results=decoding_roi_5odors_glm(passed_data)
     % label number (i.e. a nx1 vector)
     cfg.files.label = [cfg.files.label;reshape(repmat(1:odornum, [repeat 1]), [numtr 1])];
     % cfg.files.label = timing(:, 1);
-    cfg.files.labelname = [cfg.files.labelname;reshape(repmat({'lim' 'tra' 'car' 'cit' 'ind'}, [repeat 1]), [numtr 1])];
+    % cfg.files.labelname = [cfg.files.labelname;reshape(repmat({'lim' 'tra' 'car' 'cit' 'ind'}, [repeat 1]), [numtr 1])];
 
     % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
     cfg.results.output = {'accuracy_minus_chance', 'confusion_matrix'};

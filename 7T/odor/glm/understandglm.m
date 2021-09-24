@@ -11,11 +11,12 @@ points = 7:13:seconds;
 odorspoints = reshape(randperm(length(points)),odornum,[]);
 odorspoints = points(odorspoints);
 % set response
-real = [11 37 61 29 53];
-val = [4.8 4.5 1.5 3.8 3.2];
+real = [37 61 37 29 53];
+val = [4.5 4.8 4.8 1.5 3.8];
 red = 1:5;
+red2 = randperm(5);
 % val = [1 3 1 1.1 1.1];
-int = [2.2 1.8 3.4 3.6 3.2];
+int = [2.2 1.8 3.4 3.6 2.2];
 % real = [5 5 5 5 5];
 % int = ones(1,5);
 % set time points with odor to 1
@@ -30,6 +31,22 @@ end
 n=100;
 voxel=zeros(n,seconds);
 vires=zeros(n,2);% 1-valence 2-intensity
+originalodors=odors;
+% block and time noise for odor response
+noise_time=normrnd(0,0.5,[1,seconds]);
+noise_block=normrnd(0,0.3,[1,odornum]);
+noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
+odors=originalodors.*(noise_time+noise_block)+originalodors;
+
+noise_time=normrnd(0,0.8,[1,seconds]);
+noise_block=normrnd(0,0.5,[1,odornum]);
+noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
+odorsint=originalodors.*(noise_time+noise_block)+originalodors;
+
+noise_time=normrnd(0,0.5,[1,seconds]);
+noise_block=normrnd(0,0.3,[1,odornum]);
+noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
+odorsval=originalodors.*(noise_time+noise_block)+originalodors;
 
 for i=1:n
     % oddvoxel:3 5 4 2 4 even:2-3
@@ -37,45 +54,60 @@ for i=1:n
 %     realres = (1+i/10)*real;
 %     odorhrf=conv(realres*odors,hrf);
 %     odorhrf=odorhrf(1:seconds);
-    realres = normrnd(0,0.5,[1,odornum])*20+real(randperm(5));
-    noise_time=normrnd(0,0.12,[1,seconds]);
-    noise_block=normrnd(0,0.01,[1,odornum]);
-    noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
-    odors=odors.*(noise_time+noise_block)+odors;
+    shift=unifrnd(0,1)>0.3;
+    if shift
+    realres = unifrnd(0,1,[1,odornum])*100;
+    else
+    realres = unifrnd(0,1,[1,odornum])*100;
+    realres(5)=realres(4);
+    end
+    
+%     noise_time=normrnd(0,0.005,[1,seconds]);
+%     noise_block=normrnd(0,0.0003,[1,odornum]);
+%     noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
+%     odors=odors.*(noise_time+noise_block)+odors;
+    
     odorhrf=[];
+    permu=unifrnd(0,1)>=0;
     for i_block=1:odornum
-        realres = normrnd(0,0.5,[1,odornum])*20+realres(randperm(5));
+        if shift && permu
+            realres = realres(randperm(5));
+%             realres(1:3) = realres(randperm(3));
+%             realres = unifrnd(0,1,[1,odornum])*100;
+        elseif shift
+            realres = unifrnd(0,1,[1,odornum])*100;
+        end
         temp=conv(realres*odors(:,(i_block-1)*oneblock+1:i_block*oneblock),hrf);
         odorhrf=[odorhrf temp(1:oneblock)];
     end
     % 30% chance response to valence
-    valres = val+normrnd(0,0.02,1,odornum);
-    if unifrnd(0,1)>1
+    valres = val;%+normrnd(0,0.02,1,odornum);
+    if unifrnd(0,1)>0.7
         vires(i,1) = 1;
-        valhrf=conv(valres*odors,hrf);
+        valhrf=conv(valres*odorsval,hrf);
     else
-        valhrf=conv((ones(1,odornum))*odors,hrf);
+        valhrf=conv((ones(1,odornum))*odorsval,hrf);
     end
     valhrf=valhrf(1:seconds);
     % 80% chance response to intensity
-    intres = int+normrnd(0,0.05,1,odornum);
-    if unifrnd(0,1)>1
+    intres = int;%+normrnd(0,0.05,1,odornum);
+    if unifrnd(0,1)>0.2
         vires(i,2) = 1;
-        inthrf=conv(intres*odors,hrf);
+        inthrf=conv(intres*odorsint,hrf);
     else
-        inthrf=conv((ones(1,odornum))*odors,hrf);
+        inthrf=conv((ones(1,odornum))*odorsint,hrf);
     end
     inthrf=inthrf(1:seconds);
     % add noise
-    noise1=conv(normrnd(0,1,[1,seconds]),hrf);
+    noise1=conv(normrnd(0,10,[1,seconds]),hrf);
     noise1=noise1(1:seconds);
-    noise2=normrnd(0,20,[1,seconds]);
+    noise2=normrnd(0,10,[1,seconds]);
     voxel(i,:)=odorhrf+inthrf+valhrf+noise1+noise2;
 end
 % general time noise for all voxels
-% noise_time=conv(normrnd(0,0.001,[1,seconds]),hrf);
+% noise_time=conv(normrnd(0,0.01,[1,seconds]),hrf);
 % noise_time=noise_time(1:seconds);
-% noise_block=normrnd(0,0.03,[1,odornum]);
+% noise_block=normrnd(0,0.1,[1,odornum]);
 % noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
 % voxel=voxel+voxel.*(noise_time+noise_block);
 % figure
@@ -91,9 +123,10 @@ reskey=conv(sum(key),hrf);
 resval=conv(val*odors,hrf);
 resint=conv(int*odors,hrf);
 resred=conv(red*odors,hrf);
+resred2=conv(red2*odors,hrf);
 % resint=conv([1.8 2.2 2 1.9 2.1]*odors,hrf);
-% resval;resint;
-designmat=[resval;resint;reskey];
+% resval;resint;resred;
+designmat=[resval;resint;resred;resred2;reskey];
 designmat=designmat(:,1:seconds);
 % ones regressor (redundant)
 % designmat=[ones(1,seconds);designmat];
@@ -148,7 +181,7 @@ mean_fit=squeeze(mean(maxfit,2));
 maxres_re=reshape(permute(maxres,[2,1,3]),150,n);
 rho=corr(maxres_re');
 figure('position',[20,450,500,400]);
-imagesc(1-rho);
+imagesc((1-rho)./max(max(1-rho)));
 colormap jet
 colorbar
 figure('position',[530,450,500,400]);

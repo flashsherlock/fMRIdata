@@ -69,6 +69,7 @@ for i=1:n
     else
     realres = unifrnd(0,1,[1,odornum])*100;
     realres(5)=realres(4);
+%     realres(3)=realres(4);
     end
     
 %     noise_time=normrnd(0,0.005,[1,seconds]);
@@ -137,7 +138,7 @@ resred=conv(red*odors,hrf);
 resred2=conv(red2*odors,hrf);
 % resint=conv([1.8 2.2 2 1.9 2.1]*odors,hrf);
 % resval;resint;resred;
-designmat=[resval;resred;resred2;reskey1;reskey2];
+designmat=[resval;resint;reskey1;reskey2];
 designmat=designmat(:,1:seconds);
 % ones regressor (redundant)
 % designmat=[ones(1,seconds);designmat];
@@ -189,7 +190,7 @@ end
 mean_res=squeeze(mean(maxres,2));
 mean_fit=squeeze(mean(maxfit,2));
 %% RSA
-maxres_re=reshape(permute(maxres,[2,1,3]),150,n);
+maxres_re=reshape(permute(maxres,[2,1,3]),length(points),n);
 rho=corr(maxres_re');
 figure('position',[20,450,500,400]);
 imagesc((1-rho)./max(max(1-rho)));
@@ -200,7 +201,7 @@ scatter(maxres_re(1,:),maxres_re(2,:))
 xlabel('trial1');ylabel('trial2')
 %% MVPA
 passed_data.data=maxres_re;
-results=decoding_roi_5odors_glm(passed_data,odornum);
+[results,decfg]=decoding_roi_5odors_glm(passed_data,odornum);
 disp(results.confusion_matrix.output{1});
 % show correlation between 2 voxels
 color='rgbyp';
@@ -215,6 +216,7 @@ scatter(maxres_re(:,1),maxres_re(:,2),50,cell2mat(values(cmap,cellstr(color))),'
 xlabel('voxel1');ylabel('voxel2')
 subplot(1,2,2)
 scatter3(maxres_re(:,3),maxres_re(:,4),maxres_re(:,5),50,C,'filled')
+% scatter3(maxres_re(:,1),maxres_re(:,2),maxres_re(:,3),50,C,'filled')
 xlabel('voxel3');ylabel('voxel4');zlabel('voxel5')
 
 figure('position',[20,1000,1000,400]);

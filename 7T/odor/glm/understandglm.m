@@ -12,7 +12,8 @@ odorspoints = reshape(randperm(length(points)),odornum,[]);
 odorspoints = points(odorspoints);
 % set response
 real = [37 61 37 29 53];
-val = [4.5 4.8 4.8 1.5 3.8];
+val = [4.5 4.8 4.8 3.9 3.8];
+% val = [4.5 4.8 4.8 3.7 3.8];%high acc
 red = 1:5;
 red2 = randperm(5);
 % val = [1 3 1 1.1 1.1];
@@ -136,7 +137,7 @@ resred=conv(red*odors,hrf);
 resred2=conv(red2*odors,hrf);
 % resint=conv([1.8 2.2 2 1.9 2.1]*odors,hrf);
 % resval;resint;resred;
-designmat=[resval;resint;reskey1;reskey2];
+designmat=[resval;resred;resred2;reskey1;reskey2];
 designmat=designmat(:,1:seconds);
 % ones regressor (redundant)
 % designmat=[ones(1,seconds);designmat];

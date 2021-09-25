@@ -22,11 +22,17 @@ int = [2.2 1.8 3.4 3.6 2.2];
 % set time points with odor to 1
 odors = zeros(odornum, seconds);
 key = odors;
+key1=key;
 for i=1:odornum
     odors(i,odorspoints(i,:))=1;
-    key(i,min(odorspoints(i,:)+6+round(normrnd(0,0.3,[1,size(odorspoints,2)])),...
+    key(i,min(odorspoints(i,:)+3+round(normrnd(0,0.3,[1,size(odorspoints,2)])),...
         seconds*ones(1,size(odorspoints,2))))=1;
 end
+% divide into 2 keys
+firstkey=randperm(seconds,seconds/2);
+key1(:,firstkey)=key(:,firstkey);
+key2=key;
+key2(:,firstkey)=0;
 % generate voxels
 n=100;
 voxel=zeros(n,seconds);
@@ -37,12 +43,12 @@ noise_time=normrnd(0,0.5,[1,seconds]);
 noise_block=normrnd(0,0.3,[1,odornum]);
 noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
 odors=originalodors.*(noise_time+noise_block)+originalodors;
-
+% block and time noise for odor intensity response
 noise_time=normrnd(0,0.8,[1,seconds]);
 noise_block=normrnd(0,0.5,[1,odornum]);
 noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
 odorsint=originalodors.*(noise_time+noise_block)+originalodors;
-
+% block and time noise for odor valence response
 noise_time=normrnd(0,0.5,[1,seconds]);
 noise_block=normrnd(0,0.3,[1,odornum]);
 noise_block=reshape(repmat(noise_block,[oneblock 1]),1,[]);
@@ -57,6 +63,8 @@ for i=1:n
     shift=unifrnd(0,1)>0.3;
     if shift
     realres = unifrnd(0,1,[1,odornum])*100;
+%     same=randperm(5,2);
+%     realres(same(1))=realres(same(2));
     else
     realres = unifrnd(0,1,[1,odornum])*100;
     realres(5)=realres(4);
@@ -120,18 +128,20 @@ for i=1:odornum
     resodor(i,:)=temp;
 end
 reskey=conv(sum(key),hrf);
+reskey1=conv(sum(key1),hrf);
+reskey2=conv(sum(key2),hrf);
 resval=conv(val*odors,hrf);
 resint=conv(int*odors,hrf);
 resred=conv(red*odors,hrf);
 resred2=conv(red2*odors,hrf);
 % resint=conv([1.8 2.2 2 1.9 2.1]*odors,hrf);
 % resval;resint;resred;
-designmat=[resred;resred2;reskey];
+designmat=[resval;resint;reskey1;reskey2];
 designmat=designmat(:,1:seconds);
 % ones regressor (redundant)
 % designmat=[ones(1,seconds);designmat];
 % 5 odor regressor
-designmat=[resodor;designmat];
+% designmat=[resodor;designmat];
 % 1 odor regressor
 resone = conv(sum(odors),hrf);
 resone=resone(1:seconds);
@@ -147,8 +157,8 @@ designmat=[resone;designmat];
 voxelfit=zeros(n,seconds);
 % the constant term is the first element of b
 b=zeros(size(designmat,1)+1,n);
-% wholemat=[ones(seconds,1) designmat'];
-wholemat=[ones(seconds,1) designmat([6 7 8 9],:)'];
+wholemat=[ones(seconds,1) designmat'];
+% wholemat=[ones(seconds,1) designmat([6 7 8],:)'];
 fits=zeros(size(voxel));
 for i=1:n
     b(:,i)=glmfit(designmat',voxel(i,:));
@@ -156,8 +166,8 @@ for i=1:n
 %     x=[ones(seconds,1) designmat'];
 %     b(:,i)=pinv(x)*voxel(1,:)';
 %     b(:,i)=inv(x'*x)*x'*voxel(1,:)';
-%     val=wholemat*b(:,i);
-    val=wholemat*b([1 7:10],i);
+    val=wholemat*b(:,i);
+%     val=wholemat*b([1 7:9],i);
     fits(i,:)=val';    
 end
 errors=voxel-fits;

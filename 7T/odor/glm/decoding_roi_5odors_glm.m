@@ -4,10 +4,10 @@ function results=decoding_roi_5odors_glm(passed_data,odornum)
     cfg = decoding_defaults;
     cfg.analysis = 'wholebrain';
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = '/Volumes/WD_E/gufei/7T_odor/testglm';
-    if ~exist(cfg.results.dir,'dir')
-        mkdir(cfg.results.dir)
-    end
+%     cfg.results.dir = '/Volumes/WD_E/gufei/7T_odor/testglm';
+%     if ~exist(cfg.results.dir,'dir')
+%         mkdir(cfg.results.dir)
+%     end
     
     
     cfg.files.labelname={};

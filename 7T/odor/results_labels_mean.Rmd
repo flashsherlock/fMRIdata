@@ -121,7 +121,10 @@ for (sub_i in sub) {
         # 4odors
         cname <- paste(ana,m,r,sep = '_')
         current_data <- data_labels[[cname]]
-        cmatrix <- as.matrix(table(odor=current_data["true",],prediction=current_data["predict",]))
+        # make sure every class is presented in predict
+        current_data_add <- cbind(current_data,matrix(rep(unique(current_data["true",]),each=2),nrow = 2))
+        cmatrix <- as.matrix(table(odor=current_data_add["true",],prediction=current_data_add["predict",]))
+        cmatrix <- cmatrix-diag(4)
         
         # useful information
         n = sum(cmatrix) # number of instances

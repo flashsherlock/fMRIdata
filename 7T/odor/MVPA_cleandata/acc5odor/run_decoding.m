@@ -1,5 +1,5 @@
 analysis_all={'pabiode'};
-shift=[3 6];
+shift=[6];
 % rois={'Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'};
 % for region=[1 3 5 6 7 8 9 10 15]
 %     rois=[rois {['Amy_align' num2str(region) 'seg']}];

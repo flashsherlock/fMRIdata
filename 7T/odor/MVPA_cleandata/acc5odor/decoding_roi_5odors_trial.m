@@ -40,14 +40,18 @@ parfor i=1:length(rois)
 
     % Make sure to set software to AFNI
     cfg.software = 'AFNI';
-
+    
+    % model_parameters
+    cfg.decoding.method='classification';
+    cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -c 1 -b 0 -q';
+ 
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
     test=['4odors_' roi];
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l2_label_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaNLodor_l2_label_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -101,7 +105,7 @@ parfor i=1:length(rois)
     % detailed version of it). Then you set:
 
     % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
-    cfg.results.output = {'SVM_pattern', 'confusion_matrix','predicted_labels','true_labels'};
+    cfg.results.output = {'confusion_matrix','predicted_labels','true_labels'};
 
     % You can also use all methods that start with "transres_", e.g. use
     %   cfg.results.output = {'SVM_pattern'};

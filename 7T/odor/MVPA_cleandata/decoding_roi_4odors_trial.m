@@ -40,7 +40,9 @@ parfor i=1:length(rois)
     cfg.decoding.method='classification';
     cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -c 0.0001 -g 0.001 -b 0 -q';
     cfg.results.overwrite = 1;
-    
+    cfg.parameter_selection.method='grid';
+    cfg.parameter_selection.parameters={'-c';'-g'};
+    cfg.parameter_selection.parameter_range={10.^(-6:1:6);10.^(-6:1:6)};
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
     test=['4odors_' roi];
@@ -101,7 +103,7 @@ parfor i=1:length(rois)
     % detailed version of it). Then you set:
 
     % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
-    cfg.results.output = {'confusion_matrix', 'predicted_labels', 'true_labels'};
+    cfg.results.output = {'confusion_matrix', 'predicted_labels', 'true_labels', 'model_parameters'};
 
     % You can also use all methods that start with "transres_", e.g. use
     %   cfg.results.output = {'SVM_pattern'};

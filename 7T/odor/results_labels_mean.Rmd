@@ -246,7 +246,7 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
 
 
 ### accuracy all runs 2 odors
-```{r echo=FALSE, fig.height=5, fig.width=12}
+```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
 acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     acc2odor <- subset(acc2odor, beta==m)
@@ -302,7 +302,7 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
 ```
 
 ### accuracy for each run 2 odors
-```{r echo=FALSE, fig.height=3, fig.width=5}
+```{r eval=FALSE, fig.height=3, fig.width=5, include=FALSE}
 acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     acc2odor_run <- subset(acc2odor_run, beta==m)
@@ -365,7 +365,7 @@ for (ana in analysis) {
 ```
 
 ### errors
-```{r ,fig.height=5, fig.width=12}
+```{r eval=FALSE, fig.width=12, ,fig.height=5, include=FALSE}
 errors <- subset(matrix_all, odor == "lim" & prediction != "p_lim" | odor != "lim" & prediction == "p_lim")
 errors <- mutate(errors, error=str_extract(paste(odor,prediction,sep = "_"),"tra|car|cit"))
 errors <- mutate(errors, value=(1-value)*100)

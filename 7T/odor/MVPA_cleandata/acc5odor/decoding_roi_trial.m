@@ -45,8 +45,8 @@ parfor i=1:length(comb)
     
     % model_parameters
     cfg.decoding.method='classification';
-    cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -c 1 -b 0 -q';
- 
+    cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -c 100 -b 0 -q';
+    cfg.results.overwrite = 1;
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
     labelname1 = odors{odornumber(1)};

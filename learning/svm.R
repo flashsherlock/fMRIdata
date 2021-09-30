@@ -35,7 +35,7 @@ f_train <- function(n, nv = 2){
 
 
 # ------------------------------- run traiings -------------------------------
-p = expand.grid(iTest = 1:100, n = seq(60, 200, 20))
+p = expand.grid(iTest = 1:10, n = seq(10, 210, 50))
 data_test = p %>% group_by(iTest, n) %>% do(data.frame(acc = f_train(.$n)))
 
 # ----------------------------------- Plot ----------------------------------- #

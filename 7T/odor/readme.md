@@ -180,3 +180,6 @@ Compare different methods that deal with head movement in the 5th run of S01.
 
 # 5odor
 R scripts to show results of 5 odors experiment.
+
+# glm
+Generate data and try to understand GLM and MVPA.

@@ -1,6 +1,6 @@
 # default values
 path <- "/Volumes/WD_E/gufei/7T_odor/"
-mp<- c("roi_VIvodor_l1_label_6")
+mp<- c("roi_VIvaNLodor_l1_label_6")
 analysis <- c("pabiode")
 # subs 
 subs <- c(sprintf('S%02d',c(4:8)))

@@ -2,22 +2,36 @@ data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 odor_num = 6;
 sample_rate=500;
 cur_date='200807';
+channel=32:64;
+bad_channel=[35 37 38 46 50 53 55 56 57];
+channel(ismember(channel,bad_channel))=[];
+resp_channel='AI08';
+
 channel=num2str(48);
 SPK_chan=strcat('SPK',channel);
 CON_chan=strcat('WB',channel);
 pattern=[data_dir cur_date '_testo' '*' '_rm035_1_*.plx'];
 plxname=dir(pattern);
 lfp=cell(1,length(plxname));
+resp=lfp;
 for i=1:length(plxname)
 % test=1;
 fl=[data_dir filesep plxname(i).name];
 front=strrep(fl,'.plx','');
 %按照每导读取数据，频率信息存在raw_freq中，数据信息存在raw_ad中
 [raw_freq, raw_n, raw_ts, raw_fn, raw_ad] = plx_ad(fl,CON_chan);
-% [res_freq, res_n, res_ts, res_fn, raw_res] = plx_ad(fl,'AI08'); % raw res data
+[res_freq, res_n, res_ts, res_fn, raw_res] = plx_ad(fl,resp_channel); % raw res data
 [n, ts, sv] = plx_event_ts(fl, 'Strobed');
 %fieldtrip的格式组织数据
 lfp{i}=struct('label',{{}},'trial',{{[]}},'time',{{[]}});
+resp{i}=lfp{i};
+%resp
+ad_time=(1:res_n)/res_freq;
+resp{i}.label{end+1}=resp_channel;
+resp{i}.trial{1}=[resp{i}.trial{1};raw_res'];
+resp{i}.time{1}(end+1,:)=ad_time';
+resp{i}.fsample=res_freq;
+%lfp
 ad_time=(1:raw_n)/raw_freq;
 lfp{i}.label{end+1}=CON_chan;
 lfp{i}.trial{1}=[lfp{i}.trial{1};raw_ad'];
@@ -54,8 +68,22 @@ trl(:,3)=lfp{i}.fsample*offset;
 cfg=[];
 cfg.trl=trl;
 lfp{i} = ft_redefinetrial(cfg, lfp{i});
+resp{i} = ft_redefinetrial(cfg, resp{i});
 end
-lfp = ft_appenddata([],lfp{:});
+%% append data
+cfg=[];
+cfg.keepsampleinfo='no';
+lfp = ft_appenddata(cfg,lfp{:});
+resp = ft_appenddata(cfg,resp{:});
+% remove trials containing nan values
+% lfpnan=find(cellfun(@(x) any(isnan(x)),lfp.trial)==1);
+% respnan=find(cellfun(@(x) any(isnan(x)),resp.trial)==1);
+% allnan=unique([lfpnan respnan]);
+cfg=[];
+cfg.trials=~(cellfun(@(x) any(isnan(x)),lfp.trial)...
+    |cellfun(@(x) any(isnan(x)),resp.trial));
+lfp=ft_selectdata(cfg,lfp);
+resp=ft_selectdata(cfg,resp);
 %% show low frequency signal
 cfg=[];
 cfg.bpfilter = 'yes';
@@ -65,14 +93,14 @@ lfp_l = ft_preprocessing(cfg,lfp);
 cfg = [];
 cfg.trials = find(lfp_l.trialinfo==1);
 ft_singleplotER(cfg, lfp_l); 
-cfg          = [];
-cfg.method   = 'trial';
-dummy        = ft_rejectvisual(cfg,lfp_l);
-cfg = [];
-cfg.viewmode = 'vertical';
-cfg.ylim = 'maxmin';
-lfp_l = rmfield(lfp_l,'sampleinfo');
-eegplot = ft_databrowser(cfg,lfp_l);
+% cfg          = [];
+% cfg.method   = 'trial';
+% dummy        = ft_rejectvisual(cfg,lfp_l);
+% cfg = [];
+% cfg.viewmode = 'vertical';
+% cfg.ylim = 'maxmin';
+% lfp_l = rmfield(lfp_l,'sampleinfo');
+% eegplot = ft_databrowser(cfg,lfp_l);
 %% time frequency analysis
 % inhale
 cfgtf=[];
@@ -94,6 +122,7 @@ cfg              = [];
 cfg.baseline     = [-1.5 -0.5];
 cfg.baselinetype = 'db';
 freq_blc = ft_freqbaseline(cfg, freq);
+bs=linspace(cfg.baseline(1),cfg.baseline(2),100);
 % check if some of the trials drive the results
 %             freq_blc.powspctrm=permute(freq_blc.powspctrm,[3 2 1 4]);
 %             freq_blc.freq=freq_blc.freq(1):1:freq_blc.freq(1)+194;
@@ -104,6 +133,12 @@ cfg.xlim = [-1.5 8];
 cfg.zlim = [-2 2];
 cfg.colormap = 'jet';
 ft_singleplotTFR(cfg, freq_blc);
+%filt resp
+% cfg=[];
+% cfg.lpfilter = 'yes';
+% cfg.lpfilttype = 'fir';
+% cfg.lpfreq = 10;
+% resp = ft_preprocessing(cfg,resp);
 % plot by contourf
 figure;
 contourf(cfgtf.toi,cfgtf.foi,squeeze(freq_blc.powspctrm),40,'linecolor','none');
@@ -114,6 +149,17 @@ xlabel('Time (s)')
 ylabel('Frequency (Hz)')
 colormap jet
 ylabel(colorbar,'Baseline-normalized power (dB)')
+% plot respiration
+cfg.trials = find(resp.trialinfo==1);
+cfg.trials = cfg.trials(1:2:end);
+resavg=ft_timelockanalysis(cfg, resp);
+hold on
+plot(bs,1.5*ones(1,100),'k','LineWidth',4)
+yyaxis right
+plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
+set(gca,'xlim',[-1.5 7.5],'ytick',[]);
+title([cur_date '-' num2str(channel)])
+hold off
 % exhale
 cfgtf.trials = find(lfp.trialinfo==2);
 freq2 = ft_freqanalysis(cfgtf, lfp);
@@ -123,17 +169,32 @@ cfg.baselinetype = 'db';
 freq_blc2 = ft_freqbaseline(cfg, freq2);
 cfg = [];
 % cfg.trials = find(freq_blc.trialinfo==2);
-cfg.xlim = [-1.5 2];
+cfg.xlim = [-1.5 8];
 cfg.zlim = [-2 2];
 cfg.colormap = 'jet';
 ft_singleplotTFR(cfg, freq_blc2);
 %% ERP
 cfg = [];
 cfg.keeptrials = 'yes';
-erp = ft_timelockanalysis(cfg, lfp);
+erp = ft_timelockanalysis(cfg, lfp_l);
 cfg              = [];
 cfg.baseline     = [-2 0];
 erp_blc = ft_timelockbaseline(cfg, erp);
 cfg = [];
 cfg.trials = find(erp_blc.trialinfo==1);
-ft_singleplotER(cfg, erp_blc); 
+ft_singleplotER(cfg, erp_blc);
+
+select=resavg.time>=0&resavg.time<=4;
+r=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)));
+
+hold on
+yyaxis right
+plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
+set(gca,'xlim',[-1.5 7.5],'ytick',[]);
+title([cur_date '-' num2str(channel) ' ' num2str(r)])
+hold off
+
+figure
+scatter(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)))
+figure
+scatter(resavg.avg',squeeze(mean(erp_blc.trial(:,:,select),1)))

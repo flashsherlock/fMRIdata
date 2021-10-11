@@ -2,7 +2,7 @@ data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 out_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
 odor_num = 6;
 sample_rate=500;
-dates={'200731','200807','200814','200820','200828'};
+dates={'200828'};
 channel=33:64;
 bad_channel=[35 37 38 46 50 53 55 56 57];
 channel(ismember(channel,bad_channel))=[];
@@ -22,7 +22,7 @@ for d=1:length(dates)
     fl=[data_dir filesep plxname(i).name];
     front=strrep(fl,'.plx','');
     %按照每导读取数据，频率信息存在raw_freq中，数据信息存在raw_ad中
-    [res_freq, res_n, res_ts, res_fn, raw_res] = plx_ad(fl,resp_channel); % raw res data
+    [res_freq, res_n, res_ts, res_fn, raw_res] = plx_ad_v(fl,resp_channel); % raw res data
     % [n, ts, sv] = plx_event_ts(fl, 'Strobed');
     %fieldtrip的格式组织数据
     lfp{i}=struct('label',{{}},'trial',{{[]}},'time',{{[]}});
@@ -35,7 +35,7 @@ for d=1:length(dates)
     resp{i}.fsample=res_freq;
     for i_channel=1:length(channel)
         CON_chan=strcat('WB',num2str(channel(i_channel)));
-        [raw_freq, raw_n, raw_ts, raw_fn, raw_ad] = plx_ad(fl,CON_chan);
+        [raw_freq, raw_n, raw_ts, raw_fn, raw_ad] = plx_ad_v(fl,CON_chan);
         %lfp
         if i_channel==1
             % lfp.dimord='chan_time';

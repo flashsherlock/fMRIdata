@@ -10,6 +10,20 @@ sample_rate=500;
 points = findpoints(res_data.data);
 %气味的标记
 marker_time=find(res_data.data(:,2)~=0);
+%如果marker是奇数说明有问题
+remove=0;
+if mod(length(marker_time),2)
+    marker_time(end)=[];
+    if mean(res_data.data(marker_time,2))
+        error('marker error')
+    else        
+        %0820 testo3 01去掉最后一段不全的空气
+        warning('unpaired markers in the end')
+        ts(end+1:105)=ts(end);
+        remove=1;
+    end
+end
+
 marker_label=res_data.data(marker_time,2);
 marker_info=[marker_label(1:2:end) reshape(marker_time,2,[])'];
 marker_info_old=marker_info;
@@ -45,6 +59,10 @@ end
 %进行数据对齐，电生理与呼吸
 plx_time=reshape(ts,7,[]);
 plx_time=reshape(plx_time(3:6,:),2,[])';
+%0820 testo3 01去掉最后一段不全的空气
+if remove
+   plx_time(end,:)=[]; 
+end
 biop_time=marker_info_old(:,2:3)/sample_rate;
 %计算两个系统的时间差异
 bia=mean(mean(plx_time-biop_time));

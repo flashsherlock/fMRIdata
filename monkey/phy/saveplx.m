@@ -1,14 +1,13 @@
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 out_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
-odor_num = 6;
 sample_rate=500;
-dates={'200828'};
+dates={'200731','200807','200814','200820','200828'};
 channel=33:64;
 bad_channel=[35 37 38 46 50 53 55 56 57];
 channel(ismember(channel,bad_channel))=[];
 % channel=num2str(48);
 resp_channel='AI08';
-
+try
 for d=1:length(dates)
     %data filename
     cur_date=dates{d};
@@ -16,8 +15,9 @@ for d=1:length(dates)
     plxname=dir(pattern);
     lfp=cell(1,length(plxname));
     resp=lfp;
-
+    bioresp=lfp;
     for i=1:length(plxname)
+    disp(['Processing... ' cur_date ' testo' num2str(i)]);
     % test=1;
     fl=[data_dir filesep plxname(i).name];
     front=strrep(fl,'.plx','');
@@ -61,7 +61,7 @@ for d=1:length(dates)
     cfg.bsfreq      = [49 51];
     lfp{i} = ft_preprocessing(cfg,lfp{i});
     %得到plx时间下的呼吸时间点
-    [res_plx,resp_points,odor_time]=find_resp_time(front);
+    [res_plx,resp_points,odor_time,bioresp{i}]=find_resp_time(front);
     %取0点前3.5s,后9.5s
     offset = -3.5;
     after  = 9.5;
@@ -99,5 +99,8 @@ for d=1:length(dates)
     trlresp{i}=trl;
     end
     trl=struct('resp',trlresp,'odor',trlodor,'odorresp',trlodorresp);
-    save([out_dir cur_date '_rm035_ane.mat'],'lfp','resp','trl');
+    save([out_dir cur_date '_rm035_ane.mat'],'lfp','resp','bioresp','trl');
+end
+catch
+    disp(['error in ' cur_date ' testo' num2str(i) ' channel' num2str(i_channel)]);
 end

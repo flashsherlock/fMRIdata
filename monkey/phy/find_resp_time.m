@@ -1,4 +1,4 @@
-function [valid_res_plx,resp_points,odor_time]=find_resp_time(front)
+function [valid_res_plx,resp_points,odor_time,bioresp]=find_resp_time(front)
 %加载数据
 respname=[front '.mat'];
 plxname=[front '.plx'];
@@ -27,10 +27,11 @@ for i = 1:length(marker_info)
         res_start = points(ii,1);
         res_high = points(ii,2);
         res_end = points(ii,3);
-        if res_start+100>=odor_start && res_high-100<=odor_end
+        % res_start+100>=odor_start && res_high-100<=odor_end
+        if res_start+25>=odor_start && res_start+500<=odor_end+25
             valid_res{odor,1} = [valid_res{odor,1};[res_start,res_high,res_end]];
             %test{odor}{end+1} = res_data.data(res_start:res_end)';
-        elseif res_high-100 > odor_end
+        elseif res_start > odor_end+25
             break
         else 
             continue
@@ -57,5 +58,22 @@ resp_points=points(:,1:3)/sample_rate+bia;
  for b =1:6
     odor_time{b,1}(:,:)=marker_info(marker_info(:,1)==b,2:3)/sample_rate+bia;
  end
-
+%返回转换为plx时间的呼吸
+bioresp=struct('label',{{}},'trial',{{[]}},'time',{{[]}});
+%resample to 1000Hz
+new_rate=1000;
+resp=resample(res_data.data(:,1),new_rate,sample_rate);
+%add zeros so that match plx time
+if bia>0
+    pad=zeros(ceil(new_rate*bia),1);
+    resp=[pad;resp];
+%cut to match plx time
+elseif bia<0
+    resp(1:ceil(new_rate*abs(bia)))=[];
+end
+ad_time=(1:length(resp))/new_rate;
+bioresp.label{end+1}='biopac';
+bioresp.trial{1}=[bioresp.trial{1};resp'];
+bioresp.time{1}(end+1,:)=ad_time';
+bioresp.fsample=new_rate;
 end

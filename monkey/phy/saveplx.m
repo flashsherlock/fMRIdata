@@ -1,17 +1,19 @@
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 out_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
 sample_rate=500;
-dates={'200731','200807','200814','200820','200828'};
+dates={'200424','200529','200612','200619'};
 channel=33:64;
 bad_channel=[35 37 38 46 50 53 55 56 57];
 channel(ismember(channel,bad_channel))=[];
 % channel=num2str(48);
 resp_channel='AI08';
-try
+
 for d=1:length(dates)
+    try
     %data filename
     cur_date=dates{d};
-    pattern=[data_dir cur_date '_testo' '*' '_rm035_1_*.plx'];
+%     pattern=[data_dir cur_date '_testo' '*' '_rm035_1_*.plx'];
+    pattern=[data_dir cur_date '_testo' '*' '_rm035_1.plx'];
     plxname=dir(pattern);
     lfp=cell(1,length(plxname));
     resp=lfp;
@@ -99,8 +101,8 @@ for d=1:length(dates)
     trlresp{i}=trl;
     end
     trl=struct('resp',trlresp,'odor',trlodor,'odorresp',trlodorresp);
-    save([out_dir cur_date '_rm035_ane.mat'],'lfp','resp','bioresp','trl');
-end
-catch
+    save([out_dir cur_date '_rm035_ane.mat'],'lfp','resp','bioresp','trl');    
+    catch
     disp(['error in ' cur_date ' testo' num2str(i) ' channel' num2str(i_channel)]);
+    end
 end

@@ -246,7 +246,7 @@ acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl
 
 
 ### accuracy all runs 2 odors
-```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
+```{r echo=FALSE, fig.height=5, fig.width=12}
 acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
   for (m in mvpa_pattern){
     acc2odor <- subset(acc2odor, beta==m)
@@ -302,6 +302,36 @@ acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2
 ```
 
 ### accuracy for each run 2 odors
+```{r echo=FALSE, fig.height=6, fig.width=6}
+acc2odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
+odors <- c("lim","tra","car","cit")
+pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "_"))
+for (ana in analysis) {
+  for (m in mvpa_pattern){
+    # plot a matrix
+      cmatrix <- subset(acc2odor, phy==ana & beta==m,select = c("sub","roi","odor","acc"))
+      # calculate mean values and p values (error when all conditions are 50%: data are essentially constant)
+      p <- aggregate(cmatrix$acc, list(cmatrix$odor,cmatrix$roi), FUN= function(x) {t.test(x,mu=50)$p.value})
+      cmatrix <- cbind(aggregate(cmatrix$acc, list(cmatrix$odor,cmatrix$roi), mean),p[,3])
+      names(cmatrix) <- c("odor","roi","acc","p")
+      cmatrix$plabels <- cut(cmatrix$p, breaks=c(-Inf, 0.001, 0.01, 0.05, 0.10, Inf), 
+                           label=c("***", "**", "*", "†", ""))
+      cmatrix[,3] <- round(cmatrix[,3],digits = 2)
+      cmatrix <- mutate(cmatrix,odor = factor(odor,levels = paste0('2odors_',pairs),labels = pairs),
+                        roi = factor(roi, levels = params$roi, labels = params$roiname)) # force reverse alphabetical order
+      # test <- aggregate(matrix_all$value, list(matrix_all$odor,matrix_all$prediction), mean)
+      figure <- ggplot(cmatrix, aes(x=roi, y=odor, fill=acc)) +
+        geom_tile() + theme_bw() + coord_equal() +
+        scale_fill_distiller(palette="Greens", direction=1,limits=c(50, 100) ) +
+        labs(title = paste(ana,m,sep = "_")) + # using a title instead
+        guides(size=F) + # removing legend for `fill`
+        geom_text(aes(label=acc), size=4,vjust=0.5, color="black")+ # printing values
+        geom_text(aes(label=plabels,size=5,vjust=-0.5), color="black") # printing values
+      print(figure)
+  }
+}
+```
+
 ```{r eval=FALSE, fig.height=3, fig.width=5, include=FALSE}
 acc2odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^2",unique(acc_run$odor))])
   for (m in mvpa_pattern){

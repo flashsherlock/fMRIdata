@@ -1,5 +1,6 @@
 #! /bin/csh
-foreach sub (S04 S05 S06 S07 S08)
+# foreach sub (S04 S05 S06 S07 S08)
+foreach sub (S01_yyt S01 S02 S03)
 # set sub=S01_yyt
 set analysis=pabiode
 

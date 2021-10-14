@@ -1,4 +1,5 @@
-% This script is a template that can be used for a decoding analysis on 
+function decoding_searchlight_4odors_trial(sub, analysis_all, rois, shift)
+% This script is a template that can be used for a decoding analysis on
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
 % classification, as well as corresponding labels and decoding chunk numbers
@@ -9,11 +10,15 @@
 % (e.g. addpath('/home/decoding_toolbox') )
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
-subn=1;
-sub='S01_yyt';
-analysis='paphde';
-shift=6;
-mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mask_anat*+orig.HEAD']);
+% subn=1;
+% sub='S01_yyt';
+datafolder = '/Volumes/WD_E/gufei/7T_odor/';
+rois = {'BoxROI'};
+for i_analysis=1:length(analysis_all)
+    analysis=analysis_all{i_analysis};
+for i=1:length(rois)
+    roi=rois{i};
+    mask = get_filenames_afni([datafolder sub '/mask/' roi '+orig.HEAD']);
 % Set defaults
 cfg = decoding_defaults;
 
@@ -22,16 +27,16 @@ cfg.software = 'AFNI';
 
 % Set the analysis that should be performed (default is 'searchlight')
 cfg.analysis = 'searchlight';
-test=['4odors_'];
+test=['4odors_' roi];
 cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
 % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_leave1_' num2str(shift) '/' test];
+cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' num2str(shift) '/' test];
 if ~exist(cfg.results.dir,'dir')
     mkdir(cfg.results.dir)
 end
 
-timing=findtrs(shift,subn);
+timing=findtrs(shift,sub);
 % Full path to file names (1xn cell array) (e.g.
 % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
 % lim tra car cit
@@ -83,8 +88,9 @@ cfg.design = make_design_cv(cfg);
 
 % Run decoding
 results = decoding(cfg);    
-
-
+end
+end
+end
 % some warnings
 % there may be errors when saving fig because of replacing . with _
 % edit save_fig.m

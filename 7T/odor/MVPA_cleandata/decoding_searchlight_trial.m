@@ -1,4 +1,5 @@
-% This script is a template that can be used for a decoding analysis on 
+function decoding_searchlight_trial(sub, analysis_all, rois, shift, comb_i)
+% This script is a template that can be used for a decoding analysis on
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
 % classification, as well as corresponding labels and decoding chunk numbers
@@ -9,16 +10,24 @@
 % (e.g. addpath('/home/decoding_toolbox') )
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
-subn=1;
-sub='S01_yyt';
-analysis='paphde';
-shift=6;
+% subn=1;
+% sub='S01_yyt';
+datafolder = '/Volumes/WD_E/gufei/7T_odor/';
 odors={'lim','tra','car','cit'};
 comb=nchoosek(1:length(odors), 2);
-
-for i=1:length(comb)
+rois = {'BoxROI'};
+for i_analysis = 1:length(analysis_all)
+    analysis = analysis_all{i_analysis};
+for roi_i = 1:length(rois)
+    roi = rois{roi_i};
+    mask = get_filenames_afni([datafolder sub '/mask/' roi '+orig.HEAD']);
+    % Amy will match too many files
+    if roi_i == 1
+        mask = mask(1, :);
+    end
+% parfor i=1:length(comb)
+    i = comb_i;
     odornumber=comb(i,:);
-    mask=get_filenames_afni(['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mask_anat*+orig.HEAD']);
     % Set defaults
     cfg = decoding_defaults;
 
@@ -29,24 +38,24 @@ for i=1:length(comb)
     cfg.analysis = 'searchlight';
     labelname1 = odors{odornumber(1)};
     labelname2 = odors{odornumber(2)};
-    test=['2odors_' labelname1 '_' labelname2];
+    test = [roi '/' '2odors_' labelname1 '_' labelname2];
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_leave1_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_leave1_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
     
     % all of images
-    timing = findtrs(shift,subn);
+    timing = findtrs(shift,sub);
     % images selected by odornumber
     tr = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), 2);
     numtr=6*8*2;
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = ['/Volumes/WD_D/gufei/7T_odor/' sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/' 'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -87,7 +96,10 @@ for i=1:length(comb)
     cfg.design = make_design_cv(cfg); 
 
     % Run decoding
-    results = decoding(cfg);    
+    results = decoding(cfg);
+% end
+end
+end    
 end
 % some warnings
 % there may be errors when saving fig because of replacing . with _

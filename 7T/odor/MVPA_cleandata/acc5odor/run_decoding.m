@@ -10,13 +10,17 @@ rois={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC'};
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy'};
 % rois={'whole_brain'};
-
+decode=[reshape(repmat([4:8],6,1),[],1) repmat([1:6]',5,1)];
+parfor i=1:30
+    sub=sprintf('S%02d',decode(i,1));
+    decoding_searchlight_trial(sub,analysis_all,rois,shift,decode(i,2));
+end
 % S04-S08
-for i=4:8
-    sub=sprintf('S%02d',i);
-    decoding_roi_5odors_trial(sub,analysis_all,rois,shift);
-    decoding_roi_trial(sub,analysis_all,rois,shift);
+% for i=4:8
+%     sub=sprintf('S%02d',i);
+%     decoding_roi_5odors_trial(sub,analysis_all,rois,shift);
+%     decoding_roi_trial(sub,analysis_all,rois,shift);
     % searchlight
 %     decoding_searchlight_5odors_trial(sub,analysis_all,rois,shift);
-%     decoding_searchlights_trial(sub,analysis_all,rois,shift);
-end
+%     decoding_searchlight_trial(sub,analysis_all,rois,shift);
+% end

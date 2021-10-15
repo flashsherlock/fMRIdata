@@ -25,15 +25,15 @@ datafolder='/Volumes/WD_E/gufei/7T_odor/';
 odors={'lim','tra','car','cit','ind'};
 comb=nchoosek(1:length(odors), 2);
 % only lim and other 4 odors
-comb=comb(1:4,:);
+comb=comb(5:end,:);
 % shift=6;
-rois={'whole_brain'};
+rois={'BoxROI'};
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
     % Amy_seg starts from 7
 for roi_i=1:length(rois)
     roi=rois{roi_i};
-    mask=get_filenames_afni([datafolder sub '/' sub '.' analysis '.results/' 'mask_epi_anat*+orig.HEAD']);
+    mask=get_filenames_afni([datafolder sub '/mask/' roi '+orig.HEAD']);
     % Amy will match too many files
     if roi_i==1
         mask=mask(1,:);
@@ -55,7 +55,7 @@ for roi_i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l1_label_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -68,7 +68,7 @@ for roi_i=1:length(rois)
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)

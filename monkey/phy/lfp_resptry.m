@@ -41,7 +41,9 @@ ft_singleplotER(cfg, lfp_l);
 % lfp_l = rmfield(lfp_l,'sampleinfo');
 % eegplot = ft_databrowser(cfg,lfp_l);
 %% time frequency analysis
-for i=1:2
+for i=2
+freq_range = [1.5 200];
+time_range = [-1 7.5];
 % inhale
 cfgtf=[];
 cfgtf.trials = find(lfp.trialinfo==1);
@@ -55,8 +57,17 @@ cfgtf.foi = logspace(log10(1),log10(200),51);
 cfgtf.t_ftimwin  = 5./cfgtf.foi;
 cfgtf.taper      = 'hanning';
 cfgtf.output     = 'pow';
-cfgtf.keeptrials = 'no';
-freq = ft_freqanalysis(cfgtf, lfp);
+cfgtf.keeptrials = 'yes';
+freq_sep = ft_freqanalysis(cfgtf, lfp);
+% average across channels
+cfg = [];
+cfg.keeptrials    = 'yes';
+cfg.frequency=freq_range;
+cfg.latency=time_range;
+freq_sep = ft_freqdescriptives(cfg,freq_sep);
+% average across trials
+cfg.keeptrials    = 'no';
+freq=ft_freqdescriptives(cfg,freq_sep);
 % baseline correction
 cfg              = [];
 cfg.baseline     = [-1 -0.5];
@@ -79,11 +90,35 @@ bs=linspace(cfg.baseline(1),cfg.baseline(2),100);
 % cfg.lpfilttype = 'fir';
 % cfg.lpfreq = 10;
 % resp = ft_preprocessing(cfg,resp);
+
+% threshold by permutation test
+voxel_pval   = 0.05;
+cluster_pval = 0.05;
+n_permutes = 1000;
+num_frex = length(freq_blc.freq);
+nTimepoints = length(freq_blc.time);
+baseidx(1) = dsearchn(freq_sep.time',cfg.baseline(1));
+baseidx(2) = dsearchn(freq_sep.time',cfg.baseline(2));
+% initialize null hypothesis matrices
+permuted_maxvals = zeros(n_permutes,2,num_frex);
+permuted_vals    = zeros(n_permutes,num_frex,nTimepoints);
+max_clust_info   = zeros(n_permutes,1);
+% rpt_chan_freq_time
+realbaselines = squeeze(mean(freq_sep.powspctrm(:,:,:,baseidx(1):baseidx(2)),4));
+for permi=1:n_permutes
+    cutpoint = randsample(2:nTimepoints-diff(baseidx)-2,1);
+    permuted_vals(permi,:,:) = 10*log10(bsxfun(@rdivide,squeeze(mean(freq_sep.powspctrm(:,:,:,[cutpoint:end 1:cutpoint-1]),1)),mean(realbaselines,1)'));
+end
+realmean=squeeze(freq_blc.powspctrm);
+zmap = (realmean-squeeze(mean(permuted_vals))) ./ squeeze(std(permuted_vals));
+threshmean = realmean;
+threshmean(abs(zmap)<=norminv(1-voxel_pval/2))=0;
+
 % plot by contourf
 figure;
-contourf(cfgtf.toi,cfgtf.foi,squeeze(freq_blc.powspctrm),40,'linecolor','none');
+contourf(freq_blc.time,freq_blc.freq,realmean,40,'linecolor','none');
 set(gca,'ytick',round(logspace(log10(cfgtf.foi(1)),log10(cfgtf.foi(end)),10)*100)/100,'yscale','log');
-set(gca,'ylim',[1.5 200],'xlim',[-1 7.5],'clim',[-2 2]);
+set(gca,'ylim',freq_range,'xlim',time_range,'clim',[-2 2]);
 % colorbarlabel('Baseline-normalized power (dB)')
 xlabel('Time (s)')
 ylabel('Frequency (Hz)')
@@ -97,7 +132,7 @@ hold on
 plot(bs,1.5*ones(1,100),'k','LineWidth',5)
 yyaxis right
 plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
-set(gca,'xlim',[-1 7.5],'ytick',[]);
+set(gca,'xlim',time_range,'ytick',[]);
 title([cur_date '-' num2str(channel) '-trial' num2str(i)])
 hold off
 % exhale
@@ -114,6 +149,25 @@ hold off
 % cfg.colormap = 'jet';
 % ft_singleplotTFR(cfg, freq_blc2);
 end
+%% statistics
+% cfg=cfgtf;
+% cfg.keeptrials = 'yes';
+% freq_sep = ft_freqanalysis(cfg, lfp);
+% cfg              = [];
+% cfg.baseline     = [-1 -0.5];
+% cfg.baselinetype = 'relchange';
+% freq_sep_blc = ft_freqbaseline(cfg, freq_sep);
+% 
+% cfg = [];
+% cfg.latency          = [0 7.5];
+% cfg.frequency        = [1.5 200];
+% cfg.method           = 'stats';
+% cfg.statistic        = 'ttest';
+% % cfg.correctm         = 'fdr';
+% cfg.alpha            = 0.05;
+% cfg.design    = ones(1, length(freq_sep.trialinfo));
+% 
+% [stat] = ft_freqstatistics(cfg, freq_sep);
 %% ERP
 cfg = [];
 cfg.keeptrials = 'yes';

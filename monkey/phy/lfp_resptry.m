@@ -1,5 +1,9 @@
 %% load data
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
+pic_dir=[data_dir 'pic/'];
+if ~exist(pic_dir,'dir')
+    mkdir(pic_dir);
+end
 cur_date='200807';
 data=load([data_dir cur_date '_rm035_ane.mat']);
 %% cut to trials
@@ -24,14 +28,14 @@ channel=48;
 cfg.channel=strcat('WB',num2str(channel));
 lfp=ft_selectdata(cfg,lfp);
 %% show low frequency signal
-cfg=[];
-cfg.bpfilter = 'yes';
-cfg.bpfilttype = 'fir';
-cfg.bpfreq = [0.1 0.8];
-lfp_l = ft_preprocessing(cfg,lfp);
-cfg = [];
-cfg.trials = find(lfp_l.trialinfo==1);
-ft_singleplotER(cfg, lfp_l); 
+% cfg=[];
+% cfg.bpfilter = 'yes';
+% cfg.bpfilttype = 'fir';
+% cfg.bpfreq = [0.1 0.8];
+% lfp_l = ft_preprocessing(cfg,lfp);
+% cfg = [];
+% cfg.trials = find(lfp_l.trialinfo==1);
+% ft_singleplotER(cfg, lfp_l); 
 % cfg          = [];
 % cfg.method   = 'trial';
 % dummy        = ft_rejectvisual(cfg,lfp_l);
@@ -41,7 +45,7 @@ ft_singleplotER(cfg, lfp_l);
 % lfp_l = rmfield(lfp_l,'sampleinfo');
 % eegplot = ft_databrowser(cfg,lfp_l);
 %% time frequency analysis
-for i=2
+for i=1:2
 freq_range = [1.5 200];
 time_range = [-1 7.5];
 % inhale
@@ -49,7 +53,7 @@ cfgtf=[];
 cfgtf.trials = find(lfp.trialinfo==1);
 cfgtf.trials = cfgtf.trials(i:2:end);
 cfgtf.method     = 'mtmconvol';
-cfgtf.toi        = -3.5:0.1:9.5;
+cfgtf.toi        = -3.5:0.01:9.5;
 % cfgtf.foi        = 1:1:100;
 % other wavelet parameters
 cfgtf.foi = logspace(log10(1),log10(200),51);
@@ -113,6 +117,38 @@ realmean=squeeze(freq_blc.powspctrm);
 zmap = (realmean-squeeze(mean(permuted_vals))) ./ squeeze(std(permuted_vals));
 threshmean = realmean;
 threshmean(abs(zmap)<=norminv(1-voxel_pval/2))=0;
+un_zmapthresh=abs(sign(threshmean));
+
+% this time, the cluster correction will be done on the permuted data, thus
+% making no assumptions about parameters for p-values
+for permi = 1:n_permutes
+    
+    % for cluster correction, apply uncorrected threshold and get maximum cluster sizes
+    fakecorrsz = squeeze((permuted_vals(permi,:,:)-mean(permuted_vals)) ./ std(permuted_vals) );
+    fakecorrsz(abs(fakecorrsz)<norminv(1-voxel_pval/2))=0;
+    
+    % get number of elements in largest supra-threshold cluster
+    clustinfo = bwconncomp(fakecorrsz);
+    max_clust_info(permi) = max([ 0 cellfun(@numel,clustinfo.PixelIdxList) ]); % the zero accounts for empty maps
+    % using cellfun here eliminates the need for a slower loop over cells
+end
+
+% apply cluster-level corrected threshold
+zmapthresh = zmap;
+% uncorrected pixel-level threshold
+zmapthresh(abs(zmapthresh)<norminv(1-voxel_pval/2))=0;
+% find islands and remove those smaller than cluster size threshold
+clustinfo = bwconncomp(zmapthresh);
+clust_info = cellfun(@numel,clustinfo.PixelIdxList);
+clust_threshold = prctile(max_clust_info,100-cluster_pval*100);
+
+% identify clusters to remove
+whichclusters2remove = find(clust_info<clust_threshold);
+
+% remove clusters
+for i_r=1:length(whichclusters2remove)
+    zmapthresh(clustinfo.PixelIdxList{whichclusters2remove(i_r)})=0;
+end
 
 % plot by contourf
 figure;
@@ -129,12 +165,18 @@ cfg.trials = find(resp.trialinfo==1);
 cfg.trials = cfg.trials(i:2:end);
 resavg=ft_timelockanalysis(cfg, resp);
 hold on
+% uncorrected
+% contour(freq_blc.time,freq_blc.freq,un_zmapthresh,1,'linecolor','k','LineWidth',1)
+% cluster based correction
+contour(freq_blc.time,freq_blc.freq,abs(sign(zmapthresh)),1,'linecolor','k','LineWidth',1)
 plot(bs,1.5*ones(1,100),'k','LineWidth',5)
 yyaxis right
 plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
 set(gca,'xlim',time_range,'ytick',[]);
 title([cur_date '-' num2str(channel) '-trial' num2str(i)])
 hold off
+saveas(gcf, [pic_dir cur_date '-' num2str(channel) '-trial' num2str(i)], 'fig')
+saveas(gcf, [pic_dir cur_date '-' num2str(channel) '-trial' num2str(i)], 'png')
 % exhale
 % cfgtf.trials = find(lfp.trialinfo==2);
 % freq2 = ft_freqanalysis(cfgtf, lfp);
@@ -169,27 +211,27 @@ end
 % 
 % [stat] = ft_freqstatistics(cfg, freq_sep);
 %% ERP
-cfg = [];
-cfg.keeptrials = 'yes';
-erp = ft_timelockanalysis(cfg, lfp_l);
-cfg              = [];
-cfg.baseline     = [-2 0];
-erp_blc = ft_timelockbaseline(cfg, erp);
-cfg = [];
-cfg.trials = find(erp_blc.trialinfo==1);
-ft_singleplotER(cfg, erp_blc);
-
-select=resavg.time>=0&resavg.time<=4;
-r=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)));
-
-hold on
-yyaxis right
-plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
-set(gca,'xlim',[-1.5 7.5],'ytick',[]);
-title([cur_date '-' num2str(channel) ' ' num2str(r)])
-hold off
-
-figure
-scatter(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)))
-figure
-scatter(resavg.avg',squeeze(mean(erp_blc.trial(:,:,select),1)))
+% cfg = [];
+% cfg.keeptrials = 'yes';
+% erp = ft_timelockanalysis(cfg, lfp_l);
+% cfg              = [];
+% cfg.baseline     = [-2 0];
+% erp_blc = ft_timelockbaseline(cfg, erp);
+% cfg = [];
+% cfg.trials = find(erp_blc.trialinfo==1);
+% ft_singleplotER(cfg, erp_blc);
+% 
+% select=resavg.time>=0&resavg.time<=4;
+% r=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)));
+% 
+% hold on
+% yyaxis right
+% plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
+% set(gca,'xlim',[-1.5 7.5],'ytick',[]);
+% title([cur_date '-' num2str(channel) ' ' num2str(r)])
+% hold off
+% 
+% figure
+% scatter(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)))
+% figure
+% scatter(resavg.avg',squeeze(mean(erp_blc.trial(:,:,select),1)))

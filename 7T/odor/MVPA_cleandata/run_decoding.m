@@ -15,13 +15,17 @@ rois={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_
 
 decode = [reshape(repmat([1:4], 6, 1), [], 1) repmat([1:6]', 4, 1)];
 
-parfor i = 1:24
+for i = 1:24
     if decode(i, 1)==4
         sub = 's01_yyt';
     else
         sub = sprintf('S%02d', decode(i, 1));
     end
+    try
     decoding_searchlight_trial(sub, analysis_all, rois, shift, decode(i, 2));
+    catch
+        disp(decode(i,:))
+    end
 end
 % S01-S03
 % for i=1:3

@@ -25,7 +25,7 @@ datafolder='/Volumes/WD_E/gufei/7T_odor/';
 odors={'lim','tra','car','cit','ind'};
 comb=nchoosek(1:length(odors), 2);
 % only lim and other 4 odors
-comb=comb(5:end,:);
+% comb=comb(5:end,:);
 % shift=6;
 rois={'BoxROI'};
 for i_analysis=1:length(analysis_all)

@@ -10,10 +10,14 @@ rois={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC'};
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy'};
 % rois={'whole_brain'};
-decode=[reshape(repmat([4:8],6,1),[],1) repmat([1:6]',5,1)];
-parfor i=1:30
+decode=[reshape(repmat([4:8],10,1),[],1) repmat([1:10]',5,1)];
+for i=1:50    
+    try
     sub=sprintf('S%02d',decode(i,1));
     decoding_searchlight_trial(sub,analysis_all,rois,shift,decode(i,2));
+    catch
+        disp(decode(i,:))
+    end
 end
 % S04-S08
 % for i=4:8

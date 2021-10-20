@@ -31,23 +31,6 @@ resp=ft_selectdata(cfg,resp);
 
 % cfg.channel=strcat('WB',num2str(channel));
 % lfp=ft_selectdata(cfg,lfp);
-%% show low frequency signal
-% cfg=[];
-% cfg.bpfilter = 'yes';
-% cfg.bpfilttype = 'fir';
-% cfg.bpfreq = [0.1 0.8];
-% lfp_l = ft_preprocessing(cfg,lfp);
-% cfg = [];
-% cfg.trials = find(lfp_l.trialinfo==1);
-% ft_singleplotER(cfg, lfp_l); 
-% cfg          = [];
-% cfg.method   = 'trial';
-% dummy        = ft_rejectvisual(cfg,lfp_l);
-% cfg = [];
-% cfg.viewmode = 'vertical';
-% cfg.ylim = 'maxmin';
-% lfp_l = rmfield(lfp_l,'sampleinfo');
-% eegplot = ft_databrowser(cfg,lfp_l);
 %% time frequency analysis odd and even trials
 % select channel
 for channel=[34 39 45 48 60 63]
@@ -323,28 +306,3 @@ end
 % cfg.design    = ones(1, length(freq_sep.trialinfo));
 % 
 % [stat] = ft_freqstatistics(cfg, freq_sep);
-%% ERP
-% cfg = [];
-% cfg.keeptrials = 'yes';
-% erp = ft_timelockanalysis(cfg, lfp_l);
-% cfg              = [];
-% cfg.baseline     = [-2 0];
-% erp_blc = ft_timelockbaseline(cfg, erp);
-% cfg = [];
-% cfg.trials = find(erp_blc.trialinfo==1);
-% ft_singleplotER(cfg, erp_blc);
-% 
-% select=resavg.time>=0&resavg.time<=4;
-% r=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)));
-% 
-% hold on
-% yyaxis right
-% plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
-% set(gca,'xlim',[-1.5 7.5],'ytick',[]);
-% title([cur_date '-' num2str(channel) ' ' num2str(r)])
-% hold off
-% 
-% figure
-% scatter(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,:,select),1)))
-% figure
-% scatter(resavg.avg',squeeze(mean(erp_blc.trial(:,:,select),1)))

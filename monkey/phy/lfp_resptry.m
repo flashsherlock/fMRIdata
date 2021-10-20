@@ -4,7 +4,7 @@ pic_dir=[data_dir 'pic/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-dates={'200731','200807','200814','200820','200828'};
+dates = {'200731', '200807', '200814', '200820', '200828'};
 for i_date=1:length(dates)
 cur_date=dates{i_date};
 load([data_dir cur_date '_resp_tf.mat'])
@@ -177,6 +177,7 @@ title([cur_date '-' num2str(channel) '-trial' num2str(i)])
 hold off
 saveas(gcf, [pic_dir cur_date '-' num2str(channel) '-trial' num2str(i)], 'fig')
 saveas(gcf, [pic_dir cur_date '-' num2str(channel) '-trial' num2str(i)], 'png')
+close all
 % exhale
 % cfgtf.trials = find(lfp.trialinfo==2);
 % freq2 = ft_freqanalysis(cfgtf, lfp);
@@ -300,6 +301,7 @@ title([cur_date '-' num2str(channel) 'all trial'])
 hold off
 saveas(gcf, [pic_dir cur_date '-' num2str(channel)],'fig')
 saveas(gcf, [pic_dir cur_date '-' num2str(channel)],'png')
+close all
 end
 end
 %% statistics

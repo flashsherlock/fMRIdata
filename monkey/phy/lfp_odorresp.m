@@ -1,6 +1,6 @@
 %% load data
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
-pic_dir=[data_dir 'pic/odorresp/'];
+pic_dir=[data_dir 'pic/odorresp/baseline/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -180,6 +180,12 @@ else
     cfg.trials = find(freq_sep.trialinfo==i | freq_sep.trialinfo==6);
 end
 freq_cp=ft_selectdata(cfg,freq_sep);
+% baseline correction
+cfg              = [];
+cfg.baseline     = [-1 -0.5];
+cfg.baselinetype = 'absolute';
+freq_cp = ft_freqbaseline(cfg, freq_cp);
+
 eegpower=permute(squeeze(freq_cp.powspctrm),[2 3 1]);
 real_condition_mapping=freq_cp.trialinfo;
 if i==7
@@ -191,6 +197,8 @@ tdenom = sqrt( (std(eegpower(:,:,real_condition_mapping==i),0,3).^2)./sum(real_c
 real_t = tnum./tdenom;
 
 % initialize null hypothesis matrices
+num_frex = length(freq_cp.freq);
+nTimepoints = length(freq_cp.time);
 permuted_tvals  = zeros(n_permutes,num_frex,nTimepoints);
 max_pixel_pvals = zeros(n_permutes,2);
 max_clust_info  = zeros(n_permutes,1);

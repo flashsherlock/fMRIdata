@@ -42,7 +42,7 @@ cfg.bpfilttype = 'fir';
 cfg.bpfreq = [0.1 0.6];
 lfp_l = ft_preprocessing(cfg,lfp);
 
-cfg.bpfreq = [1 80];
+cfg.bpfreq = [0.7 80];
 lfp_h = ft_preprocessing(cfg,lfp);
 % save([data_dir cur_date 'lfp_allchannel_lh.mat'],'lfp_l','lfp_h')
 
@@ -52,7 +52,7 @@ cfg.keeptrials = 'yes';
 erpl = ft_timelockanalysis(cfg, lfp_l);
 erph = ft_timelockanalysis(cfg, lfp_h);
 cfg              = [];
-cfg.baseline     = [-0.15 0];
+cfg.baseline     = [-0.2 -0.05];
 bs=linspace(cfg.baseline(1),cfg.baseline(2),100);
 erp_blcl = ft_timelockbaseline(cfg, erpl);
 erp_blch = ft_timelockbaseline(cfg, erph);
@@ -81,7 +81,7 @@ erp_h_blc{8}=ft_selectdata(cfg,erp_blch);
 cfg.trials = find(resp.trialinfo==4|resp.trialinfo==5);
 erp_h_blc{9}=ft_selectdata(cfg,erp_blch);
 
-time_range = [-0.15 1];
+time_range = [-0.2 1];
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D'};
 %linewidth
 lw=cell(1,7);
@@ -117,6 +117,7 @@ legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor')
 hold off
 saveas(gcf, [pic_dir cur_date '-' num2str(channel) '-low'],'png')
 close all
+
 % odor vs. air
 design=erp_blch.trialinfo;
 design(design~=6)=1;
@@ -136,6 +137,7 @@ design(design==4|design==5)=1;
 cfg.design    = design;
 stat_t_pu = ft_timelockstatistics(cfg, erp_blch);
 
+% plot 5 odors and air
 figure('position',[20,0,1000,400]);
 hold on
 for i=1:6
@@ -158,6 +160,7 @@ close all
 % cfg.operation='(x1+x2)/2';
 % erp_h_blc{9}=ft_math(cfg,erp_h_blc{4},erp_h_blc{5});
 
+% plot odor and air and valence
 figure('position',[20,0,1000,400]);
 hold on
 for i=6:9

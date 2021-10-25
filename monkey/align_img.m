@@ -1,5 +1,5 @@
 %% load spm reoriented img
-subjID = 'RM033';
+subjID = 'RM035';
 filepath=['/Volumes/WD_D/gufei/monkey_data/IMG/'];
 %% copy images
 cd(filepath);
@@ -8,7 +8,7 @@ unix(copy)
 copy = ['cp ' subjID '_MRI.nii ' subjID '_MRI_acpc.nii'];
 unix(copy)
 %% load images
-ct_acpc = ft_read_mri([filepath '/' subjID '_CT_acpc.nii']);
+ct_acpc = ft_read_mri([filepath '/' subjID '_CT_flip.nii']);
 fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
 fsmri_acpc.coordsys = 'acpc';
 %% Fusion of the CT with the MRI
@@ -17,6 +17,8 @@ cfg.method      = 'spm';
 cfg.spmversion  = 'spm12';
 cfg.coordsys    = 'acpc';
 cfg.viewresult  = 'yes';
+cfg.spm.cost_fun = 'ecc';
+cfg.spm.tol=[0.001 0.001 0.001 0.001 0.001 0.001];
 ct_acpc_f = ft_volumerealign(cfg, ct_acpc, fsmri_acpc);
 %% Write the fused CT out to file.
 cfg           = [];

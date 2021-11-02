@@ -1,0 +1,56 @@
+---
+title: "searchlight_results"
+author: "Fei"
+date: "`r Sys.time()`"
+output: html_document
+params:
+    path: "/Volumes/WD_E/gufei/7T_odor/stats"
+    roi: !r c('Amy9_align',paste0('Amy_align',c(1,3,5:10,15),'seg'))
+    sub: !r c("S01_yyt",sprintf('S%02d',c(1:3)))
+    txtname: "search_box.txt"
+    t: 0
+    threshold: 1.65
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(data.table)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(plotly)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggprism)
+library(patchwork)
+library(gridExtra)
+ggthemr('fresh',layout = "clean")
+```
+
+```{r}
+####################################################
+# function to extract acc-chance from txt file
+####################################################
+extractdata <- function(path,sub,txtname){
+  data <- read.table(file.path(path,sub,txtname))
+  # add subject name to the first column
+  data <- cbind(rep(sub,times=nrow(data)),data)
+  return(data)
+}
+```
+
+```{r}
+# sub i j k roi_label 6pairs
+data_diff <- data.frame(matrix(ncol = 1+16, nrow = 0))
+opair <- c("lim-tra","lim-car","lim-cit","tra-car","tra-cit","car-cit")
+# extract data for each subject
+for (sub_i in params$sub) {
+  data_diff <- rbind(data_diff,extractdata(params$path,sub_i,params$txtname))
+}
+names(data_diff) <- c("sub","i","j","k","label",opair)
+data_diff <- as.data.table(data_diff)
+```

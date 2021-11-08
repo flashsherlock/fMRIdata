@@ -1,15 +1,15 @@
 #! /bin/csh
-# foreach ub (`count -dig 2 4 8`)
+foreach ub (`count -dig 2 4 8`)
 
-# set sub = S${ub}
-foreach sub (S01_yyt S01 S02 S03)
+set sub = S${ub}
+# foreach sub (S01_yyt S01 S02 S03)
     set threshold=8 #56/96=58.33
     set rootdir=/Volumes/WD_E/gufei/7T_odor
     set datafolder=${rootdir}/${sub}
     cd "${datafolder}"
     set analysis=pabiode
     set subj = ${sub}.${analysis}
-    cd ${subj}.results/mvpa/searchlight_VIodor_leave1_6/BoxROI
+    cd ${subj}.results/mvpa/searchlight_VIodor_l1_label_6/BoxROI
     # copy anatomy
     # if (! -e anat_final.${subj}+orig.HEAD) then
     #     3dcopy ../../../anat_final.${subj}+orig anat_final.${subj}

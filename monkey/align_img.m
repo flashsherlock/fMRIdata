@@ -1,5 +1,5 @@
 %% load spm reoriented img
-subjID = 'RM035';
+subjID = 'RM033';
 filepath=['/Volumes/WD_D/gufei/monkey_data/IMG/'];
 %% copy images
 cd(filepath);
@@ -9,10 +9,11 @@ copy = ['cp ' subjID '_MRI.nii ' subjID '_MRI_acpc.nii'];
 unix(copy)
 %% flip CT
 cmd=['3dLRflip -prefix ' subjID '_CT_flip.nii ' subjID '_CT_acpc.nii'];
+% 3drefit -xdel 0.3 -ydel 0.3 -zdel 0.3 RM033_CT_flip.nii
 unix(cmd)
 %% load images
 ct_acpc = ft_read_mri([filepath '/' subjID '_CT_flip.nii']);
-fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
+fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc_bk.nii']);
 fsmri_acpc.coordsys = 'acpc';
 %% Fusion of the CT with the MRI
 cfg             = [];

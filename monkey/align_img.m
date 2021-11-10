@@ -1,5 +1,5 @@
 %% load spm reoriented img
-subjID = 'RM033';
+subjID = 'RM035';
 filepath=['/Volumes/WD_D/gufei/monkey_data/IMG/'];
 %% copy images
 cd(filepath);
@@ -31,3 +31,33 @@ cfg.filename  = [filepath '/' subjID '_CT_acpc_f'];
 cfg.filetype  = 'nifti';
 cfg.parameter = 'anatomy';
 ft_volumewrite(cfg, ct_acpc_f);
+%% Place electrodes
+%% load CT and MRI img
+ct_acpc_f = ft_read_mri([filepath '/' subjID '_CT_final.nii']);
+fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc_bk.nii']);
+fsmri_acpc.coordsys='acpc';
+%% generate labels manually
+channel=33:64;
+bad_channel=[35 37 38 46 50 53 55 56 57];
+channel(ismember(channel,bad_channel))=[];
+names=cell(2*length(channel),1);
+for i_channel=1:length(channel)
+names{i_channel}=strcat('WB',num2str(channel(i_channel)));
+names{length(channel)+i_channel}=strcat('O_WB',num2str(channel(i_channel)));
+end
+hdr.label=names;
+%% place electrodes
+cfg         = [];
+cfg.channel = hdr.label;
+elec_acpc_f = ft_electrodeplacement(cfg, ct_acpc_f, fsmri_acpc);
+%% visualize electrodes
+ft_plot_ortho(fsmri_acpc.anatomy, 'transform', fsmri_acpc.transform, 'style', 'intersect');
+ft_plot_sens(elec_acpc_f, 'label', 'on', 'fontcolor', 'w');
+%% place again if find any error
+load([filepath '/' subjID '_elec.mat']);
+cfg=[];
+cfg.elec=elec_acpc_f;
+elec_acpc_f = ft_electrodeplacement(cfg, ct_acpc_f, fsmri_acpc);
+%% save
+elec_acpc_f.coordsys='acpc';
+save([filepath '/' subjID '_elec.mat'], 'elec_acpc_f');

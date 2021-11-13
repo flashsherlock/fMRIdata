@@ -33,7 +33,9 @@ for i_level=1:length(level)
         position{i,i_level}=labels(i).name(indx);
     end
 end
-
+% export coordinates in atlas system
+altas_coord=mat2cell(elec.elecpos,ones(length(elec.elecpos),1));
+position=[altas_coord position];
 end
 
 % [ftver, ftpath] = ft_version;

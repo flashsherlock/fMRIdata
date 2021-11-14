@@ -64,3 +64,9 @@
 
 ### align_atlas
 将猴脑对齐到模板并根据图谱分区。
+
+### find_elec_position
+找出电极的位置坐标，并画出电极位置。
+
+### find_elec_label
+根据电极的坐标查找在图谱上的标签。

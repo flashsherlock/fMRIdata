@@ -21,3 +21,14 @@ exp=['''or(' strjoin(exp,',') ')'''];
 anat=[filepath '/' subjID '_MRI_acpc.nii'];
 cmd=['3dcalc -a ' anat ' -LPI -expr ' exp ' -prefix ' [filepath '/' subjID '_MRI_elec.nii']];
 unix(cmd);
+
+% how to calculate cylinder formula
+% https://zhidao.baidu.com/question/1388181926988339500.html
+% point (x1,y1,z1), vector (a,b,c), radius r
+syms x1 y1 z1 a b c r x y z real
+% assume([x1 y1 z1 a b c r x y z],'real')
+p=[x1 y1 z1];
+vector=[a b c];
+cylinder=[x y z];
+subs((r*simplify((norm(vector))))^2-simplify(norm(cross(cylinder-p,vector)))^2,...
+    [x1 y1 z1 a b c r],[1 0 2 1 2 3 3])

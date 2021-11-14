@@ -30,5 +30,10 @@ syms x1 y1 z1 a b c r x y z real
 p=[x1 y1 z1];
 vector=[a b c];
 cylinder=[x y z];
-subs((r*simplify((norm(vector))))^2-simplify(norm(cross(cylinder-p,vector)))^2,...
-    [x1 y1 z1 a b c r],[1 0 2 1 2 3 3])
+formula=subs((r*simplify((norm(vector))))^2-simplify(norm(cross(cylinder-p,vector)))^2,...
+    [x1 y1 z1 a b c r],[1 0 2 1 2 3 3]);
+f=strrep(char(formula),' ','');
+expression = '(\([^\^]*\))\^2';
+replace = '$1\*$1';
+f=regexprep(f,expression,replace);
+% match = regexp(f,expression,'match');

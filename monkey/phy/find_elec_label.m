@@ -34,8 +34,8 @@ for i_level=1:length(level)
     end
 end
 % export coordinates in atlas system
-altas_coord=mat2cell(elec.elecpos,ones(length(elec.elecpos),1));
-position=[altas_coord position];
+atlas_coord=mat2cell(elec.elecpos,ones(length(elec.elecpos),1));
+position=[atlas_coord position];
 end
 
 % [ftver, ftpath] = ft_version;

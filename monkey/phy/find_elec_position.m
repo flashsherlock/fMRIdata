@@ -1,15 +1,18 @@
 %% load data
 subjID = 'RM035';
 filepath = '/Volumes/WD_D/gufei/monkey_data/IMG/';
-
+% anat=[filepath '/' subjID '_MRI_acpc.nii'];
+% position before transformation
 % load([filepath '/' subjID '_elec.mat']);
 % load([atpath subjID '_NMT/' subjID '_transfrom.mat']);
 % elec_acpc_f.chanpos=ft_warp_apply(inv(spm_matrix(x(:)')), elec_acpc_f.chanpos, 'homogenous');
 % elec_acpc_f.elecpos=elec_acpc_f.chanpos;
 % save([filepath '/' subjID '_elec_atlas.mat'], 'elec_acpc_f');
-
-% load transformed position
+% transformed position
 load([filepath '/' subjID '_elec_atlas.mat'])
+[num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'A1:X21');
+filepath = ['/Volumes/WD_D/gufei/monkey_data/IMG/' subjID '_NMT/'];
+anat=[filepath '/' subjID '_anat.nii'];
 atlas_coord=elec_acpc_f.elecpos;
 num_elec=length(atlas_coord)/2;
 
@@ -31,7 +34,7 @@ for i_elec=1:length(atlas_coord)
     exp{i_elec}=['step(' num2str(r2) '-' x '*' x '-' y '*' y '-' z '*' z ')'];
 end
 exp=['''or(' strjoin(exp,',') ')'''];
-anat=[filepath '/' subjID '_MRI_acpc.nii'];
+% anat=[filepath '/' subjID '_MRI_acpc.nii'];
 cmd=['3dcalc -a ' anat ' -LPI -expr ' exp ' -prefix ' [filepath '/' subjID '_MRI_elec.nii']];
 unix(cmd);
 
@@ -66,16 +69,19 @@ cmd=['3dcalc -a ' anat ' -LPI -expr ' exp ' -prefix ' [filepath '/' subjID '_MRI
 unix(cmd);
 
 %% calculate movement
-[num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'A1:X21');
-num_date = size(relpos, 2);
+num_date = size(num, 1)-1;
 % check order
 tf=zeros(1,num_elec);
 for i_channel=1:num_elec
-tf(i_channel)=strcmp(strcat('WB',num2str(num(1,i_channel))),elec_acpc_f.label{i_channel});
+    tf(i_channel)=strcmp(strcat('WB',num2str(num(1,i_channel))),elec_acpc_f.label{i_channel});
 end
+
 if all(tf)
-   relpos=num(2:end,:)'-35; 
+    relpos=num(2:end,:)'-35; 
+else
+    error('Electrodes mismatch!')
 end
+
 % direction vector
 vec = atlas_coord(1:num_elec, :) - atlas_coord(num_elec+1:end, :);
 vec_norm=sqrt(vec(:,1).^2+vec(:,2).^2+vec(:,3).^2);

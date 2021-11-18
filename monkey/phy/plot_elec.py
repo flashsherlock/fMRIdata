@@ -8,7 +8,7 @@ gl.loadimage(
     '/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/NMT2_in_RM035_anat.nii.gz')
 #gl.overlayload('aal')
 gl.overlayload(
-    '/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/SARM_in_RM035_anat.nii')
+    '/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/SARM_in_RM035_anat_amy.nii')
 gl.overlayload(
     '/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/RM035_MRI_orien.nii')
 gl.overlayload(
@@ -30,16 +30,23 @@ gl.shadername('glass')
 gl.shaderquality1to10(4)
 gl.shaderadjust('boundBrightness', 1)
 gl.shaderadjust('boundThresh', 0.3)
+gl.shaderadjust('specular', 0)
 gl.shaderadjust('shininess', 0)
 #gl.viewsagittal(2)
 gl.viewcoronal(2)
+gl.cameradistance(0.3)
 # gl.savebmp('/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/all_elec.png')
 # standard shader
 # gl.shadername('standard')
+# default shader
+# gl.shadername('default')
+# gl.shaderadjust('overlayFuzzy', 1)
+# gl.opacity(0, 20)
 
 
 # nifti_tool -overwrite -mod_hdr -mod_field intent_code 1002 -infiles SARM_in_RM035_anat.nii
 # dcalc -a SARM_in_RM035_anat.nii.gz -expr 'a*within(a,16,41)' -prefix SARM_in_RM035_anat.nii
+# AFNI can not load data correctly if .nii and .nii.gz with the same name occur in the same folder
 
 # output from help template
 # atlashide (built-in function): 

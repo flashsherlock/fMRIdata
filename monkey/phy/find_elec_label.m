@@ -15,7 +15,7 @@ load([atpath subjID '_NMT/' 'SARM_in_' subjID '_anat.mat'])
 % elec.elecpos=elec.chanpos;
 
 % level=3;
-len=length(elec.label);
+len=size(elec.chanpos,1);
 position=cell(len,length(level));
 
 % lookup for each level

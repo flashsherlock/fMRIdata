@@ -16,7 +16,7 @@ anat=[filepath '/' subjID '_anat.nii'];
 atlas_coord=elec_acpc_f.elecpos;
 num_elec=length(atlas_coord)/2;
 
-%% find and save position
+%% find and save initial position
 level=3:4;
 position = find_elec_label(subjID,elec_acpc_f,level);
 % add a new field and save
@@ -110,3 +110,15 @@ dlmwrite(txtname,reshape(permute(all_pos,[1 3 2]),[],3),'delimiter',' ');
 % anat=[filepath '/' subjID '_MRI_acpc.nii'];
 cmd=['3dundump -master ' anat ' -prefix ' [filepath '/' subjID '_MRI_allpos.nii'] ' -dval 1 -orient LPI -srad ' num2str(r) ' -xyz ' txtname];
 unix(cmd);
+%% lookup all positions
+level=3:6;
+% 1 coord + labels
+allpos_l=cell(num_elec,1+length(level),num_date);
+for i_date=1:num_date
+    elec_all=elec_acpc_f;
+    elec_all.chanpos=all_pos(:,:,i_date);
+    elec_all.elecpos=elec_all.chanpos;
+    allpos_l(:,:,i_date) = find_elec_label(subjID,elec_all,level);
+end
+% save labels
+save([filepath '/' subjID '_allpos_label.mat'], 'allpos_l');

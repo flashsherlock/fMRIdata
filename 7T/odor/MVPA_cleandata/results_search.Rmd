@@ -56,8 +56,11 @@ data_diff <- as.data.table(data_diff)
 # set cutoff
 cutoff <- 8
 # analyze
-data_diff <- mutate(data_diff,struct=ifelse(data_diff$lim_car < cutoff & data_diff$lim_cit > cutoff,1,0))
-data_diff <- mutate(data_diff,quality=ifelse(data_diff$lim_car > cutoff & data_diff$lim_cit < cutoff,1,0))
+# data_diff <- mutate(data_diff,struct=ifelse(data_diff$lim_car < cutoff & data_diff$lim_cit > cutoff,1,0))
+# data_diff <- mutate(data_diff,quality=ifelse(data_diff$lim_car > cutoff & data_diff$lim_cit < cutoff,1,0))
+# more strict standard
+data_diff <- mutate(data_diff,struct=ifelse(data_diff$lim_car < cutoff & data_diff$lim_cit > cutoff & data_diff$lim_tra > cutoff,1,0))
+data_diff <- mutate(data_diff,quality=ifelse(data_diff$lim_car > cutoff & data_diff$lim_cit < cutoff & data_diff$lim_tra > cutoff,1,0))
 
 struct <- 100*tapply(data_diff$struct,
             list(data_diff$sub, 
@@ -68,11 +71,24 @@ quality <- 100*tapply(data_diff$quality,
             list(data_diff$sub, 
                  data_diff$label),
             mean)
-
+# merge quality and structure
+data <- left_join(reshape2::melt(quality),reshape2::melt(struct),by=c("Var1","Var2"))
+names(data) <- c("sub","roi","quality","struct")
+data <- pivot_longer(data, cols = c(quality,struct), names_to = "dimention", values_to = "per")
+data$roi <- as.character(data$roi)
 ```
 
 
 ```{r}
 # plot
+sub_select <- c("S01_yyt",sprintf('S%02d',c(1:3)))
+sub_select <- c(sprintf('S%02d',c(4:8)))
+data_select <- subset(data,sub %in% sub_select)
+ggplot(data_select, aes(roi, per, fill=dimention)) + 
+  stat_summary(fun = mean, geom = "bar",position = "dodge") +
+  stat_summary(fun.data = mean_se, 
+               geom = "errorbar",width = 0.1,position = "dodge")+
+  geom_point()+
+  scale_x_discrete()
 print(figure)
 ```

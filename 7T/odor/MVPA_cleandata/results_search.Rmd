@@ -74,7 +74,7 @@ quality <- 100*tapply(data_diff$quality,
 # merge quality and structure
 data <- left_join(reshape2::melt(quality),reshape2::melt(struct),by=c("Var1","Var2"))
 names(data) <- c("sub","roi","quality","struct")
-data <- pivot_longer(data, cols = c(quality,struct), names_to = "dimention", values_to = "per")
+data <- pivot_longer(data, cols = c(quality,struct), names_to = "dimension", values_to = "per")
 data$roi <- as.character(data$roi)
 ```
 
@@ -84,11 +84,16 @@ data$roi <- as.character(data$roi)
 sub_select <- c("S01_yyt",sprintf('S%02d',c(1:3)))
 sub_select <- c(sprintf('S%02d',c(4:8)))
 data_select <- subset(data,sub %in% sub_select)
-ggplot(data_select, aes(roi, per, fill=dimention)) + 
+ggplot(data_select, aes(roi, per, fill=dimension)) + 
   stat_summary(fun = mean, geom = "bar",position = "dodge") +
-  stat_summary(fun.data = mean_se, 
-               geom = "errorbar",width = 0.1,position = "dodge")+
-  geom_point()+
+  stat_summary(fun.data = mean_se, color = "black",
+               geom = "errorbar",width = 0.1,position = position_dodge(width = 0.9))+
+  geom_point(aes(color=dimension),
+             position=position_jitterdodge(dodge.width = 0.9,jitter.width = 0, jitter.height = 0))+
+  scale_fill_brewer(palette = "Set2",direction = 1)+ #颜色
+  # scale_color_brewer(palette = "Set2",direction = 1)+ #颜色+
+  scale_color_manual(values = c("struct" = "black",
+                                "quality" = "black"))+
   scale_x_discrete()
 print(figure)
 ```

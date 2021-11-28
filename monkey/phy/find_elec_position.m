@@ -10,7 +10,8 @@ filepath = '/Volumes/WD_D/gufei/monkey_data/IMG/';
 % save([filepath '/' subjID '_elec_atlas.mat'], 'elec_acpc_f');
 % transformed position
 load([filepath '/' subjID '_elec_atlas.mat'])
-[num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'A1:X21');
+[num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'position','A1:X21');
+init=xlsread([filepath '/' subjID '_position.xlsx'],'init','B2:X2');
 filepath = ['/Volumes/WD_D/gufei/monkey_data/IMG/' subjID '_NMT/'];
 anat=[filepath '/' subjID '_anat.nii'];
 atlas_coord=elec_acpc_f.elecpos;
@@ -25,13 +26,13 @@ elec_acpc_f.position=position;
 save([filepath '/' subjID '_elec_label.mat'], 'elec_acpc_f');
 %% plot electrodes on nii
 % recording points
-r2=0.4^2;
+r=0.4;
 exp=cell(1,length(atlas_coord));
 for i_elec=1:length(atlas_coord)
     x=['(x-' num2str(atlas_coord(i_elec,1)) ')'];
     y=['(y-' num2str(atlas_coord(i_elec,2)) ')'];
     z=['(z-' num2str(atlas_coord(i_elec,3)) ')'];
-    exp{i_elec}=['step(' num2str(r2) '-' x '*' x '-' y '*' y '-' z '*' z ')'];
+    exp{i_elec}=['step(' num2str(r^2) '-' x '*' x '-' y '*' y '-' z '*' z ')'];
 end
 exp=['''or(' strjoin(exp,',') ')'''];
 % anat=[filepath '/' subjID '_MRI_acpc.nii'];
@@ -77,7 +78,7 @@ for i_channel=1:num_elec
 end
 
 if all(tf)
-    relpos=num(2:end,:)'-35; 
+    relpos=num(2:end,:)'-init'; 
 else
     error('Electrodes mismatch!')
 end
@@ -102,7 +103,7 @@ for i_date=1:num_date
         x=['(x-' num2str(all_pos(i_elec,1,i_date)) ')'];
         y=['(y-' num2str(all_pos(i_elec,2,i_date)) ')'];
         z=['(z-' num2str(all_pos(i_elec,3,i_date)) ')'];
-        exp{(i_date - 1) * num_elec + i_elec} = ['step(' num2str(r2) '-' x '*' x '-' y '*' y '-' z '*' z ')'];
+        exp{(i_date - 1) * num_elec + i_elec} = ['step(' num2str(r^2) '-' x '*' x '-' y '*' y '-' z '*' z ')'];
     end
 end
 txtname=[filepath '/' subjID '_allpos.txt'];

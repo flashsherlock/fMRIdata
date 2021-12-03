@@ -122,4 +122,12 @@ for i_date=1:num_date
     allpos_l(:,:,i_date) = find_elec_label(subjID,elec_all,level);
 end
 % save labels
-save([filepath '/' subjID '_allpos_label.mat'], 'allpos_l');
+save([filepath '/' subjID '_allpos_coord.mat'], 'allpos_l');
+%% save labels to excel
+output=permute(allpos_l(:,2:length(level)+1,:),[3 1 2]);
+output=cellfun(@(x) x{1},output,'UniformOutput',false);
+output=[num2cell(repmat(num(1,:),[1 1 length(level)]));output];
+save([filepath '/' subjID '_allpos_label.mat'], 'output');
+% for i_level=1:length(level)
+%     xlswrite([filepath '/' subjID '_allpos_label.xlsx'], output(:,:,i_level),i_level,'B1');
+% end

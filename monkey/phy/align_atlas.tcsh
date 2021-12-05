@@ -7,9 +7,9 @@ set dir_inroot     = /Volumes/System_C/Users/mac
 set dir_ref        = ${dir_inroot}/NMT_v2.0_sym/NMT_v2.0_sym_05mm
 # subject directories
 set sdir_anat      = /Volumes/WD_D/gufei/monkey_data/IMG
-set sdir_aw        = ${sdir_anat}/${subj}_NMT_whole
+set sdir_aw        = ${sdir_anat}/${subj}_NMT
 # dataset inputs, with abbreviations for each 
-set anat_orig    = ${sdir_anat}/${subj}_MRI_acpc_whole.nii
+set anat_orig    = ${sdir_anat}/${subj}_MRI_acpc.nii
 set anat_orig_ab = ${subj}_anat
 
 set ref_base     = ${dir_ref}/NMT_v2.0_sym_05mm_SS.nii.gz

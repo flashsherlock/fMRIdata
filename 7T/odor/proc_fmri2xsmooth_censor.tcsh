@@ -16,7 +16,7 @@ endif
 
 # if ($2 == bio) then
         set bio=.biop.
-        set analysis=pabiocen
+        set analysis=pabiode
 # else
 #         set bio=.
 #         set analysis=paphde

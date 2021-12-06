@@ -9,11 +9,11 @@ cd "${datafolder}"
 
 set subj = ${sub}.${analysis}
 cd ${subj}.results
-
+set pb=`ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1`
 set filedec = odorVI_noblur
 
 # run the regression analysis
-3dDeconvolve -input pb05.${subj}.r*.volreg+orig.HEAD           \
+3dDeconvolve -input ${pb}.${subj}.r*.volreg+orig.HEAD           \
     -censor motion_${subj}_censor.1D                           \
     -ortvec mot_demean.r01.1D mot_demean_r01                   \
     -ortvec mot_demean.r02.1D mot_demean_r02                   \

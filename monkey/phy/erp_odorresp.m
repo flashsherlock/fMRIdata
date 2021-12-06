@@ -4,7 +4,7 @@ pic_dir=[data_dir 'pic/erp_odorresp/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-dates = {'200731', '200807', '200814', '200820', '200828'};
+dates = {'200529'};
 for i_date=1:length(dates)
 cur_date=dates{i_date};
 data=load([data_dir cur_date '_rm035_ane.mat']);
@@ -39,9 +39,8 @@ lfp=ft_selectdata(cfg,lfp);
 cfg = [];
 cfg.bpfilter = 'yes';
 cfg.bpfilttype = 'fir';
-% cfg.bpfreq = [0.1 0.6];
-% lfp_l = ft_preprocessing(cfg,lfp);
-lfp_l = lfp;%bypass filter
+cfg.bpfreq = [0.1 0.6];
+lfp_l = ft_preprocessing(cfg,lfp);
 
 cfg.bpfreq = [0.7 80];
 lfp_h = ft_preprocessing(cfg,lfp);
@@ -82,7 +81,7 @@ erp_h_blc{8}=ft_selectdata(cfg,erp_blch);
 cfg.trials = find(resp.trialinfo==4|resp.trialinfo==5);
 erp_h_blc{9}=ft_selectdata(cfg,erp_blch);
 
-time_range = [-0.2 3];
+time_range = [-0.2 1];
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D'};
 %linewidth
 lw=cell(1,7);
@@ -105,20 +104,19 @@ end
 ls{8}='-.';
 ls{9}=':';
 
-% low frequency signal
-% figure
-% hold on
-% for i=1:7
-% plot(erp_l_blc{1}.time,1000*erp_l_blc{i}.trial,'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
-% end
-% xlabel('Time (s)')
-% ylabel('Voltage (μV)')
-% set(gca,'xlim',[-1 4]);
-% title([cur_date '-' num2str(channel) '-low'])
-% legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor')
-% hold off
-% saveas(gcf, [pic_dir cur_date '-' num2str(channel) '-low'],'png')
-% close all
+figure
+hold on
+for i=1:7
+plot(erp_l_blc{1}.time,1000*erp_l_blc{i}.trial,'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
+end
+xlabel('Time (s)')
+ylabel('Voltage (μV)')
+set(gca,'xlim',[-1 4]);
+title([cur_date '-' num2str(channel) '-low'])
+legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor')
+hold off
+saveas(gcf, [pic_dir cur_date '-' num2str(channel) '-low'],'png')
+close all
 
 % odor vs. air
 design=erp_blch.trialinfo;
@@ -140,7 +138,7 @@ cfg.design    = design;
 stat_t_pu = ft_timelockstatistics(cfg, erp_blch);
 
 % plot 5 odors and air
-figure('position',[20,0,3000,400]);
+figure('position',[20,0,1000,400]);
 hold on
 for i=1:6
 plot(erp_l_blc{1}.time,1000*erp_h_blc{i}.trial,'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
@@ -163,7 +161,7 @@ close all
 % erp_h_blc{9}=ft_math(cfg,erp_h_blc{4},erp_h_blc{5});
 
 % plot odor and air and valence
-figure('position',[20,0,3000,400]);
+figure('position',[20,0,1000,400]);
 hold on
 for i=6:9
 plot(erp_l_blc{1}.time,1000*erp_h_blc{i}.trial,'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})

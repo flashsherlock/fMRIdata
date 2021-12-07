@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach ub (`count -dig 2 9 11`)
+foreach ub (`count -dig 2 4 8`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
@@ -9,16 +9,18 @@ cd "${datafolder}"
 # make dir to save masks
 set analysis=pabiode
 set subj = ${sub}.${analysis}
+# rm -r ${sub}.pabioe2a.results
 cd ${subj}.results
-
 # move piriform roi to mask folder
-mv Piriform.seg* ../mask
+# mv Piriform.seg* ../mask
 # mv ../${subj}.results.old/Piriform.seg* ../mask
 
 # remove files
-rm allrun.volreg*
+# rm allrun.volreg*
 # rm pb0[0-4]*
 # rm NIfitts*
 # rm NIerrts*
-
+rm tent.${subj}.odorVI+orig*
+rm NIerrts.${subj}.odorVIv_noblur+orig*
+rm NIerrts.${subj}.odorVIvat_noblur+orig*
 end

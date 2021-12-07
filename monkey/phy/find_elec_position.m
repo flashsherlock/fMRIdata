@@ -127,7 +127,22 @@ save([filepath '/' subjID '_allpos_coord.mat'], 'allpos_l');
 output=permute(allpos_l(:,2:length(level)+1,:),[3 1 2]);
 output=cellfun(@(x) x{1},output,'UniformOutput',false);
 output=[num2cell(repmat(num(1,:),[1 1 length(level)]));output];
-save([filepath '/' subjID '_allpos_label.mat'], 'output');
+% frequency of each position
+ele_date_alevel=cell(length(level),1);
+for i_level=1:length(level)
+    t=tabulate(reshape(output(2:end,:,i_level),[],1));
+    ele_date=cell(size(t,1),2);
+    ele_date(:,1)=t(:,1);
+    for i_label=1:size(t,1)
+        row_col=zeros(t{i_label,2},2);
+        [row_col(:,1),row_col(:,2)]=find(strcmp(output(2:end,:,i_level), t{i_label,1}));
+        ele_date{i_label,2}=row_col;
+    end
+    ele_date_alevel{i_level}=ele_date;
+end
+% save
+save([filepath '/' subjID '_allpos_label.mat'], 'output','ele_date_alevel');
+
 % for i_level=1:length(level)
 %     xlswrite([filepath '/' subjID '_allpos_label.xlsx'], output(:,:,i_level),i_level,'B1');
 % end

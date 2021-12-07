@@ -27,7 +27,7 @@ echo ${sub} ${analysis}
 
 # run the regression analysis
 set subj = ${sub}.${analysis}
-set subjva = ${subj}.odorVI
+set subjva = ${subj}
 cd ${subj}.results
 
 # rename
@@ -62,9 +62,9 @@ cd ${subj}.results
 # extract tent and beta values
 set filedec = odorVI_noblur
 set maskdec = align # at165 or align
-set maskdec_t = at196 # at165 or align
+set maskdec_t = at165 # at165 or align
 set data_tent=tent.${subj}.${filedec}+orig
-set data_beta=stats.${subj}.odorVI+orig
+set data_beta=stats.${subj}+orig
 
 # make dir
 if (! -e ../../stats) then
@@ -83,7 +83,7 @@ foreach region (Pir_new Pir_old APC_new APC_old PPC)
             -d stats.${subjva}+orig'[11]' \
             -e stats.${subjva}+orig'[14]' \
             -f ../mask/${region}.draw+orig \
-            -expr 'or(astep(a,1.96),astep(b,1.96),astep(c,1.96),astep(d,1.96),astep(e,1.96))*f' \
+            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
             -prefix ../mask/${region}_${maskdec_t}.draw
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
@@ -101,7 +101,7 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -d stats.${subjva}+orig'[11]' \
             -e stats.${subjva}+orig'[14]' \
             -f ../mask/${region}_${maskdec}.freesurfer+orig \
-            -expr 'or(astep(a,1.96),astep(b,1.96),astep(c,1.96),astep(d,1.96),astep(e,1.96))*f' \
+            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
             -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \

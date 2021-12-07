@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach ub (`count -dig 2 4 8`)
+foreach ub (`count -dig 2 9 11`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
@@ -16,7 +16,7 @@ mv Piriform.seg* ../mask
 # mv ../${subj}.results.old/Piriform.seg* ../mask
 
 # remove files
-# rm allrun.volreg*
+rm allrun.volreg*
 # rm pb0[0-4]*
 # rm NIfitts*
 # rm NIerrts*

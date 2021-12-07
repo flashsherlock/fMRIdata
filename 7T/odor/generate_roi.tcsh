@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach sub (S04 S05 S06 S07 S08)
+foreach sub (S09 S10 S11)
 # set sub=S01_yyt
 set analysis=pabiode
 
@@ -23,8 +23,8 @@ cd ${sub}.${analysis}.results
 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21)*iszero(b)' -prefix ../mask/APC_old.draw+orig
 # creat PPC
 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,22)*iszero(b)' -prefix ../mask/PPC.draw+orig
-
-
+# move Piriform.seg to mask folder
+mv Piriform.seg* ../mask
 
 
 # normalize Anatomical img to mni space

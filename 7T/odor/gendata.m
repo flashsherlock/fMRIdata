@@ -5,6 +5,9 @@ rootfolder='/Volumes/WD_E/gufei/7T_odor/';
 % save all subject ratings
 % [rate_avg,rate_run]=saverate(subs);
 % save([rootfolder 'rating.mat'],'rate_avg','rate_run');
+% save 5 odors rating
+% [rate_avg,rate_run]=saverate(subs,[6 5]);
+% save([rootfolder 'rating5odor.mat'],'rate_avg','rate_run');
 % generate files for each subject
 for subi=1:length(subs)
     sub=sprintf('S%02d',subs(subi));

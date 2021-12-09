@@ -36,7 +36,7 @@ data <- readMat(file.path(params$path,'rating5odor.mat'))
 # avgdata is a dataframe
 avgdata <- as.data.frame(data$rate.avg)
 # remove zeros
-avgdata <- avgdata[4:8,]
+avgdata <- avgdata[4:nrow(avgdata),]
 snum <- nrow(avgdata)
 row.names(avgdata) <- sprintf("S%02d",c(4:(3+snum)))
 avgdata <- cbind(avgdata,row.names(avgdata))

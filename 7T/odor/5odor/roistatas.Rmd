@@ -102,7 +102,7 @@ return(data)
 
 # Correlation
 Compare within and between class correlation
-```{r echo=FALSE, fig.height=5, fig.width=12}
+```{r eval=FALSE, fig.height=5, fig.width=12, include=FALSE}
 readrclass <- function(txtname){
   rclass <- readMat(file.path(params$path,'results_RSA',paste0(txtname,'.mat')))
   label <- unlist(rclass$label)
@@ -271,7 +271,7 @@ roi_tent$roi <- factor(roi_tent$roi,levels = params$roi,labels = params$roiname)
 figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) + 
   labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(roi_tent$mean)-0.2,max(roi_tent$mean+0.2)),
+  coord_cartesian(ylim=c(min(roi_tent$mean)-0.1,max(roi_tent$mean)+0.1),
                   clip = 'off') + 
   scale_color_brewer(palette = "Paired")+ #自选颜色
   scale_x_discrete(expand = c(0,0))+
@@ -289,16 +289,16 @@ stent <- reshape2::dcast(roi_tent,time~roi,value.var = "mean")
 # pad the edge
 stent[,-1] <- zoo::rollapply(rbind(stent[1,-1],stent[,-1],stent[nrow(stent),-1]),3,mean)
 # use the 2 points at the edge
-# stent[,-1] <- rbind(apply(stent[1:2,-1], 2, mean),
-#                     zoo::rollapply(stent[,-1],3,mean),
-#                     apply(stent[nrow(stent)-1:nrow(stent),-1], 2, mean))
+stent[,-1] <- rbind(apply(stent[1:2,-1], 2, mean),
+                    zoo::rollapply(stent[,-1],3,mean),
+                    apply(stent[nrow(stent)-1:nrow(stent),-1], 2, mean))
 
 stent <- reshape2::melt(stent,c("time"))
 names(stent) <- c("time","roi","mean")
 figure_roi <- ggplot(stent, aes(x=time, y=mean,group=roi,color=roi)) + 
   labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(roi_tent$mean)-0.2,max(roi_tent$mean+0.2)),
+  coord_cartesian(ylim=c(min(stent$mean)-0.05,max(stent$mean+0.05)),
                   clip = 'off') + 
   scale_color_brewer(palette = "Paired")+ #自选颜色
   scale_x_discrete(expand = c(0,0))+

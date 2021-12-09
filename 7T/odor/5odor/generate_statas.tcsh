@@ -60,7 +60,7 @@ cd ${subj}.results
 # end
 
 # extract tent and beta values
-set filedec = odorVI_noblur
+set filedec = odorVI
 set maskdec = align # at165 or align
 set maskdec_t = at165 # at165 or align
 set data_tent=tent.${subj}.${filedec}+orig

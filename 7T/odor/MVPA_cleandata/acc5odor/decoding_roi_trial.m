@@ -44,12 +44,12 @@ parfor i=1:length(comb)
     cfg.software = 'AFNI';
     
     % model_parameters
-    cfg.decoding.method='classification';
-    cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -c 0.001 -g 0.001 -b 0 -q';
-    cfg.results.overwrite = 1;
-    cfg.parameter_selection.method='grid';
-    cfg.parameter_selection.parameters={'-c';'-g'};
-    cfg.parameter_selection.parameter_range={10.^(-6:1:6);10.^(-6:1:6)};
+%     cfg.decoding.method='classification';
+%     cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -c 0.001 -g 0.001 -b 0 -q';
+%     cfg.results.overwrite = 1;
+%     cfg.parameter_selection.method='grid';
+%     cfg.parameter_selection.parameters={'-c';'-g'};
+%     cfg.parameter_selection.parameter_range={10.^(-6:1:6);10.^(-6:1:6)};
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
     labelname1 = odors{odornumber(1)};
@@ -58,7 +58,7 @@ parfor i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaNLodor_l1_label_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -76,7 +76,7 @@ parfor i=1:length(comb)
         F=cell(1,numtr);
         for subi = 1:numtr
             t=tr(subi);
-            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
         end
         cfg.files.name = [cfg.files.name F];
         % and the other two fields if you use a make_design function (e.g. make_design_cv)

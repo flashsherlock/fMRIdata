@@ -70,3 +70,9 @@
 
 ### find_elec_label
 根据电极的坐标查找在图谱上的标签。
+
+### save_merge_position
+根据电极所在位置将位于同一脑区的数据合并保存。
+
+### roi_erp_odorresp
+分析不同的区域对气味的反应，对齐到吸气开始的时间。

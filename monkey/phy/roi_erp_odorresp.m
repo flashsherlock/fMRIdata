@@ -5,7 +5,7 @@ if ~exist(pic_dir,'dir')
 end
 load([data_dir 'roi_odor_resp_5day.mat']);
 roi_num=size(cur_level_roi,1);
-for roi_i=2:roi_num
+for roi_i=1:roi_num
     cur_roi=cur_level_roi{roi_i,1};
     lfp=roi_lfp{roi_i};
     resp=roi_resp{roi_i};
@@ -97,7 +97,7 @@ for roi_i=2:roi_num
     cfg           = [];
     cfg.method    = 'analytic'; % using a parametric test
     cfg.statistic = 'ft_statfun_indepsamplesT'; % using independent samples
-    cfg.correctm  = 'no'; % no multiple comparisons correction
+    cfg.correctm  = 'fdr'; % no multiple comparisons correction
     cfg.alpha     = 0.05;
     cfg.design    = design;
     cfg.ivar      = 1; 
@@ -124,13 +124,6 @@ for roi_i=2:roi_num
     saveas(gcf, [pic_dir cur_roi '-high-odor'],'fig')
     saveas(gcf, [pic_dir cur_roi '-high-odor'],'png')
     close all
-
-    % cfg=[];
-    % cfg.parameter='trial';
-    % cfg.operation='(x1+x2+x3)/3';
-    % erp_h_blc{8}=ft_math(cfg,erp_h_blc{1},erp_h_blc{2},erp_h_blc{3});
-    % cfg.operation='(x1+x2)/2';
-    % erp_h_blc{9}=ft_math(cfg,erp_h_blc{4},erp_h_blc{5});
 
     % plot odor and air and valence
     figure('position',[20,0,1000,400]);
@@ -163,3 +156,21 @@ for roi_i=2:roi_num
     saveas(gcf, [pic_dir cur_roi '-valence'],'png')
     close all
 end
+
+% frequency spectrum
+cfg         = [];
+cfg.output  = 'pow';
+cfg.method  = 'mtmfft';
+cfg.taper   = 'hanning';
+% cfgtf.foi = logspace(log10(1),log10(200),51);
+cfg.foi = 0.1:0.02:0.6;
+spectr_resp  = ft_freqanalysis(cfg, resp);
+spectr_lfp  = ft_freqanalysis(cfg, lfp);
+figure;
+hold on;
+plot(spectr_resp.freq, mean(spectr_resp.powspctrm,1), 'linewidth', 2)
+plot(spectr_lfp.freq, mean(spectr_lfp.powspctrm,1), 'linewidth', 2)
+set(gca,'xlim',[0.1 0.6]);
+legend('resp', 'pAmy')
+xlabel('Frequency (Hz)')
+ylabel('Power (\mu V^2)')

@@ -1,11 +1,11 @@
 data_dir='/Volumes/WD_D/gufei/flow/';
+% sample rate
+sprate=1000;
 subs=2:8;
 diff_lr=zeros(length(subs),2);
 diff_lr_block=zeros(2,2,length(subs));
 for sub_i=1:length(subs)
 sub=subs(sub_i);
-% sample rate
-sprate=1000;
 load([data_dir 'lr' num2str(sub) '.mat'])
 left_flow=data(datastart(1):dataend(1));
 right_flow=data(datastart(2):dataend(2));
@@ -69,7 +69,10 @@ ylabel('(Left-Right)/(Left+Right)')
 legend('Attend-left','Attend-right')
 %% optic flow
 disp('optic flow');
-subs=2:6;
+data_dir='/Volumes/WD_D/gufei/flow/';
+sprate=1000;
+% subs=2:6;
+subs=[71:72 81:83 91:93];
 diff_opflow=zeros(length(subs),2);
 diff_opflow_block=zeros(5,2,length(subs));
 for sub_i=1:length(subs)
@@ -84,10 +87,12 @@ diff_flow=(abs(left_flow)-abs(right_flow))./(abs(left_flow)+abs(right_flow));
 % marker
 marker=data(datastart(3):dataend(3));
 % block info
-load([data_dir 'Opticaflow_0' num2str(sub) '_0_1.mat'])
+% load([data_dir 'Opticaflow_0' num2str(sub) '_0_1.mat'])
+load([data_dir 'Opticaflow_0' num2str(floor(sub/10)) '_' num2str(mod(sub,10)) '_1.mat'])
 block_order=output.heading;%2-left
-block_left=find(block_order==2);
-block_right=find(block_order==-2);
+angle=unique(abs(block_order));
+block_left=find(block_order==angle);
+block_right=find(block_order==-angle);
 block_start=find(marker(1:end-1)<1.02&marker(2:end)>=1.02)+1;
 if length(block_start)~=10
     error('wrong block number');
@@ -131,10 +136,10 @@ bar(diff_opflow(1:end,:))
 xlabel('subject')
 ylabel('(Left-Right)/(Left+Right)')
 legend('Move-left','Move-right')
-figure
-bar(diff_opflow(2:end,:))
-xlabel('subject')
-ylabel('(Left-Right)/(Left+Right)')
-legend('Move-left','Move-right')
-set(gca,'xticklabel',{'2', '3','4','5'})
+% figure
+% bar(diff_opflow(2:end,:))
+% xlabel('subject')
+% ylabel('(Left-Right)/(Left+Right)')
+% legend('Move-left','Move-right')
+% set(gca,'xticklabel',{'2', '3','4','5'})
 set(gca,'linewidth',1,'fontsize',20,'fontname','Times');

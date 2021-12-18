@@ -1,18 +1,7 @@
 function position=find_elec_label(subjID,elec,level)
 % atlas
 atpath = '/Volumes/WD_D/gufei/monkey_data/IMG/';
-% atlas = ft_read_atlas([atpath subjID '_NMT/' 'SARM_in_' subjID '_anat.nii.gz']);
-% [abb label]=textread([atpath subjID '_NMT/' 'SARM_key_all.txt']','%*d%s%s%*s%*s','headerlines',1);
-% atlas.parcellationlabel=abb';
-% save([atpath subjID '_NMT/' 'SARM_in_' subjID '_anat.mat'],'atlas');
 load([atpath subjID '_NMT/' 'SARM_in_' subjID '_anat.mat'])
-
-% transform to atlas space
-% x = spm_coreg([atpath subjID '_NMT/' subjID '_anat.nii.gz'], [atpath '/' subjID '_MRI_acpc.nii']);
-% save([atpath subjID '_NMT/' subjID '_transfrom.mat'],'x');
-% load([atpath subjID '_NMT/' subjID '_transfrom.mat']);
-% elec.chanpos=ft_warp_apply(inv(spm_matrix(x(:)')), elec.chanpos, 'homogenous');
-% elec.elecpos=elec.chanpos;
 
 % level=3;
 len=size(elec.chanpos,1);

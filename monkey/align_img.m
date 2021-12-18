@@ -41,12 +41,17 @@ fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc_bk.nii']);
 fsmri_acpc.coordsys='acpc';
 % generate labels manually
 channel=33:64;
-bad_channel=[35 37 38 46 50 53 55 56 57];
+% RM035
+% bad_channel=[35 37 38 46 50 53 55 56 57];
+% RM033
+bad_channel=[46 50 56];
 channel(ismember(channel,bad_channel))=[];
 names=cell(2*length(channel),1);
 for i_channel=1:length(channel)
-names{i_channel}=strcat('WB',num2str(channel(i_channel)));
-names{length(channel)+i_channel}=strcat('O_WB',num2str(channel(i_channel)));
+    % tip
+    names{i_channel}=strcat('WB',num2str(channel(i_channel)));
+    % origin
+    names{length(channel)+i_channel}=strcat('O_WB',num2str(channel(i_channel)));
 end
 hdr.label=names;
 % place electrodes
@@ -62,6 +67,12 @@ elec_acpc_f = ft_electrodeplacement(cfg, ct_acpc_f, fsmri_acpc);
 elec_acpc_f.coordsys='acpc';
 save([filepath '/' subjID '_elec.mat'], 'elec_acpc_f');
 
+%% save atlas as mat file
+atlas = ft_read_atlas([filepath subjID '_NMT/' 'SARM_in_' subjID '_anat.nii.gz']);
+[abb,~]=textread([filepath 'RM035_NMT/' 'SARM_key_all.txt']','%*d%s%s%*s%*s','headerlines',1);
+atlas.parcellationlabel=abb';
+save([filepath subjID '_NMT/' 'SARM_in_' subjID '_anat.mat'],'atlas');
+
 %% align atlas to MRI
 % mri_atlas = ft_read_mri([filepath subjID '_NMT/' subjID '_anat.nii.gz']);
 % fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
@@ -73,17 +84,20 @@ save([filepath '/' subjID '_elec.mat'], 'elec_acpc_f');
 % cfg.viewresult  = 'yes';
 % mri_atlas = ft_volumerealign(cfg, fsmri_acpc, mri_atlas);
 x = spm_coreg([filepath subjID '_NMT/' subjID '_anat.nii.gz'], [filepath '/' subjID '_MRI_acpc.nii']);
+save([filepath subjID '_NMT/' subjID '_transfrom.mat'],'x');
 % cfg           = [];
 % cfg.filename  = [filepath '/' subjID '_MRI_atlas'];
 % cfg.filetype  = 'nifti';
 % cfg.parameter = 'anatomy';
 % ft_volumewrite(cfg, atlas);
+
+%% visualize electrodes
 load([filepath '/' subjID '_elec.mat']);
-% visualize electrodes
 fsmri_acpc = ft_read_mri([filepath '/' subjID '_MRI_acpc.nii']);
 ft_plot_ortho(fsmri_acpc.anatomy, 'transform', fsmri_acpc.transform, 'style', 'intersect');
 ft_plot_sens(elec_acpc_f, 'label', 'on', 'fontcolor', 'w');
-% transform electrodes
+
+%% transform electrodes to atlas space
 elec_acpc_f.chanpos=ft_warp_apply(inv(spm_matrix(x(:)')), elec_acpc_f.chanpos, 'homogenous');
 elec_acpc_f.elecpos=elec_acpc_f.chanpos;
 save([filepath '/' subjID '_elec_atlas.mat'], 'elec_acpc_f');

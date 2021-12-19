@@ -69,10 +69,10 @@ ylabel('(Left-Right)/(Left+Right)')
 legend('Attend-left','Attend-right')
 %% optic flow
 disp('optic flow');
-data_dir='/Volumes/WD_D/gufei/flow/';
+data_dir='/Volumes/WD_D/gufei/flow/big/';
 sprate=1000;
 % subs=2:6;
-subs=[71:72 81:83 91:93];
+subs=[11:13 21:23 31:33 41:43 71:73 81:83 91:93];
 diff_opflow=zeros(length(subs),2);
 diff_opflow_block=zeros(5,2,length(subs));
 for sub_i=1:length(subs)
@@ -93,7 +93,7 @@ block_order=output.heading;%2-left
 angle=unique(abs(block_order));
 block_left=find(block_order==angle);
 block_right=find(block_order==-angle);
-block_start=find(marker(1:end-1)<1.02&marker(2:end)>=1.02)+1;
+block_start=sprate*0+find(marker(1:end-1)<1.02&marker(2:end)>=1.02)+1;
 if length(block_start)~=10
     error('wrong block number');
 end
@@ -131,6 +131,7 @@ ylabel('(Left-Right)/(Left+Right)')
 legend('Move-left','Move-right')
 
 disp(diff_opflow);
+disp(mean(diff_opflow));
 figure
 bar(diff_opflow(1:end,:))
 xlabel('subject')

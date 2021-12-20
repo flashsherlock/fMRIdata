@@ -1,13 +1,22 @@
 %% load data
 subjID = 'RM033';
 filepath = '/Volumes/WD_D/gufei/monkey_data/IMG/';
-% anat=[filepath '/' subjID '_MRI_acpc.nii'];
 % position before transformation
 load([filepath '/' subjID '_elec.mat']);
-load([filepath subjID '_NMT/' subjID '_transfrom.mat']);
-elec_acpc_f.chanpos=ft_warp_apply(inv(spm_matrix(x(:)')), elec_acpc_f.chanpos, 'homogenous');
-elec_acpc_f.elecpos=elec_acpc_f.chanpos;
-save([filepath '/' subjID '_elec_atlas.mat'], 'elec_acpc_f');
+
+% adjust CT image
+% x = spm_coreg([filepath subjID '_CT_final2.nii'], [filepath '/' subjID '_CT_final.nii']);
+% M = inv(spm_matrix(x(:)'));
+% elec_acpc_f.chanpos=ft_warp_apply(M, elec_acpc_f.chanpos, 'homogenous');
+% elec_acpc_f.elecpos=elec_acpc_f.chanpos;
+% save([filepath '/' subjID '_elec.mat'], 'elec_acpc_f');
+
+% apply transformation
+% load([filepath subjID '_NMT/' subjID '_transfrom.mat']);
+% elec_acpc_f.chanpos=ft_warp_apply(inv(spm_matrix(x(:)')), elec_acpc_f.chanpos, 'homogenous');
+% elec_acpc_f.elecpos=elec_acpc_f.chanpos;
+% save([filepath '/' subjID '_elec_atlas.mat'], 'elec_acpc_f');
+
 % transformed position
 load([filepath '/' subjID '_elec_atlas.mat'])
 % RM035
@@ -16,8 +25,13 @@ load([filepath '/' subjID '_elec_atlas.mat'])
 % RM033
 [num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'position','A1:AD27');
 init=xlsread([filepath '/' subjID '_position.xlsx'],'init','B2:AD2');
+
+% original space
+% anat=[filepath '/' subjID '_MRI_acpc.nii'];
+% atlas space
 filepath = ['/Volumes/WD_D/gufei/monkey_data/IMG/' subjID '_NMT/'];
 anat=[filepath '/' subjID '_anat.nii'];
+
 atlas_coord=elec_acpc_f.elecpos;
 num_elec=length(atlas_coord)/2;
 %% find and save initial position
@@ -38,7 +52,6 @@ for i_elec=1:length(atlas_coord)
     exp{i_elec}=['step(' num2str(r^2) '-' x '*' x '-' y '*' y '-' z '*' z ')'];
 end
 exp=['''or(' strjoin(exp,',') ')'''];
-% anat=[filepath '/' subjID '_MRI_acpc.nii'];
 cmd=['3dcalc -a ' anat ' -LPI -expr ' exp ' -prefix ' [filepath '/' subjID '_MRI_elec.nii']];
 unix(cmd);
 
@@ -68,7 +81,6 @@ for i_elec=1:num_elec
     exp{i_elec}=['step(' f ')'];
 end
 exp=['''10*or(' strjoin(exp,',') ')'''];
-% anat=[filepath '/' subjID '_MRI_acpc.nii'];
 cmd=['3dcalc -a ' anat ' -LPI -expr ' exp ' -prefix ' [filepath '/' subjID '_MRI_orien.nii']];
 unix(cmd);
 

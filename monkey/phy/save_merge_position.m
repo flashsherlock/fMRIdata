@@ -1,12 +1,13 @@
+function [roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level)
 %% load data
-load('/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/RM035_allpos_label5d.mat')
-level=2;
+load(label)
+% level=1;
 cur_level_roi=ele_date_alevel{level};
 % remove no label
 cur_level_roi=cur_level_roi(~strcmp(cur_level_roi(:,1),'no_label_found'),:);
 % lfp data
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
-dates = {'200731', '200807', '200814', '200820', '200828'};
+% data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
+% dates = {'200731', '200807', '200814', '200820', '200828'};
 data_lfp = cell(length(dates),1);
 data_resp = data_lfp;
 for i_date=1:length(dates)
@@ -59,4 +60,5 @@ for roi_i=1:roi_num
     roi_lfp{roi_i} = ft_appenddata(cfg,lfp{:});
     roi_resp{roi_i} = ft_appenddata(cfg,resp{:});
 end
-save([data_dir 'roi_odor_resp_5day.mat'],'roi_lfp','roi_resp','cur_level_roi');
+end
+% save([data_dir 'roi_odor_resp_5day.mat'],'roi_lfp','roi_resp','cur_level_roi');

@@ -12,10 +12,10 @@ load([filepath '/' subjID '_elec.mat']);
 % save([filepath '/' subjID '_elec.mat'], 'elec_acpc_f');
 
 % apply transformation
-% load([filepath subjID '_NMT/' subjID '_transfrom.mat']);
-% elec_acpc_f.chanpos=ft_warp_apply(inv(spm_matrix(x(:)')), elec_acpc_f.chanpos, 'homogenous');
-% elec_acpc_f.elecpos=elec_acpc_f.chanpos;
-% save([filepath '/' subjID '_elec_atlas.mat'], 'elec_acpc_f');
+load([filepath subjID '_NMT/' subjID '_transfrom.mat']);
+elec_acpc_f.chanpos=ft_warp_apply(inv(spm_matrix(x(:)')), elec_acpc_f.chanpos, 'homogenous');
+elec_acpc_f.elecpos=elec_acpc_f.chanpos;
+save([filepath '/' subjID '_elec_atlas.mat'], 'elec_acpc_f');
 
 % transformed position
 load([filepath '/' subjID '_elec_atlas.mat'])
@@ -23,7 +23,7 @@ load([filepath '/' subjID '_elec_atlas.mat'])
 % [num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'position','A1:X21');
 % init=xlsread([filepath '/' subjID '_position.xlsx'],'init','B2:X2');
 % RM033
-[num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'position','A1:AD27');
+[num,txt,raw]=xlsread([filepath '/' subjID '_position.xlsx'],'position','A1:AD28');
 init=xlsread([filepath '/' subjID '_position.xlsx'],'init','B2:AD2');
 
 % original space

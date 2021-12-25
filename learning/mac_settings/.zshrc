@@ -6,6 +6,7 @@ export LANG=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export DNNBRAIN_DATA=/Volumes/WD_D/gufei/document/dnnbrain/data
 export MATLAB_SHELL=/bin/bash
+alias olfmac="ssh olfmac@192.168.118.120"
 alias cat="bat"
 alias top="htop"
 alias f="fuck"
@@ -190,3 +191,4 @@ then
       && source $HOME/.afni/help/all_progs.COMP.zsh
 fi
 
+export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles

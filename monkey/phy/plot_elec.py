@@ -45,7 +45,10 @@ gl.cameradistance(0.3)
 
 
 # nifti_tool -overwrite -mod_hdr -mod_field intent_code 1002 -infiles SARM_in_RM035_anat.nii
-# dcalc -a SARM_in_RM035_anat.nii.gz -expr 'a*within(a,16,41)' -prefix SARM_in_RM035_anat.nii
+
+# generate Amygdala ROI
+# 3dcalc -a SARM_in_RM033_anat.nii.gz -expr 'a*within(a,16,41)' -prefix SARM_in_RM033_anat_amy.nii
+
 # AFNI can not load data correctly if .nii and .nii.gz with the same name occur in the same folder
 
 # output from help template

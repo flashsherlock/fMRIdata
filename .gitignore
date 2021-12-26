@@ -2,6 +2,8 @@
 .Rhistory
 *.Rproj
 .vscode
+# local history
+/.history
 # matlab temp files
 *.m~
 *.asv

@@ -3,6 +3,7 @@
 # install packages
 # install.packages("languageserver")
 # install.packages("httpgd")
+# devtools::install_github("ManuelHentschel/vscDebugger")
 
 # test plot
 h <- c(1, 2, 3, 4, 5, 6)

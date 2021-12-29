@@ -2,18 +2,29 @@
 
 ## backup_config.sh
 Backup several dot files.
-* .cshrc .
-* .tcshrc .
-* .vimrc .
-* .zshrc .
-* .vimrc_bk .
-* .tmux.conf .
+* .cshrc
+* .tcshrc
+* .vimrc
+* .zshrc
+* .vimrc_bk
+* .tmux.conf
+* matlab/startup.m
+* .config/powerline-shell/config.json
+
+## restore_config.sh
+Restore above files listed in backup_config.sh.
 
 ## settings.json
 Windows terminal settings.
 
+## powerline-shell-config.json
+Powerline-shell settings.
+
 ## itermprofile.json
 Iterm settings.
+
+## shell_setting.terminal
+Shell settings for default terminal app on mac.
 
 ## gitlab.tcsh
 Install gitlab in docker.
@@ -29,3 +40,18 @@ Useful font.
 
 ## command.sh
 Useless until now.
+
+## copyfiles.sh
+Copy files from mac_pro_2010 to new macPRO.
+
+## fslinstaller.py
+FSL installer.
+
+## startup.m
+Matlab startup file.
+
+## pf.conf
+Configuration file to enable NAT in pf.
+
+## .Rprofile
+Settings to enable httpgd in vscode using vscode-R extension.

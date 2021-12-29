@@ -17,3 +17,9 @@ Data analysis without normalization.
 Data analysis with normalization.
 * top: top view
 * side: side view
+
+### lr.test.m
+Experiment of attending left and right visual field.
+
+### lr.m
+Analyze left and right nasal air flow.

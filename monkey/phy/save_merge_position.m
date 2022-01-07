@@ -1,4 +1,4 @@
-function [roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level)
+function [roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level,trl_type)
 %% load data
 load(label)
 % level=1;
@@ -18,7 +18,14 @@ lfp=cell(1,length(data.lfp));
 resp=lfp;
 for i=1:length(data.lfp)
 cfg=[];
-cfg.trl=data.trl(i).odorresp;
+switch trl_type
+    case 'odor'
+        cfg.trl=data.trl(i).odor;
+    case 'resp'
+        cfg.trl=data.trl(i).resp;
+    otherwise
+        cfg.trl=data.trl(i).odorresp;
+end
 lfp{i} = ft_redefinetrial(cfg, data.lfp{i});
 resp{i} = ft_redefinetrial(cfg, data.bioresp{i});
 end

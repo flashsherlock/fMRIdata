@@ -8,41 +8,10 @@ end
 label='/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/RM035_allpos_label5d.mat';
 dates = {'200731', '200807', '200814', '200820', '200828'};
 level = 4;
-[roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level);
-% load([data_dir 'roi_odor_resp_5day.mat']);
+trl_type = 'odorresp';
+[roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level,trl_type);
 % get number of roi
 roi_num=size(cur_level_roi,1);
-%% power spectrum analysis
-spectr_resp=cell(roi_num,1);
-spectr_lfp=spectr_resp;
-for roi_i=1:roi_num
-    cur_roi=cur_level_roi{roi_i,1};
-    lfp=roi_lfp{roi_i};
-    resp=roi_resp{roi_i};
-    
-    % frequency spectrum
-    cfg         = [];
-    cfg.output  = 'pow';
-    cfg.method  = 'mtmfft';
-    cfg.taper   = 'hanning';
-    % cfgtf.foi = logspace(log10(1),log10(200),51);
-    cfg.foi = 0.1:0.1:10;
-    spectr_resp{roi_i}  = ft_freqanalysis(cfg, resp);
-    spectr_lfp{roi_i}  = ft_freqanalysis(cfg, lfp);
-end
-figure;
-hold on;
-for roi_i=1:roi_num
-% plot(spectr_resp.freq, mean(spectr_resp.powspctrm,1), 'linewidth', 2)
-% set(gca,'yscale','log');
-% yyaxis right
-plot(spectr_lfp{roi_i}.freq, mean(spectr_lfp{roi_i}.powspctrm,1), 'linewidth', 2)
-end
-set(gca,'yscale','log');
-set(gca,'xlim',[0.1 10]);
-legend(cur_level_roi(:,1))
-xlabel('Frequency (Hz)')
-ylabel('Power (\mu V^2)')
 %% erp analysis
 for roi_i=1:roi_num
     cur_roi=cur_level_roi{roi_i,1};

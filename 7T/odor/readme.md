@@ -30,6 +30,9 @@ Analyze ratings for odors presented by bottles.
 ## mrirate.m
 Analyze ratings for odors presented by the olfactometer.
 
+## mrirate_quick.m
+Quickly review ratings in the scanner.
+
 ## saverate.m
 Save ratings to mat file.
 

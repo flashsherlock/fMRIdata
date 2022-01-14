@@ -1,3 +1,6 @@
+Deal with errors in mris_fix_topology:
+freeview -v nu.mgz -v wm.mgz
+recon-all -autorecon2-wm -autorecon3 -s S06_surf_hiresalign -parallel -threads 12 -cm -sd ./
 
 USAGE: recon-all
 

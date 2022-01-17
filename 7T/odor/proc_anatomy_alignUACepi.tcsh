@@ -6,7 +6,6 @@
 if ( $# > 0 ) then
 set sub = $1
 set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
-# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 # make dir to save masks
 if (! -e mask) then
@@ -77,6 +76,12 @@ foreach mask (${masks})
     # echo ${name}
     mri_convert -ot nii ${mask} ${sub}_surf_hiresalign/SUMA/${name}
 end
+
+# generate surface model
+# left hemisphere
+mris_convert ${sub}_surf_hiresalign/surf/lh.pial ${sub}_surf_hiresalign/lh.pial.stl
+# right hemisphere
+mris_convert ${sub}_surf_hiresalign/surf/rh.pial ${sub}_surf_hiresalign/rh.pial.stl
 
 # # check alignment in SUMA folder
 # afni -niml

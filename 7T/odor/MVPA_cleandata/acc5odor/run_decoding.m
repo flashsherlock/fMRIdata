@@ -20,10 +20,14 @@ rois={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_
 % %     end
 % end
 % S04-S08
-for i=4:11
+for i=13:18
     sub=sprintf('S%02d',i);
-    decoding_roi_5odors_trial(sub,analysis_all,rois,shift);
+    try
+    decoding_roi_5odors_trial(sub,analysis_all,rois,shift);    
     decoding_roi_trial(sub,analysis_all,rois,shift);
+    catch
+    disp(['error in' sub]);
+    end
 %     searchlight
 %     decoding_searchlight_5odors_trial(sub,analysis_all,rois,shift);
 %     decoding_searchlight_trial(sub,analysis_all,rois,shift);

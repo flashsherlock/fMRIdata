@@ -1,7 +1,8 @@
 #! /bin/csh
-# foreach sub (S04 S05 S06 S07 S08)
-foreach sub (S09 S10 S11)
+
+foreach ub (`count -dig 2 13 18`)
 # set sub=S01_yyt
+set sub=S${ub}
 set analysis=pabiode
 
 set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}/

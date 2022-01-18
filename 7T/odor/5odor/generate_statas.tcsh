@@ -1,8 +1,12 @@
 #!/bin/tcsh
-# set sub=S01_yyt
+
 # use input as sub
-if ( $# > 0 ) then
-set sub = $1
+# if ( $# > 0 ) then
+# set sub = $1
+
+foreach ub (`count -dig 2 18 18`)
+# set sub=S01_yyt
+set sub=S${ub}
 set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
 # set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
 cd "${datafolder}"
@@ -138,7 +142,7 @@ end
 #     # -o option can not replace exsisting files
 #     # >! ../../stats/${sub}/sAmy_betadiff.txt
 
-else
- echo "Usage: $0 <Subjname> <analysis>"
+# else
+#  echo "Usage: $0 <Subjname> <analysis>"
 
 endif

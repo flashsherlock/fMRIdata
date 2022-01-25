@@ -1,7 +1,8 @@
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 out_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
 sample_rate=500;
-dates={'200424','200529','200612','200619'};
+dates={'200417','200424','200529','200612','200619','200703',...
+    '200904','200911','200918','201005','201030','201106'};
 channel=33:64;
 bad_channel=[35 37 38 46 50 53 55 56 57];
 channel(ismember(channel,bad_channel))=[];
@@ -13,7 +14,7 @@ for d=1:length(dates)
     %data filename
     cur_date=dates{d};
 %     pattern=[data_dir cur_date '_testo' '*' '_rm035_1_*.plx'];
-    pattern=[data_dir cur_date '_testo' '*' '_rm035_1.plx'];
+    pattern=[data_dir cur_date '_testo' '*' '_rm035_*.plx'];
     plxname=dir(pattern);
     lfp=cell(1,length(plxname));
     resp=lfp;
@@ -28,13 +29,13 @@ for d=1:length(dates)
     % [n, ts, sv] = plx_event_ts(fl, 'Strobed');
     %fieldtrip的格式组织数据
     lfp{i}=struct('label',{{}},'trial',{{[]}},'time',{{[]}});
-    resp{i}=lfp{i};
+%     resp{i}=lfp{i};
     %resp
     ad_time=(1:res_n)/res_freq;
-    resp{i}.label{end+1}=resp_channel;
-    resp{i}.trial{1}=[resp{i}.trial{1};raw_res'];
-    resp{i}.time{1}(end+1,:)=ad_time';
-    resp{i}.fsample=res_freq;
+%     resp{i}.label{end+1}=resp_channel;
+%     resp{i}.trial{1}=[resp{i}.trial{1};raw_res'];
+%     resp{i}.time{1}(end+1,:)=ad_time';
+%     resp{i}.fsample=res_freq;
     for i_channel=1:length(channel)
         CON_chan=strcat('WB',num2str(channel(i_channel)));
         [raw_freq, raw_n, raw_ts, raw_fn, raw_ad] = plx_ad_v(fl,CON_chan);
@@ -101,7 +102,7 @@ for d=1:length(dates)
     trlresp{i}=trl;
     end
     trl=struct('resp',trlresp,'odor',trlodor,'odorresp',trlodorresp);
-    save([out_dir cur_date '_rm035_ane.mat'],'lfp','resp','bioresp','trl');    
+    save([out_dir cur_date '_rm035_ane.mat'],'plxname','lfp','bioresp','trl');    
     catch
     disp(['error in ' cur_date ' testo' num2str(i) ' channel' num2str(i_channel)]);
     end

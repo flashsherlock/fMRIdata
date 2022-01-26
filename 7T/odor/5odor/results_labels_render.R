@@ -1,13 +1,13 @@
 # default values
 path <- "/Volumes/WD_E/gufei/7T_odor/"
-mp<- c("roi_VIvaodor_l1_label_58")
+mp<- c("roi_VIvaodor_l1_label_6")
 analysis <- c("pabiode")
 # subs 
 subs <- c(sprintf('S%02d',c(4:11,13:18)))
 # rois
 roi <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
 roi <- c('Amy8_at196','corticalAmy_at196','CeMeAmy_at196','BaLaAmy_at196','Pir_new_at196','Pir_old_at196','APC_new_at196','APC_old_at196','PPC_at196')
-roi <- c('Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align','Pir_new','Pir_old','APC_new','APC_old','PPC')
+roi <- c('Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC')
 roiname <- c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
 roi <- c('Amy8_align','corticalAmy','CeMeAmy','BaLaAmy')
 roiname <- c("Amy","Cortical","CeMe","BaLa")
@@ -19,10 +19,10 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rm
 
 # odor_va results
 # render mean mvpa results
-title <- "Mean58_odorva4-11"
+title <- "Mean58_odorva4-18"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Meanva58_411"),
+                  output_file = paste0("Meanva_nomask_6_418"),
                   params = list(sub = subs, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))
 

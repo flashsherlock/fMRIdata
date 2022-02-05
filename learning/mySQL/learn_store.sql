@@ -154,3 +154,41 @@ COMMIT;
 ROLLBACK;
 -- insert update delete are commited automatically
 SHOW VARIABLES LIKE 'autocommit';
+SHOW VARIABLES LIKE 'transaction_isolation';
+-- SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE
+
+-- index
+EXPLAIN SELECT customer_id FROM customers WHERE state = 'VA';
+CREATE INDEX idx_state ON customers (state);
+
+EXPLAIN SELECT customer_id FROM customers WHERE points > 1000;
+CREATE INDEX idx_points ON customers (points);
+
+-- SHOW INDEXES IN customers;
+SHOW INDEX FROM customers;
+ANALYZE TABLE customers;
+SHOW INDEX FROM orders;
+
+-- prefix index for text
+SELECT COUNT(DISTINCT LEFT(last_name,5)) FROM customers;
+CREATE INDEX idx_lastname ON customers (last_name(5));
+
+-- full-text index
+USE sql_blog;
+CREATE FULLTEXT INDEX idx_title_body ON posts (title,body);
+
+SELECT *, MATCH(title,body) AGAINST ('react redux') FROM posts
+WHERE MATCH(title,body) AGAINST ('react redux');
+-- WHERE MATCH(title,body) AGAINST ('react -redux +form' IN BOOLEAN MODE);
+
+-- composite indexes 
+-- the order of columns is important
+USE sql_store;
+CREATE INDEX idx_state_points ON customers (state,points);
+EXPLAIN SELECT customer_id FROM customers
+WHERE state = 'CA' AND points > 1000;
+
+-- use indexes to order data
+EXPLAIN SELECT customer_id FROM customers ORDER BY state;
+
+SHOW STATUS LIKE 'last_query_cost';

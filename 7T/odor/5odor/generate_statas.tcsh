@@ -4,7 +4,7 @@
 # if ( $# > 0 ) then
 # set sub = $1
 
-foreach ub (`count -dig 2 18 18`)
+foreach ub (`count -dig 2 13 18`)
 # set sub=S01_yyt
 set sub=S${ub}
 set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
@@ -31,7 +31,11 @@ echo ${sub} ${analysis}
 
 # run the regression analysis
 set subj = ${sub}.${analysis}
-set subjva = ${subj}
+if (${ub} =~ 0[45678]) then
+    set subjva = ${subj}.odorVI
+else
+    set subjva = ${subj}
+endif
 cd ${subj}.results
 
 # rename
@@ -66,7 +70,7 @@ cd ${subj}.results
 # extract tent and beta values
 set filedec = odorVI
 set maskdec = align # at165 or align
-set maskdec_t = at165 # at165 or align
+set maskdec_t = at165_p # at165 or align
 set data_tent=tent.${subj}.${filedec}+orig
 set data_beta=stats.${subj}+orig
 
@@ -87,7 +91,7 @@ foreach region (Pir_new Pir_old APC_new APC_old PPC)
             -d stats.${subjva}+orig'[11]' \
             -e stats.${subjva}+orig'[14]' \
             -f ../mask/${region}.draw+orig \
-            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
+            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
             -prefix ../mask/${region}_${maskdec_t}.draw
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
@@ -105,7 +109,7 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -d stats.${subjva}+orig'[11]' \
             -e stats.${subjva}+orig'[14]' \
             -f ../mask/${region}_${maskdec}.freesurfer+orig \
-            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
+            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
             -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
@@ -145,4 +149,4 @@ end
 # else
 #  echo "Usage: $0 <Subjname> <analysis>"
 
-endif
+end

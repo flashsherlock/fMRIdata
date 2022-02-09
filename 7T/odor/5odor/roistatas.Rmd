@@ -18,7 +18,7 @@ date: "`r Sys.time()`"
 </style>
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+knitr::opts_chunk$set(warning = F, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
 library(psych)
 library(ggplot2)
@@ -67,7 +67,7 @@ tp <- strsplit(sapply(tp,"[",2),fixed = T,"_")
 data$TimePoints <- sapply(tp,"[",1)
 data$NZmean <- as.numeric(data$NZmean)
 roi <- strsplit(txtname,fixed = T,"/")
-roi <- strsplit(sapply(roi,"[",length(roi[[1]])),fixed = T,"_tent")
+roi <- strsplit(sapply(roi,"[",length(roi[[1]])),fixed = T,"_p_tent")
 roi <- sapply(roi,"[",1)
 data <- cbind(data,rep(roi,each=nrow(data)))
 names(data)[4] <- "roi"
@@ -163,7 +163,7 @@ data_tent <- data.frame(sub=0,odor=0,time=0,NZmean=0,roi=0)
 data_tent <- data_tent[-1,]
 for (sub_i in params$sub) {
   # file path
-  name <- file.path(params$path,"stats",sub_i,paste0(params$roi,params$suffix))
+  name <- file.path(params$path,"stats",sub_i,paste0(params$roi,'_p',params$suffix))
   for (region in 1:length(name)) {
   data_tent <- rbind(data_tent,extractdata(name[region]))
   }

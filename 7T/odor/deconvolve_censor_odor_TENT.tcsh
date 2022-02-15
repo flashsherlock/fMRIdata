@@ -10,7 +10,7 @@ cd "${datafolder}"
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 set pb=`ls pb0?.*.r01.scale+orig.HEAD | cut -d . -f1`
-set filedec = odorVI
+set filedec = odorVI_12
 
 # run the regression analysis
 3dDeconvolve -input ${pb}.${subj}.r*.scale+orig.HEAD           \
@@ -23,15 +23,15 @@ set filedec = odorVI
     -ortvec mot_demean.r06.1D mot_demean_r06                   \
     -polort 3                                                  \
     -num_stimts 7                                              \
-    -stim_times 1 ../behavior/lim.txt 'TENT(0,10,11)'          \
+    -stim_times 1 ../behavior/lim.txt 'TENT(0,12,13)'          \
     -stim_label 1 lim                                          \
-    -stim_times 2 ../behavior/tra.txt 'TENT(0,10,11)'          \
+    -stim_times 2 ../behavior/tra.txt 'TENT(0,12,13)'          \
     -stim_label 2 tra                                          \
-    -stim_times 3 ../behavior/car.txt 'TENT(0,10,11)'          \
+    -stim_times 3 ../behavior/car.txt 'TENT(0,12,13)'          \
     -stim_label 3 car                                          \
-    -stim_times 4 ../behavior/cit.txt 'TENT(0,10,11)'          \
+    -stim_times 4 ../behavior/cit.txt 'TENT(0,12,13)'          \
     -stim_label 4 cit                                          \
-    -stim_times 5 ../behavior/ind.txt 'TENT(0,10,11)'          \
+    -stim_times 5 ../behavior/ind.txt 'TENT(0,12,13)'          \
     -stim_label 5 ind                                          \
     -stim_times_AM1 6 ../behavior/valence.txt 'dmBLOCK(1)'     \
     -stim_label 6 val                                          \

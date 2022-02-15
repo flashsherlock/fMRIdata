@@ -68,7 +68,7 @@ cd ${subj}.results
 # end
 
 # extract tent and beta values
-set filedec = odorVI
+set filedec = odorVI_12
 set maskdec = align # at165 or align
 set maskdec_t = at165_p # at165 or align
 set data_tent=tent.${subj}.${filedec}+orig
@@ -95,7 +95,7 @@ foreach region (Pir_new Pir_old APC_new APC_old PPC)
             -prefix ../mask/${region}_${maskdec_t}.draw
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
+    -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
 
     # extract betas from blurred statas
     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
@@ -113,7 +113,7 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 54`55]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent.txt
+    -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
 
     # extract betas from blurred statas
     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \

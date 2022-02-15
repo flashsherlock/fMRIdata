@@ -15,6 +15,7 @@
 
 library(ggpubr)
 library(Hmisc)
+library(ggunchained)
 
 # plot functions
 # scatter
@@ -42,6 +43,31 @@ correplot <- function(data,x,y){
     scale_x_continuous(breaks = scales::breaks_width(10))
 }
 
+# violinplot
+vioplot <- function(data,condition, select){
+  # select data
+  Violin_data <- subset(data,select = c("id","gender",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id","gender"),variable.name = "Task", value.name = "Score")
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,"pre"),"pre_test","post_test"),
+                        condition=ifelse(str_detect(Task,condition[1]),condition[1],condition[2]))
+  
+  Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
+  # violinplot
+  ggplot(data=Violin_data, aes(x=condition, y=Score, fill=test)) + 
+    geom_split_violin(trim=FALSE,color="black",na.rm = TRUE, scale = "area") +
+    geom_point(aes(group = test), size = 0.5, color = "gray",show.legend = F,
+               position = position_jitterdodge(
+                 jitter.width = 0.5,
+                 jitter.height = 0,
+                 dodge.width = 0.6,
+                 seed = 1))+
+    coord_cartesian(ylim = c(0,100))+
+    scale_fill_manual(values = c("#233b42","#65adc2")) + 
+    scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
+}
+
+# Load Data
 # data_dir <- "C:/Users/GuFei/zhuom/yanqihu/result100.sav"
 data_dir <- "/Volumes/WD_D/gufei/writing/"
 data_exp1 <- spss.get(paste0(data_dir,"result100.sav"))
@@ -69,28 +95,36 @@ str(data_exp1)
 summary(data_exp1)
 
 diagplot(data_exp1,"prevadif","aftervadif")
+ggsave(paste0(data_dir,"diag_va_hf.pdf"), width = 6, height = 5)
+
 diagplot(data_exp1,"preindif","afterindif")
+ggsave(paste0(data_dir,"diag_in_hf.pdf"), width = 6, height = 5)
+
 diagplot(data_exp1,"prevadif_pm","aftervadif_pm")
+ggsave(paste0(data_dir,"diag_va_pm.pdf"), width = 6, height = 5)
+
 diagplot(data_exp1,"preindif_pm","afterindif_pm")
+ggsave(paste0(data_dir,"diag_in_pm.pdf"), width = 6, height = 5)
 
 correplot(data_exp1,"va.dif","after.acc")
+ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 4)
+
 correplot(data_exp1,"absvadif","after.acc")
 correplot(data_exp1,"learn.dif","after.acc")
 correplot(data_exp1,"abslearndif","after.acc")
 
-# valence rating
-valence <- subset(data_exp1,select = c("id","gender","prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
-valence <- reshape::melt(valence, id.vars="id",variable.name = "Task", value.name = "Score")
-Violin_data$Task <- factor(Violin_data$Task, levels = c("A", "B"), ordered = TRUE)
-Violin_data$Test <- factor(Violin_data$Test,levels = c("1","2"),ordered = TRUE)
-violin <- ggplot(data=Violin_data, aes(x=Task, y=Score,fill=Test)) + 
-  geom_split_violin(trim=FALSE,color="black",na.rm = TRUE, scale = "area") +
-  geom_jitter(aes(group = Task,color =Test), size = 0.1, position = position_dodge2(width = 0.5, preserve = "single")) +
-  scale_fill_manual(values = c("red","blue")) + 
-  geom_boxplot(data = controldata_z, aes(x=Task, y=Score,fill = NULL), width = 0.05,outlier.shape = NA) +
-  theme(panel.background = element_blank(),axis.ticks.length.y = unit(-0.1,"cm"),axis.line = element_line(colour = "black"),legend.text=element_text(), legend.title = element_text(), axis.text.y=element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")), axis.text.x = element_text())
-  
-print(violin)
+vioplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
+ggsave(paste0(data_dir,"violin_va_hf.eps"), width = 4, height = 3)
+ggsave(paste0(data_dir,"violin_va_hf.pdf"), width = 4, height = 3)
 
-ggsave(paste0(data_dir,"Retest_violin.eps"), width = 5, height = 3)
+vioplot(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))
+ggsave(paste0(data_dir,"violin_in_hf.eps"), width = 4, height = 3)
+ggsave(paste0(data_dir,"violin_in_hf.pdf"), width = 4, height = 3)
 
+vioplot(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))
+ggsave(paste0(data_dir,"violin_va_pm.eps"), width = 4, height = 3)
+ggsave(paste0(data_dir,"violin_va_pm.pdf"), width = 4, height = 3)
+
+vioplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))
+ggsave(paste0(data_dir,"violin_in_pm.eps"), width = 4, height = 3)
+ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)

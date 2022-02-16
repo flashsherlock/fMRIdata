@@ -1,8 +1,8 @@
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/';
 out_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
 sample_rate=500;
-dates={'200417','200424','200529','200612','200619','200703',...
-    '200904','200911','200918','201005','201030','201106'};
+dates = {'200417', '200424', '200529', '200612', '200619', '200703', ...
+        '200904', '200911', '200918', '201015', '201030', '201106'};
 channel=33:64;
 bad_channel=[35 37 38 46 50 53 55 56 57];
 channel(ismember(channel,bad_channel))=[];
@@ -20,18 +20,18 @@ for d=1:length(dates)
     resp=lfp;
     bioresp=lfp;
     for i=1:length(plxname)
-    disp(['Processing... ' cur_date ' testo' num2str(i)]);
+    disp(['Processing... ' plxname(i).name]);
     % test=1;
     fl=[data_dir filesep plxname(i).name];
     front=strrep(fl,'.plx','');
     %按照每导读取数据，频率信息存在raw_freq中，数据信息存在raw_ad中
-    [res_freq, res_n, res_ts, res_fn, raw_res] = plx_ad_v(fl,resp_channel); % raw res data
+    % [res_freq, res_n, res_ts, res_fn, raw_res] = plx_ad_v(fl,resp_channel); % raw res data
     % [n, ts, sv] = plx_event_ts(fl, 'Strobed');
     %fieldtrip的格式组织数据
     lfp{i}=struct('label',{{}},'trial',{{[]}},'time',{{[]}});
 %     resp{i}=lfp{i};
     %resp
-    ad_time=(1:res_n)/res_freq;
+    % ad_time=(1:res_n)/res_freq;
 %     resp{i}.label{end+1}=resp_channel;
 %     resp{i}.trial{1}=[resp{i}.trial{1};raw_res'];
 %     resp{i}.time{1}(end+1,:)=ad_time';

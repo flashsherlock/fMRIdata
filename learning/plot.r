@@ -67,6 +67,33 @@ vioplot <- function(data,condition, select){
     scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
 }
 
+# boxplot
+boxplot <- function(data,condition, select){
+  # select data
+  Violin_data <- subset(data,select = c("id","gender",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id","gender"),variable.name = "Task", value.name = "Score")
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,"pre"),"pre_test","post_test"),
+                        condition=ifelse(str_detect(Task,condition[1]),condition[1],condition[2]))
+  
+  Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
+  # violinplot
+  ggplot(data=Violin_data, aes(x=condition, y=Score)) + 
+    geom_boxplot(aes(color=test),
+                 outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6)) +
+    scale_color_manual(values=c("grey50","black"))+
+    geom_point(aes(group = test, fill=test), size = 0.5, color = "gray",show.legend = F,
+               position = position_jitterdodge(
+                 jitter.width = 0.3,
+                 jitter.height = 0,
+                 dodge.width = 0.6,
+                 seed = 1))+
+    # geom_line(aes(group = interaction(id,condition)), position = position_dodge(0.6))+
+    coord_cartesian(ylim = c(0,100))+
+    scale_fill_manual(values = c("#233b42","#65adc2")) + 
+    scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
+}
+
 # Load Data
 # data_dir <- "C:/Users/GuFei/zhuom/yanqihu/result100.sav"
 data_dir <- "/Volumes/WD_D/gufei/writing/"
@@ -128,3 +155,15 @@ ggsave(paste0(data_dir,"violin_va_pm.pdf"), width = 4, height = 3)
 vioplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))
 ggsave(paste0(data_dir,"violin_in_pm.eps"), width = 4, height = 3)
 ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)
+
+boxplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
+ggsave(paste0(data_dir,"box_va_hf.pdf"), width = 4, height = 3)
+
+boxplot(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))
+ggsave(paste0(data_dir,"box_in_hf.pdf"), width = 4, height = 3)
+
+boxplot(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))
+ggsave(paste0(data_dir,"box_va_pm.pdf"), width = 4, height = 3)
+
+boxplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))
+ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 4, height = 3)

@@ -10,15 +10,20 @@ channel(ismember(channel,bad_channel))=[];
 resp_channel='AI08';
 
 for d=1:length(dates)
-    try
     %data filename
     cur_date=dates{d};
 %     pattern=[data_dir cur_date '_testo' '*' '_rm035_1_*.plx'];
     pattern=[data_dir cur_date '_testo' '*' '_rm035_*.plx'];
     plxname=dir(pattern);
-    lfp=cell(1,length(plxname));
-    resp=lfp;
-    bioresp=lfp;
+    % blank data
+    lfp = cell(1, length(plxname));
+    trlodorresp = cell(1, length(plxname));
+    trlodor = cell(1, length(plxname));
+    trlresp = cell(1, length(plxname));
+    resp = lfp;
+    bioresp = lfp;
+    % check number of files
+    if length(plxname)>0
     for i=1:length(plxname)
     disp(['Processing... ' plxname(i).name]);
     % test=1;
@@ -103,7 +108,5 @@ for d=1:length(dates)
     end
     trl=struct('resp',trlresp,'odor',trlodor,'odorresp',trlodorresp);
     save([out_dir cur_date '_rm035_ane.mat'],'plxname','lfp','bioresp','trl');    
-    catch
-    disp(['error in ' cur_date ' testo' num2str(i) ' channel' num2str(i_channel)]);
     end
 end

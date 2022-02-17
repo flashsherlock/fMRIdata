@@ -13,15 +13,21 @@ channel(ismember(channel,bad_channel))=[];
 resp_channel='AI08';
 
 for d=1:length(dates)
-    for elec_i=1:2    
+    for elec_i=1:2  
     %data filename
     cur_date=dates{d};
     pattern=[data_dir cur_date '_testo*_rm033_' num2str(elec_i) '*plx'];
 %     pattern=[data_dir cur_date '_testo' '*' '_rm033.plx'];
     plxname=dir(pattern);
+    % blank data
     lfp=cell(1,length(plxname));
+    trlodorresp=cell(1,length(plxname));
+    trlodor=cell(1,length(plxname));
+    trlresp=cell(1,length(plxname));
     resp=lfp;
     bioresp=lfp;
+    
+    % check number of files
     if length(plxname)>0
     for i=1:length(plxname)    
     try
@@ -86,7 +92,7 @@ for d=1:length(dates)
     offset = -3.5;
     after  = 9.5;
     %呈现气味的呼吸
-    trl=[];
+    trl=[];    
     for label_i=1:length(res_plx)
         trl=[trl;[res_plx{label_i}(:,1:2) zeros(size(res_plx{label_i},1),1) repmat(label_i,size(res_plx{label_i},1),1)]];
     end
@@ -127,3 +133,5 @@ for d=1:length(dates)
     end    
     end
 end
+
+% unix(['cat ' out_dir 'diff_old.txt|awk ''{print $1}''|uniq |wc -l']);

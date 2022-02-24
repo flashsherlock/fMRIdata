@@ -71,6 +71,9 @@
 ### find_elec_label
 根据电极的坐标查找在图谱上的标签。
 
+### match_label_data
+保存和数据文件对应的日期的坐标标签和文件名。
+
 ### save_merge_position
 根据电极所在位置将位于同一脑区的数据合并保存。
 

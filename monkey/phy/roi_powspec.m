@@ -1,14 +1,14 @@
 %% load and reorganize data
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
+data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm033_ane/mat/';
 pic_dir=[data_dir 'pic/odorresp_roi/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % generate data
-label='/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/RM035_allpos_label5d.mat';
-dates = {'200731', '200807', '200814', '200820', '200828'};
-level = 4;
+label=[data_dir 'RM033_datpos_label.mat'];
+level = 1;
 trl_type = 'odor';
+dates=1:23;
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level,trl_type);
 % get number of roi
 roi_num=size(cur_level_roi,1);
@@ -46,7 +46,7 @@ for odor_i=1:odor_num
     plot(spectr_lfp{roi_i,odor_i}.freq, mean(spectr_lfp{roi_i,odor_i}.powspctrm,1),'Color',hex2rgb(colors{odor_i}),'linewidth', 2)
 end
 set(gca,'yscale','log');
-set(gca,'xlim',[0.1 1]);
+set(gca,'xlim',[4 12]);
 title(cur_level_roi{roi_i,1})
 legend('Ind','Iso_l','Iso_h','Peach','Banana','Air')
 xlabel('Frequency (Hz)')

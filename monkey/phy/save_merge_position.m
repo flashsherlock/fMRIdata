@@ -6,13 +6,11 @@ cur_level_roi=ele_date_alevel{level};
 % remove no label
 cur_level_roi=cur_level_roi(~strcmp(cur_level_roi(:,1),'no_label_found'),:);
 % lfp data
-% data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
-% dates = {'200731', '200807', '200814', '200820', '200828'};
 data_lfp = cell(length(dates),1);
 data_resp = data_lfp;
 for i_date=1:length(dates)
-cur_date=dates{i_date};
-data=load([data_dir cur_date '_rm035_ane.mat']);
+file=filenames{dates(i_date)};
+data=load([data_dir file]);
 %% cut to trials
 lfp=cell(1,length(data.lfp));
 resp=lfp;

@@ -1,5 +1,5 @@
 % load elec labels
-monkey='RM033';
+monkey='RM035';
 label=['/Volumes/WD_D/gufei/monkey_data/IMG/'...
     monkey '_NMT/' monkey '_allpos_label.mat'];
 load(label);
@@ -30,6 +30,6 @@ file_dir=['/Volumes/WD_D/gufei/monkey_data/yuanliu/'...
     lower(monkey) '_ane/mat/'];
 file=dir([file_dir '*_ane.mat']);
 filenames=struct2cell(file);
-filenames=filenames(1,:);
+filenames=filenames(1,:)';
 % save
-save([file_dir monkey '_datpos_label.mat'],'output','ele_date_alevel','filename');
+save([file_dir monkey '_datpos_label.mat'],'output','ele_date_alevel','filenames');

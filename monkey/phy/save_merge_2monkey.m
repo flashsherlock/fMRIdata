@@ -1,22 +1,32 @@
-function [roi_lfp, roi_resp, cur_level_roi] = save_merge_2monkey(level, trl_type)
-    %% load data
+function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type)
+    %     level=1;
+    %     trl_type='odor';
+    %% init
     monkeys = {'RM035', 'RM033'};
     roi_focus = cell(4, 1);
     roi_focus{1} = {'HF', 'pAmy', 'spAmy'};
     roi_focus{2} = {'HF', 'vpAmy', 'lpAmy', 'stAmy', 'mAmy', 'pdAmy'};
-    roi_focus{3} = {'Pir', 'Hi', 'S', 'fi', 'pAmy', 'spAmy'};
-    roi_focus{4} = {'Pir', 'Hi', 'S', 'fi', 'pAmy', 'spAmy'};
-
+    roi_focus{3} = {'Pir', 'Hi', 'S', 'fi', ...
+                    'BM', 'VCo', 'AHi', 'La', 'APir', 'BL', 'PaL', ...
+                    'Ce', 'Me', 'AA', 'EA', 'IPAC', 'STIA'};
+    roi_focus{4} = {'Pir', 'Hi', 'S', 'fi', ...
+                    'BM', 'VCo', 'AHi', 'LaD', 'LaV', 'APir', 'BLD', 'BLI', 'BLV', 'PaL', ...
+                    'Ce', 'Me', 'AA', 'EA', 'IPAC', 'STIA'};
+    data_roi_lfp = cell(1, length(monkeys));
+    data_resp_lfp = data_roi_lfp;
+    data_cur_level_roi = data_roi_lfp;
+    all_roi = {};
+    %% load data
     for monkey_i = 1:length(monkeys)
         monkey = monkeys{monkey_i};
-        file_dir = [' / Volumes / WD_D / gufei / monkey_data / yuanliu / ' ...
-                lower(monkey) '_ane/mat/'];
+        file_dir = ['/Volumes/WD_D/gufei/monkey_data/yuanliu/' ...
+                    lower(monkey) '_ane/mat/'];
         label = [file_dir monkey '_datpos_label.mat'];
         load(label);
-        % level=1;
+        % current roi for certain level
         cur_level_roi = ele_date_alevel{level};
-        % remove no label
-        cur_level_roi = cur_level_roi(~strcmp(cur_level_roi(:, 1), 'no_label_found'), :);
+        % remove non interested roi
+        cur_level_roi = cur_level_roi(ismember(cur_level_roi(:, 1), roi_focus{level}), :);
         % lfp data
         data_lfp = cell(length(filenames), 1);
         data_resp = data_lfp;
@@ -57,36 +67,57 @@ function [roi_lfp, roi_resp, cur_level_roi] = save_merge_2monkey(level, trl_type
             data_lfp{i_date} = ft_selectdata(cfg, lfp);
         end
 
-        %% rearrange
-        roi_num = size(cur_level_roi, 1);
-        roi_resp = cell(roi_num, 1);
-        roi_lfp = roi_resp;
+        data_roi_lfp{monkey_i} = data_resp;
+        data_resp_lfp{monkey_i} = data_lfp;
+        data_cur_level_roi{monkey_i} = cur_level_roi;
+        all_roi = [all_roi; cur_level_roi(:, 1)];
+    end
 
-        for roi_i = 1:roi_num
-            locations = cur_level_roi{roi_i, 2};
-            %     loc_dates=unique(locations(:,1));
-            lfp = [];
-            resp = [];
+    % combine 2 monkeys
+    all_roi = unique(all_roi);
+    roi_num = size(all_roi, 1);
+    roi_resp = cell(roi_num, 1);
+    roi_lfp = roi_resp;
+    level_roi = cell(roi_num, 1 + length(monkeys));
+    %% rearrange
+    for roi_i = 1:roi_num
+        cur_roi = all_roi{roi_i};
+        level_roi{roi_i, 1} = cur_roi;
+        lfp = {};
+        resp = {};
+        i = 1;
 
-            for i = 1:size(locations, 1)
-                % select lfp
-                cfg = [];
-                cfg.channel = locations(i, 2);
-                lfp{i} = ft_selectdata(cfg, data_lfp{locations(i, 1)});
-                % rename label to roi name
-                lfp{i}.label = cur_level_roi(roi_i, 1);
-                % copy resp to match each trial of lfp
-                resp{i} = data_resp{locations(i, 1)};
-                resp{i}.label{1} = strjoin([resp{i}.label, cur_level_roi(roi_i, 1)], '_');
+        for monkey_i = 1:length(monkeys)
+            % current roi name
+            cur_level_roi = data_cur_level_roi{monkey_i};
+            index = strcmp(cur_level_roi(:, 1), cur_roi);
+            % if contain current roi
+            if any(index)
+                locations = cur_level_roi{index, 2};
+                level_roi{roi_i, 1 + monkey_i} = locations;
+
+                for loc_i = 1:size(locations, 1)
+                    % select lfp
+                    cfg = [];
+                    cfg.channel = locations(loc_i, 2);
+                    lfp{i} = ft_selectdata(cfg, data_lfp{locations(loc_i, 1)});
+                    % rename label to roi name
+                    lfp{i}.label = {cur_roi};
+                    % copy resp to match each trial of lfp
+                    resp{i} = data_resp{locations(loc_i, 1)};
+                    resp{i}.label{1} = strjoin([resp{i}.label, cur_roi, '_']);
+                    i = i + 1;
+                end
+
             end
 
-            % append all locations
-            cfg = [];
-            cfg.keepsampleinfo = 'no';
-            roi_lfp{roi_i} = ft_appenddata(cfg, lfp{:});
-            roi_resp{roi_i} = ft_appenddata(cfg, resp{:});
         end
 
+        % append all locations
+        cfg = [];
+        cfg.keepsampleinfo = 'no';
+        roi_lfp{roi_i} = ft_appenddata(cfg, lfp{:});
+        roi_resp{roi_i} = ft_appenddata(cfg, resp{:});
     end
 
 end

@@ -1,18 +1,22 @@
 %% load and reorganize data
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm033_ane/mat/';
+data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/';
 pic_dir=[data_dir 'pic/odorresp_roi/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % generate data
-label=[data_dir 'RM033_datpos_label.mat'];
-level = 1;
+level = 3;
 trl_type = 'odor';
-dates=1:23;
-[roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level,trl_type);
+% label=[data_dir 'RM033_datpos_label.mat'];
+% dates=1:23;
+% [roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level,trl_type);
+
+% combine 2 monkeys
+[roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type);
+
 % get number of roi
 roi_num=size(cur_level_roi,1);
-odor_num=6;
+odor_num=7;
 %% power spectrum analysis
 spectr_resp=cell(roi_num,odor_num);
 spectr_lfp=spectr_resp;
@@ -27,7 +31,11 @@ for roi_i=1:roi_num
     cfg.output  = 'pow';
     cfg.method  = 'mtmfft';
     cfg.taper   = 'hanning';
-    cfg.trials  = find(lfp.trialinfo==odor_i);
+    if odor_i==7
+        cfg.trials  = find(lfp.trialinfo~=6);
+    else
+        cfg.trials  = find(lfp.trialinfo==odor_i);
+    end
     % cfgtf.foi = logspace(log10(1),log10(200),51);
     cfg.foi = 0.1:0.1:10;
     spectr_resp{roi_i,odor_i}  = ft_freqanalysis(cfg, resp);
@@ -46,9 +54,10 @@ for odor_i=1:odor_num
     plot(spectr_lfp{roi_i,odor_i}.freq, mean(spectr_lfp{roi_i,odor_i}.powspctrm,1),'Color',hex2rgb(colors{odor_i}),'linewidth', 2)
 end
 set(gca,'yscale','log');
-set(gca,'xlim',[4 12]);
+set(gca,'xlim',[0.1 10]);
 title(cur_level_roi{roi_i,1})
-legend('Ind','Iso_l','Iso_h','Peach','Banana','Air')
+legend('Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor')
 xlabel('Frequency (Hz)')
 ylabel('Power (\mu V^2)')
 end
+save([data_dir 'powspec_odor_0.1_10hz.mat'],'spectr_lfp','spectr_resp')

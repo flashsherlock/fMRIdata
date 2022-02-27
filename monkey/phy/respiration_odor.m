@@ -1,36 +1,42 @@
 %% set path
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
+monkeys = {'RM035', 'RM033'};
+data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 pic_dir=[data_dir 'pic/respiration_odor/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 %% load data
-load('/Volumes/WD_D/gufei/monkey_data/IMG/RM035_NMT/RM035_allpos_label5d.mat')
-% lfp data
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
-dates = {'200731', '200807', '200814', '200820', '200828'};
-data_resp = cell(length(dates),1);
-for i_date=1:length(dates)
-cur_date=dates{i_date};
-data=load([data_dir cur_date '_rm035_ane.mat']);
-%% cut to trials
-lfp=cell(1,length(data.lfp));
-resp=lfp;
-for i=1:length(data.lfp)
-cfg=[];
-cfg.trl=data.trl(i).odorresp;
-resp{i} = ft_redefinetrial(cfg, data.bioresp{i});
-end
-%% append data
-cfg=[];
-cfg.keepsampleinfo='no';
-resp = ft_appenddata(cfg,resp{:});
-% remove trials containing nan values
-cfg.trials=~(cellfun(@(x) any(any(isnan(x),2)),resp.trial));
-data_resp{i_date}=ft_selectdata(cfg,resp);
+resp_monkey=cell(1,length(monkeys));
+for monkey_i = 1:length(monkeys)
+    monkey = monkeys{monkey_i};
+    file_dir = ['/Volumes/WD_D/gufei/monkey_data/yuanliu/' ...
+                lower(monkey) '_ane/mat/'];
+    label = [file_dir monkey '_datpos_label.mat'];
+    load(label);
+    data_resp = cell(length(filenames),1);
+    for i_date = 1:length(filenames)
+    file = filenames{i_date};
+    data = load([file_dir file]);
+    %% cut to trials
+    lfp=cell(1,length(data.lfp));
+    resp=lfp;
+    for i=1:length(data.lfp)
+    cfg=[];
+    cfg.trl=data.trl(i).odorresp;
+    resp{i} = ft_redefinetrial(cfg, data.bioresp{i});
+    end
+    %% append data
+    cfg=[];
+    cfg.keepsampleinfo='no';
+    resp = ft_appenddata(cfg,resp{:});
+    % remove trials containing nan values
+    cfg.trials=~(cellfun(@(x) any(any(isnan(x),2)),resp.trial));
+    data_resp{i_date}=ft_selectdata(cfg,resp);
+    end
+    resp_monkey{monkey_i} = ft_appenddata(cfg,data_resp{:});
 end
 resp=[];
-resp = ft_appenddata(cfg,data_resp{:});
+resp=ft_appenddata(cfg,resp_monkey{:});
 %% plot
 cur_roi = 'resp';
 time_range = [-0.2 9];

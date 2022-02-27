@@ -26,13 +26,13 @@
 ### G_for_mrg
 分析合并和sorting后的spike并进行聚类等。
 
-## LFP
-
 ### plot_5odor
 不选择呼吸，只是根据气味呈现挑选spike。
 
 ### plot_air_odor
 不选择呼吸，只是根据气味呈现挑选spike，并将所有气味的合并。
+
+## LFP
 
 ### saveplx
 读取plx中的原始数据和呼吸，降采样，滤波，调用find_resp_time找到呼吸的时间点，保存为mat格式。
@@ -70,6 +70,9 @@
 
 ### find_elec_label
 根据电极的坐标查找在图谱上的标签。
+
+### respiration_odor
+分析不同气味条件下的呼吸是否存在差异。
 
 ### match_label_data
 保存和数据文件对应的日期的坐标标签和文件名。

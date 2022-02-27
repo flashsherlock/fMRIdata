@@ -25,7 +25,11 @@ for roi_i=1:roi_num
     cur_roi=cur_level_roi{roi_i,1};
     lfp=roi_lfp{roi_i};
     resp=roi_resp{roi_i};
-    
+    % select time
+    cfg         = [];
+    cfg.latency = [0 8];
+    lfp=ft_selectdata(cfg, lfp);
+    resp=ft_selectdata(cfg, resp);
     % frequency spectrum
     cfg         = [];
     cfg.output  = 'pow';
@@ -37,7 +41,7 @@ for roi_i=1:roi_num
         cfg.trials  = find(lfp.trialinfo==odor_i);
     end
     % cfgtf.foi = logspace(log10(1),log10(200),51);
-    cfg.foi = 0.1:0.1:10;
+    cfg.foilim = [0.1 80];
     spectr_resp{roi_i,odor_i}  = ft_freqanalysis(cfg, resp);
     spectr_lfp{roi_i,odor_i}  = ft_freqanalysis(cfg, lfp);
     end
@@ -54,10 +58,11 @@ for odor_i=1:odor_num
     plot(spectr_lfp{roi_i,odor_i}.freq, mean(spectr_lfp{roi_i,odor_i}.powspctrm,1),'Color',hex2rgb(colors{odor_i}),'linewidth', 2)
 end
 set(gca,'yscale','log');
-set(gca,'xlim',[0.1 10]);
+set(gca,'xlim',[4 40]);
 title(cur_level_roi{roi_i,1})
 legend('Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor')
 xlabel('Frequency (Hz)')
 ylabel('Power (\mu V^2)')
 end
-save([data_dir 'powspec_odor_0.1_10hz.mat'],'spectr_lfp','spectr_resp')
+save([data_dir 'powspec_odor_8s_0.1_80hz.mat'],'spectr_lfp','spectr_resp')
+% save([data_dir 'level3_position_2monkey.mat'],'cur_level_roi');

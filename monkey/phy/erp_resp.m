@@ -1,49 +1,33 @@
-%% load data
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
+%% set path
+data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 pic_dir=[data_dir 'pic/erp_resp/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-dates = {'200731', '200807', '200814', '200820', '200828'};
-for i_date=1:length(dates)
-cur_date=dates{i_date};
-data=load([data_dir cur_date '_rm035_ane.mat']);
-%% cut to trials
-lfp=cell(1,length(data.lfp));
-resp=lfp;
-for i=1:length(data.lfp)
+%% generate data
+level = 3;
+trl_type = 'odorresp';
+% combine 2 monkeys
+[roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type);
+% get number of roi
+roi_num=size(cur_level_roi,1);
+odor_num=7;
+%% analyze
+for roi_i=1:roi_num
+cur_roi=cur_level_roi{roi_i,1};
+lfp=roi_lfp{roi_i};
+resp=roi_resp{roi_i};
+% select air condition
+condition=6;
 cfg=[];
-cfg.trl=data.trl(i).resp;
-lfp{i} = ft_redefinetrial(cfg, data.lfp{i});
-resp{i} = ft_redefinetrial(cfg, data.bioresp{i});
-end
-%% append data
-cfg=[];
-cfg.keepsampleinfo='no';
-lfp = ft_appenddata(cfg,lfp{:});
-resp = ft_appenddata(cfg,resp{:});
-% remove trials containing nan values
-cfg=[];
-cfg.trials=~(cellfun(@(x) any(any(isnan(x),2)),lfp.trial)...
-    |cellfun(@(x) any(any(isnan(x),2)),resp.trial));
-resp=ft_selectdata(cfg,resp);
-channel=0;
-if channel~=0
-cfg.channel=strcat('WB',num2str(channel));
-end
-% average across channels
-cfg.avgoverchan =  'yes';
-lfp=ft_selectdata(cfg,lfp);
-% average resperation
-cfg=[];
-cfg.trials = find(resp.trialinfo==1);
+cfg.trials = find(resp.trialinfo==condition);
 resavg=ft_timelockanalysis(cfg, resp);
 %% show low frequency signal
 cfg=[];
 cfg.bpfilter = 'yes';
 cfg.bpfilttype = 'fir';
 cfg.bpfreq = [0.1 0.6];
-cfg.trials = find(lfp.trialinfo==1);
+cfg.trials = find(lfp.trialinfo==condition);
 lfp_l = ft_preprocessing(cfg,lfp);
 % cfg          = [];
 % cfg.method   = 'trial';
@@ -64,7 +48,7 @@ bs=linspace(cfg.baseline(1),cfg.baseline(2),100);
 erp_blc = ft_timelockbaseline(cfg, erp);
 % average trials
 cfg = [];
-cfg.trials = find(erp_blc.trialinfo==1);
+cfg.trials = find(erp_blc.trialinfo==condition);
 cfg.avgoverrpt =  'yes';
 erp_blc=ft_selectdata(cfg,erp_blc);
 % compute correlation
@@ -82,9 +66,9 @@ ylabel('Voltage (μV)')
 yyaxis right
 plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
 set(gca,'xlim',time_range,'ytick',[]);
-title([cur_date '-' num2str(channel) ' 0-4s:' num2str(r4) ' -1-4s:' num2str(r7)])
+title([cur_roi ' 0-4s:' num2str(r4) ' -1-4s:' num2str(r7)])
 hold off
-saveas(gcf, [pic_dir cur_date '-' num2str(channel)],'png')
+saveas(gcf, [pic_dir cur_roi],'png')
 close all
 % figure
 % scatter(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,select),1)'))

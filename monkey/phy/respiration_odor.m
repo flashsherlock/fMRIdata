@@ -37,9 +37,12 @@ for monkey_i = 1:length(monkeys)
 end
 resp=[];
 resp=ft_appenddata(cfg,resp_monkey{:});
-%% plot
+%% average and statistics
 cur_roi = 'resp';
-time_range = [-0.2 9];
+% resample
+cfg=[];
+cfg.resamplefs  = 100;
+resp = ft_resampledata(cfg,resp);
 % baseline correction
 cfg = [];
 cfg.keeptrials = 'yes';
@@ -67,90 +70,86 @@ erp_h_blc{8}=ft_selectdata(cfg,erp_blch);
 cfg.trials = find(resp.trialinfo==4|resp.trialinfo==5);
 erp_h_blc{9}=ft_selectdata(cfg,erp_blch);
 
-colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D'};
+% 5odor+air vs. odor plea vs. unplea
+stat_t=cell(1,7);
+for odor_i=1:7
+    design=erp_blch.trialinfo;
+    if odor_i==6
+        design(design~=6)=1;
+        design(design==6)=2;
+    elseif odor_i==7
+        design(design<=3)=1;
+        design(design==4|design==5)=2;
+    else
+        design(design==odor_i)=1;
+        design(design==6)=2;
+    end    
+    cfg           = [];
+    cfg.method    = 'analytic'; % using a parametric test
+    cfg.statistic = 'ft_statfun_indepsamplesT'; % using independent samples
+    cfg.correctm  = 'no'; % no multiple comparisons correction
+    cfg.alpha     = 0.05;
+    cfg.design    = design;
+    cfg.ivar      = 1; 
+    stat_t{odor_i} = ft_timelockstatistics(cfg, erp_blch);
+end
+
+%% plot setting
+colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D', '#DE7B14'};
+colors_cp = colors([1:5 7 10]);
 %linewidth
-lw=cell(1,7);
+lw=cell(1,9);
 %linestyle
 ls=lw;
 for i=1:9
     if i<=5
         lw{i}=1.5;
         if i<=3
-            ls{i}='-.';
+            ls{i}='-';
         else
-            ls{i}=':';
+            ls{i}='-';
         end
 
     else
-        lw{i}=2;
+        lw{i}=1.5;
         ls{i}='-';
     end
 end
-ls{8}='-.';
-ls{9}=':';
-
-% odor vs. air
-design=erp_blch.trialinfo;
-design(design~=6)=1;
-design(design==6)=2;
-cfg           = [];
-cfg.method    = 'analytic'; % using a parametric test
-cfg.statistic = 'ft_statfun_indepsamplesT'; % using independent samples
-cfg.correctm  = 'no'; % no multiple comparisons correction
-cfg.alpha     = 0.05;
-cfg.design    = design;
-cfg.ivar      = 1; 
-stat_t_oa = ft_timelockstatistics(cfg, erp_blch);
-% pleasant vs. unpleasant
-design=erp_blch.trialinfo;
-design(design<=3)=2;
-design(design==4|design==5)=1;
-cfg.design    = design;
-stat_t_pu = ft_timelockstatistics(cfg, erp_blch);
-
+ls{8}='-';
+ls{9}='-';
+%% plot
+smooth_win=1;
+time_range = [-0.2 4];
 % plot 5 odors and air
-figure('position',[20,0,1000,400]);
+figure('position',[20,0,700,700]);
+subplot(2,1,1)
 hold on
-for i=1:6
-plot(erp_h_blc{1}.time,1000*erp_h_blc{i}.trial,'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
+for i=1:7
+plot(erp_h_blc{1}.time,smooth(erp_h_blc{i}.trial,smooth_win),'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
 end
-xlabel('Time (s)')
-ylabel('Voltage (μV)')
+ylabel('Voltage (V)')
 set(gca,'xlim',time_range);
 title([cur_roi '-odor'])
-legend('Ind','Iso_l','Iso_h','Pea','Ban','Air')
+legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor')
 hold off
-saveas(gcf, [pic_dir cur_roi '-high-odor'],'fig')
-saveas(gcf, [pic_dir cur_roi '-high-odor'],'png')
-close all
-
-% plot odor and air and valence
-figure('position',[20,0,1000,400]);
+% pvalue
+subplot(2,1,2)
 hold on
-for i=6:9
-plot(erp_h_blc{1}.time,1000*erp_h_blc{i}.trial,'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
+for odor_i=1:6
+    % replace 0 with eps
+    stat_t{odor_i}.prob=max(stat_t{odor_i}.prob,eps);
+    plot(stat_t{odor_i}.time, smooth(stat_t{odor_i}.prob,smooth_win),'Color',hex2rgb(colors_cp{odor_i}),'linewidth', lw{i})
 end
-xlabel('Time (s)')
-ylabel('Voltage (μV)')
+time_num=length(stat_t{odor_i}.time);
+% number of comparision
+cmp_num=sum(stat_t{odor_i}.time >time_range(1) & stat_t{odor_i}.time <time_range(2));
+plot(stat_t{odor_i}.time,0.05*ones(1,time_num),'k','linestyle','--','LineWidth',2)
+% plot(stat_t{odor_i}.time,0.05/cmp_num*ones(1,time_num),'r','linestyle','--','LineWidth',2)
+set(gca,'yscale','log');
+set(gca,'ylim',[0 1]);
 set(gca,'xlim',time_range);
-% ft_plot_vector(erp_l_blc{1}.time,1000*erp_h_blc{i}.trial, 'highlight', stat_t_oa.mask, 'highlightstyle', 'box','facealpha', 0.5);
-begsample = find(diff([0 stat_t_oa.mask 0])== 1);
-endsample = find(diff([0 stat_t_oa.mask 0])==-1)-1;
-for i=1:length(begsample)
-  begx = erp_h_blc{1}.time(begsample(i));
-  endx = erp_h_blc{1}.time(endsample(i));
-  ft_plot_box([begx endx get(gca,'Ylim')], 'facecolor', [0.6 0 0], 'facealpha', 0.3, 'edgecolor', 'none');
-end
-begsample = find(diff([0 stat_t_pu.mask 0])== 1);
-endsample = find(diff([0 stat_t_pu.mask 0])==-1)-1;
-for i=1:length(begsample)
-  begx = erp_h_blc{1}.time(begsample(i));
-  endx = erp_h_blc{1}.time(endsample(i));
-  ft_plot_box([begx endx get(gca,'Ylim')], 'facecolor', [0 0 0.6], 'facealpha', 0.3, 'edgecolor', 'none');
-end
-title([cur_roi '-valence'])
-legend('Air','Odor','Unplea','Plea')
-hold off
-saveas(gcf, [pic_dir cur_roi '-valence'],'fig')
-saveas(gcf, [pic_dir cur_roi '-valence'],'png')
+xlabel('Time (s)')
+ylabel('p')
+saveas(gcf, [pic_dir cur_roi '-5odor', '.fig'],'fig')
+saveas(gcf, [pic_dir cur_roi '-5odor', '.png'],'png')
 close all

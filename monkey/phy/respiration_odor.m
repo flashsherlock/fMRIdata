@@ -18,8 +18,7 @@ for monkey_i = 1:length(monkeys)
     file = filenames{i_date};
     data = load([file_dir file]);
     %% cut to trials
-    lfp=cell(1,length(data.lfp));
-    resp=lfp;
+    resp=cell(1,length(data.lfp));
     for i=1:length(data.lfp)
     cfg=[];
     cfg.trl=data.trl(i).odorresp;
@@ -39,10 +38,10 @@ resp=[];
 resp=ft_appenddata(cfg,resp_monkey{:});
 %% average and statistics
 cur_roi = 'resp';
-% resample
-cfg=[];
-cfg.resamplefs  = 100;
-resp = ft_resampledata(cfg,resp);
+% % resample
+% cfg=[];
+% cfg.resamplefs  = 100;
+% resp = ft_resampledata(cfg,resp);
 % baseline correction
 cfg = [];
 cfg.keeptrials = 'yes';
@@ -121,7 +120,7 @@ ls{9}='-';
 smooth_win=1;
 time_range = [-0.2 4];
 % plot 5 odors and air
-figure('position',[20,0,700,700]);
+figure('position',[20,0,400,500]);
 subplot(2,1,1)
 hold on
 for i=1:7
@@ -130,7 +129,7 @@ end
 ylabel('Voltage (V)')
 set(gca,'xlim',time_range);
 title([cur_roi '-odor'])
-legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor')
+legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor','Location','best')
 hold off
 % pvalue
 subplot(2,1,2)
@@ -152,4 +151,105 @@ xlabel('Time (s)')
 ylabel('p')
 saveas(gcf, [pic_dir cur_roi '-5odor', '.fig'],'fig')
 saveas(gcf, [pic_dir cur_roi '-5odor', '.png'],'png')
+close all
+
+%% power spectrum analysis
+cfg         = [];
+cfg.latency = [0 9.5];
+resp_s=ft_selectdata(cfg, resp);
+% frequency spectrum
+cfg         = [];
+cfg.output  = 'pow';
+cfg.method  = 'mtmfft';
+cfg.taper   = 'hanning';
+cfg.keeptrials = 'yes';
+cfg.foilim = [0.1 5];
+% cfg.foi = 0.1:0.1:5;
+spectr_resp_all  = ft_freqanalysis(cfg, resp_s);
+%% average each condition
+odor_num=7;
+spectr_resp=cell(odor_num);
+spectr_respz=spectr_resp;
+for odor_i=1:odor_num
+    resp_select = spectr_resp_all;
+    % frequency spectrum
+    cfg         = [];
+    cfg.avgoverrpt =  'yes';
+    if odor_i==7
+        cfg.trials  = find(resp_select.trialinfo~=6);
+    else
+        cfg.trials  = find(resp_select.trialinfo==odor_i);
+    end
+    spectr_resp{odor_i} = ft_selectdata(cfg, resp_select);
+    
+    % zscore
+    resp_select.powspctrm = zscore(resp_select.powspctrm,0,1);
+    spectr_respz{odor_i} = ft_selectdata(cfg, resp_select);
+end
+%% statisticss
+spectr_resp_p=cell(odor_num-1);
+for odor_i=1:odor_num-1
+% odor vs. air
+design=spectr_resp_all.trialinfo;
+if odor_i==odor_num-1
+    design(design~=6)=1;
+else
+    design(design==odor_i)=1;
+end
+design(design==6)=2;
+cfg           = [];
+cfg.method    = 'analytic'; % using a parametric test
+cfg.statistic = 'ft_statfun_indepsamplesT'; % using independent samples
+cfg.correctm  = 'no'; % no multiple comparisons correction
+cfg.alpha     = 0.05;
+cfg.design    = design;
+cfg.ivar      = 1;
+spectr_resp_p{odor_i} = ft_freqstatistics(cfg, spectr_resp_all);
+end
+%% plot
+colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D'};
+colors_cp = colors([1:5 7]);
+smooth_win=1;
+freq_win=[0.1 5];
+line_wid=1.5;
+% plot raw power
+figure('position',[20,20,600,600]);
+subplot(3,1,1)
+hold on;
+for odor_i=1:odor_num
+    plot(spectr_resp{odor_i}.freq, smooth(mean(spectr_resp{odor_i}.powspctrm,1),smooth_win),'Color',hex2rgb(colors{odor_i}),'linewidth', line_wid)
+end
+set(gca,'yscale','log');
+set(gca,'xlim',freq_win);
+title('respiration')
+legend('Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor')
+ylabel('Power')
+% plot zscore
+subplot(3,1,2)
+hold on;
+for odor_i=1:odor_num
+    plot(spectr_respz{odor_i}.freq, smooth(mean(spectr_respz{odor_i}.powspctrm,1),smooth_win),'Color',hex2rgb(colors{odor_i}),'linewidth', line_wid)
+end
+set(gca,'xlim',freq_win);
+ylabel('ZPower')
+% plot p value
+subplot(3,1,3)
+hold on
+for odor_i=1:odor_num-1
+    % replace 0 with eps
+    spectr_resp_p{odor_i}.prob=max(spectr_resp_p{odor_i}.prob,eps);
+    plot(spectr_resp_p{odor_i}.freq, smooth(spectr_resp_p{odor_i}.prob,smooth_win),'Color',hex2rgb(colors_cp{odor_i}),'linewidth', line_wid)
+end
+freq_num=length(spectr_resp_p{odor_i}.freq);
+% number of comparision
+cmp_num=sum(spectr_resp_p{odor_i}.freq >freq_win(1) & spectr_resp_p{odor_i}.freq <freq_win(2));
+plot(spectr_resp_p{odor_i}.freq,0.05*ones(1,freq_num),'k','linestyle','--','LineWidth',2)
+plot(spectr_resp_p{odor_i}.freq,0.05/cmp_num*ones(1,freq_num),'r','linestyle','--','LineWidth',2)
+set(gca,'yscale','log');
+set(gca,'ylim',[0 1]);
+set(gca,'xlim',freq_win);
+xlabel('Frequency (Hz)')
+ylabel('p')
+saveas(gcf, [pic_dir 'respiration' '-zpower(0-9.5s)', '.fig'], 'fig')
+saveas(gcf, [pic_dir 'respiration' '-zpower(0-9.5s)', '.png'], 'png')
 close all

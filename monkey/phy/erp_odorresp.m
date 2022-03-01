@@ -42,8 +42,8 @@ for fre_i=1:length(frequencies)
 frequency=frequencies{fre_i};
 frequency_range = ['(' num2str(frequency(1)) '-' num2str(frequency(2)) 'Hz)'];
 select_time_range = [-3.5 9.5];
-time_ranges = {[-0.3 3],[-0.3 2],[-0.3 1]};
-baseline = [-0.3 -0.1];
+time_ranges = {[-0.2 4],[-0.2 2],[-0.2 1]};
+baseline = [-0.2 -0.1];
 for roi_i=1:roi_num
 cur_roi=cur_level_roi{roi_i,1};
 lfp=roi_lfp{roi_i};
@@ -124,7 +124,7 @@ for time_i=1:length(time_ranges)
 time_range = time_ranges{time_i};
 t_range = ['(' num2str(time_range(1)) '-' num2str(time_range(2)) 's)'];
 % plot 5 odors and air
-figure('position',[20,0,1000,400]);
+figure('position',[20,0,600,400]);
 subplot(2,1,1)
 hold on
 for i=1:7

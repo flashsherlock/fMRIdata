@@ -141,7 +141,7 @@ for odor_i=1:6
 end
 time_num=length(stat_t{odor_i}.time);
 % number of comparision
-cmp_num=sum(stat_t{odor_i}.time >time_range(1) & stat_t{odor_i}.time <time_range(2));
+% cmp_num=sum(stat_t{odor_i}.time >time_range(1) & stat_t{odor_i}.time <time_range(2));
 plot(stat_t{odor_i}.time,0.05*ones(1,time_num),'k','linestyle','--','LineWidth',2)
 % plot(stat_t{odor_i}.time,0.05/cmp_num*ones(1,time_num),'r','linestyle','--','LineWidth',2)
 set(gca,'yscale','log');

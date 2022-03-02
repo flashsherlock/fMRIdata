@@ -57,14 +57,15 @@ select=resavg.time>=0&resavg.time<=time_range(2);
 r3=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,select),1))');
 % select=resavg.time>=time_range(1)&resavg.time<=time_range(2);
 % r7=corr(resavg.avg',squeeze(mean(erp_blc.trial,1))');
-
+true=atanh(r3);
 %% permutation test
+for step=[1 10 100 200 500]
 nper=1000;
 r3_per=zeros(1,nper);
 erp_per=zeros(length(erp.trialinfo),3001);
 for per_i=1:nper
     r=randi([1 length(erp.time)-3000],length(erp.trialinfo),1);
-%     r=100*(ceil(r/100)-1)+1;
+    r=step*(ceil(r/step)-1)+1;
     for trial_i=1:length(erp.trialinfo)
         erp_per(trial_i,:)=erp.trial(trial_i,1,r(trial_i):r(trial_i)+3000);
     end
@@ -73,7 +74,6 @@ end
 r3_per=atanh(r3_per);
 cut1=prctile(r3_per,97.5);
 cut2=prctile(r3_per,2.5);
-true=atanh(r3);
 sig='';
 if true>cut1 || true<cut2
     sig='*';
@@ -102,8 +102,10 @@ xlabel('Z')
 ylabel('Iterations')
 set(gca,'FontSize',16);
 suptitle([cur_roi ' 0-3s:' num2str(r3)])
-saveas(gcf, [pic_dir cur_roi],'png')
+saveas(gcf, [pic_dir cur_roi num2str(step) '.png'],'png')
+% saveas(gcf, [pic_dir cur_roi num2str(step) '.fig'],'fig')
 close all
+end
 % figure
 % scatter(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,select),1)'))
 % figure

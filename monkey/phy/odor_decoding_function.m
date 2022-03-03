@@ -2,9 +2,12 @@ function [results, cfg] = odor_decoding_function(passed_data, odornum)
 % Set defaults
 cfg = decoding_defaults;
 cfg.analysis = 'wholebrain';
-
-%     cfg.scale.method='z';
-%     cfg.scale.estimation='all';
+% cfg.feature_transformation.method = 'PCA';
+% cfg.feature_transformation.estimation = 'across';
+% cfg.feature_transformation.n_vox = 100;
+% cfg.feature_transformation.scale.method = 'none';
+% cfg.scale.method='z';
+% cfg.scale.estimation='all';
 % the parameters to be searched should accur here
 cfg.decoding.method = 'classification';
 %     default -c 1 -g 1/feature large->overfit

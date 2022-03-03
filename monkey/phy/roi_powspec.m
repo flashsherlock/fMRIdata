@@ -7,9 +7,12 @@ end
 % generate data
 level = 3;
 trl_type = 'odor';
-% label=[data_dir 'RM033_datpos_label.mat'];
-% dates=1:23;
-% [roi_lfp,roi_resp,cur_level_roi] = save_merge_position(data_dir,label,dates,level,trl_type);
+
+% one monkey data
+% one_data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
+% label=[one_data_dir 'RM035_datpos_label.mat'];
+% dates=16;
+% [roi_lfp,~,cur_level_roi] = save_merge_position(one_data_dir,label,dates,level,trl_type);
 
 % combine 2 monkeys
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type);

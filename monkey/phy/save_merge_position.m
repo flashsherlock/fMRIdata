@@ -3,8 +3,17 @@ function [roi_lfp, roi_resp, cur_level_roi] = save_merge_position(data_dir, labe
     load(label)
     % level=1;
     cur_level_roi = ele_date_alevel{level};
-    % remove no label
-    cur_level_roi = cur_level_roi(~strcmp(cur_level_roi(:, 1), 'no_label_found'), :);
+    % remove non interested roi
+    roi_focus = cell(4, 1);
+    roi_focus{1} = {'HF', 'pAmy', 'spAmy'};
+    roi_focus{2} = {'HF', 'vpAmy', 'lpAmy', 'stAmy', 'mAmy', 'pdAmy'};
+    roi_focus{3} = {'Pir', 'Hi', 'S', 'fi', ...
+                    'BM', 'VCo', 'AHi', 'La', 'APir', 'BL', 'PaL', ...
+                    'Ce', 'Me', 'AA', 'EA', 'IPAC', 'STIA'};
+    roi_focus{4} = {'Pir', 'Hi', 'S', 'fi', ...
+                    'BM', 'VCo', 'AHi', 'LaD', 'LaV', 'APir', 'BLD', 'BLI', 'BLV', 'PaL', ...
+                    'Ce', 'Me', 'AA', 'EA', 'IPAC', 'STIA'};
+    cur_level_roi = cur_level_roi(ismember(cur_level_roi(:, 1), roi_focus{level}), :);
     % lfp data
     data_lfp = cell(length(dates), 1);
     data_resp = data_lfp;
@@ -49,32 +58,50 @@ function [roi_lfp, roi_resp, cur_level_roi] = save_merge_position(data_dir, labe
     roi_num = size(cur_level_roi, 1);
     roi_resp = cell(roi_num, 1);
     roi_lfp = roi_resp;
-
+    
+    % record empty rois
+    roi_empty=[];
     for roi_i = 1:roi_num
         locations = cur_level_roi{roi_i, 2};
-        %     loc_dates=unique(locations(:,1));
-        lfp = [];
-        resp = [];
-
-        for i = 1:size(locations, 1)
-            % select lfp
-            cfg = [];
-            cfg.channel = locations(i, 2);
-            lfp{i} = ft_selectdata(cfg, data_lfp{locations(i, 1)});
-            % rename label to roi name
-            lfp{i}.label = cur_level_roi(roi_i, 1);
-            % copy resp to match each trial of lfp
-            resp{i} = data_resp{locations(i, 1)};
-            resp{i}.label{1} = strjoin([resp{i}.label, cur_level_roi(roi_i, 1)], '_');
+        % select locations 
+        locations = locations(ismember(locations(:,1),dates),:);
+        cur_level_roi{roi_i, 2}=locations;
+        % change index to current dates order
+        for i_date = length(dates)
+            locations(locations(:,1)==dates(i_date),1)=i_date;
         end
+        
+        if isempty(locations)
+            roi_empty = [roi_empty roi_i];
+            else
+            %     loc_dates=unique(locations(:,1));
+            lfp = cell(size(locations, 1),1);
+            resp = cell(size(locations, 1),1);
 
-        % append all locations
-        cfg = [];
-        cfg.keepsampleinfo = 'no';
-        roi_lfp{roi_i} = ft_appenddata(cfg, lfp{:});
-        roi_resp{roi_i} = ft_appenddata(cfg, resp{:});
+            for i = 1:size(locations, 1)
+                % select lfp
+                cfg = [];
+                cfg.channel = locations(i, 2);
+                lfp{i} = ft_selectdata(cfg, data_lfp{locations(i, 1)});
+                % rename label to roi name
+                lfp{i}.label = cur_level_roi(roi_i, 1);
+                % copy resp to match each trial of lfp
+                resp{i} = data_resp{locations(i, 1)};
+                resp{i}.label{1} = strjoin([resp{i}.label, cur_level_roi(roi_i, 1)], '_');
+            end
+
+            % append all locations
+            cfg = [];
+            cfg.keepsampleinfo = 'no';
+            roi_lfp{roi_i} = ft_appenddata(cfg, lfp{:});
+            roi_resp{roi_i} = ft_appenddata(cfg, resp{:});
+        end
     end
 
+    % remove empty rois
+    roi_lfp(roi_empty)=[];
+    roi_resp(roi_empty)=[];
+    cur_level_roi(roi_empty,:)=[];
 end
 
 % save([data_dir 'roi_odor_resp_5day.mat'],'roi_lfp','roi_resp','cur_level_roi');

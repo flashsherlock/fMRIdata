@@ -53,5 +53,7 @@ function results = sample_lfp_decoding(data,condition,trial_num)
     % passed_data.data=zscore(sample_data,0,2);
     % decoding
     passed_data.data = sample_data;
-    [results,~]=odor_decoding_function(passed_data,length(unique(label)));    
+    [results,~]=odor_decoding_function(passed_data,length(unique(label)));
+    % return condtion and number of selection
+    results.analysis=[condition '_' num2str(select_num)];
 end

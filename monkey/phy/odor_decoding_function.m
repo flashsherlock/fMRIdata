@@ -48,6 +48,10 @@ cfg.design = make_design_cv(cfg);
 
 % Run decoding
 [results, cfg] = decoding_odor(cfg, passed_data);
+% only save useful information
+field_rm = setdiff(fieldnames(results),...
+    [{'analysis'},cfg.results.output]);    
+results = rmfield(results,field_rm);
 
 %% Main start
 function [results, cfg, passed_data, misc] = decoding_odor(cfg, passed_data, misc)

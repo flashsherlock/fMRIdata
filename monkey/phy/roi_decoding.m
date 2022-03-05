@@ -22,7 +22,7 @@ roi_num=size(cur_level_roi,1);
 % number of repeats
 repeat_num=100;
 time_range=[0 2];
-conditions = {'airodor','vaodor','5odor'};
+conditions = {'6odor','banana','5odor'};
 trial_num = [100 100 100];
 results = cell(length(conditions),2);
 results(:,1) = conditions';
@@ -58,4 +58,4 @@ for condition_i = 1:length(conditions)
     title([condition '-repeat: ' num2str(repeat_num)])
 end
 % save results
-save([pic_dir 'decoding_results_odor.mat'],'results')
+save([pic_dir 'decoding_results_other.mat'],'results')

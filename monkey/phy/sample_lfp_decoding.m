@@ -4,6 +4,8 @@ function results = sample_lfp_decoding(data,condition,trial_num)
         case '5odor'
             cfg.trials  = find(data.trialinfo<=5);
             data = ft_selectdata(cfg, data);
+        case '6odor'
+            % do nothing
         case 'airodor'
             data.trialinfo(data.trialinfo<=5) = 1;%odor
             data.trialinfo(data.trialinfo==6) = 2;%air

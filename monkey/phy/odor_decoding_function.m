@@ -12,7 +12,7 @@ cfg.analysis = 'wholebrain';
 cfg.decoding.method = 'classification';
 %     default -c 1 -g 1/feature large->overfit
 %     -t 0 linear 1 polynomial 2 RBF
-% cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -c 0.0001 -g 0.001 -b 0 -q';
+cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -q';
 %     cfg.parameter_selection.method='grid';
 %     cfg.parameter_selection.parameters={'-c';'-g'};
 %     cfg.parameter_selection.parameter_range={2.^(-8:2:8);2.^(-8:2:8)};

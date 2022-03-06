@@ -22,8 +22,9 @@ roi_num=size(cur_level_roi,1);
 % number of repeats
 repeat_num=100;
 time_range=[0 2];
-conditions = {'6odor','banana','5odor','airodor','vaodor'};
-trial_num = [100 100 100];
+% conditions = {'6odor','banana','5odor','airodor','vaodor'};
+conditions = {'intensity','fakeva'};
+trial_num = [100 100 100 100 100];
 results = cell(length(conditions),2);
 results(:,1) = conditions';
 
@@ -46,16 +47,10 @@ for condition_i = 1:length(conditions)
         results_odor{roi_i,1}.analysis = [cur_level_roi{roi_i,1}, '_' results_odor{roi_i,1}.analysis];        
     end
     % save results for this condition
-    results{condition_i,2}=results_odor;
-    % plot acc
-    [acc, rois]=odor_decoding_acc(results_odor);
-    figure
-    bar(mean(acc,2))
-    set(gca,'ylim',[0 100])
-    ylabel('ACC')
-    xlabel('ROI')
-    set(gca,'XTickLabel',rois)
-    title([condition '-repeat: ' num2str(repeat_num)])
+    results{condition_i,2}=results_odor;    
 end
 % save results
-save([pic_dir 'decoding_results_nonlinear.mat'],'results')
+matname = 'decoding_results_linear_fakeva-int.mat';
+save([pic_dir matname],'results')
+% plot acc
+odor_decoding_results(matname)

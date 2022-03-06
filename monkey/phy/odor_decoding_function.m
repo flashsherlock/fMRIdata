@@ -12,7 +12,7 @@ cfg.analysis = 'wholebrain';
 cfg.decoding.method = 'classification';
 %     default -c 1 -g 1/feature large->overfit
 %     -t 0 linear 1 polynomial 2 RBF
-cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -q';
+% cfg.decoding.train.classification.model_parameters = '-s 0 -t 2 -q';
 %     cfg.parameter_selection.method='grid';
 %     cfg.parameter_selection.parameters={'-c';'-g'};
 %     cfg.parameter_selection.parameter_range={2.^(-8:2:8);2.^(-8:2:8)};
@@ -409,31 +409,6 @@ cfg.progress.endtime = datestr(now);
 
 
 %% SUBFUNCTIONS
-
-function cfg = tdt_plot_design_init(cfg)
-
-try
-    if cfg.plot_design == 1 % plot + save fig, save hdl
-        cfg.fighandles.plot_design = plot_design(cfg);
-        save_fig(fullfile(cfg.results.dir, 'design'), cfg, cfg.fighandles.plot_design); 
-        drawnow;
-    elseif cfg.plot_design == 2 % only save fig, plot invisible, dont save hdl
-        fighdl = plot_design(cfg, 0); 
-        save_fig(fullfile(cfg.results.dir, 'design'), cfg, fighdl); 
-        close(fighdl); clear fighdl
-    end
-catch
-    warningv('DECODING:PlotDesignFailed', 'Failed to plot design')
-end
-
-% show design as text
-try 
-    display_design(cfg); 
-catch
-    warningv('DECODING:DisplayDesignFailed', 'Failed to display design to screen ( display_design(cfg) )')
-end
-
-%%
 function cfg = tdt_check_transform_only(cfg,passed_data,mask_index)
 
 % By default, calculate the data, if not specified otherwise
@@ -566,18 +541,4 @@ else
     % no kernel used, set the training vectors as training data
     data_train = current_data(i_train, :);
     data_test = current_data(i_test, :);
-end
-
-%%
-function cfg = tdt_plot_design_final(cfg)
-
-try
-    if cfg.plot_design
-        cfg.fighandles.plot_design = plot_design(cfg,1); 
-        if cfg.results.write
-            save_fig(fullfile(cfg.results.dir, 'design'), cfg, cfg.fighandles.plot_design);
-        end
-    end
-catch %#ok<*CTCH>
-    warningv('DECODING:PlotDesignFailed', 'Failed to plot design')
 end

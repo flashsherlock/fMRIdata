@@ -15,7 +15,7 @@ function results = sample_lfp_decoding(data,condition,trial_num)
             % unpleasant
             data.trialinfo(data.trialinfo<=3) = 1;
             % pleasant
-            data.trialinfo(data.trialinfo==4 | data.trialinfo==5) = 2;
+            data.trialinfo(data.trialinfo==4 | data.trialinfo==5) = 2;        
         case 'banana'
             cfg.trials  = find(data.trialinfo<=5);
             data = ft_selectdata(cfg, data);
@@ -23,6 +23,18 @@ function results = sample_lfp_decoding(data,condition,trial_num)
             data.trialinfo(data.trialinfo<=4) = 1;
             % pleasant
             data.trialinfo(data.trialinfo==5) = 2;
+        case 'fakeva'
+            cfg.trials  = find(data.trialinfo<=5);
+            data = ft_selectdata(cfg, data);
+            % ind iso_l pea
+            data.trialinfo(data.trialinfo<=2 | data.trialinfo==4) = 1;
+            % iso_h ban
+            data.trialinfo(data.trialinfo==3 | data.trialinfo==5) = 2;
+        case 'intensity'
+            cfg.trials  = find(data.trialinfo==2 | data.trialinfo==3);
+            data = ft_selectdata(cfg, data);
+            % change to 1 and 2 to avoid 0 count of 1 in tabulate
+            data.trialinfo = data.trialinfo-1;
     end
     
     % calculate trial numbers
@@ -50,11 +62,12 @@ function results = sample_lfp_decoding(data,condition,trial_num)
     % sort data according to conditions
     [data.trialinfo,I] = sort(data.trialinfo);
     label = data.trialinfo;
-    sample_data = squeeze(data.trial(I,:,:));
+    % sample_data = squeeze(data.trial(I,:,:));
     % zscore
     % passed_data.data=zscore(sample_data,0,2);
     % decoding
-    passed_data.data = sample_data;
+    passed_data.data = squeeze(data.trial(I,:,:));
+    clear data
     [results,~]=odor_decoding_function(passed_data,length(unique(label)));
     % return condtion and number of selection
     results.analysis=[condition '_' num2str(select_num)];

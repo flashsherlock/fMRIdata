@@ -22,9 +22,14 @@ function [xphase, xamp] = get_signal_pa(resp, lfp, latency, freqs, bandwidth)
     lfp_l = get_signal(lfp_l,latency);
     % filt high frequency lfp
     signal_h=repmat(lfp_l,1,1+length(freqs));
-    for freq_i=1:length(freqs)
+    parfor freq_i=1:length(freqs)
+        % filt high frequency
+        cfgbp=[];
+        cfgbp.bpfilter = 'yes';
+        cfgbp.bpfilttype = 'fir';
         cfgbp.bpfreq = [freqs(freq_i)-bandwidth freqs(freq_i)+bandwidth];
         lfp_h = ft_preprocessing(cfgbp,lfp);
+        % transform signal
         lfp_h = get_signal(lfp_h,latency);
         signal_h(:,1+freq_i)=lfp_h;
     end

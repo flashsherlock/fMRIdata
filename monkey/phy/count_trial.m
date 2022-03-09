@@ -38,3 +38,21 @@ for roi_i=1:roi_num
 end
 % save
 save([pic_dir trl_type '_level' num2str(level) '_trial_count'],'count','cur_level_roi');
+
+%% calculate percentage of trials
+roi_num=size(cur_level_roi,1);
+percent(:,1)=cur_level_roi(:,1);
+percent(:,2)=count(:,2);
+number=cellfun(@length,count(:,2));
+per=number/sum(number)*100;
+for roi_i=1:roi_num
+    percent{roi_i,2}=number(roi_i);
+    percent{roi_i,3}=sprintf('%0.2f%%',per(roi_i));
+    % RM035 points
+    percent{roi_i,4}=size(cur_level_roi{roi_i,2},1);
+    % RM033 points
+    percent{roi_i,5}=size(cur_level_roi{roi_i,3},1);
+end
+
+% sum(cell2mat(percent(:,4)));
+% sum(cell2mat(percent(:,5)));

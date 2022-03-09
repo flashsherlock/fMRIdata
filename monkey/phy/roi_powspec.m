@@ -28,7 +28,7 @@ for roi_i=1:roi_num
 %     resp=roi_resp{roi_i};
     % select time
     cfg         = [];
-    cfg.latency = [0 8];
+    cfg.latency = [0 7];
     lfp=ft_selectdata(cfg, lfp);
 %     resp=ft_selectdata(cfg, resp);
     % frequency spectrum
@@ -38,13 +38,16 @@ for roi_i=1:roi_num
     cfg.taper   = 'hanning';
     cfg.keeptrials = 'yes';
 %     cfg.foilim = [0.1 80];
-    cfg.foi = 0.1:2:200;
+    cfg.foi = 1:1:80;
 %     spectr_resp_all{roi_i}  = ft_freqanalysis(cfg, resp);
     spectr_lfp_all{roi_i}  = ft_freqanalysis(cfg, lfp);
 end
 %% average each condition
 spectr_resp=cell(roi_num,odor_num);
 spectr_lfp=spectr_resp;
+% zscore
+spectr_respz=cell(roi_num,odor_num);
+spectr_lfpz=spectr_respz;
 for roi_i=1:roi_num
     for odor_i=1:odor_num
         lfp = spectr_lfp_all{roi_i};
@@ -59,30 +62,14 @@ for roi_i=1:roi_num
         end
 %         spectr_resp{roi_i,odor_i} = ft_selectdata(cfg, resp);
         spectr_lfp{roi_i,odor_i} = ft_selectdata(cfg, lfp);
-    end
-end
-%% zscore
-spectr_respz=cell(roi_num,odor_num);
-spectr_lfpz=spectr_respz;
-for roi_i=1:roi_num
-    for odor_i=1:odor_num
-        lfp = spectr_lfp_all{roi_i};
+        % zscore
         lfp.powspctrm = zscore(lfp.powspctrm,0,1);
 %         resp = spectr_resp_all{roi_i};
 %         resp.powspctrm = zscore(resp.powspctrm,0,1);
-        % frequency spectrum
-        cfg         = [];
-        cfg.avgoverrpt =  'yes';
-        if odor_i==7
-            cfg.trials  = find(lfp.trialinfo~=6);
-        else
-            cfg.trials  = find(lfp.trialinfo==odor_i);
-        end
-%         spectr_respz{roi_i,odor_i} = ft_selectdata(cfg, resp);
         spectr_lfpz{roi_i,odor_i} = ft_selectdata(cfg, lfp);
     end
 end
-%% statisticss
+%% statistics
 spectr_resp_p=cell(roi_num,odor_num-1);
 spectr_lfp_p=spectr_resp_p;
 for roi_i=1:roi_num
@@ -110,7 +97,7 @@ end
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D'};
 colors_cp = colors([1:5 7]);
 smooth_win=1;
-freq_win=[0.1 80];
+freq_win=[1 80];
 line_wid=1.5;
 % lfp
 for roi_i=1:roi_num
@@ -156,7 +143,7 @@ for roi_i=1:roi_num
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.png'], 'png')
     close all
 end
-% save([data_dir 'powspec_odor_8s_0.1_80hz.mat'],'spectr_lfp','spectr_resp')
+save([data_dir 'powspec_odor_7s_1_80hz.mat'],'spectr_lfp_all')
 % save([data_dir 'level3_position_2monkey.mat'],'cur_level_roi');
 %% resp
 % freq_win=[0.1 10];

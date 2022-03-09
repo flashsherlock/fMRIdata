@@ -18,16 +18,28 @@ cur_roi=cur_level_roi{roi_i,1};
 lfp=roi_lfp{roi_i};
 resp=roi_resp{roi_i};
 % select air condition
-condition=6;
+condition=7;
 cfg=[];
+if condition<=6
+% air
 cfg.trials = find(resp.trialinfo==condition);
+else
+% odor
+cfg.trials = find(resp.trialinfo~=6);
+end
 resavg=ft_timelockanalysis(cfg, resp);
 %% show low frequency signal
 cfg=[];
 cfg.lpfilter = 'yes';
 cfg.lpfilttype = 'fir';
 cfg.lpfreq = 0.6;
+if condition<=6
+% air
 cfg.trials = find(lfp.trialinfo==condition);
+else
+% odor
+cfg.trials = find(lfp.trialinfo~=6);
+end
 lfp_l = ft_preprocessing(cfg,lfp);
 % cfg          = [];
 % cfg.method   = 'trial';
@@ -48,7 +60,6 @@ bs=linspace(cfg.baseline(1),cfg.baseline(2),100);
 erp_blc = ft_timelockbaseline(cfg, erp);
 % average trials
 cfg = [];
-cfg.trials = find(erp_blc.trialinfo==condition);
 cfg.avgoverrpt =  'yes';
 erp_blc=ft_selectdata(cfg,erp_blc);
 % compute correlation
@@ -59,7 +70,7 @@ r3=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,select),1))');
 % r7=corr(resavg.avg',squeeze(mean(erp_blc.trial,1))');
 true=atanh(r3);
 %% permutation test
-for step=[1 10 100 200 500]
+for step=1%[1 10 100 200 500]
 nper=1000;
 r3_per=zeros(1,nper);
 erp_per=zeros(length(erp.trialinfo),3001);
@@ -102,7 +113,7 @@ xlabel('Z')
 ylabel('Iterations')
 set(gca,'FontSize',16);
 suptitle([cur_roi ' 0-3s:' num2str(r3)])
-saveas(gcf, [pic_dir cur_roi num2str(step) '.png'],'png')
+saveas(gcf, [pic_dir cur_roi num2str(step) '_' num2str(condition) '.png'],'png')
 % saveas(gcf, [pic_dir cur_roi num2str(step) '.fig'],'fig')
 close all
 end

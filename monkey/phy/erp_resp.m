@@ -12,6 +12,7 @@ trl_type = 'odorresp';
 % get number of roi
 roi_num=size(cur_level_roi,1);
 odor_num=7;
+r3s=zeros(roi_num,1);
 %% analyze
 for roi_i=1:roi_num
 cur_roi=cur_level_roi{roi_i,1};
@@ -69,6 +70,7 @@ r3=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,select),1))');
 % select=resavg.time>=time_range(1)&resavg.time<=time_range(2);
 % r7=corr(resavg.avg',squeeze(mean(erp_blc.trial,1))');
 true=atanh(r3);
+r3s(roi_i)=r3;
 %% permutation test
 for step=1%[1 10 100 200 500]
 nper=1000;
@@ -114,7 +116,7 @@ ylabel('Iterations')
 set(gca,'FontSize',16);
 suptitle([cur_roi ' 0-3s:' num2str(r3)])
 saveas(gcf, [pic_dir cur_roi num2str(step) '_' num2str(condition) '.png'],'png')
-% saveas(gcf, [pic_dir cur_roi num2str(step) '.fig'],'fig')
+saveas(gcf, [pic_dir cur_roi num2str(step) '_' num2str(condition) '.fig'],'fig')
 close all
 end
 % figure

@@ -14,7 +14,7 @@ date: "`r Sys.time()`"
 ---
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+knitr::opts_chunk$set(warning = F, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
 library(psych)
 library(ggplot2)
@@ -290,7 +290,7 @@ for (ana in analysis) {
         geom_tile() + theme_bw() + coord_equal() +
         scale_fill_distiller(palette="Greens", direction=1,limits=c(50, 70) ) +
         labs(title = paste(ana,m,sep = "_")) + # using a title instead
-        guides(size=F) + # removing legend for `fill`
+        guides(size="none") + # removing legend for `fill`
         geom_text(aes(label=acc), size=4,vjust=0.5, color="black")+ # printing values
         geom_text(aes(label=plabels,size=5,vjust=-0.5), color="black") # printing values
       print(figure)
@@ -429,7 +429,7 @@ for (ana in analysis) {
       figure <- ggplot(cmatrix, aes(x=prediction, y=odor, fill=value)) +
         geom_tile() + theme_bw() + coord_equal() +
         scale_fill_distiller(palette="Greens", direction=1,limits=c(0, 80) ) +
-        guides(fill=F) + # removing legend for `fill`
+        guides(fill="none") + # removing legend for `fill`
         labs(title = paste(ana,r,sep = "_")) + # using a title instead
         geom_text(aes(label=value), color="black") # printing values
       print(figure)

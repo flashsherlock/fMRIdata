@@ -19,10 +19,10 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rm
 
 # odor_va results
 # render mean mvpa results
-title <- "Mean58_odorva4-18"
+title <- "Meanva6_odor_4-18"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Meanva_nomask_6_418"),
+                  output_file = paste0("Meanva_6_418"),
                   params = list(sub = subs, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))
 

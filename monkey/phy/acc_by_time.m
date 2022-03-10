@@ -10,8 +10,8 @@ tnum=50;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 conditions={'5odor','vaodor','airodor'};
-% condition  chance acc_matrix roi-repeats-time_bin
-results_bytime=cell(length(conditions),4);
+% condition  2-chance 3-acc_matrix:roi-repeats-time_bin 4-mean acc 5-p-value
+results_bytime=cell(length(conditions),5);
 results_bytime(:,1)=conditions;
 
 % find data for each timebin
@@ -31,7 +31,8 @@ for time_i=1:length(times)
         results_bytime{condition_i,3}=cat(3,results_bytime{condition_i,3},acc);
         results_bytime{condition_i,2}=chance;
         % ttest
-        % [h,p,ci,stats]=ttest(acc',chance);
+        [h,p,ci,stats]=ttest(acc',chance);
+        results_bytime{condition_i,5}=cat(2,results_bytime{condition_i,5},p');
     end
     
 end
@@ -41,33 +42,53 @@ for condition_i = 1:length(conditions)
     condition = results_bytime{condition_i,1};
     % roi-timebin
     results_bytime{condition_i,4} = squeeze(mean(results_bytime{condition_i,3},2));
-    % plot
-    figure
-    plot(results_bytime{condition_i,4})
-    title(condition)
-    legend(time_bin)
-    ylabel('ACC')
-    xlabel('ROI')
-    set(gca,'XTickLabel',rois)
+    % bar plot
+%     figure
+%     plot(results_bytime{condition_i,4})
+%     title(condition)
+%     legend(time_bin)
+%     ylabel('ACC')
+%     xlabel('ROI')
+%     set(gca,'XTickLabel',rois)
 end
 
 line_wid=1.5;
-roi_select=[3:5 7:11 13];
-roi_select=[4 7 9 11];
-roi_select=[4 5 7:9 11];
+% large regiion
+% roi_select=[3:5 7:11 13];
+roi_select=[4 5 8 9 7 11];
+colors = {'#cf3f4f', '#DE7B14', '#ECB556', '#41AB5D', '#149ade', '#69b4d9', '#4292C6', '#E12A3C', '#cb2111'};
 for condition_i = 1:length(conditions)
     condition = results_bytime{condition_i,1};
     % line plot
     figure
+    subplot(2,1,1)
+    hold on
     data_select=results_bytime{condition_i,4};
-    data_select=data_select(roi_select,:);
-    plot(data_select','linewidth', line_wid)
+    for i=1:length(roi_select)
+        plot(data_select(roi_select(i),:),'Color',hex2rgb(colors{i}),'linewidth', line_wid)
+    end
     % plot chance
     chance=results_bytime{condition_i,2};
     title(condition)
-    legend(rois(roi_select))
+    legend(rois(roi_select),'Location','eastoutside')
     ylabel('ACC')
     xlabel('ROI')
     set(gca,'XTickLabel',time_bin)
-    set(gca,'ylim',[chance chance+0.1*chance]);
+    set(gca,'ylim',[min(min(data_select(roi_select,:))) max(max(data_select(roi_select,:)))]);
+    % p-value
+    subplot(2,1,2)
+    hold on
+    p_select=results_bytime{condition_i,5};
+    for i=1:length(roi_select)
+        plot(p_select(roi_select(i),:),'Color',hex2rgb(colors{i}),'linewidth', line_wid);
+    end
+    ylabel('p')
+    set(gca,'yscale','log');
+    set(gca,'XTickLabel',time_bin)
+    legend(rois(roi_select),'Location','eastoutside')
+    xnum = get(gca,'Xlim');
+    plot(xnum,[0.05 0.05],'k','linestyle','--','LineWidth',2)
+    % save plot
+    saveas(gcf, [pic_dir condition '_linear_' num2str(tnum) , '.png'], 'png')
+    close all
 end

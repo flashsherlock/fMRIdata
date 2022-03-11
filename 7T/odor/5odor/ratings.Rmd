@@ -8,7 +8,7 @@ date: "`r Sys.time()`"
 ---
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+knitr::opts_chunk$set(warning = F, message = F, cache = F,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
 library(psych)
 library(ggplot2)
@@ -140,7 +140,7 @@ figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
   # use linetype=0 or color=NA to remove border
   geom_ribbon(aes(ymin = mean - se,
                   ymax = mean + se,fill = odor), alpha = 0.1,linetype=0)+
-  guides(fill = F,color = guide_legend(
+  guides(fill = "none",color = guide_legend(
     order = 1,# set legend order
     override.aes = list(fill = gf_color)))+
   coord_cartesian(ylim=c(1,7),clip = 'off')+
@@ -166,7 +166,7 @@ figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
   # use linetype=0 or color=NA to remove border
   geom_ribbon(aes(ymin = mean - se,
                   ymax = mean + se,fill = odor), alpha = 0.1,linetype=0)+
-  guides(fill = F,color = guide_legend(
+  guides(fill = "none",color = guide_legend(
     order = 1,# set legend order
     override.aes = list(fill = gf_color)))+
   coord_cartesian(ylim=c(1,7),clip = 'off')+

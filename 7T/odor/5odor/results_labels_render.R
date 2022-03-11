@@ -15,7 +15,7 @@ roiname <- c("Amy","Cortical","CeMe","BaLa")
 # render ratings
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Raings"))
+                  output_file = paste0("Raings_13sub"))
 
 # odor_va results
 # render mean mvpa results

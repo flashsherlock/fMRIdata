@@ -1,8 +1,10 @@
-function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type)
+function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, monkeys)
     %     level=1;
     %     trl_type='odor';
     %% init
-    monkeys = {'RM035', 'RM033'};
+    if nargin < 3
+        monkeys = {'RM035', 'RM033'};
+    end
     roi_focus = cell(4, 1);
     roi_focus{1} = {'HF', 'pAmy', 'spAmy'};
     roi_focus{2} = {'HF', 'vpAmy', 'lpAmy', 'stAmy', 'mAmy', 'pdAmy'};

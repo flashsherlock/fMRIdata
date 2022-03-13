@@ -4,12 +4,13 @@ pic_dir=[data_dir 'pic/decoding/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-times=[0:0.2:1.4];
-time_win=0.6;
+times=[0:0.1:1.6];
+time_win=0.4;
 tnum=50;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
-conditions={'5odor','vaodor','airodor'};
+% conditions = {'5odor', 'vaodor', 'airodor'};
+conditions={'5odor','vaodor'};
 % condition  2-chance 3-acc_matrix:roi-repeats-time_bin 4-mean acc 5-p-value
 results_bytime=cell(length(conditions),5);
 results_bytime(:,1)=conditions;
@@ -60,7 +61,7 @@ colors = {'#cf3f4f', '#DE7B14', '#ECB556', '#41AB5D', '#149ade', '#69b4d9', '#42
 for condition_i = 1:length(conditions)
     condition = results_bytime{condition_i,1};
     % line plot
-    figure
+    figure('Position',[20 20 800 600])
     subplot(2,1,1)
     hold on
     data_select=results_bytime{condition_i,4};
@@ -73,7 +74,8 @@ for condition_i = 1:length(conditions)
     legend(rois(roi_select),'Location','eastoutside')
     ylabel('ACC')
     xlabel('ROI')
-    set(gca,'XTickLabel',time_bin)
+    set(gca,'xlim',[1 length(times)])
+    set(gca,'XTick',1:length(times))
     set(gca,'ylim',[min(min(data_select(roi_select,:))) max(max(data_select(roi_select,:)))]);
     % p-value
     subplot(2,1,2)
@@ -84,6 +86,8 @@ for condition_i = 1:length(conditions)
     end
     ylabel('p')
     set(gca,'yscale','log');
+    set(gca,'xlim',[1 length(times)])
+    set(gca,'XTick',1:length(times))
     set(gca,'XTickLabel',time_bin)
     legend(rois(roi_select),'Location','eastoutside')
     xnum = get(gca,'Xlim');

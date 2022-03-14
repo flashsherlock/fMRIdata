@@ -92,6 +92,10 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
         for monkey_i = 1:length(monkeys)
             % current roi name
             cur_level_roi = data_cur_level_roi{monkey_i};
+            % current data
+            data_resp = data_roi_lfp{monkey_i};
+            data_lfp = data_resp_lfp{monkey_i};
+            % index for current roi
             index = strcmp(cur_level_roi(:, 1), cur_roi);
             % if contain current roi
             if any(index)

@@ -3,6 +3,8 @@ function [roi_lfp, roi_resp, cur_level_roi] = save_merge_position(data_dir, labe
     load(label)
     % level=1;
     cur_level_roi = ele_date_alevel{level};
+    % ensure ascending order
+    dates = sort(dates);
     % remove non interested roi
     roi_focus = cell(4, 1);
     roi_focus{1} = {'HF', 'pAmy', 'spAmy'};
@@ -67,7 +69,7 @@ function [roi_lfp, roi_resp, cur_level_roi] = save_merge_position(data_dir, labe
         locations = locations(ismember(locations(:,1),dates),:);
         cur_level_roi{roi_i, 2}=locations;
         % change index to current dates order
-        for i_date = length(dates)
+        for i_date = 1:length(dates)
             locations(locations(:,1)==dates(i_date),1)=i_date;
         end
         

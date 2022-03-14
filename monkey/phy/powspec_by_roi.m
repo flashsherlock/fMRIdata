@@ -1,8 +1,9 @@
 %% load and reorganize data
+m = 'RM035';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/pic/';
-pic_dir=[data_dir 'powerspec/'];
-load([data_dir 'powerspec/powspec_odor_7s_1_80hz.mat']);
-load([data_dir 'trial_count/odor_level3_trial_count.mat']);
+pic_dir=[data_dir 'powerspec/' m '/'];
+load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
+% load([data_dir 'trial_count/odor_level3_trial_count.mat']);
 % get number of roi
 roi_num=size(cur_level_roi,1);
 odor_num=7;
@@ -46,7 +47,14 @@ for roi_i=1:roi_num
     end
 end
 %% reorganize data
-roi_select=[8 4 5 3 13 10 9 1 2 6 12 7 11];
+switch m
+case '2monkey'
+    roi_select=[8 4 5 3 13 10 9 1 2 6 12 7 11];
+case 'RM033'
+    roi_select=[8 4 5 3 12 10 9 1 2 6 7 11];    
+case 'RM035'
+    roi_select=[5 2 3 10 7 6 1 9 4 8];
+end
 rois=cur_level_roi(:,1);
 rois=rois(roi_select);
 zpower=zpower(roi_select,:,:);

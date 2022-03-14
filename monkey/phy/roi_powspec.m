@@ -1,6 +1,6 @@
 %% load and reorganize data
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/powerspec/'];
+pic_dir=[data_dir 'pic/powerspec/2monkey/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -11,7 +11,7 @@ trl_type = 'odor';
 % one monkey data
 % one_data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
 % label=[one_data_dir 'RM035_datpos_label.mat'];
-% dates=16;
+% dates=[1 16 17];
 % [roi_lfp,~,cur_level_roi] = save_merge_position(one_data_dir,label,dates,level,trl_type);
 
 % combine 2 monkeys
@@ -143,8 +143,8 @@ for roi_i=1:roi_num
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.png'], 'png')
     close all
 end
-save([data_dir 'powspec_odor_7s_1_80hz.mat'],'spectr_lfp_all')
-% save([data_dir 'level3_position_2monkey.mat'],'cur_level_roi');
+save([pic_dir 'powspec_odor_7s_1_80hz.mat'],'spectr_lfp_all','cur_level_roi')
+% save([pic_dir 'level3_position_2monkey.mat'],'cur_level_roi');
 %% resp
 % freq_win=[0.1 10];
 % for roi_i=1:roi_num

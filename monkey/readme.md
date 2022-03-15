@@ -16,7 +16,7 @@ A matlab GUI that can mark respiration stages.
 Sample codes of NeoAnalysis (a Python toolbox)
 
 ## align_img.m
-Try to align MRI and CT images.
+Preprocess and align CT and MRI images.
 
 ## hdf5read.py
 Read hdf5 files in python (use `h5py` package).

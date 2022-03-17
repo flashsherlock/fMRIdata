@@ -1,5 +1,5 @@
 %% load and reorganize data
-m = 'RM035';
+m = 'RM033';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/pic/';
 pic_dir=[data_dir 'powerspec/' m '/'];
 load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
@@ -49,9 +49,9 @@ end
 %% reorganize data
 switch m
 case '2monkey'
-    roi_select=[8 4 5 3 13 10 9 1 2 6 12 7 11];
+    roi_select=[8 4 5 10 13 3 9 2 1 12 6 7 11];
 case 'RM033'
-    roi_select=[8 4 5 3 12 10 9 1 2 6 7 11];    
+    roi_select=[8 4 5 10 12 3 9 2 1 6 7 11];    
 case 'RM035'
     roi_select=[5 2 3 10 7 6 1 9 4 8];
 end

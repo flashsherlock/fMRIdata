@@ -1,6 +1,13 @@
 %% set path
+% monkeys = {'RM035','RM033'};
+monkeys = {'RM033'};
+if length(monkeys) > 1
+    m = '2monkey';
+else
+    m = monkeys{1};
+end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/erp_resp/2monkey/'];
+pic_dir = [data_dir 'pic/erp_resp/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -8,7 +15,7 @@ end
 level = 3;
 trl_type = 'odorresp';
 % combine 2 monkeys
-[roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type);
+[roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
 % get number of roi
 roi_num=size(cur_level_roi,1);
 odor_num=7;
@@ -17,6 +24,7 @@ results=cell(roi_num,5,2);
 results(:,1,1)=cur_level_roi(:,1);
 results(:,1,2)=cur_level_roi(:,1);
 %% analyze
+time_range = [-1 3];
 for roi_i=1:roi_num
     cur_roi=cur_level_roi{roi_i,1};
     lfp=roi_lfp{roi_i};
@@ -67,8 +75,7 @@ for roi_i=1:roi_num
         cfg = [];
         cfg.avgoverrpt =  'yes';
         erp_blc=ft_selectdata(cfg,erp_blc);
-        % compute correlation
-        time_range = [-1 3];
+        % compute correlation        
         select=resavg.time>=0&resavg.time<=time_range(2);
         r3=corr(resavg.avg(select)',squeeze(mean(erp_blc.trial(:,select),1))');
         % select=resavg.time>=time_range(1)&resavg.time<=time_range(2);
@@ -81,13 +88,18 @@ for roi_i=1:roi_num
         %% permutation test
         for step=1%[1 10 100 200 500]
         nper=1000;
-        r3_per=zeros(1,nper);
-        erp_per=zeros(length(erp.trialinfo),3001);
-        for per_i=1:nper
-            r=randi([1 length(erp.time)-3000],length(erp.trialinfo),1);
+        r3_per=zeros(1,nper);        
+        parfor per_i=1:nper
+            erp_per=zeros(length(erp.trialinfo),1000*time_range(2)+1);
+            % randomly select 3s
+            % r=randi([1 length(erp.time)-1000*time_range(2)],length(erp.trialinfo),1);
+            % cut and move
+            r=randi([1 1000*time_range(2)],length(erp.trialinfo),1);
             r=step*(ceil(r/step)-1)+1;
             for trial_i=1:length(erp.trialinfo)
-                erp_per(trial_i,:)=erp.trial(trial_i,1,r(trial_i):r(trial_i)+3000);
+                % erp_per(trial_i,:)=erp.trial(trial_i,1,r(trial_i):r(trial_i)+1000*time_range(2));
+                time_0 = find(erp.time==0);
+                erp_per(trial_i,:)=erp.trial(trial_i,1,[time_0+r(trial_i):1000*time_range(2)+time_0 time_0:time_0+r(trial_i)-1]);
             end
             r3_per(per_i)=corr(resavg.avg(select)',mean(erp_per,1)');
         end
@@ -124,7 +136,7 @@ for roi_i=1:roi_num
         xlabel('Z')
         ylabel('Iterations')
         set(gca,'FontSize',16);
-        suptitle([cur_roi ' 0-3s:' num2str(r3)])
+        suptitle([cur_roi ' 0-' num2str(time_range(2)) 's:' num2str(r3)])
         saveas(gcf, [pic_dir cur_roi num2str(step) '_' num2str(condition) '.png'],'png')
         % saveas(gcf, [pic_dir cur_roi num2str(step) '_' num2str(condition) '.fig'],'fig')
         close all

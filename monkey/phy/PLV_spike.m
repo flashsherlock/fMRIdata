@@ -51,156 +51,147 @@ for date_i = 1:length(dates)
 
     % use plx_event_ts to load events
     [n, ts, sv] = plx_event_ts(fl, 'Strobed');
-
-    %read spike time(plx,s),0-unsorted unit , 1-unit a
+    
+    % reshape ts to check time alignment
+    % plx_timets=reshape(ts,7,[]);
+    % plx_timets=reshape(plx_timets(3:6,:),2,[])';
+    
+    % start and stop time for each test
+    [~,start] = plx_event_ts(fl, 'Start');
+    [n_file,stop] = plx_event_ts(fl, 'Stop');
+    duration_spk = stop - start;
+    
+    % read spike time(plx,s),0-unsorted unit , 1-unit a
     for chan = 1:length(Spike.Channellabel)
         unit = Spike.Channellabel{chan, 3};
+        % plx_spike_info(fl)
         [nspk, tspk] = plx_ts(fl, Spike.Channellabel{chan, 1}, unit);
         Spike.data{chan, 1} = tspk';
     end
 
     %plxtime for 4 tests
-    plxtime = [];
+    plxtime = zeros(4, 1);
+    bioresp = cell(4, 1);
     valid_res_time = cell(6, 4);
     odor_time = cell(6, 4);
 
     for test = 1:4
-        
+        % get odor time and durations of each file
         resplace = [root_dir lower(monkey) '_ane/'];
         resname = [cur_date '_testo' num2str(test) '_' lower(monkey) '_1'];
         front_res = strcat(resplace, resname);
         [valid_res_time(:,test), resp_points, odor_time(:, test), bioresp{test}] = find_resp_time(front_res);
         plx = strcat(front_res, '.plx');
-        [OpenedFileName, Version, Freq, Comment, Trodalness, NPW, PreTresh, SpikePeakV, SpikeADResBits, SlowPeakV, SlowADResBits, Duration, DateTime] = plx_information(plx);
-        plxtime(test) = Duration;
-
+        [~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, plxtime(test), ~] = plx_information(plx);
     end
-
+    % check duration
+    if any(abs(plxtime - duration_spk)>0.1)
+        error('Duration mismatch');
+    end
+    % save bioresp
     Spike.bioresp = bioresp;
 
-    % air
+    % 5air+5odor
     sorted_res = cell(10, 4);
 
     for test = 1:4
-
         for airr = 1:5
-
             for rpt = 1:length(odor_time{airr, test})
-                start = odor_time{airr, test}(rpt, 1) - 13;% TODO: check
+                
+                start = odor_time{airr, test}(rpt, 1) - 13;% TODO: may not accurate
                 endin = odor_time{airr, test}(rpt, 1);
-
+                % TODO: simplify
                 for air_res = 1:length(valid_res_time{6, test})
-
+                    % only select resp before odor delivery
                     if valid_res_time{6, test}(air_res, 1) > start && ...
                             valid_res_time{6, test}(air_res, 3) < endin
                         sorted_res{airr, test}(end + 1, 1) = valid_res_time{6, test}(air_res, 1);
                         sorted_res{airr, test}(end, 2) = valid_res_time{6, test}(air_res, 2);
                         sorted_res{airr, test}(end, 3) = valid_res_time{6, test}(air_res, 3);
-
                     end
-
                 end
-
             end
-
+            % 1-5 air 6-10 odor
             sorted_res{airr + 5, test} = valid_res_time{airr, test};
         end
-
     end
 
     % resp time plus plxtime duration
     real_sorted_res = sorted_res;
-    plxtimea(1) = plxtime(1);
-    plxtimea(2) = plxtime(1) + plxtime(2);
-    plxtimea(3) = plxtimea(2) + plxtime(3);
-
     for test = 2:4
-
+        % add duration to each time
         for od = 1:10
-            real_sorted_res{od, test} = ones(size(real_sorted_res{od, test})) .* plxtimea(test - 1) + real_sorted_res{od, test};
+            real_sorted_res{od, test} = sum(plxtime(1:test-1)) + sorted_res{od, test};
         end
-
     end
 
+    % TODO: simplify
     % combine 4 tests
-    valid_res_wi = cell(10, 2);
-
+    Spike.wi = cell(10, 2);
     for od = 1:10
-        valid_res_wi{od, 1} = od;
-        valid_res_wi{od, 2} = [real_sorted_res{od, 1}; real_sorted_res{od, 2}; real_sorted_res{od, 3}; ...
-                            real_sorted_res{od, 4}];
+        Spike.wi{od, 1} = od;
+        Spike.wi{od, 2} = cat(1,real_sorted_res{od, 1:end});
     end
-
-    Spike.wi = valid_res_wi;
 
     % change order and marker
-    Spike.or_wi = cell(10, 1);
-
-    for oo = 1:5
-        Spike.or_wi{(2 * oo - 1), 1} = oo + 60;
-        Spike.or_wi{(2 * oo - 1), 2} = Spike.wi{oo, 2};
-        Spike.or_wi{2 * oo, 1} = oo;
-        Spike.or_wi{2 * oo, 2} = Spike.wi{oo + 5, 2};
+    Spike.or_wi = cell(10, 3);
+    for od = 1:5
+        % air label 61-65
+        Spike.or_wi{(2 * od - 1), 1} = od + 60;
+        Spike.or_wi{(2 * od - 1), 2} = Spike.wi{od, 2};
+        % 3 respiration time minus start
+        start = Spike.wi{od, 2}(:, 1);
+        Spike.or_wi{2 * od-1, 3} = Spike.wi{od, 2} - start;
+        % odor label 1-5
+        Spike.or_wi{2 * od, 1} = od;
+        Spike.or_wi{2 * od, 2} = Spike.wi{od + 5, 2};
+        start = Spike.wi{od + 5, 2}(:, 1);
+        Spike.or_wi{2 * od, 3} = Spike.wi{od + 5, 2} - start;
     end
 
-    % select spike by resp,to unit2
-    valid_res_spike = cell(10, 2);
-
+    % select spike by resp, to unit2
+    valid_res_spike = cell(10, 2);    
     for unit = 1:length(Spike.data)
+        % spike data
         tspk = Spike.data{unit, 1};
-
         for od = 1:10
+            % label
             valid_res_spike{od, 1} = Spike.or_wi{od, 1};
             trl = length(Spike.or_wi{od, 2});
-            valid_res_spike{od, 2} = zeros(trl, 50); %can not exceed 50
+            valid_res_spike{od, 2} = zeros(trl, 50); % TODO: ?can not exceed 50
 
             for l = 1:length(Spike.or_wi{od, 2})
                 ref = Spike.or_wi{od, 2}(l, 1);
+                half = Spike.or_wi{of, 3}(l, 2);
                 post = Spike.or_wi{od, 2}(l, 3);
+                % spike time relative to the start of inhalation
                 spikenumber = length(tspk(tspk >= ref & tspk <= post));
                 valid_res_spike{od, 2}(l, 1:spikenumber) = tspk(tspk >= ref & tspk <= post) - ref;
             end
-
         end
-
         Spike.data{unit, 2} = valid_res_spike;
-    end
-
-    % align respiration
-    for of = 1:10
-        trl = length(Spike.or_wi{of, 2});
-        start = Spike.or_wi{of, 2}(:, 1);
-        Spike.or_wi{of, 3}(:, 1) = zeros(trl, 1);
-        Spike.or_wi{of, 3}(:, 2) = Spike.or_wi{of, 2}(:, 2) - start;
-        Spike.or_wi{of, 3}(:, 3) = Spike.or_wi{of, 2}(:, 3) - start;
     end
 
     % change time to phase, unit3
     for unit = 1:length(Spike.data)
         Spiketheta = cell(10, 2);
         resspk = Spike.data{unit, 2};
-
-        for of = 1:10
-
-            for trl = 1:length(Spike.or_wi{of, 2})
+        for of = 1:10            
+            for trl = 1:length(Spike.or_wi{of, 2})                
                 half = Spike.or_wi{of, 3}(trl, 2);
                 ending = Spike.or_wi{of, 3}(trl, 3);
-
-                for n = 1:50
-
-                    if resspk{of, 2}(trl, n) < half
+                for n = 1:50                    
+                    if resspk{of, 2}(trl, n) <= half
+                        % [0,1]
                         Spiketheta{of, 2}(trl, n) = resspk{of, 2}(trl, n) ./ half;
                     elseif resspk{of, 2}(trl, n) > half
+                        % (1,2]
                         Spiketheta{of, 2}(trl, n) = (resspk{of, 2}(trl, n) - half) ./ ...
                             (ending - half) + 1;
                     end
-
                 end
-
             end
-
         end
-
         Spike.data{unit, 3} = Spiketheta;
     end
 
@@ -218,14 +209,13 @@ for date_i = 1:length(dates)
                 number = [];
 
                 for nu = 1:bin_number
-                    number(nu) = length(spks(spks > thetabin(nu) & spks < thetabin(nu + 1)));
+                    number(nu) = length(spks(spks > thetabin(nu) & spks <= thetabin(nu + 1)));
                     count{od, 1}{trl, 1} = number;
                 end
 
             end
 
         end
-
         Spike.count{unit, 1} = count;
     end
 
@@ -240,9 +230,7 @@ for date_i = 1:length(dates)
                 Spike.rate{unit, 1}{of, 1}{trl, 1}(1, 1:18) = Spike.count{unit, 1}{of, 1}{trl, 1}(1, 1:18) / half_bin;
                 Spike.rate{unit, 1}{of, 1}{trl, 1}(1, 19:36) = Spike.count{unit, 1}{of, 1}{trl, 1}(1, 19:36) / ending_bin;
             end
-
         end
-
     end
 
     % reorganize to matrix
@@ -258,14 +246,16 @@ for date_i = 1:length(dates)
     for unit = 1:size((Spike.data), 1)
 
         for ip = 1:10
+            % TODO: at least 3 spikes? may cause error?
             select = Spike.data{unit, 3}{ip, 2}(:, 3) > 0;
-            Spike.data{unit, 4}{ip, 2} = Spike.data{unit, 3}{ip, 2}(select, :);
+            Spike.data{unit, 4}{ip, 2} = Spike.data{unit, 3}{ip, 2}(select, :);            
             Spike.rate{unit, 3}{ip, 1} = Spike.rate{unit, 2}{ip, 1}(select, :);
         end
 
     end
 
-    %unit5 randomly select samples according to unit 4
+    % unit5 randomly select samples according to unit 4
+    % make odor and air befor equal
     for unit = 1:length(Spike.data)
 
         for oi = 1:5
@@ -285,10 +275,9 @@ for date_i = 1:length(dates)
             Spike.rate{unit, 4}{2 * oi, 2} = Spike.rate{unit, 3}{2 * oi, 1}(ord_row(randperm(ord_trl, minm)), :);
 
         end
-
     end
 
-    % sum bins, calculate ntrial, smooth
+    % sum bins (use rate4, not sampled), calculate ntrial, smooth
     Spike.add = cell(size((Spike.rate), 1), 1);
 
     for unit = 1:size((Spike.rate), 1)
@@ -304,6 +293,7 @@ for date_i = 1:length(dates)
     end
 
     % F1/F0
+    % TODO: what is f
     Spike.FF = cell(size((Spike.data), 1), 1);
 
     for unit = 1:size((Spike.data), 1)
@@ -332,32 +322,27 @@ for date_i = 1:length(dates)
 
     end
 
-    % phase locking value
+    % phase use Spike.data{unit, 5}
     thetabin = linspace(0, 2, 37);
     bin_number = 36;
     count = cell(10, 1);
 
     for unit = 1:size((Spike.data), 1)
-
         for od = 1:10
-
             for trl = 1:size((Spike.data{unit, 5}{od, 2}), 1)
                 spks = Spike.data{unit, 5}{od, 2}(trl, 1:end);
                 number = [];
-
                 for nu = 1:bin_number
                     number(nu) = length(spks(spks > thetabin(nu) & spks < thetabin(nu + 1)));
                     count{od, 1}{trl, 1} = number;
                 end
-
             end
-
         end
-
         Spike.count{unit, 2} = count;
     end
 
-    %3 plv,count{unit,4}{of,3}
+    % circular analysis, count{unit,4}{of,3}
+    % TODO: ori?
     th = linspace(0, 35/18 * pi, 36);
     ori = circ_axial(circ_ang2rad(th), 2);
     dori = diff(ori(1:2));
@@ -380,9 +365,7 @@ for date_i = 1:length(dates)
             Spike.count{unit, 4}{of, 5} = circ_mean(ori, spkk, 2);
             % circular variance,
             Spike.count{unit, 4}{of, 6} = circ_var(ori, spkk, dori, 2);
-
         end
-
     end
 
     %% plot settings

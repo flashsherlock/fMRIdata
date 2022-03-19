@@ -479,7 +479,7 @@ for date_i = 1:length(dates)
         close all
     end
 
-    % TODO: error in U(of) = sum(U)
+    % TODO: values in tables
     for unit = 1:size((Spike.add), 1)
         unitname = strcat(Spike.Channellabel(unit, 1), Spike.Channellabel(unit, 2));
         picturename = strcat(monkey, con, '_', cur_date, dig, '-', unitname);
@@ -491,10 +491,10 @@ for date_i = 1:length(dates)
             subplot(5, 2, of);
             th = linspace(0, pi * 35/18, 36);
             r = Spike.add{unit, 1}{of, 3};
-            [U, V] = pol2cart(th, r);
+            [U, V] = pol2cart(th, r');
             U(of) = sum(U);
             V(of) = sum(V);
-            c (of) = compass(U(of), V(of));
+            compass(U(of), V(of));
 
             c = mod(of, 2);
 
@@ -510,9 +510,9 @@ for date_i = 1:length(dates)
             ori = circ_axial(circ_ang2rad(thi), 2);
             dori = diff(ori(1:2));
             spk = Spike.add{unit, 1}{of, 3};
-            Spike.FF{unit, 1}{of, 2} = circ_mean(ori, spk, 2);
+            Spike.FF{unit, 1}{of, 2} = circ_mean(ori, spk', 2);
             % circular variance
-            Spike.FF{unit, 1}{of, 3} = circ_var(ori, spk, dori, 2);
+            Spike.FF{unit, 1}{of, 3} = circ_var(ori, spk', dori, 2);
         end
 
         saveas(gcf, [pic_dir arrow], 'pdf')
@@ -557,5 +557,5 @@ for date_i = 1:length(dates)
     end
 
     % save
-    save([pic_dir cur_date dig '_rm033_Spikes.mat'], 'Spike');
+    save([pic_dir cur_date dig '_' lower(monkey) '_Spikes.mat'], 'Spike');
 end

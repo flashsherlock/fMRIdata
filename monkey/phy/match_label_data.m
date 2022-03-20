@@ -1,5 +1,5 @@
 % load elec labels
-monkey='RM035';
+monkey='RM033';
 label=['/Volumes/WD_D/gufei/monkey_data/IMG/'...
     monkey '_NMT/' monkey '_allpos_label.mat'];
 load(label);
@@ -8,7 +8,7 @@ switch monkey
     case 'RM035'
         select=[1:3 7:21];
     case 'RM033'
-        select=[1:24];
+        select=[1:25];
 end
 output=output(select,:,:);
 level=3:6;

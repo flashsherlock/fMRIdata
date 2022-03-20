@@ -32,7 +32,7 @@ for roi_i=1:roi_num
 end
 %% calculate mean zpower for each condition
 % left-open right-close
-bands={[0 4],[4 8],[8 13],[13 30],[30 80]};
+bands={[0 4],[4 8],[8 13],[13 30],[30 50],[50 80],[30 80]};
 zpower=zeros(roi_num,odor_num,length(bands));
 for roi_i=1:roi_num
     for odor_i=1:odor_num

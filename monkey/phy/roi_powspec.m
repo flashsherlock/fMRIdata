@@ -7,13 +7,13 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/powerspec/' m '/'];
+pic_dir=[data_dir 'pic/powerspec/' m '_resp/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % generate data
 level = 3;
-trl_type = 'odor';
+trl_type = 'odorresp';
 
 % one monkey data
 % one_data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
@@ -35,7 +35,7 @@ for roi_i=1:roi_num
 %     resp=roi_resp{roi_i};
     % select time
     cfg         = [];
-    cfg.latency = [0 7];
+    cfg.latency = [0 2];
     lfp=ft_selectdata(cfg, lfp);
 %     resp=ft_selectdata(cfg, resp);
     % frequency spectrum

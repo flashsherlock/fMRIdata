@@ -1,6 +1,6 @@
 %% load and reorganize data
 % monkeys = {'RM035','RM033'};
-monkeys = {'RM035'};
+monkeys = {'RM033'};
 if length(monkeys) > 1
     m = '2monkey';
 else
@@ -32,6 +32,7 @@ low={'-respiration','-theta'};
 cross_freq_result=cell(roi_num,length(low));
 % time and method
 latency = [0 7];
+freqhigh = 85;
 method = 'mi';
 nper=1000;
 % plot 
@@ -54,7 +55,7 @@ for roi_i=1:roi_num
     cfg_tf.t_ftimwin = ones(length(cfg_tf.foi),1).*0.5;
     resp_freq=ft_freqanalysis(cfg_tf,roi_resp{roi_i});
     % lfp
-    cfg_tf.foi=1:200;
+    cfg_tf.foi=1:freqhigh;
     cfg_tf.t_ftimwin = ones(length(cfg_tf.foi),1).*0.5;
     lfp_freq=ft_freqanalysis(cfg_tf,roi_lfp{roi_i});
 
@@ -66,37 +67,50 @@ for roi_i=1:roi_num
     % modulation index
     cfg=[];
     cfg.freqlow = [0 10];
-    cfg.freqhigh = [1 200];
+    cfg.freqhigh = [1 freqhigh];
     cfg.method = method;
     cfg.keeptrials = 'yes';
     cross_freq_result{roi_i,1} = ft_crossfrequencyanalysis(cfg, resp_freq, lfp_freq);
     cfg.freqlow = [4 8];
-    cfg.freqhigh = [13 200];
+    cfg.freqhigh = [13 freqhigh];
     cross_freq_result{roi_i,2} = ft_crossfrequencyanalysis(cfg, lfp_freq);
-    
+    % add trialinfo and remove cfg
+    for low_i=1:length(low)
+        cross_freq_result{roi_i,low_i}.trialinfo = roi_lfp{roi_i}.trialinfo;
+        cross_freq_result{roi_i,low_i} = rmfield(cross_freq_result{roi_i,low_i}, 'cfg');        
+    end
     %% permutation test
     
     cross_resp_per=zeros([size(squeeze(cross_freq_result{roi_i,1}.crsspctrm)) nper]);
     cross_theta_per=zeros([size(squeeze(cross_freq_result{roi_i,2}.crsspctrm)) nper]);
     
     parfor per_i=1:nper
-        lfp_per=lfp;
-        cutp=randi([1 length(lfp.time{1})],length(lfp.trialinfo),1);
-        % cut and move
-        for trial_i=1:length(lfp.trialinfo)
-            temp=lfp.trial{trial_i};
-            lfp_per.trial{trial_i}=temp([cutp(trial_i)+1:length(lfp.time{1}) 1:cutp(trial_i)]);
-        end                     
-        % frequency analysis
-        lfp_per_freq=ft_freqanalysis(cfg_tf,lfp_per);
-        % select 7s
-        cfg = [];
-        cfg.latency= latency;
-        lfp_freq = ft_selectdata(cfg,lfp_per_freq);
+        % too slow
+%         lfp_per=lfp;
+%         cutp=randi([1 length(lfp.time{1})],length(lfp.trialinfo),1);
+%         % cut and move
+%         for trial_i=1:length(lfp.trialinfo)
+%             temp=lfp.trial{trial_i};
+%             lfp_per.trial{trial_i}=temp([cutp(trial_i)+1:length(lfp.time{1}) 1:cutp(trial_i)]);
+%         end                     
+%         % frequency analysis
+%         lfp_per_freq=ft_freqanalysis(cfg_tf,lfp_per);
+%         % select 7s
+%         cfg = [];
+%         cfg.latency= latency;
+%         lfp_per_freq = ft_selectdata(cfg,lfp_per_freq);
+        
+        % shuffle trials in each condition
+        lfp_per_freq = lfp_freq;
+        for class_i = unique(lfp_per_freq.trialinfo)'
+            class_idx = find(lfp_per_freq.trialinfo == class_i);
+            class_idx_per = class_idx(randperm(length(class_idx)));
+            lfp_per_freq.fourierspctrm(class_idx,:,:,:) = lfp_per_freq.fourierspctrm(class_idx_per,:,:,:);            
+        end
         % coherence
         cfg=[];
         cfg.freqlow = [0 10];
-        cfg.freqhigh = [1 200];
+        cfg.freqhigh = [1 freqhigh];
         cfg.method = method;
         cfg.keeptrials = 'yes';
         temp = ft_crossfrequencyanalysis(cfg, resp_freq, lfp_per_freq);
@@ -104,22 +118,18 @@ for roi_i=1:roi_num
         cross_resp_per(:,:,:,per_i) = squeeze(temp.crsspctrm);
         % theta
         cfg.freqlow = [4 8];
-        cfg.freqhigh = [13 200];
-        temp = ft_crossfrequencyanalysis(cfg, lfp_per_freq);
+        cfg.freqhigh = [13 freqhigh];
+        temp = ft_crossfrequencyanalysis(cfg, lfp_freq, lfp_per_freq);
         % save results to matrix        
         cross_theta_per(:,:,:,per_i) = squeeze(temp.crsspctrm);
     end
     % save to a field in cross_freq_results
     cross_freq_result{roi_i,1}.permute = cross_resp_per;
     cross_freq_result{roi_i,2}.permute = cross_theta_per;
-    % add trialinfo and remove cfg
-    for low_i=1:length(low)
-        cross_freq_result{roi_i,low_i}.trialinfo = roi_lfp{roi_i}.trialinfo;
-        cross_freq_result{roi_i,low_i} = rmfield(cross_freq_result{roi_i,low_i}, 'cfg');        
-    end
+    
+    save([pic_dir 'coherence_7s.mat'],'cross_freq_result')
 end
-
-%% plot
+% plot
 for roi_i=1:roi_num
     % respiration and theta
     for low_i=1:length(low)
@@ -175,4 +185,3 @@ for roi_i=1:roi_num
         close all
     end
 end
-save([pic_dir 'coherence_7s.mat'],'cross_freq_result')

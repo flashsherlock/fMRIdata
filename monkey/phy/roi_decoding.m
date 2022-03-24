@@ -49,10 +49,17 @@ for time_i = 1:length(time)
         % each roi
         for roi_i=1:roi_num
             % change data format and select odor condition
-            cfg         = [];
-            cfg.latency = time_range;
+            cfg         = [];            
             cfg.keeptrials = 'yes';
             lfp_odor    = ft_timelockanalysis(cfg, roi_lfp{roi_i});
+            % baseline correction
+            cfg              = [];
+            cfg.baseline     = [-0.2 -0.1];
+            lfp_odor = ft_timelockbaseline(cfg, lfp_odor);
+            % select time range
+            cfg = [];
+            cfg.latency = time_range;
+            lfp_odor = ft_selectdata(cfg, lfp_odor);
             % run decoding
             parfor repeat_i=1:repeat_num
                 results_odor{roi_i,repeat_i}=sample_lfp_decoding(lfp_odor, condition, tnum);
@@ -64,7 +71,7 @@ for time_i = 1:length(time)
     end
     % save results
     time_bin=[num2str(time(time_i)) '-' num2str(time(time_i)+time_win) 's'];
-    matname = ['decoding_results' num2str(tnum) '_linear_' time_bin '.mat'];
+    matname = ['decoding_results' num2str(tnum) '_base_linear_' time_bin '.mat'];
     save([pic_dir matname],'results')
     % plot acc
 %     odor_decoding_results(matname);

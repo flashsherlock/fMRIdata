@@ -15,7 +15,7 @@ end
 level = 3;
 trl_type = 'odorresp';
 % combine 2 monkeys
-[roi_lfp,~,cur_level_roi] = save_merge_2monkey(level,trl_type);
+[roi_lfp,~,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
 
 % one monkey data
 % one_data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';

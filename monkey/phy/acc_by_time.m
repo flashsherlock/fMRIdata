@@ -1,12 +1,13 @@
 %% load and reorganize data
+m = '2monkey';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/decoding/'];
+pic_dir=[data_dir 'pic/decoding/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-times=[0:0.1:1.6];
-time_win=0.4;
-tnum=50;
+times=[0:0.2:1.4];
+time_win=0.6;
+tnum=60;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 % conditions = {'5odor', 'vaodor', 'airodor'};
@@ -19,7 +20,7 @@ results_bytime(:,1)=conditions;
 for time_i=1:length(times)
     time=[num2str(times(time_i)) '-' num2str(times(time_i)+time_win) 's'];
     time_bin{time_i}=time;
-    load([pic_dir 'decoding_results' num2str(tnum) '_linear_' time '.mat']);
+    load([pic_dir 'decoding_results' num2str(tnum) '_base_linear_' time '.mat']);
     % find each condition
     for condition_i = 1:length(conditions)
         condition = conditions{condition_i};
@@ -93,6 +94,6 @@ for condition_i = 1:length(conditions)
     xnum = get(gca,'Xlim');
     plot(xnum,[0.05 0.05],'k','linestyle','--','LineWidth',2)
     % save plot
-    saveas(gcf, [pic_dir condition '_linear_' num2str(tnum) , '.png'], 'png')
+    saveas(gcf, [pic_dir condition '_base_linear_' num2str(tnum) , '.png'], 'png')
     close all
 end

@@ -1,10 +1,11 @@
 %% load and reorganize data
 m = '2monkey';
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/pic/';
-% pic_dir=[data_dir 'powerspec/' m '/'];
-% load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
-pic_dir=[data_dir 'pic/lfp_odorresp/' m '/'];
-load([pic_dir 'tf_' m '.mat'])
+data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
+load([data_dir 'pic/lfp_odorresp/' m '/' 'tf_' m '.mat'])
+pic_dir=[data_dir 'pic/pca_power/' m '/'];
+if ~exist(pic_dir,'dir')
+    mkdir(pic_dir);
+end
 % get number of roi
 roi_num=size(cur_level_roi,1);
 odor_num=7;        
@@ -20,15 +21,20 @@ perplex = 10;
 % data_roi = zeros(roi_num,80);
 %% analyze
 for roi_i=1:roi_num
+    cur_roi = cur_level_roi{roi_i,1};
     % get data
     data = squeeze(freq_sep_all{roi_i}.powspctrm);
+    % time range
     time_range = [0 4];
     time_idx = dsearchn(freq_sep_all{roi_i}.time', time_range');
     diff_1s = diff(time_idx)/diff(time_range);
-    data = data(:,:,time_idx(1):time_idx(2));
+    % frequency below 80Hz
+    data = data(:,1:42,time_idx(1):time_idx(2));
     % calculate z score
     data = zscore(data,0,1);
+    % label
     label = freq_sep_all{roi_i}.trialinfo;
+    % odor mean
     mean_data = zeros(length(unique(label)),size(data,3),size(data,2));
     mean_label = repmat([1:length(unique(label))]',[1,size(data,3)]);
     for odor_i = 1:length(unique(label))
@@ -54,7 +60,13 @@ for roi_i=1:roi_num
 
     % method
 %     mapped = compute_mapping(data,'t-SNE', n_dim, init_dim, perplex);
-    mapped = compute_mapping(data,'PCA', n_dim);
+    [mapped, mapping]= compute_mapping(data,'PCA', size(data,2));
+    % get lambda
+    mapped = mapped(:,1:n_dim);
+    lambda = mapping.lambda;
+    % variance explained
+    var_exp = lambda ./ sum(lambda);
+    var_cum = cumsum(var_exp);
     
     % plot
     p_color = colors(label);
@@ -69,9 +81,33 @@ for roi_i=1:roi_num
 
         end
     end
-    xlabel('PC1')
-    ylabel('PC2')
-    title([cur_level_roi{roi_i,1} ' 0-' num2str(time_range(2)) 's'])
-    legend('Ind','Iso_l','Iso_h','Peach','Banana')
-
+    xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
+    ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))
+    t_range = [num2str(time_range(1)) '-' num2str(time_range(2))  's'];
+    title([cur_level_roi{roi_i,1} ' ' t_range])
+    legend('Ind','Iso_l','Iso_h','Peach','Banana')    
+    saveas(gcf, [pic_dir cur_roi '_pca_'  t_range '.png'],'png')
+    close all
+    
+    % line
+%     tmp = zeros(size(mean_data,2),1);
+%     tmp(1:diff_1s:end)=1;
+%     line_idx=kron(tmp,ones(length(unique(label)),1));
+%     line_data = mapped(line_idx==1,:);
+%     line_label = label(line_idx==1);
+%     
+%     line_data = smooth(mapped,5);
+%     line_label = label;
+%     
+%     figure;
+%     hold on
+%     for p_i = 1:length(unique(line_label))
+%         if n_dim==3
+%             plot3(line_data(line_label==p_i,1), line_data(line_label==p_i,2),...
+%                 line_data(line_label==p_i,3), 'Color', colors{p_i});
+%         else
+%             plot(line_data(line_label==p_i,1), line_data(line_label==p_i,2), 'Color', colors{p_i});
+% 
+%         end
+%     end
 end

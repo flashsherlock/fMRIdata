@@ -37,6 +37,9 @@
 ### count_trial
 统计各个区域的trial数量。
 
+### check_plx
+检查plx文件是否存在问题。
+
 ## Electrodes localization
 
 ### ../align_img
@@ -93,6 +96,9 @@
 
 ### powspec_by_roi
 画出各个区域不同频段的平均能量。
+
+### pca_power
+使用时频分析的结果做PCA降维并画图。
 
 ## Time-frequency analysis
 

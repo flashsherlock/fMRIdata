@@ -1,5 +1,5 @@
 %% load and reorganize data
-m = '2monkey';
+m = 'RM035';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 pic_dir=[data_dir 'pic/decoding/' m '/'];
 if ~exist(pic_dir,'dir')
@@ -57,7 +57,14 @@ end
 line_wid=1.5;
 % large regiion
 % roi_select=[3:5 7:11 13];
-roi_select=[4 5 8 9 7 11];
+switch m
+    case 'RM033'
+        roi_select=[4 5 8 9 7 11];
+    case 'RM035'
+        roi_select=[2 3 5 6 4 8];
+    otherwise
+        roi_select=[4 5 8 9 7 11];
+end
 colors = {'#cf3f4f', '#DE7B14', '#ECB556', '#41AB5D', '#149ade', '#69b4d9', '#4292C6', '#E12A3C', '#cb2111'};
 for condition_i = 1:length(conditions)
     condition = results_bytime{condition_i,1};
@@ -82,6 +89,8 @@ for condition_i = 1:length(conditions)
     subplot(2,1,2)
     hold on
     p_select=results_bytime{condition_i,5};
+    % replace zeros with eps
+    p_select=max(p_select,eps);
     for i=1:length(roi_select)
         plot(p_select(roi_select(i),:),'Color',hex2rgb(colors{i}),'linewidth', line_wid);
     end

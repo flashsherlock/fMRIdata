@@ -14,7 +14,10 @@ odor_num=7;
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',...
     '#000000', '#E12A3C', '#777DDD', '#41AB5D'};  
 colors = cellfun(@(x) hex2rgb(x),colors,'UniformOutput',false);
-for n_dim=2:3
+dims = 2:3;
+dis_time = cell(roi_num,2);
+for dim_i=1:2
+    n_dim = dims(dim_i);
 % init_dim = 30;
 % perplex = 10;
 % frequency bands left-open right-close
@@ -43,21 +46,6 @@ for roi_i=1:roi_num
     end
     data = reshape(mean_data,[],size(data,2));
     label = reshape(mean_label,[],1);
-    % calculate z score
-%     data = squeeze(spectr_lfp_all{roi_i}.powspctrm);
-%     data = zscore(data,0,1);
-%     label = spectr_lfp_all{roi_i}.trialinfo;
-    
-    % mean zpower for each band
-%     zpower = zeros(size(data,1),length(bands));
-%     for band_i=1:length(bands)
-%         % frequency band
-%         band = bands{band_i};
-%         idx=spectr_lfp_all{roi_i}.freq>band(1) & spectr_lfp_all{roi_i}.freq<=band(2);
-%         % calculate mean zpower
-%         zpower(:,band_i) = mean(data(:,idx),2);        
-%     end
-
 
     % method
 %     mapped = compute_mapping(data,'t-SNE', n_dim, init_dim, perplex);
@@ -69,7 +57,20 @@ for roi_i=1:roi_num
     var_exp = lambda ./ sum(lambda);
     var_cum = cumsum(var_exp);
     
-    % plot
+    % plot weights
+    figure
+    hold on
+    x = freq_sep_all{1}.freq(1:size(mapping.M,1));
+    plot(x,mapping.M(:,1:n_dim),'Linewidth',2)
+    plot(x,zeros(length(x),1),'--k','Linewidth',1)
+    set(gca,'Xlim',[x(1) x(end)])
+    legend(strcat({'PC'},cellstr(num2str((1:n_dim)'))))
+    xlabel('Frequency')
+    ylabel('Weights')
+    title([cur_level_roi{roi_i,1} ' ' t_range])   
+    saveas(gcf, [pic_dir num2str(n_dim) 'd_wei' cur_roi '_pca_'  t_range '.png'],'png')
+    
+    % scatter plot
     p_color = colors(label);
     figure;
     hold on
@@ -95,7 +96,7 @@ for roi_i=1:roi_num
     saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.png'],'png')
     close all
     
-    % line
+    % line plot
     % select integer time
     tmp = zeros(size(mean_data,2),1);
 %     tmp(1:diff_1s:end)=1;
@@ -120,7 +121,7 @@ for roi_i=1:roi_num
     hold on
     for p_i = 1:length(unique(line_label))
         side = line_data_side(line_label_side==p_i,:);
-        sign = {'o','s'};
+        p_sign = {'o','s'};
         % 3-d
         if n_dim==3                   
             % trajectory
@@ -134,7 +135,7 @@ for roi_i=1:roi_num
             % start and end point
             for side_i=1:2                
                 scatter3(side(side_i,1),side(side_i,2),side(side_i,3),...
-                    50, colors{p_i},sign{side_i},'filled','MarkerEdgeColor','black')
+                    50, colors{p_i},p_sign{side_i},'filled','MarkerEdgeColor','black')
             end            
         else            
             % trajectory
@@ -143,7 +144,7 @@ for roi_i=1:roi_num
             % start and end point
             for side_i=1:2                
                 scatter(side(side_i,1),side(side_i,2),...
-                    50, colors{p_i},sign{side_i},'filled','MarkerEdgeColor','black')
+                    50, colors{p_i},p_sign{side_i},'filled','MarkerEdgeColor','black')
             end
         end
     end
@@ -151,6 +152,34 @@ for roi_i=1:roi_num
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))
     title([cur_level_roi{roi_i,1} ' ' t_range])    
     saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_line_'  t_range '.png'],'png')
-    close all
+    close all    
+    
+    % calculate mean distance    
+    dis_data = reshape(mapped,length(unique(label)),[],n_dim);    
+    % smoothed data
+    % dis_data = reshape(line_data,length(unique(label)),[],n_dim);    
+    dis_time_roi = zeros(size(dis_data,2),3);
+    for time_i = 1:size(dis_data,2)
+        tmp = squeeze(dis_data(:,time_i,:));
+        % 6 condition
+        dis_time_roi(time_i,1) = mean(pdist(tmp));
+        % mean distance to air        
+        dis_time_roi(time_i,2) = mean(pdist2(tmp(end,:),tmp(1:end-1,:)));
+        % mean distance between pleasant and unpleasant
+        dis_time_roi(time_i,3) = mean(mean(pdist2(tmp(1:3,:),tmp(4:5,:))));        
+    end
+    dis_time{roi_i,dim_i} = dis_time_roi;
 end
 end
+
+%% plot distance
+figure
+hold on
+dim_i = 1;
+dis = 1;
+cmap = hsv(roi_num); % colormap, with N colors
+for roi_i=1:roi_num    
+    tmp = dis_time{roi_i,dim_i}(:,dis);%+roi_i*0.1;
+    plot(linspace(time_range(1),time_range(2),length(tmp)),tmp,'Color',cmap(roi_i,:),'Linewidth',2)
+end
+legend(cur_level_roi(:,1))

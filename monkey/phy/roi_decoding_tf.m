@@ -51,7 +51,9 @@ for time_i = 1:length(time)
             cfg.keeptrials = 'yes';
             tf_odor = ft_freqdescriptives(cfg, tf_odor);
             % average across time
-            tf_odor.trial = squeeze(mean(tf_odor.powspctrm,4));
+            % tf_odor.trial = squeeze(mean(tf_odor.powspctrm,4));
+            tf_odor.trial = reshape(permute(squeeze(tf_odor.powspctrm),...
+                [2 3 1]),[],length(tf_odor.trialinfo))';
             % remove fields
             tf_odor = rmfield(tf_odor,{'powspctrm','cfg'});
             % run decoding

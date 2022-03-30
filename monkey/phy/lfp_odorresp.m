@@ -26,7 +26,12 @@ else
     freq_sep_all=cell(roi_num,1);
     for roi_i=1:roi_num
         cur_roi=cur_level_roi{roi_i,1};
-        lfp=roi_lfp{roi_i};
+        % filt data
+        cfg=[];
+        cfg.bsfilter    = 'yes';
+        cfg.bsfilttype = 'fir';
+        cfg.bsfreq      = [99 101;149 151;199 201];
+        lfp = ft_preprocessing(cfg,roi_lfp{roi_i});
         % time frequency analysis
         cfgtf=[];
         cfgtf.method     = 'mtmconvol';
@@ -115,6 +120,31 @@ for roi_i=1:roi_num
             set(gca,'xlim',time_range,'ytick',[]);
             title([cur_roi '-odorresp' num2str(i) conditions{time_i}])
             hold off
+            saveas(gcf, [pic_dir cur_roi '-odorresp' num2str(i) conditions{time_i}, '-un.fig'], 'fig')
+            saveas(gcf, [pic_dir cur_roi '-odorresp' num2str(i) conditions{time_i}, '-un.png'], 'png')
+            close all
+
+            % plot by contourf cluster based correction
+            figure;
+            contourf(freq_blc{i}.time, freq_blc{i}.freq, squeeze(freq_blc{i}.powspctrm), 40, 'linecolor', 'none');
+            set(gca, 'ytick', round(logspace(log10(freq_range(1)), log10(freq_range(end)), 10) * 100) / 100, 'yscale', 'log');
+            set(gca, 'ylim', freq_range, 'xlim', time_range, 'clim', [-2 2]);
+            % colorbarlabel('Baseline-normalized power (dB)')
+            xlabel('Time (s)')
+            ylabel('Frequency (Hz)')
+            colormap jet
+            ylabel(colorbar, 'Baseline-normalized power (dB)')
+            % plot respiration
+            hold on
+            % cluster based correction
+            contour(freq_blc{i}.time,freq_blc{i}.freq,zmapthresh,1,'linecolor','k','LineWidth',1)
+            set(gca, 'yminortick', 'off');
+            plot(bs, 1.5 * ones(1, 100), 'k', 'LineWidth', 5)
+            yyaxis right
+            plot(resavg.time, resavg.avg, 'k', 'LineWidth', 1.5)
+            set(gca, 'xlim', time_range, 'ytick', []);
+            title([cur_roi '-odorresp' num2str(i) conditions{time_i}])
+            hold off
             saveas(gcf, [pic_dir cur_roi '-odorresp' num2str(i) conditions{time_i}, '.fig'], 'fig')
             saveas(gcf, [pic_dir cur_roi '-odorresp' num2str(i) conditions{time_i}, '.png'], 'png')
             close all
@@ -173,7 +203,7 @@ for roi_i=1:roi_num
         max_clust_info  = zeros(n_permutes,1);
 
         % generate pixel-specific null hypothesis parameter distributions
-        for permi = 1:n_permutes
+        parfor permi = 1:n_permutes
             fake_condition_mapping = real_condition_mapping(randperm(length(real_condition_mapping)));
 
             % compute t-map of null hypothesis

@@ -172,108 +172,20 @@ for roi_i=1:roi_num
         freq_cp=ft_selectdata(cfg,freq_sep);
         % respiration
         cfg.trials = find(ismember(freq_sep.trialinfo,comp{comp_i,1})==1);
+        % cfg.keeptrials = 'yes';
         resavg=ft_timelockanalysis(cfg, resp);
         % baseline correction
         cfg              = [];
         cfg.baseline     = [-1 -0.5];
         cfg.baselinetype = 'absolute';
         freq_cp = ft_freqbaseline(cfg, freq_cp);
-        
         % permutation test
-        voxel_pval = 0.05; 
-        cluster_pval = 0.05;
-        n_permutes = 1000; 
-        % change dimension
-        eegpower=permute(squeeze(freq_cp.powspctrm),[2 3 1]);
-        
-        % generate labels
-        real_condition_mapping=zeros(size(freq_cp.trialinfo));
-        real_condition_mapping(ismember(freq_cp.trialinfo,comp{comp_i,1}))=1;
-        real_condition_mapping(ismember(freq_cp.trialinfo,comp{comp_i,2}))=2;        
-        % compute actual t-test of difference (using unequal N and std)
-        tnum   = squeeze(mean(eegpower(:,:,real_condition_mapping==1),3) - mean(eegpower(:,:,real_condition_mapping==2),3));
-        tdenom = sqrt( (std(eegpower(:,:,real_condition_mapping==1),0,3).^2)./sum(real_condition_mapping==1) + (std(eegpower(:,:,real_condition_mapping==2),0,3).^2)./sum(real_condition_mapping==2) );
-        real_t = tnum./tdenom;
-
-        % initialize null hypothesis matrices
-        num_frex = length(freq_cp.freq);
-        nTimepoints = length(freq_cp.time);
-        permuted_tvals  = zeros(n_permutes,num_frex,nTimepoints);
-        max_pixel_pvals = zeros(n_permutes,2);
-        max_clust_info  = zeros(n_permutes,1);
-
-        % generate pixel-specific null hypothesis parameter distributions
-        parfor permi = 1:n_permutes
-            fake_condition_mapping = real_condition_mapping(randperm(length(real_condition_mapping)));
-
-            % compute t-map of null hypothesis
-            tnum   = squeeze(mean(eegpower(:,:,fake_condition_mapping==1),3)-mean(eegpower(:,:,fake_condition_mapping==2),3));
-            tdenom = sqrt( (std(eegpower(:,:,fake_condition_mapping==1),0,3).^2)./sum(fake_condition_mapping==1) + (std(eegpower(:,:,fake_condition_mapping==2),0,3).^2)./sum(fake_condition_mapping==2) );
-            tmap   = tnum./tdenom;
-
-            % save all permuted values
-            permuted_tvals(permi,:,:) = tmap;
-
-            % save maximum pixel values
-            max_pixel_pvals(permi,:) = [ min(tmap(:)) max(tmap(:)) ];
-
-            % cluster correction
-            tmap(abs(tmap)<tinv(1-voxel_pval/2,length(real_condition_mapping)-2))=0;
-
-            % get number of elements in largest supra-threshold cluster
-            clustinfo = bwconncomp(tmap);
-            max_clust_info(permi) = max([ 0 cellfun(@numel,clustinfo.PixelIdxList) ]); % notes: cellfun is superfast, and the zero accounts for empty maps
-        end
-
-        % now compute Z-map
-        zmap = (real_t-squeeze(mean(permuted_tvals,1)))./squeeze(std(permuted_tvals));
-
-        % apply cluster-level corrected threshold
-        zmapthresh = zmap;
-        % uncorrected pixel-level threshold
-        zmapthresh(abs(zmapthresh)<norminv(1-voxel_pval/2))=0;
-        % find islands and remove those smaller than cluster size threshold
-        clustinfo = bwconncomp(zmapthresh);
-        clust_info = cellfun(@numel,clustinfo.PixelIdxList);
-        clust_threshold = prctile(max_clust_info,100-cluster_pval*100);
-
-        % remove clusters
-        whichclusters2remove = find(clust_info<clust_threshold);
-        for i_r=1:length(whichclusters2remove)
-            zmapthresh(clustinfo.PixelIdxList{whichclusters2remove(i_r)})=0;
-        end
+        [real_t, un_zmapthresh, zmapthresh]= lfp_comptest(freq_cp,comp(comp_i,:));
 
         figure;
         contourf(freq_cp.time,freq_cp.freq,real_t,40,'linecolor','none');
         set(gca,'ytick',round(logspace(log10(freq_range(1)),log10(freq_range(end)),10)*100)/100,'yscale','log');
-        set(gca,'ylim',freq_range,'xlim',time_range,'clim',[-3 3]);
-        % colorbarlabel('Baseline-normalized power (dB)')
-        xlabel('Time (s)')
-        ylabel('Frequency (Hz)')
-        colormap jet
-        ylabel(colorbar,'t-value')
-        hold on
-        % cluster based correction
-        contour(freq_cp.time,freq_cp.freq,abs(sign(zmapthresh)),1,'linecolor','k','LineWidth',1)
-        set(gca, 'yminortick', 'off');
-        plot(bs,1.5*ones(1,100),'k','LineWidth',5)
-        yyaxis right
-        plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
-        set(gca,'xlim',time_range,'ytick',[]);
-        title([cur_roi '-odorresp' comp{comp_i,3} 't'])
-        hold off
-        saveas(gcf, [pic_dir cur_roi '-odorresp' comp{comp_i,3} 't', '.fig'], 'fig')
-        saveas(gcf, [pic_dir cur_roi '-odorresp' comp{comp_i,3} 't', '.png'], 'png')
-        close all
-
-        % apply uncorrected threshold
-        zmapthresh = zmap;
-        zmapthresh(abs(zmapthresh)<norminv(1-voxel_pval/2))=false;
-        zmapthresh=logical(zmapthresh);
-        figure;
-        contourf(freq_cp.time,freq_cp.freq,real_t,40,'linecolor','none');
-        set(gca,'ytick',round(logspace(log10(freq_range(1)),log10(freq_range(end)),10)*100)/100,'yscale','log');
-        set(gca,'ylim',freq_range,'xlim',time_range,'clim',[-3 3]);
+        set(gca,'ylim',freq_range,'xlim',time_range,'clim',[-5 5]);
         % colorbarlabel('Baseline-normalized power (dB)')
         xlabel('Time (s)')
         ylabel('Frequency (Hz)')
@@ -287,16 +199,36 @@ for roi_i=1:roi_num
         yyaxis right
         plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
         set(gca,'xlim',time_range,'ytick',[]);
+        title([cur_roi '-odorresp' comp{comp_i,3} 't'])
+        hold off
+        saveas(gcf, [pic_dir cur_roi '-odorresp' comp{comp_i,3} 't', '.fig'], 'fig')
+        saveas(gcf, [pic_dir cur_roi '-odorresp' comp{comp_i,3} 't', '.png'], 'png')
+        close all
+
+        % apply uncorrected threshold
+        figure;
+        contourf(freq_cp.time,freq_cp.freq,real_t,40,'linecolor','none');
+        set(gca,'ytick',round(logspace(log10(freq_range(1)),log10(freq_range(end)),10)*100)/100,'yscale','log');
+        set(gca,'ylim',freq_range,'xlim',time_range,'clim',[-5 5]);
+        % colorbarlabel('Baseline-normalized power (dB)')
+        xlabel('Time (s)')
+        ylabel('Frequency (Hz)')
+        colormap jet
+        ylabel(colorbar,'t-value')
+        hold on
+        % cluster based correction
+        contour(freq_cp.time,freq_cp.freq,un_zmapthresh,1,'linecolor','k','LineWidth',1)
+        set(gca, 'yminortick', 'off');
+        plot(bs,1.5*ones(1,100),'k','LineWidth',5)
+        yyaxis right
+        % shadedEBar(resavg.time, squeeze(resavg.trial), {@mean, @(x) 1.96 * std(x) / sqrt(size(x, 1))}, ...
+            % 'lineProps', {'k', 'LineWidth', 1.5}, 'patchSaturation', 0.2);
+        plot(resavg.time,resavg.avg,'k','LineWidth',1.5)
+        set(gca,'xlim',time_range,'ytick',[]);
         title([cur_roi '-odorresp' comp{comp_i,3} 'tun'])
         hold off
         saveas(gcf, [pic_dir cur_roi '-odorresp' comp{comp_i,3} 'tun', '.fig'], 'fig')
         saveas(gcf, [pic_dir cur_roi '-odorresp' comp{comp_i,3} 'tun', '.png'], 'png')
         close all
     end
-
-    % % % apply pixel-level corrected threshold
-    % % lower_threshold = prctile(max_pixel_pvals(:,1),    voxel_pval*100/2);
-    % % upper_threshold = prctile(max_pixel_pvals(:,2),100-voxel_pval*100/2);
-    % % zmapthresh = zmap;
-    % % zmapthresh(zmapthresh>lower_threshold & zmapthresh<upper_threshold)=0;
 end

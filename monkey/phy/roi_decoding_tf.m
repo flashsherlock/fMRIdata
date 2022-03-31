@@ -22,14 +22,14 @@ roi_num=size(cur_level_roi,1);
 % number of repeats
 repeat_num=100;
 % time_range=[1.4 2];
-time=[0:0.2:1.4];
+time=[0:0.2:1];
 % time=[0 0.4 0.6 1 1.2];
-time_win=0.6;
+time_win=1;
 
 conditions = {'5odor','vaodor'};
 % conditions = [conditions {'6odor','banana','intensity','fakeva'}];
 % trial_num = [100 100 100 100 100 100 100];
-trial_num = 60*ones(1,length(conditions));
+trial_num = 80*ones(1,length(conditions));
 results = cell(length(conditions),2);
 results(:,1) = conditions';
 for time_i = 1:length(time)
@@ -42,14 +42,15 @@ for time_i = 1:length(time)
         % each roi
         for roi_i=1:roi_num
             % baseline correction
-            cfg              = [];
-            cfg.baseline     = [-1 -0.5];
-            tf_odor = ft_freqbaseline(cfg, freq_sep_all{roi_i});
+%             cfg              = [];
+%             cfg.baseline     = [-1 -0.5];
+%             tf_odor = ft_freqbaseline(cfg, freq_sep_all{roi_i});
             % select time range
             cfg = [];
             cfg.latency = time_range;
+            cfg.frequency = [0 80];
             cfg.keeptrials = 'yes';
-            tf_odor = ft_freqdescriptives(cfg, tf_odor);
+            tf_odor = ft_freqdescriptives(cfg, freq_sep_all{roi_i});
             % average across time
             % tf_odor.trial = squeeze(mean(tf_odor.powspctrm,4));
             tf_odor.trial = reshape(permute(squeeze(tf_odor.powspctrm),...

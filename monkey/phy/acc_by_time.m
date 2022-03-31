@@ -1,13 +1,13 @@
 %% load and reorganize data
-m = 'RM033';
+m = 'RM035';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 pic_dir=[data_dir 'pic/decoding/tf/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-times=[0:0.2:1.4];
-time_win=0.6;
-tnum=60;
+times=[0:0.2:1];
+time_win=1;
+tnum=80;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 % conditions = {'5odor', 'vaodor', 'airodor'};
@@ -80,10 +80,10 @@ for condition_i = 1:length(conditions)
     chance=results_bytime{condition_i,2};
     title(condition)
     legend(rois(roi_select),'Location','eastoutside')
-    ylabel('ACC')
-    xlabel('ROI')
+    ylabel('ACC')    
     set(gca,'xlim',[1 length(times)])
     set(gca,'XTick',1:length(times))
+    set(gca,'XTickLabel',time_bin)
     set(gca,'ylim',[min(min(data_select(roi_select,:))) max(max(data_select(roi_select,:)))]);
     % p-value
     subplot(2,1,2)
@@ -95,6 +95,7 @@ for condition_i = 1:length(conditions)
         plot(p_select(roi_select(i),:),'Color',hex2rgb(colors{i}),'linewidth', line_wid);
     end
     ylabel('p')
+    xlabel('Time')
     set(gca,'yscale','log');
     set(gca,'xlim',[1 length(times)])
     set(gca,'XTick',1:length(times))

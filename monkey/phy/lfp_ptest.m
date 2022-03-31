@@ -37,7 +37,9 @@ function [un_zmapthresh, zmapthresh]= lfp_ptest(data,data_sepi,cfg)
     threshmean(abs(zmap)<=norminv(1-voxel_pval/2))=0;
     un_zmapthresh=abs(sign(threshmean));
 
-    if isfield(cfg,'cluster') && cfg.cluster ==1
+    if isfield(cfg,'cluster') && cfg.cluster==0
+        zmapthresh = un_zmapthresh;
+    else
         %cluster correction        
         parfor perm_i = 1:n_permutes
             % for cluster correction, apply uncorrected threshold and get maximum cluster sizes
@@ -63,7 +65,5 @@ function [un_zmapthresh, zmapthresh]= lfp_ptest(data,data_sepi,cfg)
             zmapthresh(clustinfo.PixelIdxList{whichclusters2remove(i_r)})=0;
         end
         zmapthresh=abs(sign(zmapthresh));
-    else
-        zmapthresh = un_zmapthresh;
     end
 end

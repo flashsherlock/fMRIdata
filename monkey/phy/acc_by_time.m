@@ -1,17 +1,18 @@
 %% load and reorganize data
 m = 'RM035';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/decoding/tf/' m '/'];
+pic_dir=[data_dir 'pic/decoding/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-times=[0:0.2:1];
-time_win=1;
-tnum=80;
+times=[0:0.2:1.4];
+time_win=0.6;
+tnum=60;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 % conditions = {'5odor', 'vaodor', 'airodor'};
 conditions={'5odor','vaodor'};
+methods = '_base_linear_';
 % condition  2-chance 3-acc_matrix:roi-repeats-time_bin 4-mean acc 5-p-value
 results_bytime=cell(length(conditions),5);
 results_bytime(:,1)=conditions;
@@ -20,7 +21,7 @@ results_bytime(:,1)=conditions;
 for time_i=1:length(times)
     time=[num2str(times(time_i)) '-' num2str(times(time_i)+time_win) 's'];
     time_bin{time_i}=time;
-    load([pic_dir 'decoding_results' num2str(tnum) '_tf_linear_' time '.mat']);
+    load([pic_dir 'decoding_results' num2str(tnum) methods time '.mat']);
     % find each condition
     for condition_i = 1:length(conditions)
         condition = conditions{condition_i};
@@ -68,16 +69,28 @@ end
 colors = {'#cf3f4f', '#DE7B14', '#ECB556', '#41AB5D', '#149ade', '#69b4d9', '#4292C6', '#E12A3C', '#cb2111'};
 for condition_i = 1:length(conditions)
     condition = results_bytime{condition_i,1};
+    data_select=results_bytime{condition_i,4};
+    chance = results_bytime{condition_i,2};
+    % matrix
+    figure
+    imagesc(data_select,[chance chance+chance*0.2])
+    colormap gray
+    colorbar
+    set(gca,'YTick',1:length(rois))
+    set(gca,'YTickLabel',rois)
+    set(gca,'XTick',1:length(times))
+    set(gca,'XTickLabel',time_bin)
+    title(condition)
+    saveas(gcf, [pic_dir 'Matrix_' condition methods num2str(tnum) , '.png'], 'png')
+    close all
     % line plot
     figure('Position',[20 20 800 600])
     subplot(2,1,1)
-    hold on
-    data_select=results_bytime{condition_i,4};
+    hold on    
     for i=1:length(roi_select)
         plot(data_select(roi_select(i),:),'Color',hex2rgb(colors{i}),'linewidth', line_wid)
     end
     % plot chance
-    chance=results_bytime{condition_i,2};
     title(condition)
     legend(rois(roi_select),'Location','eastoutside')
     ylabel('ACC')    
@@ -104,6 +117,6 @@ for condition_i = 1:length(conditions)
     xnum = get(gca,'Xlim');
     plot(xnum,[0.05 0.05],'k','linestyle','--','LineWidth',2)
     % save plot
-    saveas(gcf, [pic_dir condition '_tf_linear_' num2str(tnum) , '.png'], 'png')
+    saveas(gcf, [pic_dir condition methods num2str(tnum) , '.png'], 'png')
     close all
 end

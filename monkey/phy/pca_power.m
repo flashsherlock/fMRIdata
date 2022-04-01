@@ -15,7 +15,9 @@ colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',...
     '#000000', '#E12A3C', '#777DDD', '#41AB5D'};  
 colors = cellfun(@(x) hex2rgb(x),colors,'UniformOutput',false);
 dims = 2:3;
+% odor distance
 dis_time = cell(roi_num,2);
+dis_mean = zeros(roi_num,3,2);
 for dim_i=1:2
     n_dim = dims(dim_i);
 % init_dim = 30;
@@ -30,6 +32,7 @@ for roi_i=1:roi_num
     data = squeeze(freq_sep_all{roi_i}.powspctrm);
     % time range
     time_range = [0 4];
+    t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
     time_idx = dsearchn(freq_sep_all{roi_i}.time', time_range');
     diff_1s = diff(time_idx)/diff(time_range);
     % frequency below 80Hz
@@ -89,8 +92,7 @@ for roi_i=1:roi_num
         end
     end
     xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
-    ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))
-    t_range = [num2str(time_range(1)) '-' num2str(time_range(2))  's'];
+    ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))    
     title([cur_level_roi{roi_i,1} ' ' t_range])
     legend('Ind','Iso_l','Iso_h','Peach','Banana')    
     saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.png'],'png')
@@ -169,6 +171,15 @@ for roi_i=1:roi_num
         dis_time_roi(time_i,3) = mean(mean(pdist2(tmp(1:3,:),tmp(4:5,:))));        
     end
     dis_time{roi_i,dim_i} = dis_time_roi;
+    
+    % mean distance
+    tmp = squeeze(mean(dis_data,2));
+    % 6 condition
+    dis_mean(roi_i,1,dim_i) = mean(pdist(tmp));
+    % mean distance to air        
+    dis_mean(roi_i,2,dim_i) = mean(pdist2(tmp(end,:),tmp(1:end-1,:)));
+    % mean distance between pleasant and unpleasant
+    dis_mean(roi_i,3,dim_i) = mean(mean(pdist2(tmp(1:3,:),tmp(4:5,:))));
 end
 end
 
@@ -183,3 +194,23 @@ for roi_i=1:roi_num
     plot(linspace(time_range(1),time_range(2),length(tmp)),tmp,'Color',cmap(roi_i,:),'Linewidth',2)
 end
 legend(cur_level_roi(:,1))
+
+%% mean distance
+figure
+hold on
+for dim_i=1:2
+    for dis_i=1:3   
+        tmp = dis_mean(:,dis_i,dim_i);
+%         plot(1:roi_num,tmp,'Color',cmap(2*(dim_i-1)+dis_i,:),'Linewidth',2)
+        plot(1:roi_num,tmp,'Linewidth',2)
+    end
+end
+xlabel('ROI')
+ylabel('Distance')
+legend('2by2','air','valence','2by2_3d','air_3d','valence_3d','location','best')
+set(gca,'XTick',1:length(cur_level_roi),'xlim',[1 length(cur_level_roi)])
+set(gca,'XTickLabel',cur_level_roi(:,1))
+set(gca,'FontSize',18);
+title(['Mean_distance' ' ' t_range],'Interpreter','none')   
+saveas(gcf, [pic_dir 'Mean_distance_'  t_range '.png'],'png')
+close all

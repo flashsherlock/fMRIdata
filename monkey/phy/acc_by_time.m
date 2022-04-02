@@ -1,13 +1,13 @@
 %% load and reorganize data
-m = 'RM035';
+m = 'RM033';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 pic_dir=[data_dir 'pic/decoding/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-times=[0:0.2:1.4];
-time_win=0.6;
-tnum=60;
+times=[0:0.2:1.8];
+time_win=0.2;
+tnum=120;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 % conditions = {'5odor', 'vaodor', 'airodor'};

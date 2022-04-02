@@ -29,14 +29,14 @@ roi_num=size(cur_level_roi,1);
 % number of repeats
 repeat_num=100;
 % time_range=[1.4 2];
-time=[0:0.2:1.4];
+time=[0:0.2:1.8];
 % time=[0 0.4 0.6 1 1.2];
-time_win=0.6;
+time_win=0.2;
 
 conditions = {'5odor','vaodor'};
 % conditions = [conditions {'6odor','banana','intensity','fakeva'}];
 % trial_num = [100 100 100 100 100 100 100];
-trial_num = 60*ones(1,length(conditions));
+trial_num = 120*ones(1,length(conditions));
 results = cell(length(conditions),2);
 results(:,1) = conditions';
 for time_i = 1:length(time)

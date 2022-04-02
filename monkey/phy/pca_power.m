@@ -1,7 +1,7 @@
 %% load and reorganize data
 m = '2monkey';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-load([data_dir 'pic/lfp_odorresp/' m '/' 'tf_' m '.mat'])
+load([data_dir 'tf_' m '.mat'])
 pic_dir=[data_dir 'pic/pca_power/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
@@ -94,7 +94,7 @@ for roi_i=1:roi_num
     xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))    
     title([cur_level_roi{roi_i,1} ' ' t_range])
-    legend('Ind','Iso_l','Iso_h','Peach','Banana')    
+    legend('Ind', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air')
     saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.png'],'png')
     close all
     

@@ -50,12 +50,13 @@ for dim_i=1:2
         % get data
         data = squeeze(freq_2m{roi_i,m_i}.powspctrm);
         % time range
-        time_range = [0 2];
+        time_range = [0 3];
+        freq = [1:42];
         t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
         time_idx = dsearchn(freq_2m{roi_i,m_i}.time', time_range');
         diff_1s = diff(time_idx)/diff(time_range);
         % frequency below 80Hz
-        data = data(:,1:42,time_idx(1):time_idx(2));
+        data = data(:,freq,time_idx(1):time_idx(2));
         % calculate z score
         data = zscore(data,0,1);
         % label
@@ -89,10 +90,13 @@ for dim_i=1:2
     % plot weights
     figure
     hold on
+    % x = 1:length(freq);
     x = freq_2m{1}.freq(1:size(mapping.M,1));
     plot(x,mapping.M(:,1:n_dim),'Linewidth',2)
     plot(x,zeros(length(x),1),'--k','Linewidth',1)
     set(gca,'Xlim',[x(1) x(end)])
+    % set(gca,'XTick',1:10:length(freq))
+    % set(gca,'XTicklabel',freq_2m{1}.freq(freq(1:10:length(freq))))
     legend(strcat({'PC'},cellstr(num2str((1:n_dim)'))))
     xlabel('Frequency')
     ylabel('Weights')
@@ -247,7 +251,7 @@ for dim_i=1:2
 end
 xlabel('ROI')
 ylabel('Distance')
-legend('2by2','air','valence','2by2_3d','air_3d','valence_3d','location','best')
+legend('2by2','air','valence','2by2_3d','air_3d','valence_3d','location','eastouside')
 set(gca,'XTick',1:length(cur_level_roi),'xlim',[1 length(cur_level_roi)])
 set(gca,'XTickLabel',cur_level_roi(:,1))
 set(gca,'FontSize',18);

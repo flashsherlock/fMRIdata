@@ -20,6 +20,7 @@ library(ggthemr)
 library(ggprism)
 library(stringr)
 library(dplyr)
+library(tidyr)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
 # theme_set(theme(axis.ticks.length.x = unit(-0.1,"cm")))
@@ -30,7 +31,7 @@ theme_set(theme_prism(base_line_size = 0.5))
 #  function for bootstrap
 boot_mean <- function(data, indices) {
   d <- data[indices,] #allows boot to select sample
-  return(sapply(d,mean)) #return R-squared of model
+  return(sapply(d,mean)) #return mean value for each column
 }
 # scatter
 diagplot <- function(data,x,y){
@@ -48,21 +49,44 @@ diagplot <- function(data,x,y){
     geom_hline(yintercept = 0, linetype="dashed", color = "black")+
     geom_vline(xintercept = 0, linetype="dashed", color = "black")+
     geom_abline(intercept = 0, slope = 1, color = "black",size = 0.5)+
-    geom_point(color = "#65a6b9", size = p_size, alpha = 0.7, shape=19,
+    geom_point(color = "#0073c2", size = p_size, alpha = 0.7, shape=19,stroke = 0,
                position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
     coord_cartesian(xlim = c(-bound,bound),ylim = c(-bound,bound))+
     scale_y_continuous(breaks = scales::breaks_width(10))+
     scale_x_continuous(breaks = scales::breaks_width(10))+
     theme_prism(base_line_size = 0.5,border = T)
 }
-# correlation
-correplot <- function(data,x,y){
-  ggplot(data, aes_(as.name(x),as.name(y)))+
-    geom_point(color = "#233b42", size = 3, alpha = 0.5,
-               position=position_jitter(h=0.02,w=0.02, seed = 5))+
-    geom_smooth(method = "lm", formula = 'y ~ x')+
-    scale_y_continuous(breaks = scales::breaks_width(0.1))+
-    scale_x_continuous(breaks = scales::breaks_width(10))
+
+# calculate zscore
+zscore <- function(x){
+  return((x-mean(x))/sd(x))
+}
+# pot correlation
+correplot <- function(data,x1,y1,x2,y2){
+  # ggplot(data, aes_(as.name(x1),as.name(y1)))+
+  #   geom_point(aes(x=zprevadif,y=pre.acc),color = "#233b42", size = 2, alpha = 0.5,shape=19,
+  #              position=position_jitter(h=0.02,w=0.02, seed = 5))+
+  #   geom_point(color = "#65a6b9", size = 2, alpha = 0.5,shape=19,
+  #              position=position_jitter(h=0.02,w=0.02, seed = 5))+
+  #   geom_smooth(aes_(as.name(x2),as.name(y2)),method = "lm", formula = 'y ~ x')+
+  #   geom_smooth(method = "lm", formula = 'y ~ x')+
+  #   scale_y_continuous(breaks = scales::breaks_width(0.2))+
+  #   scale_x_continuous(breaks = scales::breaks_width(1))
+  Corr_data <- subset(data,select = c("id","gender",x1,y1,x2,y2))
+  # reshape data (gather and spread can also do that)
+  Corr_data <- reshape2::melt(Corr_data, c("id","gender"),variable.name = "Task", value.name = "Score")
+  Corr_data <- mutate(Corr_data,
+                        test=ifelse(str_detect(Task,"pre"),"pre_test","post_test"),
+                        condition=ifelse(str_detect(Task,"vadif"),"vadif",'acc'))
+  rposition <- min(Corr_data$Score)
+  Corr_data <- reshape2::dcast(Corr_data,id+gender+test~condition,value.var = "Score")
+  Corr_data$test <- factor(Corr_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
+  
+  ggscatter(Corr_data, x = "vadif", y = "acc", color="test",
+            conf.int = TRUE, palette=c("grey50","black"),add = "reg.line",fullrange = F) +
+    stat_cor(aes(color = test,label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+             label.x = rposition)+
+    theme_prism(base_line_size = 0.5)
 }
 
 # violinplot
@@ -92,7 +116,7 @@ vioplot <- function(data,condition, select){
 # boxplot
 ci90 <- function(x){
   return(qnorm(0.95)*sd(x)/sqrt(length(x)))
-  # similar to 5%~95%
+  # similar to 5% and 90%
   # return(qnorm(0.95)*sd(x))
 }
 boxplot <- function(data, con, select){
@@ -106,7 +130,7 @@ boxplot <- function(data, con, select){
   Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
   Violin_data$condition <- factor(Violin_data$condition, levels = c("fearful","happy"),ordered = F)
   
-  # summarise data 5%~90%
+  # summarise data 5% and 90% quantile
   df <- Violin_data %>% group_by(condition, test) %>% 
     summarise(y0 = quantile(Score, 0.05), 
               #y0 = mean(Score)-ci90(Score),
@@ -173,6 +197,8 @@ data_exp1$gender <- factor(data_exp1$gender,labels = c("Male","Female"))
 data_exp1$gender <- factor(data_exp1$gender,levels = c("Female","Male"))
 # happy fear
 data_exp1 <- mutate(data_exp1, prevadif=prehappy.va-prefear.va, aftervadif=afterhappy.va-afterfear.va)
+# zscore for correlation
+data_exp1 <- mutate(data_exp1, zprevadif=zscore(prevadif), zaftervadif=zscore(aftervadif))
 data_exp1 <- mutate(data_exp1, preindif=prehappy.in-prefear.in, afterindif=afterhappy.in-afterfear.in)
 # plus minus
 data_exp1 <- mutate(data_exp1, prevadif_pm=preplus.va-preminus.va, aftervadif_pm=afterplus.va-afterminus.va)
@@ -181,6 +207,7 @@ data_exp1 <- mutate(data_exp1, preindif_pm=preplus.in-preminus.in, afterindif_pm
 data_exp1 <- mutate(data_exp1,absvadif=abs(va.dif))
 data_exp1 <- mutate(data_exp1,abslearndif=abs(learn.dif))
 cor(data_exp1$va.dif,data_exp1$after.acc)
+cor(data_exp1$prevadif,data_exp1$pre.acc)
 cor(data_exp1$absvadif,data_exp1$after.acc)
 cor(data_exp1$learn.dif,data_exp1$after.acc)
 cor(data_exp1$abslearndif,data_exp1$after.acc)
@@ -189,26 +216,24 @@ cor(data_exp1$abslearndif,data_exp1$after.acc)
 str(data_exp1)
 summary(data_exp1)
 
-
-
 diagplot(data_exp1,"prevadif","aftervadif")
-ggsave(paste0(data_dir,"diag_va_hf.pdf"), width = 6, height = 5)
+ggsave(paste0(data_dir,"diag_va_hf.pdf"), width = 3.5, height = 3)
 
 diagplot(data_exp1,"preindif","afterindif")
-ggsave(paste0(data_dir,"diag_in_hf.pdf"), width = 6, height = 5)
+ggsave(paste0(data_dir,"diag_in_hf.pdf"), width = 3.5, height = 3)
 
 diagplot(data_exp1,"prevadif_pm","aftervadif_pm")
-ggsave(paste0(data_dir,"diag_va_pm.pdf"), width = 6, height = 5)
+ggsave(paste0(data_dir,"diag_va_pm.pdf"), width = 3.5, height = 3)
 
 diagplot(data_exp1,"preindif_pm","afterindif_pm")
-ggsave(paste0(data_dir,"diag_in_pm.pdf"), width = 6, height = 5)
+ggsave(paste0(data_dir,"diag_in_pm.pdf"), width = 3.5, height = 3)
 
-correplot(data_exp1,"va.dif","after.acc")
-ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 4)
+correplot(data_exp1,"zaftervadif","after.acc","zprevadif","pre.acc")
+ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
 
-correplot(data_exp1,"absvadif","after.acc")
-correplot(data_exp1,"learn.dif","after.acc")
-correplot(data_exp1,"abslearndif","after.acc")
+# correplot(data_exp1,"absvadif","after.acc")
+# correplot(data_exp1,"learn.dif","after.acc")
+# correplot(data_exp1,"abslearndif","after.acc")
 
 # vioplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
 # ggsave(paste0(data_dir,"violin_va_hf.eps"), width = 4, height = 3)

@@ -16,22 +16,42 @@
 library(ggpubr)
 library(Hmisc)
 library(ggunchained)
-
+library(ggthemr)
+library(ggprism)
+# ggthemr('fresh',layout = "clean",spacing = 0.5)
+theme_set(theme_prism(base_line_size = 0.5))
+# theme_set(theme(axis.ticks.length.x = unit(-0.1,"cm")))
+# theme_set(theme_pubr())
+# theme_set(theme_classic())
 # plot functions
+
+#  function for bootstrap
+boot_mean <- function(data, indices) {
+  d <- data[indices,] #allows boot to select sample
+  return(sapply(d,mean)) #return R-squared of model
+}
 # scatter
 diagplot <- function(data,x,y){
-  p_size <- 3
-  p_jitter <- 0.2*p_size
-  bound <- max(data[x],data[y])+5
+  # bootstrap
+  set.seed(1)
+  #perform bootstrapping with 1000 replications
+  reps <- boot(data[c(x,y)], statistic=boot_mean, R=1000)
+  data <- data.frame(reps$t)
+  names(data) <- names(reps$data)
+  
+  p_size <- 1
+  p_jitter <- 0*p_size
+  bound <- max(data[x],data[y])+1
   ggplot(data,aes_(as.name(x),as.name(y)))+
-    geom_hline(yintercept = 0, linetype="dotted", color = "black")+
-    geom_vline(xintercept = 0, linetype="dotted", color = "black")+
-    geom_abline(intercept = 0, slope = 1, color = "#826a50")+
-    geom_point(aes(color = gender), size = p_size, alpha = 0.7,
+    geom_hline(yintercept = 0, linetype="dashed", color = "black")+
+    geom_vline(xintercept = 0, linetype="dashed", color = "black")+
+    geom_abline(intercept = 0, slope = 1, color = "black",size = 0.5)+
+    geom_point(color = "#13acf7", size = p_size, alpha = 0.7, shape=19,
                position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
     coord_cartesian(xlim = c(-bound,bound),ylim = c(-bound,bound))+
     scale_y_continuous(breaks = scales::breaks_width(10))+
-    scale_x_continuous(breaks = scales::breaks_width(10))
+    scale_x_continuous(breaks = scales::breaks_width(10))+
+    theme_prism(base_line_size = 0.5,border = T)
 }
 # correlation
 correplot <- function(data,x,y){
@@ -64,7 +84,7 @@ vioplot <- function(data,condition, select){
                  seed = 1))+
     coord_cartesian(ylim = c(0,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
-    scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
+    scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
 
 # boxplot
@@ -92,7 +112,7 @@ boxplot <- function(data, con, select){
     geom_line(aes(group = interaction(id,condition)), position = position_dodge(0.6))+
     coord_cartesian(ylim = c(0,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
-    scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
+    scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
 
 # boxplot with line
@@ -148,6 +168,8 @@ cor(data_exp1$abslearndif,data_exp1$after.acc)
 str(data_exp1)
 summary(data_exp1)
 
+
+
 diagplot(data_exp1,"prevadif","aftervadif")
 ggsave(paste0(data_dir,"diag_va_hf.pdf"), width = 6, height = 5)
 
@@ -167,21 +189,21 @@ correplot(data_exp1,"absvadif","after.acc")
 correplot(data_exp1,"learn.dif","after.acc")
 correplot(data_exp1,"abslearndif","after.acc")
 
-vioplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
-ggsave(paste0(data_dir,"violin_va_hf.eps"), width = 4, height = 3)
-ggsave(paste0(data_dir,"violin_va_hf.pdf"), width = 4, height = 3)
-
-vioplot(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))
-ggsave(paste0(data_dir,"violin_in_hf.eps"), width = 4, height = 3)
-ggsave(paste0(data_dir,"violin_in_hf.pdf"), width = 4, height = 3)
-
-vioplot(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))
-ggsave(paste0(data_dir,"violin_va_pm.eps"), width = 4, height = 3)
-ggsave(paste0(data_dir,"violin_va_pm.pdf"), width = 4, height = 3)
-
-vioplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))
-ggsave(paste0(data_dir,"violin_in_pm.eps"), width = 4, height = 3)
-ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)
+# vioplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
+# ggsave(paste0(data_dir,"violin_va_hf.eps"), width = 4, height = 3)
+# ggsave(paste0(data_dir,"violin_va_hf.pdf"), width = 4, height = 3)
+# 
+# vioplot(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))
+# ggsave(paste0(data_dir,"violin_in_hf.eps"), width = 4, height = 3)
+# ggsave(paste0(data_dir,"violin_in_hf.pdf"), width = 4, height = 3)
+# 
+# vioplot(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))
+# ggsave(paste0(data_dir,"violin_va_pm.eps"), width = 4, height = 3)
+# ggsave(paste0(data_dir,"violin_va_pm.pdf"), width = 4, height = 3)
+# 
+# vioplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))
+# ggsave(paste0(data_dir,"violin_in_pm.eps"), width = 4, height = 3)
+# ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)
 
 boxplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
 boxplot_line(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))

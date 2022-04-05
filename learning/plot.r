@@ -18,6 +18,8 @@ library(Hmisc)
 library(ggunchained)
 library(ggthemr)
 library(ggprism)
+library(stringr)
+library(dplyr)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
 # theme_set(theme(axis.ticks.length.x = unit(-0.1,"cm")))
@@ -46,7 +48,7 @@ diagplot <- function(data,x,y){
     geom_hline(yintercept = 0, linetype="dashed", color = "black")+
     geom_vline(xintercept = 0, linetype="dashed", color = "black")+
     geom_abline(intercept = 0, slope = 1, color = "black",size = 0.5)+
-    geom_point(color = "#13acf7", size = p_size, alpha = 0.7, shape=19,
+    geom_point(color = "#65a6b9", size = p_size, alpha = 0.7, shape=19,
                position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
     coord_cartesian(xlim = c(-bound,bound),ylim = c(-bound,bound))+
     scale_y_continuous(breaks = scales::breaks_width(10))+
@@ -88,6 +90,11 @@ vioplot <- function(data,condition, select){
 }
 
 # boxplot
+ci90 <- function(x){
+  return(qnorm(0.95)*sd(x)/sqrt(length(x)))
+  # similar to 5%~95%
+  # return(qnorm(0.95)*sd(x))
+}
 boxplot <- function(data, con, select){
   # select data
   Violin_data <- subset(data,select = c("id","gender",select))
@@ -98,18 +105,32 @@ boxplot <- function(data, con, select){
   
   Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
   Violin_data$condition <- factor(Violin_data$condition, levels = c("fearful","happy"),ordered = F)
-  # violinplot
-  ggplot(data=Violin_data, aes(x=condition, y=Score)) + 
-    geom_boxplot(aes(color=test),
-                 outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6)) +
+  
+  # summarise data 5%~90%
+  df <- Violin_data %>% group_by(condition, test) %>% 
+    summarise(y0 = quantile(Score, 0.05), 
+              #y0 = mean(Score)-ci90(Score),
+              y25 = quantile(Score, 0.25), 
+              y50 = median(Score), 
+              y75 = quantile(Score, 0.75), 
+              #y100 = mean(Score)+ci90(Score))
+              y100 = quantile(Score, 0.95))
+  
+  # boxplot
+  ggplot(data=Violin_data, aes(x=condition)) + 
+    # geom_boxplot(aes(y=Score,color=test),
+    #              outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6))+
+    geom_boxplot(data=df,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=test),
+                 outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6),
+                 stat = "identity") +
     scale_color_manual(values=c("grey50","black"))+
-    geom_point(aes(group = test, fill=test), size = 0.5, color = "gray",show.legend = F,
+    geom_point(aes(group = test, fill=test, y=Score), size = 0.5, color = "gray",show.legend = F,
                position = position_jitterdodge(
                  jitter.width = 0.3,
                  jitter.height = 0,
                  dodge.width = 0.6,
                  seed = 1))+
-    geom_line(aes(group = interaction(id,condition)), position = position_dodge(0.6))+
     coord_cartesian(ylim = c(0,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
@@ -138,7 +159,7 @@ boxplot_line <- function(data, con, select){
     facet_grid(~condition) +
     coord_cartesian(ylim = c(0,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
-    scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
+    scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
 
 # Load Data

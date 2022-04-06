@@ -86,10 +86,11 @@ correplot <- function(data,x1,y1,x2,y2){
   Corr_data <- reshape2::dcast(Corr_data,id+gender+test~condition,value.var = "Score")
   Corr_data$test <- factor(Corr_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
   
-  ggscatter(Corr_data, x = "vadif", y = "acc", color="test",
-            conf.int = TRUE, palette=c("grey50","black"),add = "reg.line",fullrange = F) +
+  ggscatter(Corr_data, x = "vadif", y = "acc", color="test",alpha = 0.8,
+            conf.int = TRUE, palette=c("grey50","black"),add = "reg.line",fullrange = F,
+            position=position_jitter(h=0.02,w=0.02, seed = 5)) +
     stat_cor(aes(color = test,label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
-             label.x = rposition)+
+             label.x = rposition,show.legend=F)+
     theme_prism(base_line_size = 0.5)
 }
 
@@ -268,6 +269,8 @@ ggsave(paste0(data_dir,"distribution.pdf"), width = 4, height = 3)
 # correplot(data_exp1,"learn.dif","after.acc")
 # correplot(data_exp1,"abslearndif","after.acc")
 
+# 3.1 violin and box plot -------------------------------------------------
+
 # vioplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
 # ggsave(paste0(data_dir,"violin_va_hf.eps"), width = 4, height = 3)
 # ggsave(paste0(data_dir,"violin_va_hf.pdf"), width = 4, height = 3)
@@ -297,6 +300,8 @@ ggsave(paste0(data_dir,"box_va_pm.pdf"), width = 4, height = 3)
 boxplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))
 ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 4, height = 3)
 
+
+# 3.2 post_test -----------------------------------------------------------
 # select valence in post-test
 after_box_data <- subset(data_exp1,select = c("id","gender","pair","afterplus.va","afterminus.va"))
 after_box_data <- reshape2::melt(after_box_data, c("id","gender","pair"),variable.name = "Odor", value.name = "Score")

@@ -13,6 +13,10 @@
 #         col = "#00cec9", main = "Chart", border = "#fdcb6e"
 # )
 
+
+# 1 functions -------------------------------------------------------------
+# use control+shift+R to add labels
+
 library(ggpubr)
 library(Hmisc)
 library(ggunchained)
@@ -128,7 +132,7 @@ boxplot <- function(data, con, select){
                         condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
   
   Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
-  Violin_data$condition <- factor(Violin_data$condition, levels = c("fearful","happy"),ordered = F)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
   
   # summarise data 5% and 90% quantile
   df <- Violin_data %>% group_by(condition, test) %>% 
@@ -170,7 +174,7 @@ boxplot_line <- function(data, con, select){
                         condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
   
   Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
-  Violin_data$condition <- factor(Violin_data$condition, levels = c("fearful","happy"),ordered = F)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
   # violinplot
   pd <- position_dodge(0.1)
   ggplot(data=Violin_data, aes(x=test, y=Score)) + 
@@ -185,6 +189,9 @@ boxplot_line <- function(data, con, select){
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
+
+
+# 2 analysis --------------------------------------------------------------
 
 # Load Data
 # data_dir <- "C:/Users/GuFei/zhuom/yanqihu/result100.sav"
@@ -216,6 +223,9 @@ cor(data_exp1$abslearndif,data_exp1$after.acc)
 str(data_exp1)
 summary(data_exp1)
 
+
+# 3 plots -----------------------------------------------------------------
+
 diagplot(data_exp1,"prevadif","aftervadif")
 ggsave(paste0(data_dir,"diag_va_hf.pdf"), width = 3.5, height = 3)
 
@@ -230,6 +240,29 @@ ggsave(paste0(data_dir,"diag_in_pm.pdf"), width = 3.5, height = 3)
 
 correplot(data_exp1,"zaftervadif","after.acc","zprevadif","pre.acc")
 ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
+
+# count subjects
+nochange <- sum(data_exp1$learn.dif==0)
+positive <- sum(data_exp1$learn.dif>0)
+# generate binomial distribution
+bi <- rbinom(10000, nrow(data_exp1)-nochange, 0.5)
+# convert to data frame
+bi_viz <- tibble(number = factor(bi)) %>%
+  count(number, name = "count") %>%
+  mutate(dbinom = count / sum(count), pbinom = cumsum(dbinom))
+cri <- as.numeric(bi_viz[min(which(bi_viz$pbinom>0.95)),1])
+tru <- as.numeric(bi_viz[bi_viz$number==positive,1])
+# plot binomial distribution
+ggplot(bi_viz,aes(number,count)) +
+  geom_col(fill="#4d9dd4")+
+  # plot p=0.95
+  geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
+  # xtick every 10
+  scale_x_discrete(breaks=seq(5,25,5))+
+  scale_y_continuous(expand = c(0.01,0))+
+  labs(x="Number of subjects",y="Count")+
+  geom_point(x=tru,y=1,color="red")
+ggsave(paste0(data_dir,"distribution.pdf"), width = 4, height = 3)
 
 # correplot(data_exp1,"absvadif","after.acc")
 # correplot(data_exp1,"learn.dif","after.acc")
@@ -252,7 +285,7 @@ ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
 # ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)
 
 boxplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
-boxplot_line(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
+# boxplot_line(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
 ggsave(paste0(data_dir,"box_va_hf.pdf"), width = 4, height = 3)
 
 boxplot(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))

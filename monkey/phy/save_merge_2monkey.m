@@ -111,7 +111,7 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
                     lfp{i}.label = {cur_roi};
                     % copy resp to match each trial of lfp
                     resp{i} = data_resp{locations(loc_i, 1)};
-                    resp{i}.label{1} = strjoin([resp{i}.label, cur_roi, '_']);
+                    resp{i}.label{1} = strjoin([resp{i}.label, lfp{i}.label], '_');
                     i = i + 1;
                 end
 

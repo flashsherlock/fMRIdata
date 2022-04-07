@@ -134,24 +134,23 @@ distance={'6condition','odor-air','valence','mean-odor-air','mean-valence'};
 for dis=1:5
 plot_data = cell2mat(cur_level_roi(:,1));
 color_data = dis_mean(:,dis,1);
+
+for monkey_i=1:2
 % find the index of two monkeys
-monkey_35 = find(strcmp(cur_level_roi(:,3),'RM035'));
-monkey_33 = find(strcmp(cur_level_roi(:,3),'RM033'));
+monkey = find(strcmp(cur_level_roi(:,3),monkeys{monkey_i}));
 % demean y and z for each monkey
-plot_data(monkey_35,2:3) = plot_data(monkey_35,2:3) - mean(plot_data(monkey_35,2:3))+5;
-plot_data(monkey_33,2:3) = plot_data(monkey_33,2:3) - mean(plot_data(monkey_33,2:3))-5;
+plot_data(monkey,2:3) = plot_data(monkey,2:3) - mean(plot_data(monkey,2:3))+10*(1.5-monkey_i);
 % demean x for each monkey
-plot_data(monkey_35,1) = plot_data(monkey_35,1) - mean(plot_data(monkey_35,1))+5;
-plot_data(monkey_33,1) = plot_data(monkey_33,1) - mean(plot_data(monkey_33,1))-5;
+plot_data(monkey,1) = plot_data(monkey,1) - mean(plot_data(monkey,1))+10*(1.5-monkey_i);
 % calculate zscore color for each monkey
-color_data(monkey_35) = zscore(color_data(monkey_35));
-color_data(monkey_33) = zscore(color_data(monkey_33));
+color_data(monkey) = zscore(color_data(monkey));
+end
 % scatter3 plot plot_data and use color_data to color
 figure
 scatter3(plot_data(:,1),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
 % set colorscale
-set(gca,'clim',[-2 2],'FontSize',18)
-colormap jet
+set(gca,'clim',[-1.5 1.5],'FontSize',18)
+colormap(bluered(1000))
 ylabel(colorbar,'Z-distance')
 xlabel('x')
 ylabel('y')

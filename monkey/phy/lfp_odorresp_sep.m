@@ -129,32 +129,83 @@ end
 save([pic_dir 'dis_sep_' m '.mat'],'dis_mean','cur_level_roi','dis_time')
 
 %% scatter plot in 3d space
-% load([pic_dir 'dis_sep_' m '.mat'])
+load([pic_dir 'dis_sep_' m '.mat'])
 distance={'6condition','odor-air','valence','mean-odor-air','mean-valence'};
-for dis=1:5
 plot_data = cell2mat(cur_level_roi(:,1));
-color_data = dis_mean(:,dis,1);
-
+% deal with some strange points
+plot_data(346,2)=plot_data(346,2)-0.001;
+plot_data(414,1)=plot_data(414,1)-0.001;
 for monkey_i=1:2
-% find the index of two monkeys
-monkey = find(strcmp(cur_level_roi(:,3),monkeys{monkey_i}));
-% demean y and z for each monkey
-plot_data(monkey,2:3) = plot_data(monkey,2:3) - mean(plot_data(monkey,2:3))+10*(1.5-monkey_i);
-% demean x for each monkey
-plot_data(monkey,1) = plot_data(monkey,1) - mean(plot_data(monkey,1))+10*(1.5-monkey_i);
-% calculate zscore color for each monkey
-color_data(monkey) = zscore(color_data(monkey));
+    % find the index of two monkeys
+    monkey = find(strcmp(cur_level_roi(:,3),monkeys{monkey_i}));
+    
+    % apply transformation
+    file_dir = [data_dir '../IMG/' monkeys{monkey_i}];   
+    
+    cmd=['3dNwarpCat -warp1 ' file_dir '_anat_shft_WARP.nii.gz'...
+        ' -warp2 ' file_dir '_anat_composite_linear_to_template.1D'...
+        ' -prefix ' file_dir '_2NMT_WARP.nii.gz'];
+    unix(cmd);
+    
+    infile = [file_dir '_elec_LPI.1D'];
+    outfile = [file_dir '_elec_STD.1D'];
+    warp = ['' file_dir '_2NMT_WARP.nii.gz' ''];
+    dlmwrite(infile,[-1 -1 1].*plot_data(monkey,:),'delimiter',' ');
+    cmd = ['3dNwarpXYZ -nwarp ' warp ' -iwarp ' infile ' > ' outfile];
+    unix(cmd);
+    plot_data(monkey,:) = [-1 -1 1].*dlmread(outfile);
+    
+    % apply transformation
+%     file = dir([data_dir '../IMG/' monkeys{monkey_i} '*template.1D']);
+%     x = dlmread([file.folder filesep file.name]);
+%     trans = inv(spm_matrix(x(:)'));
+%     A=[1 1 -1 -1;1 1 -1 -1;-1 -1 1 1;1 1 1 1];
+%     trans = trans.*A;
+%     plot_data(monkey,:)=ft_warp_apply(trans, plot_data(monkey,:), 'homogenous');
+
+    % % demean y and z for each monkey
+    % plot_data(monkey,2:3) = plot_data(monkey,2:3) - mean(plot_data(monkey,2:3))+10*(1.5-monkey_i);
+    % % demean x for each monkey
+    % plot_data(monkey,1) = plot_data(monkey,1) - mean(plot_data(monkey,1))+10*(1.5-monkey_i);
+
 end
-% scatter3 plot plot_data and use color_data to color
-figure
-scatter3(plot_data(:,1),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
-% set colorscale
-set(gca,'clim',[-1.5 1.5],'FontSize',18)
-colormap(bluered(1000))
-ylabel(colorbar,'Z-distance')
-xlabel('x')
-ylabel('y')
-zlabel('z')
-view(66,22)%37.5,30
-title(distance{dis})
+%% plot each distance
+for dis=4:5
+    % get distance
+    color_data = dis_mean(:,dis,1);
+    % calculate zscore color for each monkey
+    for monkey_i=1:2    
+        % find the index of two monkeys
+        monkey = find(strcmp(cur_level_roi(:,3),monkeys{monkey_i}));
+        color_data(monkey) = zscore(color_data(monkey));
+    end
+    % scatter3 plot plot_data and use color_data to color
+    figure
+    scatter3(plot_data(:,1),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
+    % set colorscale
+    set(gca,'clim',[-1.5 1.5],'FontSize',18)
+    set(gca,'xlim',[-15 15],'ylim',[10 25],'zlim',[0 10])
+    colormap(bluered(1000))
+    ylabel(colorbar,'Z-distance')
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    view(125,30)%37.5,30
+    title(distance{dis})
+    saveas(gcf, [pic_dir '2side_'  distance{dis} '.png'],'png')
+    
+    % flip RM033 to right side
+    figure
+    scatter3(abs(plot_data(:,1)),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
+    % set colorscale
+    set(gca,'clim',[-1.5 1.5],'FontSize',18)
+    set(gca,'xlim',[0 20],'ylim',[10 25],'zlim',[0 10])
+    colormap(bluered(1000))
+    ylabel(colorbar,'Z-distance')
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    view(125,30)%37.5,30
+    title(distance{dis})
+    saveas(gcf, [pic_dir '1side_'  distance{dis} '.png'],'png')
 end

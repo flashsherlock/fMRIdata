@@ -170,42 +170,62 @@ for monkey_i=1:2
 
 end
 %% plot each distance
+file_dir = [data_dir '../IMG/'];
+right_AH = ft_read_headshape([file_dir 'right_AH_level5.stl'],'format','stl');
+right_AH.coordsys = 'acpc';
+left_AH = ft_read_headshape([file_dir 'left_AH_level5.stl'],'format','stl');
+left_AH.coordsys = 'acpc';
+meshcolor = 0.75*[1 1 1];
+meshalpha = 0.2;
 for dis=4:5
     % get distance
     color_data = dis_mean(:,dis,1);
-    % calculate zscore color for each monkey
+    % normalization for each monkey
+    figure
     for monkey_i=1:2    
         % find the index of two monkeys
-        monkey = find(strcmp(cur_level_roi(:,3),monkeys{monkey_i}));
+        monkey = find(strcmp(cur_level_roi(:,3),monkeys{monkey_i}));        
+        subplot(2,2,monkey_i)
+        hist(color_data(monkey))
+        title([monkeys{monkey_i} '-' distance{dis}])
+        % calculate zscore color
         color_data(monkey) = zscore(color_data(monkey));
+        % min-max normalization
+%         color_data(monkey) = (color_data(monkey)-min(color_data(monkey)))/(max(color_data(monkey))-min(color_data(monkey)));
+        subplot(2,2,2+monkey_i)
+        hist(color_data(monkey))
+        title([monkeys{monkey_i} '-normalized-' distance{dis}])
     end
-    % scatter3 plot plot_data and use color_data to color
-    figure
-    scatter3(plot_data(:,1),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
-    % set colorscale
-    set(gca,'clim',[-1.5 1.5],'FontSize',18)
-    set(gca,'xlim',[-15 15],'ylim',[10 25],'zlim',[0 10])
-    colormap(bluered(1000))
-    ylabel(colorbar,'Z-distance')
-    xlabel('x')
-    ylabel('y')
-    zlabel('z')
-    view(125,30)%37.5,30
-    title(distance{dis})
-    saveas(gcf, [pic_dir '2side_'  distance{dis} '.png'],'png')
     
-    % flip RM033 to right side
-    figure
-    scatter3(abs(plot_data(:,1)),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
-    % set colorscale
-    set(gca,'clim',[-1.5 1.5],'FontSize',18)
-    set(gca,'xlim',[0 20],'ylim',[10 25],'zlim',[0 10])
-    colormap(bluered(1000))
-    ylabel(colorbar,'Z-distance')
-    xlabel('x')
-    ylabel('y')
-    zlabel('z')
-    view(125,30)%37.5,30
-    title(distance{dis})
-    saveas(gcf, [pic_dir '1side_'  distance{dis} '.png'],'png')
+    for plot_i = 1:2
+        % scatter3 plot plot_data and use color_data to color
+        figure
+        hold on    
+        ft_plot_mesh(right_AH,'facecolor',meshcolor,'facealpha',meshalpha);
+        if plot_i == 2
+            % separate left and right
+            ft_plot_mesh(left_AH,'facecolor',meshcolor,'facealpha',meshalpha);
+            scatter3(plot_data(:,1),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
+        else
+            % flip RM033 to right side
+            scatter3(abs(plot_data(:,1)),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
+        end
+        % set colorscale
+        set(gca,'clim',[-1.5 1.5],'FontSize',18)
+%         set(gca,'clim',[0 1],'FontSize',18)
+%         set(gca,'xlim',[-15 15],'ylim',[10 25],'zlim',[0 10])
+        colormap(bluered(1000))
+%         colors = hot(1000);
+%         index = [kron(1:100,ones(1,2)) 101:201 kron(201:2:400,ones(1,2)) ones(1,400)*401];
+%         colormap(colors(index,:))
+%         ylabel(colorbar,'normalized-distance')
+        ylabel(colorbar,'Z-distance')
+        xlabel('x')
+        ylabel('y')
+        zlabel('z')
+        view(125,30)%37.5,30
+        title(distance{dis})
+        saveas(gcf, [pic_dir num2str(plot_i) 'side_Zmesh_'  distance{dis} '.png'],'png')
+        saveas(gcf, [pic_dir num2str(plot_i) 'side_Zmesh_'  distance{dis} '.fig'],'fig')
+    end
 end

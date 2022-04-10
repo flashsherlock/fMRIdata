@@ -141,19 +141,23 @@ for monkey_i=1:2
     
     % apply transformation
     file_dir = [data_dir '../IMG/' monkeys{monkey_i}];   
-    
-    cmd=['3dNwarpCat -warp1 ' file_dir '_anat_shft_WARP.nii.gz'...
-        ' -warp2 ' file_dir '_anat_composite_linear_to_template.1D'...
-        ' -prefix ' file_dir '_2NMT_WARP.nii.gz'];
-    unix(cmd);
-    
+    if ~exist([file_dir '_2NMT_WARP.nii.gz'],'file')
+        cmd=['3dNwarpCat -warp1 ' file_dir '_anat_shft_WARP.nii.gz'...
+            ' -warp2 ' file_dir '_anat_composite_linear_to_template.1D'...
+            ' -prefix ' file_dir '_2NMT_WARP.nii.gz'];
+        unix(cmd);
+    end
     infile = [file_dir '_elec_LPI.1D'];
     outfile = [file_dir '_elec_STD.1D'];
-    warp = ['' file_dir '_2NMT_WARP.nii.gz' ''];
-    dlmwrite(infile,[-1 -1 1].*plot_data(monkey,:),'delimiter',' ');
-    cmd = ['3dNwarpXYZ -nwarp ' warp ' -iwarp ' infile ' > ' outfile];
-    unix(cmd);
-    plot_data(monkey,:) = [-1 -1 1].*dlmread(outfile);
+    % if outfile does not exist
+    if ~exist(outfile,'file')
+        warp = ['' file_dir '_2NMT_WARP.nii.gz' ''];
+        dlmwrite(infile,[-1 -1 1].*plot_data(monkey,:),'delimiter',' ');
+        cmd = ['3dNwarpXYZ -nwarp ' warp ' -iwarp ' infile ' > ' outfile];
+        unix(cmd);
+    else
+        plot_data(monkey,:) = [-1 -1 1].*dlmread(outfile);
+    end
     
     % apply transformation
 %     file = dir([data_dir '../IMG/' monkeys{monkey_i} '*template.1D']);
@@ -169,14 +173,7 @@ for monkey_i=1:2
     % plot_data(monkey,1) = plot_data(monkey,1) - mean(plot_data(monkey,1))+10*(1.5-monkey_i);
 
 end
-%% plot each distance
-file_dir = [data_dir '../IMG/'];
-right_AH = ft_read_headshape([file_dir 'right_AH_level5.stl'],'format','stl');
-right_AH.coordsys = 'acpc';
-left_AH = ft_read_headshape([file_dir 'left_AH_level5.stl'],'format','stl');
-left_AH.coordsys = 'acpc';
-meshcolor = 0.75*[1 1 1];
-meshalpha = 0.2;
+%% get and normalize distance data
 for dis=4:5
     % get distance
     color_data = dis_mean(:,dis,1);
@@ -194,9 +191,22 @@ for dis=4:5
 %         color_data(monkey) = (color_data(monkey)-min(color_data(monkey)))/(max(color_data(monkey))-min(color_data(monkey)));
         subplot(2,2,2+monkey_i)
         hist(color_data(monkey))
-        title([monkeys{monkey_i} '-normalized-' distance{dis}])
+        title([monkeys{monkey_i} '-normalized-' distance{dis}])       
     end
-    
+    % output data to csv
+        file_dir = [data_dir '../IMG/']; 
+        outfile = [file_dir '2m_' distance{dis} '.csv'];
+        dlmwrite(outfile,[plot_data color_data],'delimiter',',');
+end
+%% plot each distance
+file_dir = [data_dir '../IMG/'];
+right_AH = ft_read_headshape([file_dir 'right_AH_level5.stl'],'format','stl');
+right_AH.coordsys = 'acpc';
+left_AH = ft_read_headshape([file_dir 'left_AH_level5.stl'],'format','stl');
+left_AH.coordsys = 'acpc';
+meshcolor = 0.75*[1 1 1];
+meshalpha = 0.2; 
+for dis=4:5
     for plot_i = 1:2
         % scatter3 plot plot_data and use color_data to color
         figure

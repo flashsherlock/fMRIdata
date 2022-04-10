@@ -1,6 +1,7 @@
 .Rproj.user
 .Rhistory
 *.Rproj
+/.RData
 .vscode
 # local history
 /.history

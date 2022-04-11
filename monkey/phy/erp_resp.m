@@ -106,7 +106,7 @@ for roi_i=1:roi_num
                 r3_per(per_i)=corr(resavg.avg(select)',mean(erp_per,1)');
             end
             % save raw permutated r, combine steps
-            results{roi_i,3+2*range_i,condition-5}=[results{roi_i,5,condition-5};r3_per];
+            results{roi_i,3+2*range_i,condition-5}=[results{roi_i,3+2*range_i,condition-5};r3_per];
             % fisher-z
             r3_per=atanh(r3_per);
             cut1=prctile(r3_per,97.5);

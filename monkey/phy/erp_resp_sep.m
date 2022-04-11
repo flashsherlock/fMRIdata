@@ -103,3 +103,55 @@ for roi_i=1:roi_num
     end
 end
 save([pic_dir 'correlation.mat'],'results');
+%% plot
+plot_data = cell2mat(results(:,1,1));
+for monkey_i=1:2
+    % find the index of two monkeys
+    if strcmp(monkeys{monkey_i},'RM035')
+        monkey = find(plot_data(:,1)>0);
+    else
+        monkey = find(plot_data(:,1)<0);
+    end
+    % load electrodes
+    file_dir = [data_dir '../IMG/' monkeys{monkey_i}];   
+    outfile = [file_dir '_elec_STD.1D'];
+    plot_data(monkey,:) = [-1 -1 1].*dlmread(outfile);
+end
+%% plot each distance
+file_dir = [data_dir '../IMG/'];
+right_AH = ft_read_headshape([file_dir 'right_AH_level5.stl'],'format','stl');
+right_AH.coordsys = 'acpc';
+left_AH = ft_read_headshape([file_dir 'left_AH_level5.stl'],'format','stl');
+left_AH.coordsys = 'acpc';
+meshcolor = 0.75*[1 1 1];
+meshalpha = 0.2; 
+correlation = {'air','odor'};
+for cor=1:2
+    color_data = cell2mat(results(:,6,cor));
+    for plot_i = 1:2
+        % scatter3 plot plot_data and use color_data to color
+        figure
+        hold on    
+        ft_plot_mesh(right_AH,'facecolor',meshcolor,'facealpha',meshalpha);
+        if plot_i == 2
+            % separate left and right
+            ft_plot_mesh(left_AH,'facecolor',meshcolor,'facealpha',meshalpha);
+            scatter3(plot_data(:,1),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
+        else
+            % flip RM033 to right side
+            scatter3(abs(plot_data(:,1)),plot_data(:,2),plot_data(:,3),25,color_data,'filled')
+        end
+        % set colorscale
+        set(gca,'clim',[-1 1],'FontSize',18)
+%         set(gca,'xlim',[-15 15],'ylim',[10 25],'zlim',[0 10])
+        colormap(bluered(1000))
+        ylabel(colorbar,'Correlation')
+        xlabel('x')
+        ylabel('y')
+        zlabel('z')
+        view(125,30)%37.5,30
+        title(correlation{cor})
+        saveas(gcf, [pic_dir num2str(plot_i) 'side_Rmesh_'  correlation{cor} '.png'],'png')
+        saveas(gcf, [pic_dir num2str(plot_i) 'side_Rmesh_'  correlation{cor} '.fig'],'fig')
+    end
+end

@@ -151,3 +151,21 @@ for roi_i=1:roi_num
 % scatter(resavg.avg',squeeze(mean(erp_blc.trial,1))')
 end
 save([pic_dir 'correlation.mat'],'results');
+
+%% rearrange
+results4s = results(:,6:7,:);
+for con_i=1:2
+    for roi_i = 1:size(results4s,1)
+        true = atanh(results4s{roi_i,1,con_i});
+        r3_per=results4s{roi_i,2,con_i}(end,:);
+        % fisher-z
+        r3_per=atanh(r3_per);
+        cut1=prctile(r3_per,97.5);
+        cut2=prctile(r3_per,2.5);
+        sig='';
+        if true>cut1 || true<cut2
+            sig='*';
+        end
+        results4s{roi_i,2,con_i}=sig;
+    end
+end

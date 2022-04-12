@@ -21,10 +21,10 @@ end
 freq_2m = cell(roi_num,2);
 % RM035
 load([data_dir 'tf_RM035.mat']);
-freq_2m(:,1)=freq_2m(cell2mat(cur_level_roi(:,2)));
+freq_2m(:,1)=freq_sep_all(cell2mat(cur_level_roi(:,2)));
 % RM033
 load([data_dir 'tf_RM033.mat']);
-freq_2m(:,2)=freq_2m(cell2mat(cur_level_roi(:,3)));
+freq_2m(:,2)=freq_sep_all(cell2mat(cur_level_roi(:,3)));
 odor_num=7;        
 %% parameters
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',...
@@ -33,7 +33,7 @@ colors = cellfun(@(x) hex2rgb(x),colors,'UniformOutput',false);
 dims = 2:3;
 % odor distance
 dis_time = cell(roi_num,2,2);
-dis_mean = zeros(roi_num,3,2,2);
+dis_mean = zeros(roi_num,5,2,2);
 for dim_i=1:2
     n_dim = dims(dim_i);
     % init_dim = 30;
@@ -218,6 +218,10 @@ for dim_i=1:2
         dis_mean(roi_i, 2, dim_i, m_i) = mean(pdist2(tmp(end, :), tmp(1:end - 1, :)));
         % mean distance between pleasant and unpleasant
         dis_mean(roi_i, 3, dim_i, m_i) = mean(mean(pdist2(tmp(1:3, :), tmp(4:5, :))));
+        % mean distance to air (odor mean first)       
+        dis_mean(roi_i, 4, dim_i, m_i) = pdist2(tmp(end,:),mean(tmp(1:end-1,:)));
+        % mean distance between pleasant and unpleasant(odor mean first)
+        dis_mean(roi_i, 5, dim_i, m_i) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));
     end
     xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))
@@ -242,8 +246,8 @@ legend(cur_level_roi(:,1))
 %% mean distance
 figure
 hold on
-for dim_i=1:2
-    for dis_i=1:3   
+for dim_i=1%:2
+    for dis_i=4:5   
         tmp = mean(dis_mean(:,dis_i,dim_i,:),4);
 %         plot(1:roi_num,tmp,'Color',cmap(2*(dim_i-1)+dis_i,:),'Linewidth',2)
         plot(1:roi_num,tmp,'Linewidth',2)
@@ -251,7 +255,8 @@ for dim_i=1:2
 end
 xlabel('ROI')
 ylabel('Distance')
-legend('2by2','air','valence','2by2_3d','air_3d','valence_3d','location','eastouside')
+legend('odor-air','valence')
+% legend('2by2','air','valence','2by2_3d','air_3d','valence_3d','location','eastoutside')
 set(gca,'XTick',1:length(cur_level_roi),'xlim',[1 length(cur_level_roi)])
 set(gca,'XTickLabel',cur_level_roi(:,1))
 set(gca,'FontSize',18);

@@ -47,8 +47,13 @@ for dim_i=1:2
     data_2m = cell(1,2);
     label_2m = cell(1,2);
     for m_i=1:2
+        % label
+        label = freq_2m{roi_i,m_i}.trialinfo;        
         % get data
         data = squeeze(freq_2m{roi_i,m_i}.powspctrm);
+%         % remove air
+%         label = label(label~=6);
+%         data = data(label~=6,:,:);
         % time range
         time_range = [0 3];
         freq = [1:42];
@@ -58,15 +63,17 @@ for dim_i=1:2
         % frequency below 80Hz
         data = data(:,freq,time_idx(1):time_idx(2));
         % calculate z score
-        data = zscore(data,0,1);
-        % label
-        label = freq_2m{roi_i,m_i}.trialinfo;
+        data = zscore(data,0,1);        
         % odor mean
         mean_data = zeros(length(unique(label)),size(data,3),size(data,2));
         mean_label = repmat([1:length(unique(label))]',[1,size(data,3)]);
         for odor_i = 1:length(unique(label))
             mean_data(odor_i,:,:) = squeeze(mean(data(label==odor_i,:,:),1))';
         end
+        % remove air
+        mean_label = mean_label(1:end-1,:);
+        mean_data = mean_data(1:end-1,:,:);
+        % reshape data
         data = reshape(mean_data,[],size(data,2));
         % calculate z score so that 2monkeys are comparable
         data = zscore(data,0,1);
@@ -101,7 +108,7 @@ for dim_i=1:2
     xlabel('Frequency')
     ylabel('Weights')
     title([cur_level_roi{roi_i,1} ' ' t_range])   
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_wei' cur_roi '_pca_'  t_range '.png'],'png')
+    saveas(gcf, [pic_dir num2str(n_dim) 'd_nawei' cur_roi '_pca_'  t_range '.png'],'png')
     
     % scatter plot
     p_color = colors(label);
@@ -134,8 +141,9 @@ for dim_i=1:2
     xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))    
     title([cur_level_roi{roi_i,1} ' ' t_range])
-    legend('RM033', 'RM035', 'Ind', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air','location','eastoutside')
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.png'],'png')
+    conditions={'RM033', 'RM035', 'Ind', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air'};
+    legend(conditions(1:length(unique(label))+2),'location','eastoutside')
+    saveas(gcf, [pic_dir num2str(n_dim) 'd_na' cur_roi '_pca_'  t_range '.png'],'png')
     close all
     
     % line plot
@@ -203,7 +211,7 @@ for dim_i=1:2
             % 6 condition
             dis_time_roi(time_i, 1) = mean(pdist(tmp));
             % mean distance to air
-            dis_time_roi(time_i, 2) = mean(pdist2(tmp(end, :), tmp(1:end - 1, :)));
+%             dis_time_roi(time_i, 2) = mean(pdist2(tmp(end, :), tmp(1:end - 1, :)));
             % mean distance between pleasant and unpleasant
             dis_time_roi(time_i, 3) = mean(mean(pdist2(tmp(1:3, :), tmp(4:5, :))));
         end
@@ -215,18 +223,18 @@ for dim_i=1:2
         % 6 condition
         dis_mean(roi_i, 1, dim_i, m_i) = mean(pdist(tmp));
         % mean distance to air
-        dis_mean(roi_i, 2, dim_i, m_i) = mean(pdist2(tmp(end, :), tmp(1:end - 1, :)));
+%         dis_mean(roi_i, 2, dim_i, m_i) = mean(pdist2(tmp(end, :), tmp(1:end - 1, :)));
         % mean distance between pleasant and unpleasant
         dis_mean(roi_i, 3, dim_i, m_i) = mean(mean(pdist2(tmp(1:3, :), tmp(4:5, :))));
         % mean distance to air (odor mean first)       
-        dis_mean(roi_i, 4, dim_i, m_i) = pdist2(tmp(end,:),mean(tmp(1:end-1,:)));
+%         dis_mean(roi_i, 4, dim_i, m_i) = pdist2(tmp(end,:),mean(tmp(1:end-1,:)));
         % mean distance between pleasant and unpleasant(odor mean first)
         dis_mean(roi_i, 5, dim_i, m_i) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));
     end
     xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))
     title([cur_level_roi{roi_i,1} ' ' t_range])    
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_line_'  t_range '.png'],'png')
+    saveas(gcf, [pic_dir num2str(n_dim) 'd_na' cur_roi '_pca_line_'  t_range '.png'],'png')
     close all           
     end
 end
@@ -247,7 +255,7 @@ legend(cur_level_roi(:,1))
 figure
 hold on
 for dim_i=1%:2
-    for dis_i=4:5   
+    for dis_i=[1 5]
         tmp = mean(dis_mean(:,dis_i,dim_i,:),4);
 %         plot(1:roi_num,tmp,'Color',cmap(2*(dim_i-1)+dis_i,:),'Linewidth',2)
         plot(1:roi_num,tmp,'Linewidth',2)
@@ -255,11 +263,11 @@ for dim_i=1%:2
 end
 xlabel('ROI')
 ylabel('Distance')
-legend('odor-air','valence')
+legend('odor','valence')
 % legend('2by2','air','valence','2by2_3d','air_3d','valence_3d','location','eastoutside')
 set(gca,'XTick',1:length(cur_level_roi),'xlim',[1 length(cur_level_roi)])
 set(gca,'XTickLabel',cur_level_roi(:,1))
 set(gca,'FontSize',18);
 title(['Mean_distance' ' ' t_range],'Interpreter','none')   
-saveas(gcf, [pic_dir 'Mean_distance_'  t_range '.png'],'png')
+saveas(gcf, [pic_dir 'Mean_na_distance_'  t_range '.png'],'png')
 close all

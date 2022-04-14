@@ -50,7 +50,7 @@ end
 %% analyze mean distance
 dims = 2:3;
 dis_time = cell(roi_num,2);
-dis_mean = zeros(roi_num,5,2);
+dis_mean = zeros(roi_num,6,2);
 % 2 and 3 dimension
 for dim_i=1:2
     n_dim = dims(dim_i);
@@ -114,8 +114,8 @@ for dim_i=1:2
 
         % mean distance
         tmp = squeeze(mean(dis_data,2));
-        % 6 condition
-        dis_mean(roi_i,1,dim_i) = mean(pdist(tmp));
+        % 5 condition
+        dis_mean(roi_i,1,dim_i) = mean(pdist(tmp(1:end-1,:)));
         % mean distance to air        
         dis_mean(roi_i,2,dim_i) = mean(pdist2(tmp(end,:),tmp(1:end-1,:)));
         % mean distance between pleasant and unpleasant
@@ -124,13 +124,15 @@ for dim_i=1:2
         dis_mean(roi_i,4,dim_i) = pdist2(tmp(end,:),mean(tmp(1:end-1,:)));
         % mean distance between pleasant and unpleasant(odor mean first)
         dis_mean(roi_i,5,dim_i) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));
+        % 6 condition
+        dis_mean(roi_i,6,dim_i) = mean(pdist(tmp));
     end
 end
 save([pic_dir 'dis_sep_' m '.mat'],'dis_mean','cur_level_roi','dis_time')
 
 %% scatter plot in 3d space
 load([pic_dir 'dis_sep_' m '.mat'])
-distance={'6condition','odor-air','valence','mean-odor-air','mean-valence'};
+distance = {'odor', 'odor-air', 'valence', 'mean-odor-air', 'mean-valence', '6condition'};
 plot_data = cell2mat(cur_level_roi(:,1));
 % deal with some strange points
 plot_data(346,2)=plot_data(346,2)-0.001;
@@ -174,7 +176,7 @@ for monkey_i=1:2
 
 end
 %% get and normalize distance data
-for dis=4:5
+for dis=[1 4 5]
     % get distance
     color_data = dis_mean(:,dis,1);
     % normalization for each monkey
@@ -186,9 +188,9 @@ for dis=4:5
         hist(color_data(monkey))
         title([monkeys{monkey_i} '-' distance{dis}])
         % calculate zscore color
-        color_data(monkey) = zscore(color_data(monkey));
+%         color_data(monkey) = zscore(color_data(monkey));
         % min-max normalization
-%         color_data(monkey) = (color_data(monkey)-min(color_data(monkey)))/(max(color_data(monkey))-min(color_data(monkey)));
+        color_data(monkey) = (color_data(monkey)-min(color_data(monkey)))/(max(color_data(monkey))-min(color_data(monkey)));
         subplot(2,2,2+monkey_i)
         hist(color_data(monkey))
         title([monkeys{monkey_i} '-normalized-' distance{dis}])       

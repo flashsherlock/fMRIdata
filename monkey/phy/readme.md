@@ -34,6 +34,9 @@
 ### save_merge_2monkey
 根据电极所在位置将位于同一脑区的数据合并，并且可以合并两只猴子的数据。
 
+### save_sep_2monkey
+根据电极所在位置将位于同一记录位置的数据合并。
+
 ### count_trial
 统计各个区域的trial数量。
 
@@ -100,6 +103,9 @@
 ### pca_power
 使用时频分析的结果做PCA降维并画图。
 
+### pca_power_2m
+用合并的数据做PCA。
+
 ## Time-frequency analysis
 
 ### lfp_odortry
@@ -113,6 +119,9 @@
 
 ### lfp_odorresp
 找出落在气味呈现时间段内的呼吸进行时频分析。画两个周期的气味和空气条件，比较一个周期内气味和空气条件，以及好闻和难闻气味的能量。
+
+### lfp_odorresp_sep
+每一个记录位点分别做时频分析并计算PCA后的距离。
 
 ## ERP
 

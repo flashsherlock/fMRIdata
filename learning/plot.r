@@ -124,15 +124,22 @@ ci90 <- function(x){
   # similar to 5% and 90%
   # return(qnorm(0.95)*sd(x))
 }
-boxplot <- function(data, con, select){
+boxplot <- function(data, con, select, test="pre"){
   # select data
-  Violin_data <- subset(data,select = c("id","gender",select))
-  Violin_data <- reshape2::melt(Violin_data, c("id","gender"),variable.name = "Task", value.name = "Score")
-  Violin_data <- mutate(Violin_data,
-                        test=ifelse(str_detect(Task,"pre"),"pre_test","post_test"),
-                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
-  
-  Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
+  Violin_data <- subset(data,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  if (test=="pre"){
+    Violin_data <- mutate(Violin_data,
+                          test=ifelse(str_detect(Task,"pre"),"pre_test","post_test"),
+                          condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+    Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
+  }
+  else{
+    Violin_data <- mutate(Violin_data,
+                          test=ifelse(str_detect(Task,test),"happy","fearful"),
+                          condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+    Violin_data$test <- factor(Violin_data$test, levels = c("happy","fearful"),ordered = TRUE)
+  }
   Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
   
   # summarise data 5% and 90% quantile
@@ -192,7 +199,7 @@ boxplot_line <- function(data, con, select){
 }
 
 
-# 2 analysis --------------------------------------------------------------
+# 2 EXP1 analysis --------------------------------------------------------------
 
 # Load Data
 # data_dir <- "C:/Users/GuFei/zhuom/yanqihu/result100.sav"
@@ -343,3 +350,18 @@ ggplot(data=after_box_data, aes(x=pair, y=Score,fill=Condition)) +
   scale_fill_manual(values = c("red","blue")) + 
   scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
 ggsave(paste0(data_dir,"boxcolor_va_after.pdf"), width = 4, height = 3)
+
+# 4 EXP2 analysis --------------------------------------------------------------
+# Load Data
+data_dir <- "/Volumes/WD_D/gufei/writing/"
+data_exp2 <- spss.get(paste0(data_dir,"result_exp2.sav"))
+# select data
+data_exp2 <- subset(data_exp2, id!=35)
+# boxplot
+# H and F represent visual condition
+# boxplot(data_exp2,c("happy","fear"),c("happyF","fearF","happyH","fearH"),test="H")+
+boxplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+  coord_cartesian(ylim = c(0,3.5))+
+  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  labs(y="RT")
+ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 4, height = 3)

@@ -25,6 +25,7 @@ library(ggprism)
 library(stringr)
 library(dplyr)
 library(tidyr)
+library(boot)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
 # theme_set(theme(axis.ticks.length.x = unit(-0.1,"cm")))
@@ -53,12 +54,13 @@ diagplot <- function(data,x,y){
     geom_hline(yintercept = 0, linetype="dashed", color = "black")+
     geom_vline(xintercept = 0, linetype="dashed", color = "black")+
     geom_abline(intercept = 0, slope = 1, color = "black",size = 0.5)+
-    geom_point(color = "#0073c2", size = p_size, alpha = 0.7, shape=19,stroke = 0,
+    geom_point(aes(color = "data"), size = p_size, alpha = 0.7, shape=19,stroke = 0,
                position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
     coord_cartesian(xlim = c(-bound,bound),ylim = c(-bound,bound))+
     scale_y_continuous(breaks = scales::breaks_width(10))+
     scale_x_continuous(breaks = scales::breaks_width(10))+
-    theme_prism(base_line_size = 0.5,border = T)
+    theme_prism(base_line_size = 0.5,border = T)+
+    scale_color_manual(values = c(data = "#0073c2"))
 }
 
 # calculate zscore
@@ -234,20 +236,44 @@ summary(data_exp1)
 
 # 3 plots -----------------------------------------------------------------
 
-diagplot(data_exp1,"prevadif","aftervadif")
+diagplot(data_exp1,"prevadif","aftervadif")+
+  guides(color="none")
 ggsave(paste0(data_dir,"diag_va_hf.pdf"), width = 3.5, height = 3)
 
-diagplot(data_exp1,"preindif","afterindif")
+diagplot(data_exp1,"preindif","afterindif")+
+  guides(color="none")
 ggsave(paste0(data_dir,"diag_in_hf.pdf"), width = 3.5, height = 3)
 
-diagplot(data_exp1,"prevadif_pm","aftervadif_pm")
+diagplot(data_exp1,"prevadif_pm","aftervadif_pm")+
+  guides(color="none")
 ggsave(paste0(data_dir,"diag_va_pm.pdf"), width = 3.5, height = 3)
 
-diagplot(data_exp1,"preindif_pm","afterindif_pm")
+diagplot(data_exp1,"preindif_pm","afterindif_pm")+
+  guides(color="none")
 ggsave(paste0(data_dir,"diag_in_pm.pdf"), width = 3.5, height = 3)
+
+# combine with pm
+set.seed(1)
+#perform bootstrapping with 1000 replications
+reps <- boot(data_exp1[c("prevadif_pm","aftervadif_pm")], statistic=boot_mean, R=1000)
+data <- data.frame(reps$t)
+names(data) <- names(reps$data)
+p_size <- 1
+p_jitter <- 0*p_size
+diagplot(data_exp1,"prevadif","aftervadif")+
+  geom_point(data = data,aes(prevadif_pm,aftervadif_pm, color = "pm"), size = p_size, alpha = 0.7, shape=19,stroke = 0,
+             position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
+  scale_color_manual(values = c(data = "#0073c2", pm = "gray50"))+
+  labs(x="valence difference in pre-test", y="valence difference in post-test")
+ggsave(paste0(data_dir,"diag_va_combine.pdf"), width = 4.5, height = 3.5)
+
+# 3.2 correlation plot ----------------------------------------------------
 
 correplot(data_exp1,"zaftervadif","after.acc","zprevadif","pre.acc")
 ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
+
+
+# 3.3 distribution --------------------------------------------------------
 
 # count subjects
 nochange <- sum(data_exp1$learn.dif==0)
@@ -276,7 +302,7 @@ ggsave(paste0(data_dir,"distribution.pdf"), width = 4, height = 3)
 # correplot(data_exp1,"learn.dif","after.acc")
 # correplot(data_exp1,"abslearndif","after.acc")
 
-# 3.1 violin and box plot -------------------------------------------------
+# 3.4 violin and box plot -------------------------------------------------
 
 # vioplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
 # ggsave(paste0(data_dir,"violin_va_hf.eps"), width = 4, height = 3)
@@ -308,7 +334,7 @@ boxplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in",
 ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 4, height = 3)
 
 
-# 3.2 post_test -----------------------------------------------------------
+# 3.5 post_test -----------------------------------------------------------
 # select valence in post-test
 after_box_data <- subset(data_exp1,select = c("id","gender","pair","afterplus.va","afterminus.va"))
 after_box_data <- reshape2::melt(after_box_data, c("id","gender","pair"),variable.name = "Odor", value.name = "Score")
@@ -317,7 +343,7 @@ after_box_data <- mutate(after_box_data, Condition=ifelse((Odor=="(+)-pinene" & 
 
 after_box_data$Odor <- factor(after_box_data$Odor, levels = c("(+)-pinene","(-)-pinene"),ordered = F)
 after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("(+)-happy","(-)-happy"),ordered = F)
-after_box_data$Condtion <- factor(after_box_data$Condtion, levels = c("happy","fearful"),ordered = F)
+after_box_data$Condition <- factor(after_box_data$Condition, levels = c("happy","fearful"),ordered = F)
 
 ggplot(data=after_box_data, aes(x=pair, y=Score)) + 
   geom_boxplot(aes(color=Odor),

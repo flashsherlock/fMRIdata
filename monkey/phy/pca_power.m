@@ -1,8 +1,8 @@
 %% load and reorganize data
-m = 'RM033';
+m = 'RM035';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 load([data_dir 'tf_' m '.mat'])
-pic_dir=[data_dir 'pic/pca_power/' m '/'];
+pic_dir=[data_dir 'pic/pca_power/noair/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -28,8 +28,13 @@ for dim_i=1:2
 %% analyze
 for roi_i=1:roi_num
     cur_roi = cur_level_roi{roi_i,1};
+    % label
+    label = freq_sep_all{roi_i}.trialinfo;
     % get data
     data = squeeze(freq_sep_all{roi_i}.powspctrm);
+    % % remove air
+    % label = label(label~=6);
+    % data = data(label~=6,:,:);
     % time range
     time_range = [0 3];
     t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
@@ -39,14 +44,16 @@ for roi_i=1:roi_num
     data = data(:,1:42,time_idx(1):time_idx(2));
     % calculate z score
     data = zscore(data,0,1);
-    % label
-    label = freq_sep_all{roi_i}.trialinfo;
     % odor mean
     mean_data = zeros(length(unique(label)),size(data,3),size(data,2));
     mean_label = repmat([1:length(unique(label))]',[1,size(data,3)]);
     for odor_i = 1:length(unique(label))
         mean_data(odor_i,:,:) = squeeze(mean(data(label==odor_i,:,:),1))';
     end
+    % remove air
+    mean_label = mean_label(1:end-1,:);
+    mean_data = mean_data(1:end-1,:,:);
+    % reshape
     data = reshape(mean_data,[],size(data,2));
     label = reshape(mean_label,[],1);
 
@@ -96,7 +103,8 @@ for roi_i=1:roi_num
     xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))    
     title([cur_level_roi{roi_i,1} ' ' t_range])
-    legend('Ind', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air','location','eastoutside')
+    legends = {'Ind', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air'};
+    legend(legends(1:length(unique(label))),'location','eastoutside')
     set(gca,'FontSize',18);
     saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.png'],'png')
     close all
@@ -194,16 +202,16 @@ end
 end
 
 %% plot distance
-figure
-hold on
-dim_i = 1;
-dis = 1;
-cmap = hsv(roi_num); % colormap, with N colors
-for roi_i=1:roi_num    
-    tmp = dis_time{roi_i,dim_i}(:,dis);%+roi_i*0.1;
-    plot(linspace(time_range(1),time_range(2),length(tmp)),tmp,'Color',cmap(roi_i,:),'Linewidth',2)
-end
-legend(cur_level_roi(:,1))
+% figure
+% hold on
+% dim_i = 1;
+% dis = 1;
+% cmap = hsv(roi_num); % colormap, with N colors
+% for roi_i=1:roi_num    
+%     tmp = dis_time{roi_i,dim_i}(:,dis);%+roi_i*0.1;
+%     plot(linspace(time_range(1),time_range(2),length(tmp)),tmp,'Color',cmap(roi_i,:),'Linewidth',2)
+% end
+% legend(cur_level_roi(:,1))
 
 %% mean distance
 figure

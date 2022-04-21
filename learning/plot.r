@@ -26,6 +26,7 @@ library(stringr)
 library(dplyr)
 library(tidyr)
 library(boot)
+library(car)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
 # theme_set(theme(axis.ticks.length.x = unit(-0.1,"cm")))
@@ -131,17 +132,18 @@ boxplot <- function(data, con, select, test="pre"){
   Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
   if (test=="pre"){
-    Violin_data <- mutate(Violin_data,
-                          test=ifelse(str_detect(Task,"pre"),"pre_test","post_test"),
-                          condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
-    Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
-  }
-  else{
-    Violin_data <- mutate(Violin_data,
-                          test=ifelse(str_detect(Task,test),"happy","fearful"),
-                          condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
-    Violin_data$test <- factor(Violin_data$test, levels = c("happy","fearful"),ordered = TRUE)
-  }
+    tests <- c("pre_test","post_test")}
+  else if (test=="happy"){
+    tests <- c("happy_odor","fearful_odor")}
+  else if (test=="plus"){
+    tests <- c("plus","minus")}
+  else {
+    tests <- c("H","F")}
+  
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,test),tests[1],tests[2]),
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
   Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
   
   # summarise data 5% and 90% quantile
@@ -200,7 +202,28 @@ boxplot_line <- function(data, con, select){
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
 
-
+# binomial distribution
+binomial_plot <- function(trials,positive){
+  set.seed(1)
+  # generate binomial distribution
+  bi <- rbinom(10000, trials, 0.5)
+  # convert to data frame
+  bi_viz <- tibble(number = factor(bi)) %>%
+    count(number, name = "count") %>%
+    mutate(dbinom = count / sum(count), pbinom = cumsum(dbinom))
+  cri <- as.numeric(bi_viz[min(which(bi_viz$pbinom>0.95)),1])
+  tru <- as.numeric(bi_viz[bi_viz$number==positive,1])
+  # plot binomial distribution
+  ggplot(bi_viz,aes(number,count)) +
+    geom_col(fill="#4d9dd4")+
+    # plot p=0.95
+    geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
+    # xtick every 10
+    scale_x_discrete(breaks=seq(5,25,5))+
+    scale_y_continuous(expand = c(0.01,0))+
+    labs(x="Number of subjects",y="Count")+
+    geom_point(x=tru,y=1,color="red")
+}
 # 2 EXP1 analysis --------------------------------------------------------------
 
 # Load Data
@@ -274,28 +297,11 @@ ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
 
 
 # 3.3 distribution --------------------------------------------------------
-
 # count subjects
 nochange <- sum(data_exp1$learn.dif==0)
 positive <- sum(data_exp1$learn.dif>0)
-# generate binomial distribution
-bi <- rbinom(10000, nrow(data_exp1)-nochange, 0.5)
-# convert to data frame
-bi_viz <- tibble(number = factor(bi)) %>%
-  count(number, name = "count") %>%
-  mutate(dbinom = count / sum(count), pbinom = cumsum(dbinom))
-cri <- as.numeric(bi_viz[min(which(bi_viz$pbinom>0.95)),1])
-tru <- as.numeric(bi_viz[bi_viz$number==positive,1])
-# plot binomial distribution
-ggplot(bi_viz,aes(number,count)) +
-  geom_col(fill="#4d9dd4")+
-  # plot p=0.95
-  geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
-  # xtick every 10
-  scale_x_discrete(breaks=seq(5,25,5))+
-  scale_y_continuous(expand = c(0.01,0))+
-  labs(x="Number of subjects",y="Count")+
-  geom_point(x=tru,y=1,color="red")
+trials <- nrow(data_exp1)-nochange
+binomial_plot(trials,positive)
 ggsave(paste0(data_dir,"distribution.pdf"), width = 4, height = 3)
 
 # correplot(data_exp1,"absvadif","after.acc")
@@ -391,3 +397,33 @@ boxplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
   labs(y="RT")
 ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 4, height = 3)
+# plus and minus
+boxplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
+  coord_cartesian(ylim = c(0,3.5))+
+  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  labs(y="RT")
+ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 4, height = 3)
+
+# count subjects
+nochange <- sum(data_exp2$learn.dif==0)
+positive <- sum(data_exp2$learn.dif>0)
+trials <- nrow(data_exp2)-nochange
+binomial_plot(trials,positive)
+ggsave(paste0(data_dir,"distribution_exp2.pdf"), width = 4, height = 3)
+
+# correlation between learn.dif and incon_con
+data_exp2 <- mutate(data_exp2,RT2incon.con = RT2.incon - RT2.con)
+data_exp2 <- mutate(data_exp2,RT1incon.con = RT1.incon - RT1.con)
+rposition <- min(data_exp2$learn.dif)
+ggscatter(data_exp2, x = "learn.dif", y = "RT2incon.con",alpha = 0.8,
+          conf.int = TRUE, palette=c("grey50","black"),add = "reg.line",fullrange = F,
+          position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+  stat_cor(aes(color = test,label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+           label.x = rposition,show.legend=F)+
+  theme_prism(base_line_size = 0.5)
+# Ftest for equality of variance
+# var.test(incon.con ~ learnva, data = data_exp2)
+# levene's test for equality of variance
+leveneTest(RT2incon.con ~ as.factor(learnva), data = data_exp2, center=mean)
+t.test(RT2incon.con ~ learnva, data = data_exp2, var.equal = T)
+

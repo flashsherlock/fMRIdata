@@ -70,15 +70,7 @@ zscore <- function(x){
 }
 # pot correlation
 correplot <- function(data,x1,y1,x2,y2){
-  # ggplot(data, aes_(as.name(x1),as.name(y1)))+
-  #   geom_point(aes(x=zprevadif,y=pre.acc),color = "#233b42", size = 2, alpha = 0.5,shape=19,
-  #              position=position_jitter(h=0.02,w=0.02, seed = 5))+
-  #   geom_point(color = "#65a6b9", size = 2, alpha = 0.5,shape=19,
-  #              position=position_jitter(h=0.02,w=0.02, seed = 5))+
-  #   geom_smooth(aes_(as.name(x2),as.name(y2)),method = "lm", formula = 'y ~ x')+
-  #   geom_smooth(method = "lm", formula = 'y ~ x')+
-  #   scale_y_continuous(breaks = scales::breaks_width(0.2))+
-  #   scale_x_continuous(breaks = scales::breaks_width(1))
+  
   Corr_data <- subset(data,select = c("id","gender",x1,y1,x2,y2))
   # reshape data (gather and spread can also do that)
   Corr_data <- reshape2::melt(Corr_data, c("id","gender"),variable.name = "Task", value.name = "Score")
@@ -132,13 +124,14 @@ boxplot <- function(data, con, select, test="pre"){
   Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
   if (test=="pre"){
-    tests <- c("pre_test","post_test")}
-  else if (test=="happy"){
-    tests <- c("happy_odor","fearful_odor")}
-  else if (test=="plus"){
-    tests <- c("plus","minus")}
-  else {
-    tests <- c("H","F")}
+    tests <- c("pre_test","post_test")
+  } else if (test=="happy"){
+    tests <- c("happy_odor","fearful_odor")
+  } else if (test=="plus"){
+    tests <- c("plus","minus")
+  } else {
+    tests <- c("H","F")
+  }
   
   Violin_data <- mutate(Violin_data,
                         test=ifelse(str_detect(Task,test),tests[1],tests[2]),
@@ -171,6 +164,60 @@ boxplot <- function(data, con, select, test="pre"){
                  jitter.height = 0,
                  dodge.width = 0.6,
                  seed = 1))+
+    coord_cartesian(ylim = c(0,100))+
+    scale_fill_manual(values = c("#233b42","#65adc2")) + 
+    scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+}
+
+# boxplot with horizontal line
+boxplotv <- function(data, con, select, test="pre"){
+  # select data
+  Violin_data <- subset(data,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  if (test=="pre"){
+    tests <- c("pre_test","post_test")
+    } else if (test=="happy"){
+    tests <- c("happy_odor","fearful_odor")
+    } else if (test=="plus"){
+    tests <- c("plus","minus")
+    } else {
+    tests <- c("H","F")
+  }
+
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,test),tests[1],tests[2]),
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
+  
+  # summarise data 5% and 90% quantile
+  df <- Violin_data %>% group_by(condition, test) %>% 
+    summarise(y0 = quantile(Score, 0.05), 
+              #y0 = mean(Score)-ci90(Score),
+              y25 = quantile(Score, 0.25), 
+              y50 = median(Score), 
+              y75 = quantile(Score, 0.75), 
+              #y100 = mean(Score)+ci90(Score))
+              y100 = quantile(Score, 0.95))
+  
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = ifelse(test == "pre_test", 
+                                                 jitter(as.numeric(condition) - 0.15, 0.3),
+                                                 jitter(as.numeric(condition) + 0.15, 0.3) ))
+  # boxplot
+  ggplot(data=Violin_data, aes(x=condition)) + 
+    # geom_boxplot(aes(y=Score,color=test),
+    #              outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6))+
+    geom_errorbar(data=df, position = position_dodge(0.6),
+                  aes(ymin=y0,ymax=y100,color=test),linetype = 1,width = 0.3)+ # add line to whisker
+    geom_boxplot(data=df,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=test),
+                 outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6),
+                 stat = "identity") +
+    scale_color_manual(values=c("grey50","black"))+
+    geom_point(aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
+    geom_line(aes(x=con,y=Score,group = interaction(id,condition)), color = "#e8e8e8")+
     coord_cartesian(ylim = c(0,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
@@ -292,7 +339,15 @@ ggsave(paste0(data_dir,"diag_va_combine.pdf"), width = 4.5, height = 3.5)
 
 # 3.2 correlation plot ----------------------------------------------------
 
-correplot(data_exp1,"zaftervadif","after.acc","zprevadif","pre.acc")
+# correplot(data_exp1,"zaftervadif","after.acc","zprevadif","pre.acc")
+
+ggplot(data_exp1, aes(aftervadif,after.acc))+
+  geom_point(color = "#0073c2", size = 4, alpha = 0.5,shape=19,stroke=0,
+             position=position_jitter(h=0.02,w=0.02, seed = 5))+
+  geom_smooth(color = "#0073c2", method = "lm", formula = 'y ~ x')+
+  scale_y_continuous(breaks = scales::breaks_width(0.2))+
+  scale_x_continuous(breaks = scales::breaks_width(10))
+
 ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
 
 
@@ -363,7 +418,7 @@ ggplot(data=after_box_data, aes(x=pair, y=Score)) +
                seed = 1))+
   coord_cartesian(ylim = c(0,100))+
   scale_fill_manual(values = c("#233b42","#65adc2")) + 
-  scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
+  scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=20)))
 ggsave(paste0(data_dir,"box_va_after.pdf"), width = 4, height = 3)
 
 ggplot(data=after_box_data, aes(x=pair, y=Score,fill=Condition)) + 
@@ -380,7 +435,7 @@ ggplot(data=after_box_data, aes(x=pair, y=Score,fill=Condition)) +
   guides(color = guide_legend(
     order = 1,override.aes = list(fill = NA)))+
   scale_fill_manual(values = c("red","blue")) + 
-  scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=10)))
+  scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=20)))
 ggsave(paste0(data_dir,"boxcolor_va_after.pdf"), width = 4, height = 3)
 
 # 4 EXP2 analysis --------------------------------------------------------------

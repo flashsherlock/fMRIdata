@@ -16,7 +16,7 @@
 
 # 1 functions -------------------------------------------------------------
 # use control+shift+R to add labels
-
+library(ggsci)
 library(ggpubr)
 library(Hmisc)
 library(ggunchained)
@@ -271,6 +271,49 @@ binomial_plot <- function(trials,positive){
     labs(x="Number of subjects",y="Count")+
     geom_point(x=tru,y=1,color="red")
 }
+
+# separate two groups
+pair_sep_plot <- function(data,var,c=0){
+  after_box_data <- subset(data_exp1,select = c("id","gender","pair",var))
+  after_box_data <- reshape2::melt(after_box_data, c("id","gender","pair"),variable.name = "Odor", value.name = "Score")
+  after_box_data <- mutate(after_box_data, Odor=ifelse(str_detect(Odor,"plus"),"(+)-pinene","(-)-pinene"))
+  after_box_data <- mutate(after_box_data, Condition=ifelse((Odor=="(+)-pinene" & pair=="+")|(Odor=="(-)-pinene" & pair=="-"),"happy","fearful"))
+  
+  after_box_data$Odor <- factor(after_box_data$Odor, levels = c("(+)-pinene","(-)-pinene"),ordered = F)
+  after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("(+)-happy","(-)-happy"),ordered = F)
+  after_box_data$Condition <- factor(after_box_data$Condition, levels = c("happy","fearful"),ordered = F)
+  
+  # jitter
+  set.seed(111)
+  after_box_data <- transform(after_box_data, con = ifelse(Odor == "(+)-pinene", 
+                                                     jitter(as.numeric(pair) - 0.15, 0.3),
+                                                     jitter(as.numeric(pair) + 0.15, 0.3) ))
+  
+  if (c==0){
+    ggplot(data=after_box_data, aes(x=pair, y=Score)) + 
+      geom_boxplot(aes(color=Odor),
+                   outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6)) +
+      scale_color_manual(values=c("grey50","black"))+
+      geom_point(aes(x=con,group = Odor), size = 0.5, color = "gray",show.legend = F)+
+      geom_line(aes(x=con,group = interaction(id,pair)), color = "#e8e8e8")+
+      coord_cartesian(ylim = c(0,100))+
+      scale_fill_manual(values = c("#233b42","#65adc2")) +
+      # scale_color_npg() +
+      scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+  } else {
+    ggplot(data=after_box_data, aes(x=pair, y=Score)) + 
+      geom_boxplot(aes(color=Odor,fill=Condition),
+                   outlier.shape = NA, width=0.5, position = position_dodge(0.6)) +
+      scale_color_manual(values=c("grey50","black"))+
+      geom_point(aes(x=con,group = Odor), size = 0.5, color = "gray",show.legend = F)+
+      geom_line(aes(x=con,group = interaction(id,pair)), color = "#e8e8e8")+
+      coord_cartesian(ylim = c(0,100))+
+      guides(color = guide_legend(
+        order = 1,override.aes = list(fill = NA)))+
+      # scale_color_npg() +
+      scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+  }
+}
 # 2 EXP1 analysis --------------------------------------------------------------
 
 # Load Data
@@ -395,48 +438,12 @@ boxplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in",
 ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 4, height = 3)
 
 
-# 3.5 post_test -----------------------------------------------------------
-# select valence in post-test
-after_box_data <- subset(data_exp1,select = c("id","gender","pair","afterplus.va","afterminus.va"))
-after_box_data <- reshape2::melt(after_box_data, c("id","gender","pair"),variable.name = "Odor", value.name = "Score")
-after_box_data <- mutate(after_box_data, Odor=ifelse(str_detect(Odor,"plus"),"(+)-pinene","(-)-pinene"))
-after_box_data <- mutate(after_box_data, Condition=ifelse((Odor=="(+)-pinene" & pair=="+")|(Odor=="(-)-pinene" & pair=="-"),"happy","fearful"))
-
-after_box_data$Odor <- factor(after_box_data$Odor, levels = c("(+)-pinene","(-)-pinene"),ordered = F)
-after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("(+)-happy","(-)-happy"),ordered = F)
-after_box_data$Condition <- factor(after_box_data$Condition, levels = c("happy","fearful"),ordered = F)
-
-ggplot(data=after_box_data, aes(x=pair, y=Score)) + 
-  geom_boxplot(aes(color=Odor),
-               outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6)) +
-  scale_color_manual(values=c("grey50","black"))+
-  geom_point(aes(group = Odor, fill=Odor), size = 0.5, color = "gray",show.legend = F,
-             position = position_jitterdodge(
-               jitter.width = 0.2,
-               jitter.height = 0,
-               dodge.width = 0.6,
-               seed = 1))+
-  coord_cartesian(ylim = c(0,100))+
-  scale_fill_manual(values = c("#233b42","#65adc2")) + 
-  scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=20)))
+# 3.5 pre post_test -----------------------------------------------------------
+# select valence in pre and post-test
+pair_sep_plot(data_exp1,c("preplus.va","preminus.va"))
+ggsave(paste0(data_dir,"box_va_before.pdf"), width = 4, height = 3)
+pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))
 ggsave(paste0(data_dir,"box_va_after.pdf"), width = 4, height = 3)
-
-ggplot(data=after_box_data, aes(x=pair, y=Score,fill=Condition)) + 
-  geom_boxplot(aes(color=Odor),
-               outlier.shape = NA, width=0.5, position = position_dodge(0.6)) +
-  scale_color_manual(values=c("grey50","black"))+
-  geom_point(aes(group = Odor), size = 0.5, color = "gray",show.legend = F,
-             position = position_jitterdodge(
-               jitter.width = 0.2,
-               jitter.height = 0,
-               dodge.width = 0.6,
-               seed = 1))+
-  coord_cartesian(ylim = c(0,100))+
-  guides(color = guide_legend(
-    order = 1,override.aes = list(fill = NA)))+
-  scale_fill_manual(values = c("red","blue")) + 
-  scale_y_continuous(breaks = c(1,seq(from=10, to=100, by=20)))
-ggsave(paste0(data_dir,"boxcolor_va_after.pdf"), width = 4, height = 3)
 
 # 4 EXP2 analysis --------------------------------------------------------------
 # Load Data

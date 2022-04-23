@@ -208,7 +208,7 @@ boxplotv <- function(data, con, select, test="pre"){
   # boxplot
   ggplot(data=Violin_data, aes(x=condition)) + 
     # geom_boxplot(aes(y=Score,color=test),
-    #              outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6))+
+    #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
     geom_errorbar(data=df, position = position_dodge(0.6),
                   aes(ymin=y0,ymax=y100,color=test),linetype = 1,width = 0.3)+ # add line to whisker
     geom_boxplot(data=df,
@@ -274,7 +274,7 @@ binomial_plot <- function(trials,positive){
 
 # separate two groups
 pair_sep_plot <- function(data,var,c=0){
-  after_box_data <- subset(data_exp1,select = c("id","gender","pair",var))
+  after_box_data <- subset(data,select = c("id","gender","pair",var))
   after_box_data <- reshape2::melt(after_box_data, c("id","gender","pair"),variable.name = "Odor", value.name = "Score")
   after_box_data <- mutate(after_box_data, Odor=ifelse(str_detect(Odor,"plus"),"(+)-pinene","(-)-pinene"))
   after_box_data <- mutate(after_box_data, Condition=ifelse((Odor=="(+)-pinene" & pair=="+")|(Odor=="(-)-pinene" & pair=="-"),"happy","fearful"))
@@ -283,6 +283,18 @@ pair_sep_plot <- function(data,var,c=0){
   after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("(+)-happy","(-)-happy"),ordered = F)
   after_box_data$Condition <- factor(after_box_data$Condition, levels = c("happy","fearful"),ordered = F)
   
+  # summarise data 5% and 90% quantile
+  df <- after_box_data %>% group_by(pair,Odor) %>% 
+    summarise(y0 = quantile(Score, 0.05), 
+              #y0 = mean(Score)-ci90(Score),
+              y25 = quantile(Score, 0.25), 
+              y50 = median(Score), 
+              y75 = quantile(Score, 0.75), 
+              #y100 = mean(Score)+ci90(Score))
+              y100 = quantile(Score, 0.95))
+  df <- mutate(df, Condition=ifelse((Odor=="(+)-pinene" & pair=="(+)-happy")|(Odor=="(-)-pinene" & pair=="(-)-happy"),"happy","fearful"))
+  df$Condition <- factor(df$Condition, levels = c("happy","fearful"),ordered = F)
+  
   # jitter
   set.seed(111)
   after_box_data <- transform(after_box_data, con = ifelse(Odor == "(+)-pinene", 
@@ -290,23 +302,31 @@ pair_sep_plot <- function(data,var,c=0){
                                                      jitter(as.numeric(pair) + 0.15, 0.3) ))
   
   if (c==0){
-    ggplot(data=after_box_data, aes(x=pair, y=Score)) + 
-      geom_boxplot(aes(color=Odor),
-                   outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6)) +
+    ggplot(data=after_box_data, aes(x=pair)) + 
+      geom_errorbar(data=df, position = position_dodge(0.6),
+                    aes(ymin=y0,ymax=y100,color=Odor),linetype = 1,width = 0.3)+ # add line to whisker
+      geom_boxplot(data=df,
+                   stat = "identity",
+                   aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=Odor),
+                   outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6)) +
       scale_color_manual(values=c("grey50","black"))+
-      geom_point(aes(x=con,group = Odor), size = 0.5, color = "gray",show.legend = F)+
-      geom_line(aes(x=con,group = interaction(id,pair)), color = "#e8e8e8")+
+      geom_point(aes(x=con, y=Score, group = Odor), size = 0.5, color = "gray",show.legend = F)+
+      geom_line(aes(x=con, y=Score, group = interaction(id,pair)), color = "#e8e8e8")+
       coord_cartesian(ylim = c(0,100))+
       scale_fill_manual(values = c("#233b42","#65adc2")) +
       # scale_color_npg() +
       scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
   } else {
-    ggplot(data=after_box_data, aes(x=pair, y=Score)) + 
-      geom_boxplot(aes(color=Odor,fill=Condition),
+    ggplot(data=after_box_data, aes(x=pair)) + 
+      geom_errorbar(data=df, position = position_dodge(0.6),
+                    aes(ymin=y0,ymax=y100,color=Odor),linetype = 1,width = 0.3)+ # add line to whisker
+      geom_boxplot(data=df,
+                   stat = "identity",
+                   aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=Odor,fill=Condition),
                    outlier.shape = NA, width=0.5, position = position_dodge(0.6)) +
       scale_color_manual(values=c("grey50","black"))+
-      geom_point(aes(x=con,group = Odor), size = 0.5, color = "gray",show.legend = F)+
-      geom_line(aes(x=con,group = interaction(id,pair)), color = "#e8e8e8")+
+      geom_point(aes(x=con, y=Score, group = Odor), size = 0.5, color = "gray",show.legend = F)+
+      geom_line(aes(x=con, y=Score, group = interaction(id,pair)), color = "#e8e8e8")+
       coord_cartesian(ylim = c(0,100))+
       guides(color = guide_legend(
         order = 1,override.aes = list(fill = NA)))+

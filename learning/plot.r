@@ -23,6 +23,7 @@ library(ggunchained)
 library(ggthemr)
 library(ggprism)
 library(stringr)
+library(Rmisc)
 library(dplyr)
 library(tidyr)
 library(boot)
@@ -108,7 +109,7 @@ vioplot <- function(data,condition, select){
                  jitter.height = 0,
                  dodge.width = 0.6,
                  seed = 1))+
-    coord_cartesian(ylim = c(0,100))+
+    coord_cartesian(ylim = c(1,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
@@ -164,9 +165,45 @@ boxplot <- function(data, con, select, test="pre"){
                  jitter.height = 0,
                  dodge.width = 0.6,
                  seed = 1))+
-    coord_cartesian(ylim = c(0,100))+
+    coord_cartesian(ylim = c(1,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+}
+
+barplot <- function(data, con, select, test="pre"){
+  # select data
+  Violin_data <- subset(data,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  if (test=="pre"){
+    tests <- c("pre_test","post_test")
+  } else if (test=="happy"){
+    tests <- c("happy_odor","fearful_odor")
+  } else if (test=="plus"){
+    tests <- c("plus","minus")
+  } else {
+    tests <- c("H","F")
+  }
+  
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,test),tests[1],tests[2]),
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
+  
+  df <- summarySEwithin(Violin_data,measurevar = "Score",withinvars = c("condition","test"),idvar = "id")
+  
+  # boxplot
+  pd <- position_dodge(0.8)
+  ggplot(data=df, aes(x=condition,y=Score,fill=test)) + 
+    geom_bar(aes(color=test),stat = "identity",
+                 width=0.5, position = pd)+
+    geom_errorbar(aes(ymin=Score-se, ymax=Score+se),
+                  position=pd, width=.2,color = "black")+
+    scale_color_manual(values=c("#f7ded2","#e7f3ed"))+
+    coord_cartesian(ylim = c(1.3,1.8))+
+    scale_fill_manual(values = c("#f7ded2","#e7f3ed")) + 
+    scale_y_continuous(expand = c(0,0),
+                       breaks = seq(from=1.3, to=1.8, by=0.1))
 }
 
 # boxplot with horizontal line
@@ -218,7 +255,7 @@ boxplotv <- function(data, con, select, test="pre"){
     scale_color_manual(values=c("grey50","black"))+
     geom_point(aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
     geom_line(aes(x=con,y=Score,group = interaction(id,condition)), color = "#e8e8e8")+
-    coord_cartesian(ylim = c(0,100))+
+    coord_cartesian(ylim = c(1,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
@@ -244,7 +281,7 @@ boxplot_line <- function(data, con, select){
                position = pd)+
     geom_line(aes(group = id), color = "#e8e8e8", position = pd)+
     facet_grid(~condition) +
-    coord_cartesian(ylim = c(0,100))+
+    coord_cartesian(ylim = c(1,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
     scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
 }
@@ -252,6 +289,7 @@ boxplot_line <- function(data, con, select){
 # binomial distribution
 binomial_plot <- function(trials,positive){
   set.seed(1)
+  psize <- 3
   # generate binomial distribution
   bi <- rbinom(10000, trials, 0.5)
   # convert to data frame
@@ -267,9 +305,10 @@ binomial_plot <- function(trials,positive){
     geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
     # xtick every 10
     scale_x_discrete(breaks=seq(5,25,5))+
-    scale_y_continuous(expand = c(0.01,0))+
+    scale_y_continuous(expand = c(0,0))+
+    coord_cartesian(clip = 'off') +
     labs(x="Number of subjects",y="Count")+
-    geom_point(x=tru,y=1,color="red")
+    geom_point(x=tru,y=psize*10,size=psize,color="red")
 }
 
 # separate two groups
@@ -408,7 +447,8 @@ ggplot(data_exp1, aes(aftervadif,after.acc))+
   geom_point(color = "#0073c2", size = 4, alpha = 0.5,shape=19,stroke=0,
              position=position_jitter(h=0.02,w=0.02, seed = 5))+
   geom_smooth(color = "#0073c2", method = "lm", formula = 'y ~ x')+
-  scale_y_continuous(breaks = scales::breaks_width(0.2))+
+  coord_cartesian(ylim = c(0,1))+
+  scale_y_continuous(expand=c(0,0),breaks = seq(0.2,1,0.2))+
   scale_x_continuous(breaks = scales::breaks_width(10))
 
 ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
@@ -479,10 +519,19 @@ boxplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
   labs(y="RT")
 ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 4, height = 3)
+# bar plot
+barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+  labs(y="RT")
+ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 4, height = 3)
+
 # plus and minus
 boxplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
-  coord_cartesian(ylim = c(0,3.5))+
+  coord_cartesian(ylim = c(1,2))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  labs(y="RT")
+ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 4, height = 3)
+# bar plot
+barplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
   labs(y="RT")
 ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 4, height = 3)
 

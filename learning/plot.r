@@ -28,8 +28,13 @@ library(dplyr)
 library(tidyr)
 library(boot)
 library(car)
+library(showtext)
+library(egg)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
+showtext_auto(enable = T)
+font_add("Helvetica","Helvetica.ttc")
+theme_update(text=element_text(family="Helvetica"))
 # theme_set(theme(axis.ticks.length.x = unit(-0.1,"cm")))
 # theme_set(theme_pubr())
 # theme_set(theme_classic())
@@ -61,7 +66,8 @@ diagplot <- function(data,x,y){
     coord_cartesian(xlim = c(-bound,bound),ylim = c(-bound,bound))+
     scale_y_continuous(breaks = scales::breaks_width(10))+
     scale_x_continuous(breaks = scales::breaks_width(10))+
-    theme_prism(base_line_size = 0.5,border = T)+
+    # theme_prism(base_line_size = 0.5,border = T)+
+    # theme(text = element_text(family = "Helvetica"))+
     scale_color_manual(values = c(data = "#0073c2"))
 }
 
@@ -125,11 +131,11 @@ boxplot <- function(data, con, select, test="pre"){
   Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
   if (test=="pre"){
-    tests <- c("pre_test","post_test")
+    tests <- c("Pre-test","Post-test")
   } else if (test=="happy"){
-    tests <- c("happy_odor","fearful_odor")
+    tests <- c("Happy_odor","Fearful_odor")
   } else if (test=="plus"){
-    tests <- c("plus","minus")
+    tests <- c("Plus","Minus")
   } else {
     tests <- c("H","F")
   }
@@ -138,7 +144,7 @@ boxplot <- function(data, con, select, test="pre"){
                         test=ifelse(str_detect(Task,test),tests[1],tests[2]),
                         condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
   Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
-  Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   # summarise data 5% and 90% quantile
   df <- Violin_data %>% group_by(condition, test) %>% 
@@ -165,9 +171,10 @@ boxplot <- function(data, con, select, test="pre"){
                  jitter.height = 0,
                  dodge.width = 0.6,
                  seed = 1))+
-    coord_cartesian(ylim = c(1,100))+
+    coord_cartesian(ylim = c(0,100))+
     scale_fill_manual(values = c("#233b42","#65adc2")) + 
-    scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+    scale_y_continuous(expand = expansion(add = c(0,0)),breaks = c(1,seq(from=20, to=100, by=20)))+
+    theme(axis.title.x=element_blank())
 }
 
 barplot <- function(data, con, select, test="pre"){
@@ -175,11 +182,11 @@ barplot <- function(data, con, select, test="pre"){
   Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
   if (test=="pre"){
-    tests <- c("pre_test","post_test")
+    tests <- c("Pre-test","Post-test")
   } else if (test=="happy"){
-    tests <- c("happy_odor","fearful_odor")
+    tests <- c("Happy_odor","Fearful_odor")
   } else if (test=="plus"){
-    tests <- c("plus","minus")
+    tests <- c("Plus","Minus")
   } else {
     tests <- c("H","F")
   }
@@ -188,7 +195,7 @@ barplot <- function(data, con, select, test="pre"){
                         test=ifelse(str_detect(Task,test),tests[1],tests[2]),
                         condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
   Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
-  Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   df <- summarySEwithin(Violin_data,measurevar = "Score",withinvars = c("condition","test"),idvar = "id")
   
@@ -203,7 +210,8 @@ barplot <- function(data, con, select, test="pre"){
     coord_cartesian(ylim = c(1.3,1.8))+
     scale_fill_manual(values = c("#f7ded2","#e7f3ed")) + 
     scale_y_continuous(expand = c(0,0),
-                       breaks = seq(from=1.3, to=1.8, by=0.1))
+                       breaks = seq(from=1.3, to=1.8, by=0.1))+
+    theme(axis.title.x=element_blank())
 }
 
 # boxplot with horizontal line
@@ -212,12 +220,12 @@ boxplotv <- function(data, con, select, test="pre"){
   Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
   if (test=="pre"){
-    tests <- c("pre_test","post_test")
-    } else if (test=="happy"){
-    tests <- c("happy_odor","fearful_odor")
-    } else if (test=="plus"){
-    tests <- c("plus","minus")
-    } else {
+    tests <- c("Pre-test","Post-test")
+  } else if (test=="happy"){
+    tests <- c("Happy_odor","Fearful_odor")
+  } else if (test=="plus"){
+    tests <- c("Plus","Minus")
+  } else {
     tests <- c("H","F")
   }
 
@@ -225,7 +233,7 @@ boxplotv <- function(data, con, select, test="pre"){
                         test=ifelse(str_detect(Task,test),tests[1],tests[2]),
                         condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
   Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
-  Violin_data$condition <- factor(Violin_data$condition, levels = con, ordered = F)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   # summarise data 5% and 90% quantile
   df <- Violin_data %>% group_by(condition, test) %>% 
@@ -239,7 +247,7 @@ boxplotv <- function(data, con, select, test="pre"){
   
   # jitter
   set.seed(111)
-  Violin_data <- transform(Violin_data, con = ifelse(test == "pre_test", 
+  Violin_data <- transform(Violin_data, con = ifelse(test == tests[1], 
                                                  jitter(as.numeric(condition) - 0.15, 0.3),
                                                  jitter(as.numeric(condition) + 0.15, 0.3) ))
   # boxplot
@@ -255,9 +263,10 @@ boxplotv <- function(data, con, select, test="pre"){
     scale_color_manual(values=c("grey50","black"))+
     geom_point(aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
     geom_line(aes(x=con,y=Score,group = interaction(id,condition)), color = "#e8e8e8")+
-    coord_cartesian(ylim = c(1,100))+
-    scale_fill_manual(values = c("#233b42","#65adc2")) + 
-    scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+    coord_cartesian(ylim = c(0,100))+
+    scale_fill_manual(values = c("#233b42","#65adc2")) +
+    scale_y_continuous(expand = expansion(add = c(0,0)),breaks = c(1,seq(from=20, to=100, by=20)))+
+    theme(axis.title.x=element_blank())
 }
 
 # boxplot with line
@@ -305,8 +314,8 @@ binomial_plot <- function(trials,positive){
     geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
     # xtick every 10
     scale_x_discrete(breaks=seq(5,25,5))+
-    scale_y_continuous(expand = c(0,0))+
-    coord_cartesian(clip = 'off') +
+    scale_y_continuous(expand = c(0,0),breaks=seq(0,1500,500))+
+    coord_cartesian(ylim = c(0,1600),clip = 'off') +
     labs(x="Number of subjects",y="Count")+
     geom_point(x=tru,y=psize*10,size=psize,color="red")
 }
@@ -319,7 +328,7 @@ pair_sep_plot <- function(data,var,c=0){
   after_box_data <- mutate(after_box_data, Condition=ifelse((Odor=="(+)-pinene" & pair=="+")|(Odor=="(-)-pinene" & pair=="-"),"happy","fearful"))
   
   after_box_data$Odor <- factor(after_box_data$Odor, levels = c("(+)-pinene","(-)-pinene"),ordered = F)
-  after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("(+)-happy","(-)-happy"),ordered = F)
+  after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("Plus-Happy","Minus-Happy"),ordered = F)
   after_box_data$Condition <- factor(after_box_data$Condition, levels = c("happy","fearful"),ordered = F)
   
   # summarise data 5% and 90% quantile
@@ -354,7 +363,8 @@ pair_sep_plot <- function(data,var,c=0){
       coord_cartesian(ylim = c(0,100))+
       scale_fill_manual(values = c("#233b42","#65adc2")) +
       # scale_color_npg() +
-      scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+      scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = c(1,seq(from=20, to=100, by=20)))+
+      theme(axis.title.x=element_blank())
   } else {
     ggplot(data=after_box_data, aes(x=pair)) + 
       geom_errorbar(data=df, position = position_dodge(0.6),
@@ -370,7 +380,8 @@ pair_sep_plot <- function(data,var,c=0){
       guides(color = guide_legend(
         order = 1,override.aes = list(fill = NA)))+
       # scale_color_npg() +
-      scale_y_continuous(breaks = c(1,seq(from=20, to=100, by=20)))
+      scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = c(1,seq(from=20, to=100, by=20)))+
+      theme(axis.title.x=element_blank())
   }
 }
 # 2 EXP1 analysis --------------------------------------------------------------
@@ -435,9 +446,9 @@ p_jitter <- 0*p_size
 diagplot(data_exp1,"prevadif","aftervadif")+
   geom_point(data = data,aes(prevadif_pm,aftervadif_pm, color = "pm"), size = p_size, alpha = 0.7, shape=19,stroke = 0,
              position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
-  scale_color_manual(values = c(data = "#0073c2", pm = "gray50"))+
-  labs(x="valence difference in pre-test", y="valence difference in post-test")
-ggsave(paste0(data_dir,"diag_va_combine.pdf"), width = 4.5, height = 3.5)
+  scale_color_manual(labels = c("Happy/Fearful","Plus/Minus"),values = c(data = "#0073c2", pm = "gray50"))+
+  labs(x="Valence difference in pre-test", y="Valence difference in post-test")
+ggsave(paste0(data_dir,"diag_va_combine.pdf"), width = 5, height = 3.5)
 
 # 3.2 correlation plot ----------------------------------------------------
 
@@ -449,9 +460,23 @@ ggplot(data_exp1, aes(aftervadif,after.acc))+
   geom_smooth(color = "#0073c2", method = "lm", formula = 'y ~ x')+
   coord_cartesian(ylim = c(0,1))+
   scale_y_continuous(expand=c(0,0),breaks = seq(0.2,1,0.2))+
-  scale_x_continuous(breaks = scales::breaks_width(10))
+  scale_x_continuous(breaks = scales::breaks_width(10))+
+  labs(x="Valence difference in post-test",y="Discrimination accuracy in post-test")
 
-ggsave(paste0(data_dir,"correlation.pdf"), width = 6, height = 3)
+# use ggscatter
+ggscatter(data_exp1, x = "aftervadif", y = "after.acc",alpha = 0.8,size = 5,stroke=0,
+          conf.int = TRUE, color = "gray20",add = "reg.line",fullrange = F,
+          position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+  stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+           label.x = -20,show.legend=F)+
+  theme_prism(base_line_size = 0.5)+
+  theme(text = element_text(family = "Helvetica"))+
+  coord_cartesian(ylim = c(0,1))+
+  scale_y_continuous(expand=c(0,0),breaks = seq(0.2,1,0.2))+
+  scale_x_continuous(breaks = scales::breaks_width(10))+
+  labs(x="Valence difference in post-test",y="Discrimination accuracy in post-test")
+
+ggsave(paste0(data_dir,"correlation.pdf"), width = 4, height = 4)
 
 
 # 3.3 distribution --------------------------------------------------------
@@ -484,26 +509,29 @@ ggsave(paste0(data_dir,"distribution.pdf"), width = 4, height = 3)
 # ggsave(paste0(data_dir,"violin_in_pm.eps"), width = 4, height = 3)
 # ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)
 
-boxplot(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
-# boxplot_line(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))
-ggsave(paste0(data_dir,"box_va_hf.pdf"), width = 4, height = 3)
+boxplotv(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))+
+  ylab("Valence")
+ggsave(paste0(data_dir,"box_va_hf.pdf"), width = 5, height = 4)
 
-boxplot(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))
-ggsave(paste0(data_dir,"box_in_hf.pdf"), width = 4, height = 3)
+boxplotv(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))+
+  ylab("Intensity")
+ggsave(paste0(data_dir,"box_in_hf.pdf"), width = 5, height = 4)
 
-boxplot(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))
-ggsave(paste0(data_dir,"box_va_pm.pdf"), width = 4, height = 3)
+boxplotv(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))+
+  ylab("Valence")
+ggsave(paste0(data_dir,"box_va_pm.pdf"), width = 5, height = 4)
 
-boxplot(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))
-ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 4, height = 3)
+boxplotv(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))+
+  ylab("Intensity")
+ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 5, height = 4)
 
 
 # 3.5 pre post_test -----------------------------------------------------------
 # select valence in pre and post-test
 pair_sep_plot(data_exp1,c("preplus.va","preminus.va"))
-ggsave(paste0(data_dir,"box_va_before.pdf"), width = 4, height = 3)
+ggsave(paste0(data_dir,"box_va_before.pdf"), width = 5, height = 4)
 pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))
-ggsave(paste0(data_dir,"box_va_after.pdf"), width = 4, height = 3)
+ggsave(paste0(data_dir,"box_va_after.pdf"), width = 5, height = 4)
 
 # 4 EXP2 analysis --------------------------------------------------------------
 # Load Data
@@ -514,26 +542,36 @@ data_exp2 <- subset(data_exp2, id!=35)
 # boxplot
 # H and F represent visual condition
 # boxplot(data_exp2,c("happy","fear"),c("happyF","fearF","happyH","fearH"),test="H")+
-boxplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   coord_cartesian(ylim = c(0,3.5))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
-  labs(y="RT")
-ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 4, height = 3)
-# bar plot
-barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
-  labs(y="RT")
-ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 4, height = 3)
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
+ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 5, height = 4)
 
 # plus and minus
 boxplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
-  coord_cartesian(ylim = c(1,2))+
+  coord_cartesian(ylim = c(0,3.5))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
-  labs(y="RT")
-ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 4, height = 3)
-# bar plot
-barplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
-  labs(y="RT")
-ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 4, height = 3)
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
+ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 5, height = 4)
+
+
+# 4.1 bar plot ----------------------------------------------------------------
+bar_hf <- barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
+ggsave(paste0(data_dir,"bar_RT_hf.pdf"),bar_hf, width = 5, height = 4)
+# plus and minus
+bar_pm <- barplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
+ggsave(paste0(data_dir,"bar_RT_pm.pdf"),bar_hf, width = 5, height = 4)
+# combine to one plot
+bar <- ggarrange(bar_hf,bar_pm, ncol = 1)
+print(bar)
+ggsave(paste0(data_dir,"bar_RT.pdf"), bar, width = 6, height = 6)
 
 # count subjects
 nochange <- sum(data_exp2$learn.dif==0)

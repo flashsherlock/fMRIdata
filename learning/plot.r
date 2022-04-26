@@ -30,11 +30,12 @@ library(boot)
 library(car)
 library(showtext)
 library(egg)
+library(patchwork)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
-showtext_auto(enable = T)
+showtext_auto(enable = F)
 font_add("Helvetica","Helvetica.ttc")
-theme_update(text=element_text(family="Helvetica"))
+theme_update(text=element_text(family="Helvetica",face = "plain"))
 # theme_set(theme(axis.ticks.length.x = unit(-0.1,"cm")))
 # theme_set(theme_pubr())
 # theme_set(theme_classic())
@@ -417,7 +418,7 @@ str(data_exp1)
 summary(data_exp1)
 
 
-# 3 plots -----------------------------------------------------------------
+# 3.1 diag plots -----------------------------------------------------------------
 
 diagplot(data_exp1,"prevadif","aftervadif")+
   guides(color="none")
@@ -443,12 +444,12 @@ data <- data.frame(reps$t)
 names(data) <- names(reps$data)
 p_size <- 1
 p_jitter <- 0*p_size
-diagplot(data_exp1,"prevadif","aftervadif")+
+diag1 <- diagplot(data_exp1,"prevadif","aftervadif")+
   geom_point(data = data,aes(prevadif_pm,aftervadif_pm, color = "pm"), size = p_size, alpha = 0.7, shape=19,stroke = 0,
              position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
   scale_color_manual(labels = c("Happy/Fearful","Plus/Minus"),values = c(data = "#0073c2", pm = "gray50"))+
   labs(x="Valence difference in pre-test", y="Valence difference in post-test")
-ggsave(paste0(data_dir,"diag_va_combine.pdf"), width = 5, height = 3.5)
+ggsave(paste0(data_dir,"diag_va_combine.pdf"),diag1, width = 5, height = 3.5)
 
 # 3.2 correlation plot ----------------------------------------------------
 
@@ -464,19 +465,19 @@ ggplot(data_exp1, aes(aftervadif,after.acc))+
   labs(x="Valence difference in post-test",y="Discrimination accuracy in post-test")
 
 # use ggscatter
-ggscatter(data_exp1, x = "aftervadif", y = "after.acc",alpha = 0.8,size = 5,stroke=0,
+corr1 <- ggscatter(data_exp1, x = "aftervadif", y = "after.acc",alpha = 0.8,size = 3,stroke=0,
           conf.int = TRUE, color = "gray20",add = "reg.line",fullrange = F,
           position=position_jitter(h=0.02,w=0.02, seed = 5)) +
   stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
            label.x = -20,show.legend=F)+
   theme_prism(base_line_size = 0.5)+
-  theme(text = element_text(family = "Helvetica"))+
+  theme(text = element_text(family = "Helvetica",face = "plain"))+
   coord_cartesian(ylim = c(0,1))+
   scale_y_continuous(expand=c(0,0),breaks = seq(0.2,1,0.2))+
   scale_x_continuous(breaks = scales::breaks_width(10))+
-  labs(x="Valence difference in post-test",y="Discrimination accuracy in post-test")
+  labs(x="Valence difference",y="Discrimination accuracy")
 
-ggsave(paste0(data_dir,"correlation.pdf"), width = 4, height = 4)
+ggsave(paste0(data_dir,"correlation.pdf"),corr1, width = 4, height = 4)
 
 
 # 3.3 distribution --------------------------------------------------------
@@ -484,8 +485,8 @@ ggsave(paste0(data_dir,"correlation.pdf"), width = 4, height = 4)
 nochange <- sum(data_exp1$learn.dif==0)
 positive <- sum(data_exp1$learn.dif>0)
 trials <- nrow(data_exp1)-nochange
-binomial_plot(trials,positive)
-ggsave(paste0(data_dir,"distribution.pdf"), width = 4, height = 3)
+dis1 <- binomial_plot(trials,positive)
+ggsave(paste0(data_dir,"distribution.pdf"),dis1, width = 4, height = 3)
 
 # correplot(data_exp1,"absvadif","after.acc")
 # correplot(data_exp1,"learn.dif","after.acc")
@@ -509,30 +510,43 @@ ggsave(paste0(data_dir,"distribution.pdf"), width = 4, height = 3)
 # ggsave(paste0(data_dir,"violin_in_pm.eps"), width = 4, height = 3)
 # ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)
 
-boxplotv(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))+
+va_hf <- boxplotv(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))+
   ylab("Valence")
-ggsave(paste0(data_dir,"box_va_hf.pdf"), width = 5, height = 4)
+ggsave(paste0(data_dir,"box_va_hf.pdf"), va_hf, width = 5, height = 4)
 
 boxplotv(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy.in","afterfear.in"))+
   ylab("Intensity")
 ggsave(paste0(data_dir,"box_in_hf.pdf"), width = 5, height = 4)
 
-boxplotv(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))+
+va_pm <- boxplotv(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))+
   ylab("Valence")
-ggsave(paste0(data_dir,"box_va_pm.pdf"), width = 5, height = 4)
+ggsave(paste0(data_dir,"box_va_pm.pdf"), va_pm, width = 5, height = 4)
 
 boxplotv(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))+
   ylab("Intensity")
 ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 5, height = 4)
 
-
 # 3.5 pre post_test -----------------------------------------------------------
 # select valence in pre and post-test
-pair_sep_plot(data_exp1,c("preplus.va","preminus.va"))
-ggsave(paste0(data_dir,"box_va_before.pdf"), width = 5, height = 4)
-pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))
-ggsave(paste0(data_dir,"box_va_after.pdf"), width = 5, height = 4)
+va_before <- pair_sep_plot(data_exp1,c("preplus.va","preminus.va"))
+ggsave(paste0(data_dir,"box_va_before.pdf"),va_before, width = 5, height = 4)
+va_after <- pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))
+ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4)
 
+
+# 3.6 arrange plots -------------------------------------------------------
+# box plots
+# exp1_box <- ggarrange(va_before,va_after,va_hf,va_pm,ncol=4)
+exp1_box <- wrap_plots(va_before,va_after,va_hf,va_pm,ncol=4)+plot_annotation(tag_levels = "A")
+
+ggsave(paste0(data_dir,"box_exp1.pdf"),
+       exp1_box,
+       width = 20, height = 3.5)
+
+exp1_other <- wrap_plots(diag1,dis1,corr1,ncol=3)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"others_exp1.pdf"),
+       exp1_other,
+       width = 15, height = 4)
 # 4 EXP2 analysis --------------------------------------------------------------
 # Load Data
 data_dir <- "/Volumes/WD_D/gufei/writing/"
@@ -569,9 +583,10 @@ bar_pm <- barplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test
   scale_x_discrete(labels=c("Happy faces","Fearful faces"))
 ggsave(paste0(data_dir,"bar_RT_pm.pdf"),bar_hf, width = 5, height = 4)
 # combine to one plot
-bar <- ggarrange(bar_hf,bar_pm, ncol = 1)
+# bar <- ggarrange(bar_hf,bar_pm, ncol = 2)
+bar <- (bar_hf|bar_pm)+plot_annotation(tag_levels = "A")
 print(bar)
-ggsave(paste0(data_dir,"bar_RT.pdf"), bar, width = 6, height = 6)
+ggsave(paste0(data_dir,"bar_RT.pdf"), bar, width = 10, height = 3)
 
 # count subjects
 nochange <- sum(data_exp2$learn.dif==0)

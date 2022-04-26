@@ -137,6 +137,8 @@ boxplot <- function(data, con, select, test="pre"){
     tests <- c("Happy_odor","Fearful_odor")
   } else if (test=="plus"){
     tests <- c("Plus","Minus")
+  } else if (test=="Citral"){
+    tests <- c("Citral","Indole")
   } else {
     tests <- c("H","F")
   }
@@ -188,6 +190,8 @@ barplot <- function(data, con, select, test="pre"){
     tests <- c("Happy_odor","Fearful_odor")
   } else if (test=="plus"){
     tests <- c("Plus","Minus")
+  } else if (test=="Citral"){
+    tests <- c("Citral","Indole")
   } else {
     tests <- c("H","F")
   }
@@ -207,9 +211,9 @@ barplot <- function(data, con, select, test="pre"){
                  width=0.5, position = pd)+
     geom_errorbar(aes(ymin=Score-se, ymax=Score+se),
                   position=pd, width=.2,color = "black")+
-    scale_color_manual(values=c("#f7ded2","#e7f3ed"))+
+    scale_color_manual(values=c("#e7f3ed","#f7ded2"))+
     coord_cartesian(ylim = c(1.3,1.8))+
-    scale_fill_manual(values = c("#f7ded2","#e7f3ed")) + 
+    scale_fill_manual(values = c("#e7f3ed","#f7ded2")) + 
     scale_y_continuous(expand = c(0,0),
                        breaks = seq(from=1.3, to=1.8, by=0.1))+
     theme(axis.title.x=element_blank())
@@ -226,6 +230,8 @@ boxplotv <- function(data, con, select, test="pre"){
     tests <- c("Happy_odor","Fearful_odor")
   } else if (test=="plus"){
     tests <- c("Plus","Minus")
+  } else if (test=="Citral"){
+    tests <- c("Citral","Indole")
   } else {
     tests <- c("H","F")
   }
@@ -560,40 +566,40 @@ boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")
   coord_cartesian(ylim = c(0,3.5))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
   labs(y="Response time (s)")+
-  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
-ggsave(paste0(data_dir,"box_RT_all.pdf"), width = 5, height = 4)
+  scale_x_discrete(labels=c("Happy","Fearful"))
+ggsave(paste0(data_dir,"box_RT_hf.pdf"), width = 5, height = 4)
 
 # plus and minus
 boxplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
   coord_cartesian(ylim = c(0,3.5))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
   labs(y="Response time (s)")+
-  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
+  scale_x_discrete(labels=c("Happy","Fearful"))
 ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 5, height = 4)
 
 
 # 4.1 bar plot ----------------------------------------------------------------
 bar_hf <- barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   labs(y="Response time (s)")+
-  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
+  scale_x_discrete(labels=c("Happy","Fearful"))
 ggsave(paste0(data_dir,"bar_RT_hf.pdf"),bar_hf, width = 5, height = 4)
 # plus and minus
 bar_pm <- barplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
   labs(y="Response time (s)")+
-  scale_x_discrete(labels=c("Happy faces","Fearful faces"))
+  scale_x_discrete(labels=c("Happy","Fearful"))
 ggsave(paste0(data_dir,"bar_RT_pm.pdf"),bar_hf, width = 5, height = 4)
 # combine to one plot
 # bar <- ggarrange(bar_hf,bar_pm, ncol = 2)
-bar <- (bar_hf|bar_pm)+plot_annotation(tag_levels = "A")
+bar <- wrap_plots(bar_hf,bar_pm,ncol = 2)+plot_annotation(tag_levels = "A")
 print(bar)
-ggsave(paste0(data_dir,"bar_RT.pdf"), bar, width = 10, height = 3)
+ggsave(paste0(data_dir,"bar_2_RT.pdf"), bar, width = 10, height = 3)
 
 # count subjects
 nochange <- sum(data_exp2$learn.dif==0)
 positive <- sum(data_exp2$learn.dif>0)
 trials <- nrow(data_exp2)-nochange
 binomial_plot(trials,positive)
-ggsave(paste0(data_dir,"distribution_exp2.pdf"), width = 4, height = 3)
+# ggsave(paste0(data_dir,"distribution_exp2.pdf"), width = 4, height = 3)
 
 # correlation between learn.dif and incon_con
 data_exp2 <- mutate(data_exp2,RT2incon.con = RT2.incon - RT2.con)
@@ -611,3 +617,29 @@ ggscatter(data_exp2, x = "learn.dif", y = "RT2incon.con",alpha = 0.8,
 leveneTest(RT2incon.con ~ as.factor(learnva), data = data_exp2, center=mean)
 t.test(RT2incon.con ~ learnva, data = data_exp2, var.equal = T)
 
+# 5 EXP visual -----------------------------------------------------
+# Load Data
+data_dir <- "/Volumes/WD_D/gufei/writing/"
+data_expv2 <- spss.get(paste0(data_dir,"result_expv2.sav"))
+data_expv3 <- spss.get(paste0(data_dir,"result_expv3.sav"))
+# plot
+exp_con <- c("Happy","Fearful")
+bar2 <- barplot(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(1,1.5))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=1, to=1.5, by=0.1)))+
+  scale_x_discrete(labels=exp_con)
+ggsave(paste0(data_dir,"box_expv2.pdf"),bar2, width = 5, height = 4)
+
+bar3 <- barplot(data_expv3,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(1,1.5))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=1, to=1.5, by=0.1)))+
+  scale_x_discrete(labels=exp_con)
+ggsave(paste0(data_dir,"box_expv3.pdf"),bar3, width = 5, height = 4)
+# arrange
+barv <- wrap_plots(bar2,bar3,ncol = 2)+plot_annotation(tag_levels = "A")
+print(barv)
+ggsave(paste0(data_dir,"bar_v23_RT.pdf"), barv, width = 10, height = 3)
+
+# all bar plots
+bar_all <- wrap_plots(bar2,bar3,bar_hf,bar_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"bar_RT.pdf"), bar_all, width = 10, height = 6)

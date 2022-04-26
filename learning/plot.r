@@ -332,11 +332,11 @@ pair_sep_plot <- function(data,var,c=0){
   after_box_data <- subset(data,select = c("id","gender","pair",var))
   after_box_data <- reshape2::melt(after_box_data, c("id","gender","pair"),variable.name = "Odor", value.name = "Score")
   after_box_data <- mutate(after_box_data, Odor=ifelse(str_detect(Odor,"plus"),"(+)-pinene","(-)-pinene"))
-  after_box_data <- mutate(after_box_data, Condition=ifelse((Odor=="(+)-pinene" & pair=="+")|(Odor=="(-)-pinene" & pair=="-"),"happy","fearful"))
-  
+  after_box_data <- mutate(after_box_data, Condition=ifelse((Odor=="(+)-pinene" & pair=="+")|(Odor=="(-)-pinene" & pair=="-"),"Happy","Fearful"))
+
   after_box_data$Odor <- factor(after_box_data$Odor, levels = c("(+)-pinene","(-)-pinene"),ordered = F)
-  after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("Plus-Happy","Minus-Happy"),ordered = F)
-  after_box_data$Condition <- factor(after_box_data$Condition, levels = c("happy","fearful"),ordered = F)
+  after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("(+)-Happy","(-)-Happy"),ordered = F)
+  after_box_data$Condition <- factor(after_box_data$Condition, levels = c("Happy","Fearful"),ordered = F)
   
   # summarise data 5% and 90% quantile
   df <- after_box_data %>% group_by(pair,Odor) %>% 
@@ -347,8 +347,8 @@ pair_sep_plot <- function(data,var,c=0){
               y75 = quantile(Score, 0.75), 
               #y100 = mean(Score)+ci90(Score))
               y100 = quantile(Score, 0.95))
-  df <- mutate(df, Condition=ifelse((Odor=="(+)-pinene" & pair=="(+)-happy")|(Odor=="(-)-pinene" & pair=="(-)-happy"),"happy","fearful"))
-  df$Condition <- factor(df$Condition, levels = c("happy","fearful"),ordered = F)
+  df <- mutate(df, Condition=ifelse((Odor=="(+)-pinene" & pair=="(+)-Happy")|(Odor=="(-)-pinene" & pair=="(-)-Happy"),"Happy","Fearful"))
+  df$Condition <- factor(df$Condition, levels = c("Happy","Fearful"),ordered = F)
   
   # jitter
   set.seed(111)
@@ -368,7 +368,6 @@ pair_sep_plot <- function(data,var,c=0){
       geom_point(aes(x=con, y=Score, group = Odor), size = 0.5, color = "gray",show.legend = F)+
       geom_line(aes(x=con, y=Score, group = interaction(id,pair)), color = "#e8e8e8")+
       coord_cartesian(ylim = c(0,100))+
-      scale_fill_manual(values = c("#233b42","#65adc2")) +
       # scale_color_npg() +
       scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = c(1,seq(from=20, to=100, by=20)))+
       theme(axis.title.x=element_blank())
@@ -384,6 +383,7 @@ pair_sep_plot <- function(data,var,c=0){
       geom_point(aes(x=con, y=Score, group = Odor), size = 0.5, color = "gray",show.legend = F)+
       geom_line(aes(x=con, y=Score, group = interaction(id,pair)), color = "#e8e8e8")+
       coord_cartesian(ylim = c(0,100))+
+      scale_fill_manual(values = c("#e7f3ed","#f7ded2")) +
       guides(color = guide_legend(
         order = 1,override.aes = list(fill = NA)))+
       # scale_color_npg() +
@@ -534,10 +534,20 @@ ggsave(paste0(data_dir,"box_in_pm.pdf"), width = 5, height = 4)
 
 # 3.5 pre post_test -----------------------------------------------------------
 # select valence in pre and post-test
-va_before <- pair_sep_plot(data_exp1,c("preplus.va","preminus.va"))
-ggsave(paste0(data_dir,"box_va_before.pdf"),va_before, width = 5, height = 4)
-va_after <- pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))
-ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4)
+
+# va_before <- pair_sep_plot(data_exp1,c("preplus.va","preminus.va"))
+# ggsave(paste0(data_dir,"box_va_before.pdf"),va_before, width = 5, height = 4)
+
+va_before <- pair_sep_plot(data_exp1,c("preplus.va","preminus.va"))+
+  scale_color_manual(values=c("grey50","black"),labels = paste(c("(+)","(-)"),"\u03B1","pinene",sep = "-"))
+ggsave(paste0(data_dir,"box_va_before.pdf"),va_before, width = 5, height = 4, device = cairo_pdf)
+
+# va_after <- pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))
+# ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4)
+
+va_after <- pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))+
+  scale_color_manual(values=c("grey50","black"),labels = paste(c("(+)","(-)"),"\u03B1","pinene",sep = "-"))
+ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4, device = cairo_pdf)
 
 
 # 3.6 arrange plots -------------------------------------------------------
@@ -547,7 +557,8 @@ exp1_box <- wrap_plots(va_before,va_after,va_hf,va_pm,ncol=4)+plot_annotation(ta
 
 ggsave(paste0(data_dir,"box_exp1.pdf"),
        exp1_box,
-       width = 20, height = 3.5)
+       width = 20, height = 3.5,
+       device = cairo_pdf)
 
 exp1_other <- wrap_plots(diag1,dis1,corr1,ncol=3)+plot_annotation(tag_levels = "A")
 ggsave(paste0(data_dir,"others_exp1.pdf"),
@@ -581,18 +592,27 @@ ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 5, height = 4)
 # 4.1 bar plot ----------------------------------------------------------------
 bar_hf <- barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   labs(y="Response time (s)")+
-  scale_x_discrete(labels=c("Happy","Fearful"))
+  theme(legend.title=element_text(size = 12))+
+  scale_x_discrete(labels=c("Happy","Fearful"))+
+  scale_fill_manual(name = "Odor paired with",
+                    values = c("#e7f3ed","#f7ded2"),labels = c("Happy faces","Fearful faces"))+
+  scale_color_manual(name = "Odor paired with",
+                     values = c("#e7f3ed","#f7ded2"),labels = c("Happy faces","Fearful faces"))
 ggsave(paste0(data_dir,"bar_RT_hf.pdf"),bar_hf, width = 5, height = 4)
 # plus and minus
 bar_pm <- barplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
   labs(y="Response time (s)")+
-  scale_x_discrete(labels=c("Happy","Fearful"))
-ggsave(paste0(data_dir,"bar_RT_pm.pdf"),bar_hf, width = 5, height = 4)
+  scale_x_discrete(labels=c("Happy","Fearful"))+
+  scale_fill_manual(values = c("#e7f3ed","#f7ded2"),labels = paste(c("(+)","(-)"),"\u03B1","pinene",sep = "-"))+
+  scale_color_manual(values = c("#e7f3ed","#f7ded2"),labels = paste(c("(+)","(-)"),"\u03B1","pinene",sep = "-"))
+ggsave(paste0(data_dir,"bar_RT_pm.pdf"),bar_hf, width = 5, height = 4,
+       device = cairo_pdf)
 # combine to one plot
 # bar <- ggarrange(bar_hf,bar_pm, ncol = 2)
 bar <- wrap_plots(bar_hf,bar_pm,ncol = 2)+plot_annotation(tag_levels = "A")
 print(bar)
-ggsave(paste0(data_dir,"bar_2_RT.pdf"), bar, width = 10, height = 3)
+ggsave(paste0(data_dir,"bar_2_RT.pdf"), bar, width = 10, height = 3,
+       device = cairo_pdf)
 
 # count subjects
 nochange <- sum(data_exp2$learn.dif==0)
@@ -608,7 +628,7 @@ rposition <- min(data_exp2$learn.dif)
 ggscatter(data_exp2, x = "learn.dif", y = "RT2incon.con",alpha = 0.8,
           conf.int = TRUE, palette=c("grey50","black"),add = "reg.line",fullrange = F,
           position=position_jitter(h=0.02,w=0.02, seed = 5)) +
-  stat_cor(aes(color = test,label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+  stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
            label.x = rposition,show.legend=F)+
   theme_prism(base_line_size = 0.5)
 # Ftest for equality of variance
@@ -642,4 +662,5 @@ ggsave(paste0(data_dir,"bar_v23_RT.pdf"), barv, width = 10, height = 3)
 
 # all bar plots
 bar_all <- wrap_plots(bar2,bar3,bar_hf,bar_pm,ncol = 2)+plot_annotation(tag_levels = "A")
-ggsave(paste0(data_dir,"bar_RT.pdf"), bar_all, width = 10, height = 6)
+ggsave(paste0(data_dir,"bar_RT.pdf"), bar_all, width = 10, height = 6,
+       device = cairo_pdf)

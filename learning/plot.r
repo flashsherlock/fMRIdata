@@ -327,6 +327,28 @@ binomial_plot <- function(trials,positive){
     geom_point(x=tru,y=psize*10,size=psize,color="red")
 }
 
+
+# binomial distribution
+binomial_prob <- function(trials,positive){
+  psize <- 3
+  
+  x <- seq(0,trials)
+  bi_viz <- data.frame(x,dbinom(x, trials, 0.5), pbinom(x, trials, 0.5))
+  names(bi_viz) <- c("number","dbinom","pbinom")
+  
+  cri <- as.numeric(bi_viz[min(which(bi_viz$pbinom>0.95)),1])
+  tru <- as.numeric(bi_viz[bi_viz$number==positive,1])
+  # plot binomial distribution
+  ggplot(bi_viz,aes(number,dbinom)) +
+    geom_col(fill="#4d9dd4")+
+    # plot p=0.95
+    geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
+    scale_y_continuous(expand = c(0,0),breaks=seq(0,0.15,0.05))+
+    coord_cartesian(xlim = c(5,23), ylim = c(0,0.16),clip = 'off') +
+    labs(x="Number of subjects",y="Probability")+
+    geom_point(x=tru,y=psize*0.001,size=psize,color="red")
+}
+
 # separate two groups
 pair_sep_plot <- function(data,var,c=0){
   after_box_data <- subset(data,select = c("id","gender","pair",var))
@@ -423,7 +445,16 @@ cor(data_exp1$abslearndif,data_exp1$after.acc)
 str(data_exp1)
 summary(data_exp1)
 
+# paired t test with cohen's d
+bruceR::TTEST(data_exp1, y=c("pre.acc", "after.acc"), paired=TRUE)
+# ANOVA
+bruceR::MANOVA(data_exp1, dvs=c("prehappy.va","prefear.va", "afterhappy.va", "afterfear.va"), dvs.pattern="(pre|after)(happy|fear).va",
+               within=c("learn", "emotion"))%>%
+  bruceR::EMMEANS("learn", by="emotion")
 
+bruceR::MANOVA(data_exp1, dvs=c("afterplus.va","afterminus.va"), dvs.pattern="after(plus|minus).va",
+               within="pm",between = "pair")%>%
+  bruceR::EMMEANS("pm", by="pair")
 # 3.1 diag plots -----------------------------------------------------------------
 
 diagplot(data_exp1,"prevadif","aftervadif")+
@@ -492,6 +523,7 @@ nochange <- sum(data_exp1$learn.dif==0)
 positive <- sum(data_exp1$learn.dif>0)
 trials <- nrow(data_exp1)-nochange
 dis1 <- binomial_plot(trials,positive)
+dis1 <- binomial_prob(trials,positive)
 ggsave(paste0(data_dir,"distribution.pdf"),dis1, width = 4, height = 3)
 
 # correplot(data_exp1,"absvadif","after.acc")

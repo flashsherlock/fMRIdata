@@ -335,6 +335,7 @@ binomial_prob <- function(trials,positive){
   x <- seq(0,trials)
   bi_viz <- data.frame(x,dbinom(x, trials, 0.5), pbinom(x, trials, 0.5))
   names(bi_viz) <- c("number","dbinom","pbinom")
+  bi_viz <- bi_viz[6:24,]
   
   cri <- as.numeric(bi_viz[min(which(bi_viz$pbinom>0.95)),1])
   tru <- as.numeric(bi_viz[bi_viz$number==positive,1])
@@ -586,14 +587,14 @@ ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4, devi
 # 3.6 arrange plots -------------------------------------------------------
 # box plots
 # exp1_box <- ggarrange(va_before,va_after,va_hf,va_pm,ncol=4)
-exp1_box <- wrap_plots(va_before,va_after,va_hf,va_pm,ncol=4)+plot_annotation(tag_levels = "A")
+exp1_box <- wrap_plots(va_hf,va_pm,va_after,va_before,ncol=4)+plot_annotation(tag_levels = "A")
 
 ggsave(paste0(data_dir,"box_exp1.pdf"),
        exp1_box,
        width = 20, height = 3.5,
        device = cairo_pdf)
 
-exp1_other <- wrap_plots(diag1,dis1,corr1,ncol=3)+plot_annotation(tag_levels = "A")
+exp1_other <- wrap_plots(dis1,diag1,corr1,ncol=3)+plot_annotation(tag_levels = "A")
 ggsave(paste0(data_dir,"others_exp1.pdf"),
        exp1_other,
        width = 15, height = 4)
@@ -603,7 +604,10 @@ data_dir <- "/Volumes/WD_D/gufei/writing/"
 data_exp2 <- spss.get(paste0(data_dir,"result_exp2.sav"))
 # select data
 data_exp2 <- subset(data_exp2, id!=35)
-# boxplot
+
+# paired t test with cohen's d
+bruceR::TTEST(data_exp2, y=c("con", "incon"), paired=TRUE)
+# 4.1 boxplots -------------------------------------------------------------------
 # H and F represent visual condition
 # boxplot(data_exp2,c("happy","fear"),c("happyF","fearF","happyH","fearH"),test="H")+
 boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
@@ -622,7 +626,7 @@ boxplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
 ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 5, height = 4)
 
 
-# 4.1 bar plot ----------------------------------------------------------------
+# 4.2 bar plot ----------------------------------------------------------------
 bar_hf <- barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   labs(y="Response time (s)")+
   theme(legend.title=element_text(size = 12))+

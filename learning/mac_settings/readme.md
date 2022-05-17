@@ -14,9 +14,6 @@ Backup several dot files.
 ## restore_config.sh
 Restore above files listed in backup_config.sh.
 
-## settings.json
-Windows terminal settings.
-
 ## powerline-shell-config.json
 Powerline-shell settings.
 

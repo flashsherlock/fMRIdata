@@ -80,6 +80,9 @@
 ### plot_air_odor
 不选择呼吸，只是根据气味呈现挑选spike，并将所有气味的合并。
 
+### PLV_spike
+计算spike和呼吸的PLV。
+
 # LFP
 
 ## Respiration
@@ -123,6 +126,9 @@
 ### lfp_odorresp_sep
 每一个记录位点分别做时频分析并计算PCA后的距离。
 
+### generate_AH
+通过图谱生成ROI用于显示单个电极的位置。
+
 ## ERP
 
 ### erp_resp
@@ -130,6 +136,9 @@
 
 ### erp_odorresp
 画出不同的区域不同气味条件下吸气开始作为时间零点的ERP。
+
+### erp_resp_sep
+每一个记录位点分别计算LFP和呼吸之间的相关。
 
 ### roi_erp_odorresp (deprecated)
 分析不同的区域对气味的反应，对齐到吸气开始的时间。

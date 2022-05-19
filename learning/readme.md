@@ -32,8 +32,11 @@ Modified script to install matlab runtime for freesurfer, which can use zip file
 
 ## recon_help.txt
 Instructions for using `recon-all` command.
-<!-- $ c = \sqrt{a^{2}+b_{xy}^{2}+e^{x}} $
-$ \frac{1}{2} $
+
+<!-- $c = \sqrt{a^{2}+b_{xy}^{2}+e^{x}}$
+
+$\frac{1}{2}$
+
 $$
  \begin{bmatrix}
    1 & 2 & 3 \\

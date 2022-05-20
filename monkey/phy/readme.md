@@ -123,11 +123,23 @@
 ### lfp_odorresp
 找出落在气味呈现时间段内的呼吸进行时频分析。画两个周期的气味和空气条件，比较一个周期内气味和空气条件，以及好闻和难闻气味的能量。
 
+### lfp_ptest
+时频分析和基线比较的permutation test。
+
+### lfp_comptest
+时频分析条件之间比较的permutation test。
+
+### lfp_tfplot
+时频分析的结果画图。
+
 ### lfp_odorresp_sep
 每一个记录位点分别做时频分析并计算PCA后的距离。
 
 ### generate_AH
 通过图谱生成ROI用于显示单个电极的位置。
+
+### cluster_power
+根据不同频段的能量计算距离并做聚类。
 
 ## ERP
 

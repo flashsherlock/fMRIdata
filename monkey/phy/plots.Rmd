@@ -1,0 +1,33 @@
+---
+output: html_document
+title: "Plots for monkeys"
+author: "Fei"
+date: "`r Sys.time()`"
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = F,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(R.matlab)
+library(dplyr)
+library(tidyr)
+library(ggprism)
+ggthemr('fresh',layout = "clean")
+```
+
+```{r fig.height=4, fig.width=7}
+colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',
+          '#000000', '#E12A3C', '#777DDD', '#41AB5D', '#DE7B14')
+
+m <- 'RM033';
+root_dir <- '/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey';
+pic_dir <- file.path(root_dir, 'pic/powerspec',m);
+# read mat file
+data_pow <- readMat(file.path(pic_dir,'powspec_odor_7s_1_80hz.mat'))
+```

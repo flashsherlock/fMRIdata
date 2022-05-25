@@ -10,6 +10,7 @@ pic_dir=[data_dir 'pic/respiration_odor/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
+cur_roi = 'resp';
 %% load data
 resp_monkey=cell(1,length(monkeys));
 for monkey_i = 1:length(monkeys)
@@ -42,7 +43,6 @@ end
 resp=[];
 resp=ft_appenddata(cfg,resp_monkey{:});
 %% average and statistics
-cur_roi = 'resp';
 % % resample
 % cfg=[];
 % cfg.resamplefs  = 100;
@@ -56,23 +56,25 @@ cfg.baseline     = [-0.2 0];
 bs=linspace(cfg.baseline(1),cfg.baseline(2),100);
 erp_blch = ft_timelockbaseline(cfg, erph);
 
-erp_h_blc=cell(1,7);
-for i=1:7
+erp_h_blc=cell(1,9);
+for i=1:9
 % average resperation
 cfg=[];
-if i==7
+switch i
+    case 7
     cfg.trials = find(resp.trialinfo~=6);
-else
+    case 8
+        cfg.trials = find(resp.trialinfo<=3);
+    case 9
+        cfg.trials = find(resp.trialinfo==4|resp.trialinfo==5);
+    otherwise
     cfg.trials = find(resp.trialinfo==i);
 end
 % average trials
 cfg.avgoverrpt =  'yes';
 erp_h_blc{i}=ft_selectdata(cfg,erp_blch);
+erp_h_blc{i}.sem = std(squeeze(erp_blch.trial(cfg.trials,:,:)))/sqrt(size(cfg.trials,1));
 end
-cfg.trials = find(resp.trialinfo<=3);
-erp_h_blc{8}=ft_selectdata(cfg,erp_blch);
-cfg.trials = find(resp.trialinfo==4|resp.trialinfo==5);
-erp_h_blc{9}=ft_selectdata(cfg,erp_blch);
 
 % 5odor+air vs. odor plea vs. unplea
 stat_t=cell(1,7);
@@ -97,7 +99,7 @@ for odor_i=1:7
     cfg.ivar      = 1; 
     stat_t{odor_i} = ft_timelockstatistics(cfg, erp_blch);
 end
-
+save([pic_dir 'resp_figure_data.mat'],'erp_h_blc','stat_t');
 %% plot setting
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D', '#DE7B14'};
 colors_cp = colors([1:5 7 10]);
@@ -125,16 +127,20 @@ ls{9}='-';
 smooth_win=1;
 time_range = [-0.2 4];
 % plot 5 odors and air
-figure('position',[20,0,400,500]);
+% set renderer to generate vector image
+figure('position',[20,0,450,400],'Renderer', 'Painters');
 subplot(2,1,1)
 hold on
 for i=1:7
 plot(erp_h_blc{1}.time,smooth(erp_h_blc{i}.trial,smooth_win),'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
+% shadedEBar(erp_h_blc{1}.time,squeeze(erp_h_blc{i}.trial),1.96*squeeze(erp_h_blc{i}.sem),...
+%     'lineProps',{'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i}},'patchSaturation',0.2)
 end
 ylabel('Voltage (V)')
 set(gca,'xlim',time_range);
+set(gca, 'FontSize', 18);
 title([cur_roi '-odor'])
-legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor','Location','best')
+legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor','Location','eastoutside')
 hold off
 % pvalue
 subplot(2,1,2)
@@ -149,13 +155,18 @@ time_num=length(stat_t{odor_i}.time);
 % cmp_num=sum(stat_t{odor_i}.time >time_range(1) & stat_t{odor_i}.time <time_range(2));
 plot(stat_t{odor_i}.time,0.05*ones(1,time_num),'k','linestyle','--','LineWidth',2)
 % plot(stat_t{odor_i}.time,0.05/cmp_num*ones(1,time_num),'r','linestyle','--','LineWidth',2)
-set(gca,'yscale','log');
-set(gca,'ylim',[0 1]);
+set(gca,'ytick',10.^(-2:0),'yscale','log');
+set(gca,'ylim',[1e-2 1]);
+set(gca,'yminortick','off');
 set(gca,'xlim',time_range);
 xlabel('Time (s)')
 ylabel('p')
+legend('Ind','Iso_l','Iso_h','Pea','Ban','Odor','0.05','Location','eastoutside')
+set(gca, 'FontSize', 18);
 saveas(gcf, [pic_dir cur_roi '-5odor', '.fig'],'fig')
 saveas(gcf, [pic_dir cur_roi '-5odor', '.png'],'png')
+saveas(gcf, [pic_dir cur_roi '-5odor', '.pdf'],'pdf')
+% print(gcf, [pic_dir cur_roi '-5odor', '.pdf'],'-dpdf')
 close all
 
 %% power spectrum analysis

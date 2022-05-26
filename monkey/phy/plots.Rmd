@@ -18,16 +18,35 @@ library(R.matlab)
 library(dplyr)
 library(tidyr)
 library(ggprism)
+library(sysfonts)
+library(pheatmap)
 ggthemr('fresh',layout = "clean")
+font_add("Helvetica", "Helvetica.ttc")
+theme_update(text = element_text(family = "Helvetica", face = "plain"))
 ```
 
 ```{r fig.height=4, fig.width=7}
 colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',
           '#000000', '#E12A3C', '#777DDD', '#41AB5D', '#DE7B14')
-
-m <- 'RM033';
+odors <- c("Ind", "Iso_l", "Iso_h", "Peach", "Banana", "Air",'Odor')
+m <- '2monkey';
 root_dir <- '/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey';
 pic_dir <- file.path(root_dir, 'pic/powerspec',m);
-# read mat file
-data_pow <- readMat(file.path(pic_dir,'powspec_odor_7s_1_80hz.mat'))
+# read zpower mat file
+data_pow <- readMat(file.path(pic_dir,'zpower_7s_1_80hz.mat'))
+# roi-odor condition-frequency bands
+zpower <- unlist(data_pow$zpower)
+rois <- unlist(data_pow$rois)
+freqbands <- paste0(c("0-4","4-8","8-13","13-30","30-50","50-80","30-80"),"Hz")
+# heatmap
+condition <- c(1:5)
+rownames(zpower) <- rois
+colnames(zpower) <- odors
+b <- seq(-0.1,0.1,length.out = 100)
+for(freq in c(1:7)){
+    pheatmap(zpower[, condition, freq],clustering_distance_rows = "correlation",
+    clustering_distance_cols = "correlation",cellwidth = 15,cellheight = 15,breaks = b,
+    color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdBu")))(100),
+    main = freqbands[freq],filename = file.path(pic_dir,paste0('heatmap_',freqbands[freq],'.pdf')))
+}
 ```

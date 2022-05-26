@@ -60,6 +60,7 @@ rois=rois(roi_select);
 zpower=zpower(roi_select,:,:);
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D'};
 colors_cp = colors([1:5 7]);
+save([pic_dir 'zpower_7s_1_80hz.mat'],'zpower','rois');
 %% plot mean zpower
 for band_i=1:length(bands)
     figure('position',[20,20,900,450])

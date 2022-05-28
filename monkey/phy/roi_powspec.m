@@ -7,49 +7,55 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/powerspec/' m '_resp/'];
+pic_dir=[data_dir 'pic/powerspec/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-% generate data
-level = 3;
-trl_type = 'odorresp';
+%% generate data or load data
+if exist([pic_dir 'powspec_odor_7s_1_80hz.mat'],'file')
+    load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
+    roi_num=size(cur_level_roi,1);
+else
+    level = 3;
+    trl_type = 'odorresp';
 
-% one monkey data
-% one_data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
-% label=[one_data_dir 'RM035_datpos_label.mat'];
-% dates=[1 16 17];
-% [roi_lfp,~,cur_level_roi] = save_merge_position(one_data_dir,label,dates,level,trl_type);
+    % one monkey data
+    % one_data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
+    % label=[one_data_dir 'RM035_datpos_label.mat'];
+    % dates=[1 16 17];
+    % [roi_lfp,~,cur_level_roi] = save_merge_position(one_data_dir,label,dates,level,trl_type);
 
-% combine 2 monkeys
-[roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
-
-% get number of roi
-roi_num=size(cur_level_roi,1);
-odor_num=7;
-%% power spectrum analysis
-spectr_resp_all=cell(roi_num,1);
-spectr_lfp_all=spectr_resp_all;
-for roi_i=1:roi_num
-    lfp=roi_lfp{roi_i};
-%     resp=roi_resp{roi_i};
-    % select time
-    cfg         = [];
-    cfg.latency = [0 2];
-    lfp=ft_selectdata(cfg, lfp);
-%     resp=ft_selectdata(cfg, resp);
-    % frequency spectrum
-    cfg         = [];
-    cfg.output  = 'pow';
-    cfg.method  = 'mtmfft';
-    cfg.taper   = 'hanning';
-    cfg.keeptrials = 'yes';
-%     cfg.foilim = [0.1 80];
-    cfg.foi = 1:1:80;
-%     spectr_resp_all{roi_i}  = ft_freqanalysis(cfg, resp);
-    spectr_lfp_all{roi_i}  = ft_freqanalysis(cfg, lfp);
+    % combine 2 monkeys
+    [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
+    roi_num=size(cur_level_roi,1);
+    % power spectrum analysis
+    spectr_resp_all=cell(roi_num,1);
+    spectr_lfp_all=spectr_resp_all;
+    for roi_i=1:roi_num
+        lfp=roi_lfp{roi_i};
+    %     resp=roi_resp{roi_i};
+        % select time
+        cfg         = [];
+        cfg.latency = [0 2];
+        lfp=ft_selectdata(cfg, lfp);
+    %     resp=ft_selectdata(cfg, resp);
+        % frequency spectrum
+        cfg         = [];
+        cfg.output  = 'pow';
+        cfg.method  = 'mtmfft';
+        cfg.taper   = 'hanning';
+        cfg.keeptrials = 'yes';
+    %     cfg.foilim = [0.1 80];
+        cfg.foi = 1:1:80;
+    %     spectr_resp_all{roi_i}  = ft_freqanalysis(cfg, resp);
+        spectr_lfp_all{roi_i}  = ft_freqanalysis(cfg, lfp);
+    end
+    % save data to mat file
+    save([pic_dir 'powspec_odor_7s_1_80hz.mat'],'spectr_lfp_all','cur_level_roi')
 end
 %% average each condition
+% number of odors
+odor_num=7;
 spectr_resp=cell(roi_num,odor_num);
 spectr_lfp=spectr_resp;
 % zscore
@@ -61,7 +67,7 @@ for roi_i=1:roi_num
 %         resp = spectr_resp_all{roi_i};
         % frequency spectrum
         cfg         = [];
-        cfg.avgoverrpt =  'yes';
+        cfg.avgoverrpt =  'no';
         if odor_i==7
             cfg.trials  = find(lfp.trialinfo~=6);
         else
@@ -109,7 +115,7 @@ line_wid=1.5;
 % lfp
 for roi_i=1:roi_num
     % plot raw power
-    figure('position',[20,20,600,600]);
+    figure('position',[20,20,600,600],'Renderer', 'Painters');
     subplot(3,1,1)
     hold on;
     for odor_i=1:odor_num
@@ -120,14 +126,19 @@ for roi_i=1:roi_num
     title(cur_level_roi{roi_i,1})
     legend('Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor')
     ylabel('Power')
+    set(gca, 'FontSize', 18);
     % plot zscore
     subplot(3,1,2)
     hold on;
     for odor_i=1:odor_num
         plot(spectr_lfpz{roi_i,odor_i}.freq, smooth(mean(spectr_lfpz{roi_i,odor_i}.powspctrm,1),smooth_win),'Color',hex2rgb(colors{odor_i}),'linewidth', line_wid)
+%         shadedEBar(spectr_lfpz{roi_i,odor_i}.freq,squeeze(mean(spectr_lfpz{roi_i,odor_i}.powspctrm,1)),...
+%            1.96*squeeze(std(spectr_lfpz{roi_i,odor_i}.powspctrm,1)/sqrt(size(spectr_lfpz{roi_i,odor_i}.powspctrm,1))),...
+%           'lineProps',{'Color',hex2rgb(colors{odor_i}),'LineWidth',line_wid},'patchSaturation',0.2)
     end
     set(gca,'xlim',freq_win);
     ylabel('ZPower')
+    set(gca, 'FontSize', 18);
     % plot p value
     subplot(3,1,3)
     hold on
@@ -143,15 +154,16 @@ for roi_i=1:roi_num
     plot(spectr_lfp_p{roi_i,odor_i}.freq,0.05/cmp_num*ones(1,freq_num),'r','linestyle','--','LineWidth',2)
     set(gca,'yscale','log');
     set(gca,'ylim',[0 1]);
+    set(gca,'yminortick','off');
     set(gca,'xlim',freq_win);
     xlabel('Frequency (Hz)')
     ylabel('p')
+    set(gca, 'FontSize', 18);
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.fig'], 'fig')
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.png'], 'png')
+    saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.pdf'], 'pdf')
     close all
 end
-save([pic_dir 'powspec_odor_7s_1_80hz.mat'],'spectr_lfp_all','cur_level_roi')
-% save([pic_dir 'level3_position_2monkey.mat'],'cur_level_roi');
 %% resp
 % freq_win=[0.1 10];
 % for roi_i=1:roi_num

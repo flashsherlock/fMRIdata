@@ -52,8 +52,9 @@ colors = cellfun(@(x) hex2rgb(x),colors,'UniformOutput',false);
 roi_num = size(data_pca,1);
 dims = 2;
 % odor distance
-dis_time = cell(roi_num,2);
-dis_mean = zeros(roi_num,4,2);
+dis_num = 4;
+dis_time = cell(roi_num,length(dims));
+dis_mean = zeros(roi_num,dis_num,length(dims));
 for dim_i=1:length(dims)
     n_dim = dims(dim_i);
 for roi_i=1:roi_num
@@ -185,7 +186,7 @@ for roi_i=1:roi_num
     dis_data = reshape(mapped,length(unique(label)),[],n_dim);    
     % smoothed data
     % dis_data = reshape(line_data,length(unique(label)),[],n_dim);    
-    dis_time_roi = zeros(size(dis_data,2),4);
+    dis_time_roi = zeros(size(dis_data,2),dis_num);
     for time_i = 1:size(dis_data,2)
         tmp = squeeze(dis_data(:,time_i,:));
         % 5 condition
@@ -220,7 +221,7 @@ for roi_i=1:roi_num
     dim_i = 1;
     for dis_i=1:4    
         tmp = dis_time{roi_i,dim_i}(:,dis_i);%+roi_i*0.1;
-        plot(linspace(time_range(1),time_range(2),length(tmp)),tmp,'Color',cmap{dis_i},'Linewidth',2)
+        plot(linspace(time_range(1),time_range(2),length(tmp)),tmp,'Color',hex2rgb(cmap{dis_i}),'Linewidth',2)
     end
     xlabel('time')
     ylabel('Distance')
@@ -237,7 +238,7 @@ hold on
 for dim_i=1%:2
     for dis_i=1:4   
         tmp = dis_mean(:,dis_i,dim_i);
-        plot(1:roi_num, tmp, 'Color', cmap{dis_i}, 'Linewidth', 2)
+        plot(1:roi_num, tmp, 'Color', hex2rgb(cmap{dis_i}), 'Linewidth', 2)
     end
 end
 xlabel('ROI')

@@ -45,7 +45,7 @@ for (m in monkeys){
     # roi-odor condition-frequency bands
     zpower <- unlist(data_pow$zpower)
     rois <- unlist(data_pow$rois)
-    freqbands <- paste0(c("0-4","4-8","8-13","13-30","30-50","50-80","30-80"),"Hz")
+    freqbands <- paste0(c("1-4","4-8","8-13","13-30","30-50","50-80","30-80"),"Hz")
     # heatmap settings
     condition <- c(1:5)
     rownames(zpower) <- rois
@@ -66,7 +66,9 @@ for (m in monkeys){
 
 ```{r, fig.height=4, fig.width=4}
 for (m in monkeys) {
-    m <- 'RM035'
+    # m <- '2monkey'
+    set.seed(4869)    
+    av_freq  <- TRUE
     pic_dir <- file.path(root_dir, "pic/pca_power/noair", m)
     # read zpower mat file
     data_pca <- readMat(file.path(pic_dir, "data_pca.mat"))
@@ -99,16 +101,31 @@ for (m in monkeys) {
 
     # dcast to frequencies
     power_by_time <- dcast(power_noair,roi+odor+time~freq,value.var = "power")
+    # average each frequency band
+    freqbands <- c("delta", "theta", "alpha", "beta", "gamma")
+    cutoff <- c(1, 4, 8, 13, 30, 80)
+    for(i in 1:length(freqbands)){
+        # find freq index
+        col <- which(freq>=cutoff[i] & freq<cutoff[i+1])+3
+        power_by_time[,(freqbands[i]):=rowMeans(.SD),.SDcols=col]
+    }
 
     # model by mlr3
     task <- as_task_classif(power_by_time, target = "odor")
-    split <- partition(task, ratio = 55/61)
+    if (av_freq){
+        task_freq <- task$clone()$select(freqbands)    
+    } else {
+        task_freq <- task$clone()$select(setdiff(task$feature_names,
+                    c("roi","time",freqbands)))
+    }
+    
+
+    split <- partition(task_freq, ratio = 55/61)
     train_idx <- split$train
     test_idx <- split$test
-    task_freq <- task$clone()$select(setdiff(task$feature_names, c("roi","time")))
     # rpart classifier
-    lrn <- lrn("classif.rpart")
-    lrn$train(task_freq, row_ids = train_idx)
+    learner <- lrn("classif.rpart")
+    learner$train(task_freq, row_ids = train_idx)
     # save plot
     # store colors in a list
     color_list <- list()
@@ -119,7 +136,7 @@ for (m in monkeys) {
     }
     # svg(file.path(pic_dir, "decision_tree.svg"))
     pdf(file.path(pic_dir, "decision_tree.pdf"))
-    rpart.plot(lrn$model,
+    rpart.plot(learner$model,
               type = 1, # left and right split labels (see Figure 2)
               clip.right.labs = FALSE, # full right split labels
               extra = 104, # show nbr of obs and percentages (see Figure 3)
@@ -130,12 +147,19 @@ for (m in monkeys) {
               branch = .3, # branch lines with narrow shoulders and down slopes
               round = 0, # no rounding of node corners i.e. use rectangles
               leaf.round = 9, # round leaf nodes (for leaves, this supersedes the round arg)
+              main = m, # title
+              legend.x = 0,
+              legend.y = 1,
               branch.col = "gray", # color of branch lines
               branch.lwd = 2) # line width of branch lines
     dev.off()
     # test performance
-    train_pre = lrn$predict(task_freq, row_ids = train_idx)
-    predictions = lrn$predict(task_freq, row_ids = test_idx)
+    train_pre = learner$predict(task_freq, row_ids = train_idx)
+    prediction = learner$predict(task_freq, row_ids = test_idx)
+    measure = msr("classif.acc")
+    acc_train <- train_pre$score(measure)
+    acc_test <- prediction$score(measure)
+    print(c(m, acc_train, acc_test))
 }
 ```
 

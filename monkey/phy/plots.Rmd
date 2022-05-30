@@ -20,33 +20,122 @@ library(tidyr)
 library(ggprism)
 library(sysfonts)
 library(pheatmap)
+library(mlr3verse)
+library(rpart.plot)
+library(abind)
 ggthemr('fresh',layout = "clean")
 font_add("Helvetica", "Helvetica.ttc")
 theme_update(text = element_text(family = "Helvetica", face = "plain"))
+colors <- c(
+    "#777DDD", "#69b4d9", "#149ade", "#41AB5D", "#ECB556",
+    "#000000", "#E12A3C", "#777DDD", "#41AB5D", "#DE7B14"
+)
+odors <- c("Ind", "Iso_l", "Iso_h", "Peach", "Banana", "Air", "Odor")
+monkeys <- c("RM033", "RM035", "2monkey")
+root_dir <- "/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey"
 ```
 
-```{r fig.height=4, fig.width=7}
-colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',
-          '#000000', '#E12A3C', '#777DDD', '#41AB5D', '#DE7B14')
-odors <- c("Ind", "Iso_l", "Iso_h", "Peach", "Banana", "Air",'Odor')
-m <- '2monkey';
-root_dir <- '/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey';
-pic_dir <- file.path(root_dir, 'pic/powerspec',m);
-# read zpower mat file
-data_pow <- readMat(file.path(pic_dir,'zpower_7s_1_80hz.mat'))
-# roi-odor condition-frequency bands
-zpower <- unlist(data_pow$zpower)
-rois <- unlist(data_pow$rois)
-freqbands <- paste0(c("0-4","4-8","8-13","13-30","30-50","50-80","30-80"),"Hz")
-# heatmap
-condition <- c(1:5)
-rownames(zpower) <- rois
-colnames(zpower) <- odors
-b <- seq(-0.1,0.1,length.out = 100)
-for(freq in c(1:7)){
-    pheatmap(zpower[, condition, freq],clustering_distance_rows = "correlation",
-    clustering_distance_cols = "correlation",cellwidth = 15,cellheight = 15,breaks = b,
-    color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdBu")))(100),
-    main = freqbands[freq],filename = file.path(pic_dir,paste0('heatmap_',freqbands[freq],'.pdf')))
+# heatmap of monkey's zpower
+
+```{r fig.height=4, fig.width=4}
+for (m in monkeys){    
+    pic_dir <- file.path(root_dir, 'pic/powerspec',m);
+    # read zpower mat file
+    data_pow <- readMat(file.path(pic_dir,'zpower_7s_1_80hz.mat'))
+    # roi-odor condition-frequency bands
+    zpower <- unlist(data_pow$zpower)
+    rois <- unlist(data_pow$rois)
+    freqbands <- paste0(c("0-4","4-8","8-13","13-30","30-50","50-80","30-80"),"Hz")
+    # heatmap settings
+    condition <- c(1:5)
+    rownames(zpower) <- rois
+    colnames(zpower) <- odors
+    # color scale
+    b <- seq(-0.1,0.1,length.out = 100)
+    # plot heatmap and dendrogram for each frequency band
+    for(freq in c(1:7)){
+        pheatmap(zpower[, condition, freq],clustering_distance_rows = "correlation",
+        clustering_distance_cols = "correlation",cellwidth = 15,cellheight = 15,breaks = b,
+        color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdBu")))(100),
+        main = freqbands[freq],filename = file.path(pic_dir,paste0('heatmap_',freqbands[freq],'.pdf')))
+    }
 }
 ```
+
+# decision tree based on time-frequency analysis
+
+```{r, fig.height=4, fig.width=4}
+for (m in monkeys) {
+    m <- 'RM035'
+    pic_dir <- file.path(root_dir, "pic/pca_power/noair", m)
+    # read zpower mat file
+    data_pca <- readMat(file.path(pic_dir, "data_pca.mat"))
+    # reorganize data from matlab cell to R
+    roi_num  <- length(data_pca[[1]])/3
+    rois <- unlist(data_pca[[1]][1:roi_num])
+
+    # bind list along the 3rd dimension
+    # power <- abind(do.call(c, data_pca[[1]][(roi_num * 1 + 1):(roi_num * 2)]), along = 1)
+    # power <- abind(map(data_pca[[1]][(roi_num * 1 + 1):(roi_num * 2)],1), along = 4)
+    # labels <- abind(map(data_pca[[1]][(roi_num * 2 + 1):(roi_num * 3)],1),along = 0)
+
+    # along 0 will bind in new dimension
+    power <- abind(map(data_pca[[1]][(roi_num * 1 + 1):(roi_num * 2)], 1), along = 0)
+    # set dimnames
+    freq <- 10^(seq(log10(1), log10(200), length.out = 51))
+    odor_num <- dim(power)[2]
+    dimnames(power) <- list(c(1:roi_num), c(1:dim(power)[2]), seq(0, 3, 0.05), sprintf("freq_%02d", c(1:dim(power)[4])))
+    power <- as.data.table(power)
+    names(power) <- c("roi", "odor", "time", "freq", "power")
+    
+    # remove air
+    power_noair <- power[odor!=6,]
+    # convert roi and odor to factors
+    power_noair[, roi := factor(roi, labels = rois)]
+    power_noair[, odor := factor(odor, labels = odors[1:5])]
+
+    # convert time and freq to numeric
+    # power[,(c(3:4)):=lapply(.SD,as.numeric),.SDcols=c(3:4)]
+
+    # dcast to frequencies
+    power_by_time <- dcast(power_noair,roi+odor+time~freq,value.var = "power")
+
+    # model by mlr3
+    task <- as_task_classif(power_by_time, target = "odor")
+    split <- partition(task, ratio = 55/61)
+    train_idx <- split$train
+    test_idx <- split$test
+    task_freq <- task$clone()$select(setdiff(task$feature_names, c("roi","time")))
+    # rpart classifier
+    lrn <- lrn("classif.rpart")
+    lrn$train(task_freq, row_ids = train_idx)
+    # save plot
+    # store colors in a list
+    color_list <- list()
+    c <- colors[1:5]
+    c[2] <- "#858585"
+    for(i in 1:5){
+        color_list[[i]] <- colorRampPalette(c("white", c[i]))(10)
+    }
+    # svg(file.path(pic_dir, "decision_tree.svg"))
+    pdf(file.path(pic_dir, "decision_tree.pdf"))
+    rpart.plot(lrn$model,
+              type = 1, # left and right split labels (see Figure 2)
+              clip.right.labs = FALSE, # full right split labels
+              extra = 104, # show nbr of obs and percentages (see Figure 3)
+              under = FALSE, # position extra info _under_ the boxes
+              tweak = 1, # tweak the text
+              fallen.leaves = FALSE, # put leaves at the bottom of plot
+              box.palette = color_list, # color of the boxes
+              branch = .3, # branch lines with narrow shoulders and down slopes
+              round = 0, # no rounding of node corners i.e. use rectangles
+              leaf.round = 9, # round leaf nodes (for leaves, this supersedes the round arg)
+              branch.col = "gray", # color of branch lines
+              branch.lwd = 2) # line width of branch lines
+    dev.off()
+    # test performance
+    train_pre = lrn$predict(task_freq, row_ids = train_idx)
+    predictions = lrn$predict(task_freq, row_ids = test_idx)
+}
+```
+

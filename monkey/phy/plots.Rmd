@@ -6,7 +6,8 @@ date: "`r Sys.time()`"
 ---
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(warning = F, message = F, cache = F,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+knitr::opts_chunk$set(warning = F, message = F, cache = F,tidy = F,
+fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
 library(psych)
 library(ggplot2)
@@ -24,16 +25,47 @@ library(mlr3verse)
 library(rpart.plot)
 library(abind)
 library(purrr)
-theme_set(theme_prism(base_line_size = 0.5))
 font_add("Helvetica", "Helvetica.ttc")
-theme_update(text = element_text(family = "Helvetica", face = "plain"))
+theme_set(theme_prism(base_size = 9,
+                      base_family = "Helvetica",
+                      base_fontface = "plain",
+                      base_line_size = 0.5,
+                      base_rect_size = 0.5,))
+# theme_update(text = element_text(family = "Helvetica",
+#                                  face = "plain", size = 9))
+```
+
+# settings and functions
+```{r}
+# settings
 colors <- c(
     "#777DDD", "#69b4d9", "#149ade", "#41AB5D", "#ECB556",
     "#000000", "#E12A3C", "#777DDD", "#41AB5D", "#DE7B14"
 )
+cmap <- c("#D95319", "#EDB120", "#7E2F8E", "#0072BD")
 odors <- c("Ind", "Iso_l", "Iso_h", "Peach", "Banana", "Air", "Odor")
 monkeys <- c("RM033", "RM035", "2monkey")
 root_dir <- "/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey"
+# function to plot tree
+tree_plot <- function(model,color_list,title){
+    rpart.plot(model,
+        type = 1, # left and right split labels (see Figure 2)
+        clip.right.labs = FALSE, # full right split labels
+        extra = 104, # show nbr of obs and percentages (see Figure 3)
+        under = FALSE, # position extra info _under_ the boxes
+        tweak = 1, # tweak the text
+        fallen.leaves = FALSE, # put leaves at the bottom of plot
+        box.palette = color_list, # color of the boxes
+        branch = .3, # branch lines with narrow shoulders and down slopes
+        round = 0, # no rounding of node corners i.e. use rectangles
+        leaf.round = 9, # round leaf nodes (for leaves, this supersedes the round arg)
+        main = title, # title
+        legend.x = 0,
+        legend.y = 1,
+        branch.col = "gray", # color of branch lines
+        branch.lwd = 2 # line width of branch lines
+    ) 
+}
 ```
 
 # heatmap of monkey's zpower
@@ -55,20 +87,22 @@ for (m in monkeys){
     b <- seq(-0.1,0.1,length.out = 100)
     # plot heatmap and dendrogram for each frequency band
     for(freq in c(1:7)){
-        pheatmap(zpower[, condition, freq],clustering_distance_rows = "correlation",
-        clustering_distance_cols = "correlation",cellwidth = 15,cellheight = 15,breaks = b,
+        pheatmap(zpower[, condition, freq],
+        clustering_distance_rows = "correlation",
+        clustering_distance_cols = "correlation",
+        cellwidth = 15,cellheight = 15,breaks = b,
         color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdBu")))(100),
-        main = freqbands[freq],filename = file.path(pic_dir,paste0('heatmap_',freqbands[freq],'.pdf')))
+        main = freqbands[freq],
+        filename = file.path(pic_dir,paste0('heatmap_',freqbands[freq],'.pdf')))
     }
 }
 ```
 
-# decision tree based on time-frequency analysis
-
-```{r, fig.height=4, fig.width=4}
-for (m in monkeys) {
-    # set random seed
-    set.seed(4869)    
+# load and store power data
+```{r}
+power_data <- list()
+# for each monkey
+for (m in monkeys) {  
     # use power for each frequency band
     av_freq  <- TRUE
     # split test data set
@@ -102,34 +136,47 @@ for (m in monkeys) {
     freq <- 10^(seq(log10(1), log10(200), length.out = 51))
     freqnames <- sprintf("freq_%02d", c(1:dim(power)[4]))
     cutoff <- c(1, 4, 8, 13, 30, 80)
-    freqbands <- c("delta", "theta", "alpha", "beta", "gamma")
+    freqbands_name <- c("delta", "theta", "alpha", "beta", "gamma")
     odor_num <- dim(power)[2]
     # set dimnames
     dimnames(power) <- list(c(1:roi_num), c(1:odor_num), seq(0, 3, 0.05), freqnames)
     # convert to data.table
     power <- as.data.table(power)
     names(power) <- c("roi", "odor", "time", "freq", "power")
-    
-    # remove air
-    power_noair <- power[odor!=6,]
-    # convert roi and odor to factors
-    power_noair[, roi := factor(roi, levels = as.character(1:roi_num), labels = rois)]
-    power_noair[, odor := factor(odor, levels = as.character(1:5), labels = odors[1:5])]
-    power_noair[, time := factor(time, levels = as.character(seq(0, 3, 0.05)))]
+    # convert roi and time to factors
+    power[, time := factor(time, levels = as.character(seq(0, 3, 0.05)))]
+    power[, roi := factor(roi, levels = as.character(1:roi_num), labels = rois)]
     # convert time and freq to numeric
     # power[,(c(3:4)):=lapply(.SD,as.numeric),.SDcols=c(3:4)]
+    # store to list
+    power_data[[m]] <- power
+}
+```
 
+# decision tree based on time-frequency analysis
 
+```{r, fig.height=4, fig.width=4}
+# for each monkey
+for (m in monkeys) {
+    # set random seed
+    set.seed(4869)   
+    # load power data
+    power <- power_data[[m]]    
+    # remove air
+    power_noair <- power[odor!=6,]
+    # convert odor to factors    
+    power_noair[, odor := factor(odor, levels = as.character(1:5), labels = odors[1:5])]
+    
     # for each coding methods
     tars <- c("odor5","odor4","valence","intensity")
     for (tar in tars){
         # dcast to frequencies
         power_by_time <- dcast(power_noair, roi + odor + time ~ freq, value.var = "power")
-        for (i in 1:length(freqbands)) {
+        for (i in 1:length(freqbands_name)) {
             # find freq index
             col <- which(freq >= cutoff[i] & freq < cutoff[i + 1]) + 3
             # average each frequency band
-            power_by_time[, (freqbands[i]) := rowMeans(.SD), .SDcols = col]
+            power_by_time[, (freqbands_name[i]) := rowMeans(.SD), .SDcols = col]
         }
         # recode targets        
         if (tar=="odor5"){
@@ -140,7 +187,8 @@ for (m in monkeys) {
             power_by_time[, (tar):=factor(odor4, levels = c("Ind","Iso","Peach","Banana"))]
             color_list <- color_list_all[-2]
         } else if (tar == "valence"){
-            power_by_time[, (tar):=car::recode(odor, 'c("Ind", "Iso_l", "Iso_h") = "Neg"; c("Peach", "Banana") = "Pos"')]
+            power_by_time[, (tar):=car::recode(odor,
+                            'c("Ind", "Iso_l", "Iso_h") = "Neg"; c("Peach", "Banana") = "Pos"')]
             color_list <- color_list_all[c(1,5)]
         } else if (tar == "intensity"){
             # select iso_l and iso_h
@@ -151,7 +199,7 @@ for (m in monkeys) {
         # model by mlr3, select fearures
         task <- as_task_classif(power_by_time, target = tar)
         if (av_freq){
-            task_freq <- task$clone()$select(freqbands)    
+            task_freq <- task$clone()$select(freqbands_name)    
         } else {
             task_freq <- task$clone()$select(freqnames)
         }    
@@ -191,38 +239,23 @@ for (m in monkeys) {
         mean_acc <- results[target == tar, .(acc = mean(acc)), by = c("roi", "time")]
         # plot result matrix
         ggplot(mean_acc, aes(x = time, y = roi, fill = acc)) +
-            geom_tile() + theme_bw() + coord_equal() +
+            geom_tile() + coord_equal(0.618*61/roi_num) +
             scale_fill_distiller(palette = "Greens",direction = 1,
             limits=c(0,1),breaks=seq(0,1,0.2)) +
             labs(title = paste(m, tar, sprintf("%.2f%%",100*acc_train), sep = "_")) +
             scale_x_discrete(breaks = seq(0,3,0.5))
-        ggsave(file.path(pic_dir, paste0("Acc_", tar, ".pdf")))
+        ggsave(file.path(pic_dir, paste0("Acc_", tar, ".pdf")), width = 5, height = 3)
         # save tree plot        
         # svg(file.path(pic_dir, "decision_tree.svg"))
         pdf(file.path(pic_dir, paste0("decision_tree_", tar, ".pdf")))
-        rpart.plot(learner$model,
-                type = 1, # left and right split labels (see Figure 2)
-                clip.right.labs = FALSE, # full right split labels
-                extra = 104, # show nbr of obs and percentages (see Figure 3)
-                under = FALSE, # position extra info _under_ the boxes
-                tweak = 1, # tweak the text
-                fallen.leaves = FALSE, # put leaves at the bottom of plot
-                box.palette = color_list, # color of the boxes
-                branch = .3, # branch lines with narrow shoulders and down slopes
-                round = 0, # no rounding of node corners i.e. use rectangles
-                leaf.round = 9, # round leaf nodes (for leaves, this supersedes the round arg)
-                main = paste(m, tar, sprintf("%.2f%%",100*acc_train), sep = "_"), # title
-                legend.x = 0,
-                legend.y = 1,
-                branch.col = "gray", # color of branch lines
-                branch.lwd = 2) # line width of branch lines
+        title <- paste(m, tar, sprintf("%.2f%%", 100 * acc_train), sep = "_")
+        tree_plot(learner$model,color_list,title)
         dev.off()
     }
     # bind all results
     results <- rbindlist(datalist)
     # convert target to factor
-    results[, target := factor(results$target, levels = tars)]
-    cmap <- c('#D95319','#EDB120','#7E2F8E','#0072BD')
+    results[, target := factor(results$target, levels = tars)]    
     # plot averaged results
     # average by time
     mean_acc_time <- results[, .(acc = mean(acc)), by = c("target","time")]
@@ -232,7 +265,7 @@ for (m in monkeys) {
         scale_color_manual(values = cmap) +
         scale_x_discrete(expand = c(0, 0), breaks = seq(0, 3, 0.5)) +
         scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
-    ggsave(file.path(pic_dir, paste0("Acc_time",".pdf")))
+    ggsave(file.path(pic_dir, paste0("Acc_time", ".pdf")), width = 4, height = 2.5)
     # average by roi
     mean_acc_roi <- results[, .(acc = mean(acc)), by = c("target","roi")]
     # line plot
@@ -242,7 +275,7 @@ for (m in monkeys) {
         scale_color_manual(values = cmap) +
         scale_x_discrete(expand = c(0, 0)) +
         scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
-    ggsave(file.path(pic_dir, paste0("Acc_roi", ".pdf")))
+    ggsave(file.path(pic_dir, paste0("Acc_roi", ".pdf")), width = 5, height = 2.5)
 }
 ```
 

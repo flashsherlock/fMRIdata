@@ -23,7 +23,8 @@ library(pheatmap)
 library(mlr3verse)
 library(rpart.plot)
 library(abind)
-ggthemr('fresh',layout = "clean")
+library(purrr)
+theme_set(theme_prism(base_line_size = 0.5))
 font_add("Helvetica", "Helvetica.ttc")
 theme_update(text = element_text(family = "Helvetica", face = "plain"))
 colors <- c(
@@ -66,100 +67,182 @@ for (m in monkeys){
 
 ```{r, fig.height=4, fig.width=4}
 for (m in monkeys) {
-    # m <- '2monkey'
+    # set random seed
     set.seed(4869)    
+    # use power for each frequency band
     av_freq  <- TRUE
+    # split test data set
+    test <- FALSE    
+    # colors for tree plot
+    color_list_all <- list()
+    c <- colors[1:5]
+    c[2] <- "#858585"
+    for (i in 1:5) {
+        color_list_all[[i]] <- colorRampPalette(c("white", c[i]))(10)
+    }
+    # pic_dir
     pic_dir <- file.path(root_dir, "pic/pca_power/noair", m)
+    # store results
+    datalist <- list()
+
     # read zpower mat file
     data_pca <- readMat(file.path(pic_dir, "data_pca.mat"))
     # reorganize data from matlab cell to R
     roi_num  <- length(data_pca[[1]])/3
     rois <- unlist(data_pca[[1]][1:roi_num])
-
+    # along 0 will bind in new dimension
+    power <- abind(map(data_pca[[1]][(roi_num * 1 + 1):(roi_num * 2)], 1), along = 0)
+    
     # bind list along the 3rd dimension
     # power <- abind(do.call(c, data_pca[[1]][(roi_num * 1 + 1):(roi_num * 2)]), along = 1)
     # power <- abind(map(data_pca[[1]][(roi_num * 1 + 1):(roi_num * 2)],1), along = 4)
     # labels <- abind(map(data_pca[[1]][(roi_num * 2 + 1):(roi_num * 3)],1),along = 0)
 
-    # along 0 will bind in new dimension
-    power <- abind(map(data_pca[[1]][(roi_num * 1 + 1):(roi_num * 2)], 1), along = 0)
-    # set dimnames
+    # frequency
     freq <- 10^(seq(log10(1), log10(200), length.out = 51))
+    freqnames <- sprintf("freq_%02d", c(1:dim(power)[4]))
+    cutoff <- c(1, 4, 8, 13, 30, 80)
+    freqbands <- c("delta", "theta", "alpha", "beta", "gamma")
     odor_num <- dim(power)[2]
-    dimnames(power) <- list(c(1:roi_num), c(1:dim(power)[2]), seq(0, 3, 0.05), sprintf("freq_%02d", c(1:dim(power)[4])))
+    # set dimnames
+    dimnames(power) <- list(c(1:roi_num), c(1:odor_num), seq(0, 3, 0.05), freqnames)
+    # convert to data.table
     power <- as.data.table(power)
     names(power) <- c("roi", "odor", "time", "freq", "power")
     
     # remove air
     power_noair <- power[odor!=6,]
     # convert roi and odor to factors
-    power_noair[, roi := factor(roi, labels = rois)]
-    power_noair[, odor := factor(odor, labels = odors[1:5])]
-
+    power_noair[, roi := factor(roi, levels = as.character(1:roi_num), labels = rois)]
+    power_noair[, odor := factor(odor, levels = as.character(1:5), labels = odors[1:5])]
+    power_noair[, time := factor(time, levels = as.character(seq(0, 3, 0.05)))]
     # convert time and freq to numeric
     # power[,(c(3:4)):=lapply(.SD,as.numeric),.SDcols=c(3:4)]
 
-    # dcast to frequencies
-    power_by_time <- dcast(power_noair,roi+odor+time~freq,value.var = "power")
-    # average each frequency band
-    freqbands <- c("delta", "theta", "alpha", "beta", "gamma")
-    cutoff <- c(1, 4, 8, 13, 30, 80)
-    for(i in 1:length(freqbands)){
-        # find freq index
-        col <- which(freq>=cutoff[i] & freq<cutoff[i+1])+3
-        power_by_time[,(freqbands[i]):=rowMeans(.SD),.SDcols=col]
-    }
 
-    # model by mlr3
-    task <- as_task_classif(power_by_time, target = "odor")
-    if (av_freq){
-        task_freq <- task$clone()$select(freqbands)    
-    } else {
-        task_freq <- task$clone()$select(setdiff(task$feature_names,
-                    c("roi","time",freqbands)))
-    }
-    
+    # for each coding methods
+    tars <- c("odor5","odor4","valence","intensity")
+    for (tar in tars){
+        # dcast to frequencies
+        power_by_time <- dcast(power_noair, roi + odor + time ~ freq, value.var = "power")
+        for (i in 1:length(freqbands)) {
+            # find freq index
+            col <- which(freq >= cutoff[i] & freq < cutoff[i + 1]) + 3
+            # average each frequency band
+            power_by_time[, (freqbands[i]) := rowMeans(.SD), .SDcols = col]
+        }
+        # recode targets        
+        if (tar=="odor5"){
+            power_by_time[, (tar):=odor]
+            color_list <- color_list_all
+        } else if (tar == "odor4"){
+            power_by_time[, (tar):=car::recode(odor, 'c("Iso_l", "Iso_h") = "Iso"')]
+            power_by_time[, (tar):=factor(odor4, levels = c("Ind","Iso","Peach","Banana"))]
+            color_list <- color_list_all[-2]
+        } else if (tar == "valence"){
+            power_by_time[, (tar):=car::recode(odor, 'c("Ind", "Iso_l", "Iso_h") = "Neg"; c("Peach", "Banana") = "Pos"')]
+            color_list <- color_list_all[c(1,5)]
+        } else if (tar == "intensity"){
+            # select iso_l and iso_h
+            power_by_time <- power_by_time[odor %in% c("Iso_l", "Iso_h"), ]
+            power_by_time[, (tar) := factor(odor, levels = c("Iso_l", "Iso_h"), labels = c("Low", "High"))]
+            color_list <- color_list_all[c(2,3)]
+        }
+        # model by mlr3, select fearures
+        task <- as_task_classif(power_by_time, target = tar)
+        if (av_freq){
+            task_freq <- task$clone()$select(freqbands)    
+        } else {
+            task_freq <- task$clone()$select(freqnames)
+        }    
+        # rpart classifier
+        learner <- lrn("classif.rpart")
+        measure = msr("classif.acc")
+        # whether to test on test set
+        if (test){
+            split <- partition(task_freq, ratio = 55/61)
+            train_idx <- split$train
+            test_idx <- split$test
+            learner$train(task_freq, row_ids = train_idx)
+            prediction = learner$predict(task_freq, row_ids = test_idx)
+            acc_test <- prediction$score(measure)
+        } else {
+            train_idx <- c(1:task_freq$nrow)
+            learner$train(task_freq) 
+            acc_test <- 0    
+        }
+        # test performance
+        train_pre = learner$predict(task_freq, row_ids = train_idx)
+        acc_train <- train_pre$score(measure)
+        print(c(m, acc_train, acc_test))
 
-    split <- partition(task_freq, ratio = 55/61)
-    train_idx <- split$train
-    test_idx <- split$test
-    # rpart classifier
-    learner <- lrn("classif.rpart")
-    learner$train(task_freq, row_ids = train_idx)
-    # save plot
-    # store colors in a list
-    color_list <- list()
-    c <- colors[1:5]
-    c[2] <- "#858585"
-    for(i in 1:5){
-        color_list[[i]] <- colorRampPalette(c("white", c[i]))(10)
+        # get responses
+        # select <- c("roi", "time", tar)
+        # results <- cbind(power_by_time[,..select],train_pre$response)
+        results <- cbind(power_by_time[, .SD, .SDcols = c("roi", "time", tar)], train_pre$response)
+        setnames(results,3:4,c("true","response"))
+        # add a column indicating target
+        results[,`:=`(target = tar)]
+        # calculate accuracy
+        results <- mutate(results,acc=ifelse(results$true==results$response,1,0))
+        # save to list
+        datalist[[tar]] <- results
+        # average by odor and roi
+        mean_acc <- results[target == tar, .(acc = mean(acc)), by = c("roi", "time")]
+        # plot result matrix
+        ggplot(mean_acc, aes(x = time, y = roi, fill = acc)) +
+            geom_tile() + theme_bw() + coord_equal() +
+            scale_fill_distiller(palette = "Greens",direction = 1,
+            limits=c(0,1),breaks=seq(0,1,0.2)) +
+            labs(title = paste(m, tar, sprintf("%.2f%%",100*acc_train), sep = "_")) +
+            scale_x_discrete(breaks = seq(0,3,0.5))
+        ggsave(file.path(pic_dir, paste0("Acc_", tar, ".pdf")))
+        # save tree plot        
+        # svg(file.path(pic_dir, "decision_tree.svg"))
+        pdf(file.path(pic_dir, paste0("decision_tree_", tar, ".pdf")))
+        rpart.plot(learner$model,
+                type = 1, # left and right split labels (see Figure 2)
+                clip.right.labs = FALSE, # full right split labels
+                extra = 104, # show nbr of obs and percentages (see Figure 3)
+                under = FALSE, # position extra info _under_ the boxes
+                tweak = 1, # tweak the text
+                fallen.leaves = FALSE, # put leaves at the bottom of plot
+                box.palette = color_list, # color of the boxes
+                branch = .3, # branch lines with narrow shoulders and down slopes
+                round = 0, # no rounding of node corners i.e. use rectangles
+                leaf.round = 9, # round leaf nodes (for leaves, this supersedes the round arg)
+                main = paste(m, tar, sprintf("%.2f%%",100*acc_train), sep = "_"), # title
+                legend.x = 0,
+                legend.y = 1,
+                branch.col = "gray", # color of branch lines
+                branch.lwd = 2) # line width of branch lines
+        dev.off()
     }
-    # svg(file.path(pic_dir, "decision_tree.svg"))
-    pdf(file.path(pic_dir, "decision_tree.pdf"))
-    rpart.plot(learner$model,
-              type = 1, # left and right split labels (see Figure 2)
-              clip.right.labs = FALSE, # full right split labels
-              extra = 104, # show nbr of obs and percentages (see Figure 3)
-              under = FALSE, # position extra info _under_ the boxes
-              tweak = 1, # tweak the text
-              fallen.leaves = FALSE, # put leaves at the bottom of plot
-              box.palette = color_list, # color of the boxes
-              branch = .3, # branch lines with narrow shoulders and down slopes
-              round = 0, # no rounding of node corners i.e. use rectangles
-              leaf.round = 9, # round leaf nodes (for leaves, this supersedes the round arg)
-              main = m, # title
-              legend.x = 0,
-              legend.y = 1,
-              branch.col = "gray", # color of branch lines
-              branch.lwd = 2) # line width of branch lines
-    dev.off()
-    # test performance
-    train_pre = learner$predict(task_freq, row_ids = train_idx)
-    prediction = learner$predict(task_freq, row_ids = test_idx)
-    measure = msr("classif.acc")
-    acc_train <- train_pre$score(measure)
-    acc_test <- prediction$score(measure)
-    print(c(m, acc_train, acc_test))
+    # bind all results
+    results <- rbindlist(datalist)
+    # convert target to factor
+    results[, target := factor(results$target, levels = tars)]
+    cmap <- c('#D95319','#EDB120','#7E2F8E','#0072BD')
+    # plot averaged results
+    # average by time
+    mean_acc_time <- results[, .(acc = mean(acc)), by = c("target","time")]
+    ggplot(mean_acc_time, aes(x = time, y = acc, group = target,color = target)) +
+        geom_line() +
+        labs(title = paste(m, sep = "_")) +
+        scale_color_manual(values = cmap) +
+        scale_x_discrete(expand = c(0, 0), breaks = seq(0, 3, 0.5)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
+    ggsave(file.path(pic_dir, paste0("Acc_time",".pdf")))
+    # average by roi
+    mean_acc_roi <- results[, .(acc = mean(acc)), by = c("target","roi")]
+    # line plot
+    ggplot(mean_acc_roi, aes(x = roi, y = acc, group = target,color = target)) +
+        geom_line() +
+        labs(title = paste(m, sep = "_")) +
+        scale_color_manual(values = cmap) +
+        scale_x_discrete(expand = c(0, 0)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
+    ggsave(file.path(pic_dir, paste0("Acc_roi", ".pdf")))
 }
 ```
 

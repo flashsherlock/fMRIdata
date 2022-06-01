@@ -46,6 +46,7 @@ save([pic_dir 'data_pca.mat'],'data_pca');
 end
 %% plot
 % parameters
+save_pic=0;
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',...
     '#000000', '#E12A3C', '#777DDD', '#41AB5D'};  
 colors = cellfun(@(x) hex2rgb(x),colors,'UniformOutput',false);
@@ -90,8 +91,10 @@ for roi_i=1:roi_num
     ylabel('Weights')
     title([cur_roi ' ' t_range])   
     set(gca,'FontSize',18);
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_wei' cur_roi '_pca_'  t_range '.png'],'png')
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_wei' cur_roi '_pca_'  t_range '.svg'],'svg')
+    if save_pic==1
+        saveas(gcf, [pic_dir num2str(n_dim) 'd_wei' cur_roi '_pca_'  t_range '.png'],'png')
+        saveas(gcf, [pic_dir num2str(n_dim) 'd_wei' cur_roi '_pca_'  t_range '.svg'],'svg')
+    end
     
     % scatter plot
     p_color = colors(label);
@@ -118,8 +121,10 @@ for roi_i=1:roi_num
     legends = {'Ind', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air'};
     legend(legends(1:length(unique(label))),'location','eastoutside')
     set(gca,'FontSize',18);
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.png'],'png')
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.svg'],'svg')
+    if save_pic==1
+        saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.png'],'png')
+        saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_'  t_range '.svg'],'svg')
+    end
     close all
     
     % line plot
@@ -178,8 +183,10 @@ for roi_i=1:roi_num
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))
     title([cur_roi ' ' t_range])    
     set(gca,'FontSize',18);
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_line_'  t_range '.png'],'png')
-    saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_line_'  t_range '.svg'],'svg')
+    if save_pic==1
+        saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_line_'  t_range '.png'],'png')
+        saveas(gcf, [pic_dir num2str(n_dim) 'd_' cur_roi '_pca_line_'  t_range '.svg'],'svg')
+    end
     close all    
     
     % calculate mean distance    
@@ -213,6 +220,9 @@ for roi_i=1:roi_num
     dis_mean(roi_i, 4, dim_i) = pdist2(tmp(2, :), tmp(3, :));    
 end
 end
+% save distance and roi
+rois = data_pca(:,1);
+save([pic_dir 'Distance_by_time.mat'],'rois','dis_time');
 %% plot distance
 cmap = {'#D95319','#EDB120','#7E2F8E','#0072BD'};
 for roi_i=1:roi_num

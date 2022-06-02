@@ -350,3 +350,16 @@ for (m in monkeys) {
 }
 ```
 
+# other decoding methods
+
+```{r}
+# for each monkey
+for (m in monkeys) {
+    # load power data
+    power <- power_data[[m]]    
+    # for each coding methods
+    for (tar in tars){
+        power_by_time <- recode_odor(power,tar)
+    }
+}
+```

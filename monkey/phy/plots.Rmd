@@ -96,6 +96,18 @@ recode_odor <- function(power, tar) {
     }
     return(power_by_time)
 }
+
+color_tar <- function(color_list_all,tar){
+    if (tar == "odor5") {
+        color_list <- color_list_all
+    } else if (tar == "odor4") {
+        color_list <- color_list_all[-2]
+    } else if (tar == "valence") {
+        color_list <- color_list_all[c(1, 5)]
+    } else if (tar == "intensity") {
+        color_list <- color_list_all[c(2, 3)]
+    }
+}
 ```
 
 # heatmap of monkey's zpower
@@ -132,11 +144,7 @@ for (m in monkeys){
 ```{r}
 power_data <- list()
 # for each monkey
-for (m in monkeys) {  
-    # use power for each frequency band
-    av_freq  <- TRUE
-    # split test data set
-    test <- FALSE    
+for (m in monkeys) {       
     # colors for tree plot
     color_list_all <- list()
     c <- colors[1:5]
@@ -178,6 +186,13 @@ for (m in monkeys) {
     # store to list
     power_data[[m]] <- power
 }
+# settings for decodings
+# use power for each frequency band
+av_freq <- TRUE
+# split test data set
+test <- FALSE
+# targets
+tars <- c("odor5", "odor4", "valence", "intensity")
 ```
 
 # decision tree based on time-frequency analysis
@@ -188,23 +203,14 @@ for (m in monkeys) {
     # set random seed
     set.seed(4869)   
     # load power data
-    power <- power_data[[m]]    
-    # for each coding methods
-    tars <- c("odor5","odor4","valence","intensity")
+    power <- power_data[[m]]        
     # store results
     datalist <- list()
+    # for each coding methods
     for (tar in tars){
         # recode targets
         power_by_time <- recode_odor(power, tar)
-        if (tar=="odor5"){
-            color_list <- color_list_all
-        } else if (tar == "odor4"){
-            color_list <- color_list_all[-2]
-        } else if (tar == "valence"){
-            color_list <- color_list_all[c(1,5)]
-        } else if (tar == "intensity"){
-            color_list <- color_list_all[c(2,3)]
-        }
+        color_list <- color_tar(color_list_all, tar)
         # model by mlr3, select fearures
         task <- as_task_classif(power_by_time, target = tar)
         if (av_freq){
@@ -232,6 +238,8 @@ for (m in monkeys) {
         train_pre = learner$predict(task_freq, row_ids = train_idx)
         acc_train <- train_pre$score(measure)
         print(c(m, acc_train, acc_test))
+        # relative importance
+        print(c(learner$importance() / sum(learner$importance())))
 
         # get responses
         # select <- c("roi", "time", tar)
@@ -354,12 +362,64 @@ for (m in monkeys) {
 
 ```{r}
 # for each monkey
-for (m in monkeys) {
+# for (m in monkeys) {
     # load power data
-    power <- power_data[[m]]    
+    m  <- "b2monkey"
+    # power <- rbind(cbind(power_data[["RM033"]], rep("RM033", nrow(power_data[["RM033"]]))),
+                    # cbind(power_data[["RM035"]], rep("RM035", nrow(power_data[["RM035"]]))))
     # for each coding methods
     for (tar in tars){
-        power_by_time <- recode_odor(power,tar)
+        power_by_time1 <- recode_odor(power_data[["RM033"]],tar)
+        power_by_time2 <- recode_odor(power_data[["RM035"]],tar)
+        power_by_time <- rbind(cbind(power_by_time1,rep("RM033",nrow(power_by_time1))),
+                               cbind(power_by_time2,rep("RM035",nrow(power_by_time2))))
+        setnames(power_by_time, "V2", "monkey")
+        # model by mlr3, select fearures
+        task <- as_task_classif(power_by_time, target = tar)
+        if (av_freq) {
+            task_freq <- task$clone()$select(freqbands_name)
+        } else {
+            task_freq <- task$clone()$select(freqnames)
+        }
+        # rpart classifier
+        learner <- lrn("classif.rpart")
+        measure = msr("classif.acc")
+        # whether to test on test set
+        if (test) {
+            split <- partition(task_freq, ratio = 55 / 61)
+            train_idx <- split$train
+            test_idx <- split$test
+            learner$train(task_freq, row_ids = train_idx)
+            prediction = learner$predict(task_freq, row_ids = test_idx)
+            acc_test <- prediction$score(measure)
+        } else {
+            train_idx <- c(1:task_freq$nrow)
+            learner$train(task_freq)
+            acc_test <- 0
+        }
+        # test performance
+        train_pre = learner$predict(task_freq, row_ids = train_idx)
+        acc_train <- train_pre$score(measure)
+        print(c(m, acc_train, acc_test))
+        # relative importance
+        print(c(learner$importance()/sum(learner$importance())))
+
+        # get responses
+        results <- cbind(power_by_time[, .SD, .SDcols = c("monkey", "time", tar)], train_pre$response)
+        setnames(results, 3:4, c("true", "response"))
+        # add a column indicating target
+        results[, `:=`(target = tar)]
+        # calculate accuracy
+        results <- results[, acc := ifelse(true == response, 1, 0)]
+        # average by monkey
+        print(results[target == tar, .(acc = mean(acc)), by = c("monkey")])
+        # save tree plot
+        color_list <- color_tar(color_list_all, tar)
+        # svg(file.path(pic_dir, "decision_tree.svg"))
+        # pdf(file.path(pic_dir, paste0("decision_tree_", tar, ".pdf")))
+        title <- paste(m, tar, sprintf("%.2f%%", 100 * acc_train), sep = "_")
+        tree_plot(learner$model, color_list, title)
+        # dev.off()
     }
-}
+# }
 ```

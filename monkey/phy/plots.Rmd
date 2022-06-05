@@ -360,6 +360,69 @@ for (m in monkeys) {
 
 # other decoding methods
 
+## 2monkey
+
+Train model on 2monkey and test on monkey RM033 and RM035 separately.
+
+```{r}
+m  <- "2monkey"
+# for each coding methods
+for (tar in tars){
+    power_by_time <- recode_odor(power_data[[m]], tar)
+    power_by_time1 <- recode_odor(power_data[["RM033"]], tar)
+    power_by_time2 <- recode_odor(power_data[["RM035"]], tar)
+    # model by mlr3, select fearures
+    task <- as_task_classif(power_by_time, target = tar)
+    task1 <- as_task_classif(power_by_time1, target = tar)
+    task2 <- as_task_classif(power_by_time2, target = tar)
+    if (av_freq) {
+        task_freq <- task$clone()$select(freqbands_name)
+        task_freq1 <- task1$clone()$select(freqbands_name)
+        task_freq2 <- task2$clone()$select(freqbands_name)
+    } else {
+        task_freq <- task$clone()$select(freqnames)
+        task_freq1 <- task1$clone()$select(freqnames)
+        task_freq2 <- task2$clone()$select(freqnames)
+    }
+    # rpart classifier
+    learner <- lrn("classif.rpart")
+    measure <- msr("classif.acc")
+    # whether to test on test set
+    if (test) {
+        split <- partition(task_freq, ratio = 55 / 61)
+        train_idx <- split$train
+        test_idx <- split$test
+        learner$train(task_freq, row_ids = train_idx)
+        prediction = learner$predict(task_freq, row_ids = test_idx)
+        acc_test <- prediction$score(measure)
+    } else {
+        train_idx <- c(1:task_freq$nrow)
+        learner$train(task_freq)
+        acc_test <- 0
+    }
+    # test performance
+    train_pre <- learner$predict(task_freq, row_ids = train_idx)
+    test_33 <- learner$predict(task_freq1)
+    test_35 <- learner$predict(task_freq2)
+    acc_train <- train_pre$score(measure)
+    print(c(m, acc_train, test_33$score(measure), test_35$score(measure)))
+    # relative importance
+    print(c(learner$importance()/sum(learner$importance())))
+
+    # save tree plot
+    color_list <- color_tar(color_list_all, tar)
+    # svg(file.path(pic_dir, "decision_tree.svg"))
+    # pdf(file.path(pic_dir, paste0("decision_tree_", tar, ".pdf")))
+    title <- paste(m, tar, sprintf("%.2f%%", 100 * acc_train), sep = "_")
+    tree_plot(learner$model, color_list, title)
+    # dev.off()
+}
+```
+
+## combine data from 2 monkeys
+
+Combine data from monkey RM033 and RM035, tunning parameters and train model, then caculate accuracy for monkey RM033 and RM035 separately.
+
 ```{r}
 # for each monkey
 # for (m in monkeys) {
@@ -383,7 +446,25 @@ for (m in monkeys) {
         }
         # rpart classifier
         learner <- lrn("classif.rpart")
-        measure = msr("classif.acc")
+        measure <- msr("classif.acc")
+        # tunning parameters
+        search_space <- ps(
+            cp = p_dbl(lower = 0.001, upper = 0.1),
+            minsplit = p_int(lower = 1, upper = 10)
+        )
+        hout <- rsmp("holdout")
+        evals20 <- trm("evals", n_evals = 20)
+        instance <- TuningInstanceSingleCrit$new(
+            task = task_freq,
+            learner = learner,
+            resampling = hout,
+            measure = measure,
+            search_space = search_space,
+            terminator = evals20
+        )
+        tuner <- tnr("grid_search", resolution = 5)
+        tuner$optimize(instance)
+        learner$param_set$values <- instance$result_learner_param_vals
         # whether to test on test set
         if (test) {
             split <- partition(task_freq, ratio = 55 / 61)

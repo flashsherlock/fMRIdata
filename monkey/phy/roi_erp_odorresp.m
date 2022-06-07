@@ -93,7 +93,7 @@ for roi_i=1:roi_num
 %     ylabel('Voltage (μV)')
 %     set(gca,'xlim',[-1 4]);
 %     title([cur_roi '-low'])
-%     legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor')
+%     legend('Indole','Iso_l','Iso_h','Peach','Banana','Air','Odor')
 %     hold off
 %     saveas(gcf, [pic_dir cur_roi '-low'],'png')
 %     close all

@@ -141,7 +141,7 @@ xlabel('Time (s)')
 ylabel('Voltage (μV)')
 set(gca,'xlim',time_range);
 title([cur_roi '-odor' frequency_range ' ' t_range])
-legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor','Location','northeastoutside')
+legend('Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air', 'Odor', 'Location', 'northeastoutside')
 
 subplot(2,1,2)
 hold on

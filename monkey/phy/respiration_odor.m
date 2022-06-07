@@ -140,7 +140,7 @@ ylabel('Voltage (V)')
 set(gca,'xlim',time_range);
 set(gca, 'FontSize', 18);
 title([cur_roi '-odor'])
-legend('Ind','Iso_l','Iso_h','Pea','Ban','Air','Odor','Location','eastoutside')
+legend('Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air', 'Odor', 'Location', 'eastoutside')
 hold off
 % pvalue
 subplot(2,1,2)

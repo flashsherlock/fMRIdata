@@ -56,3 +56,39 @@ end
 
 % sum(cell2mat(percent(:,4)));
 % sum(cell2mat(percent(:,5)));
+%% calculate trial percentage for each monkey
+monkey=cell(1,2);
+monkeys=load([pic_dir 'odor_level3_trial_count_2monkey']);
+monkey33=load([pic_dir 'odor_level3_trial_count_RM033']);
+monkey35=load([pic_dir 'odor_level3_trial_count_RM035']);
+roi_num=size(monkeys.cur_level_roi,1);
+percent=cell(roi_num,7);
+percent(:,1)=monkeys.cur_level_roi(:,1);
+% calculate trial and percentage
+number=cellfun(@length,monkeys.count(:,2));
+per=number/sum(number)*100;
+number33=cellfun(@length,monkey33.count(:,2));
+per33=number33/sum(number33)*100;
+number35=cellfun(@length,monkey35.count(:,2));
+per35=number35/sum(number35)*100;
+for roi_i=1:roi_num
+    cur_roi = monkeys.cur_level_roi{roi_i,1};
+    % monkeys trial number and percentage
+    percent{roi_i,2}=number(roi_i);
+    percent{roi_i,3}=sprintf('%0.2f%%',per(roi_i));
+    % roi index
+    idx33=find(strcmp(cur_roi,monkey33.cur_level_roi(:,1))==1);
+    idx35=find(strcmp(cur_roi,monkey35.cur_level_roi(:,1))==1);
+    % RM033 points
+    if ~isempty(idx33)
+        percent{roi_i,4}=number33(idx33);
+        percent{roi_i,5}=sprintf('%0.2f%%',per33(idx33));
+    end
+    % RM035 points
+    if ~isempty(idx35)
+        percent{roi_i,6}=number35(idx35);
+        percent{roi_i,7}=sprintf('%0.2f%%',per35(idx35));
+    end
+end
+% convert to table and write to exel 
+writetable(cell2table(percent),[pic_dir 'odor_trial.xlsx'])

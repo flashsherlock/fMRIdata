@@ -1,4 +1,7 @@
-function lfp_tfplot(data,cluster)
+function lfp_tfplot(data,cluster,format)
+    if nargin < 3
+        format = 'png';
+    end
     % parameters
     level = 40;
     if exist('cluster','var') && cluster == 1
@@ -10,7 +13,7 @@ function lfp_tfplot(data,cluster)
     end
     
     % plot by contourf cluster based correction
-    figure;
+    figure('Renderer','Painters');
     hold on
     contourf(data.time, data.freq, squeeze(data.powspctrm), level, 'linecolor', 'none');
     yt = logspace(log10(data.freq_range(1)), log10(data.freq_range(2)), 10);
@@ -42,7 +45,6 @@ function lfp_tfplot(data,cluster)
     title([data.label '-' cor])
     
     % save
-    % saveas(gcf, [data.pic_dir cor '-' data.label '.fig'], 'fig')
-    saveas(gcf, [data.pic_dir cor '-' data.label '.png'], 'png')
+    saveas(gcf, [data.pic_dir cor '-' data.label '.' format], format)
     close all
 end

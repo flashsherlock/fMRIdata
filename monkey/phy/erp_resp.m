@@ -184,12 +184,47 @@ for con_i=1:2
         r3_per=results4s{roi_i,2,con_i}(end,:);
         % fisher-z
         r3_per=atanh(r3_per);
+        % compare at both side
+        if true >=0
+            p=2*(sum(bsxfun(@gt, r3_per, true),2))./(size(r3_per,2));
+        else
+            p=2*(sum(bsxfun(@lt, r3_per, true),2))./(size(r3_per,2));
+        end
         cut1=prctile(r3_per,97.5);
         cut2=prctile(r3_per,2.5);
         sig='';
         if true>cut1 || true<cut2
             sig='*';
         end
-        results4s{roi_i,2,con_i}=sig;
+        results4s{roi_i,2,con_i}=p;
+        results4s{roi_i,3,con_i}=sig;
     end
 end
+results4s=cat(2,repmat(results(:,1),1,1,2),results4s);
+save([pic_dir,'results4s.mat'],'results4s')
+%% write results to xls
+m33=load([data_dir 'pic/erp_resp/RM033/results4s.mat']);
+m35=load([data_dir 'pic/erp_resp/RM035/results4s.mat']);
+rois=union(m33.results4s(:,1),m35.results4s(:,1));
+roi_num=size(rois,1);
+results4s=cell(roi_num,7,2);
+results4s(:,1,:)=repmat(rois(:,1),1,1,2);
+for roi_i=1:roi_num
+    cur_roi = rois{roi_i};
+    % roi index
+    idx33=find(strcmp(cur_roi,m33.results4s(:,1))==1);
+    idx35=find(strcmp(cur_roi,m35.results4s(:,1))==1);
+    % RM033 points
+    if ~isempty(idx33)
+        results4s(roi_i,2:4,:)=m33.results4s(idx33,2:4,:);
+    end
+    % RM035 points
+    if ~isempty(idx35)
+        results4s(roi_i,5:7,:)=m35.results4s(idx35,2:4,:);
+    end
+end
+% convert results air condition to table and write to exel 
+air=results4s(:,:,1);
+% round 2 digits
+air(:,[2,5])=cellfun(@(x) round(x,2), air(:,[2,5]),'UniformOutput',false);
+writetable(cell2table(air),[data_dir 'pic/erp_resp/reults4s_air.xlsx'])

@@ -10,18 +10,20 @@ pic_dir=[data_dir 'pic/lfp_sep/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-%% generate data
+%% load data or generate data
 level = 3;
 trl_type = 'odorresp';
-% combine 2 monkeys
-[roi_lfp,roi_resp,cur_level_roi] = save_sep_2monkey(level,trl_type,monkeys);
-% get number of positions
-roi_num=size(cur_level_roi,1);
 odor_num=7;
-%% TF analysis
 if exist([data_dir 'tf_sep_' m '.mat'],'file')
     load([data_dir 'tf_sep_' m '.mat'])
+    % get number of positions
+    roi_num=size(cur_level_roi,1);
 else
+    % combine 2 monkeys
+    [roi_lfp,roi_resp,cur_level_roi] = save_sep_2monkey(level,trl_type,monkeys);
+    % get number of positions
+    roi_num=size(cur_level_roi,1);    
+    % TF analysis
     freq_sep_all=cell(roi_num,1);
     for roi_i=1:roi_num
         cur_roi=cur_level_roi{roi_i,1};
@@ -103,36 +105,34 @@ for dim_i=1:2
         dis_time_roi = zeros(size(dis_data,2),3);
         for time_i = 1:size(dis_data,2)
             tmp = squeeze(dis_data(:,time_i,:));
-            % 6 condition
-            dis_time_roi(time_i,1) = mean(pdist(tmp));
-            % mean distance to air        
-            dis_time_roi(time_i,2) = mean(pdist2(tmp(end,:),tmp(1:end-1,:)));
-            % mean distance between pleasant and unpleasant
-            dis_time_roi(time_i,3) = mean(mean(pdist2(tmp(1:3,:),tmp(4:5,:))));        
+            % 5 condition
+            dis_time_roi(time_i, 1) = mean(pdist(tmp(1:5,:)));
+            % conbine iso_h and iso_l        
+            dis_time_roi(time_i, 2) = mean(pdist([tmp(1, :);mean(tmp(2:3,:));tmp(4:5,:)]));
+            % mean distance between pleasant and unpleasant(odor mean first)
+            dis_time_roi(time_i, 3) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));   
+            % mean distance between iso_h and iso_l
+            dis_time_roi(time_i, 4) = pdist2(tmp(2, :), tmp(3, :));        
         end
         dis_time{roi_i,dim_i} = dis_time_roi;
 
         % mean distance
         tmp = squeeze(mean(dis_data,2));
         % 5 condition
-        dis_mean(roi_i,1,dim_i) = mean(pdist(tmp(1:end-1,:)));
-        % mean distance to air        
-        dis_mean(roi_i,2,dim_i) = mean(pdist2(tmp(end,:),tmp(1:end-1,:)));
-        % mean distance between pleasant and unpleasant
-        dis_mean(roi_i,3,dim_i) = mean(mean(pdist2(tmp(1:3,:),tmp(4:5,:))));
-        % mean distance to air (odor mean first)       
-        dis_mean(roi_i,4,dim_i) = pdist2(tmp(end,:),mean(tmp(1:end-1,:)));
+        dis_mean(roi_i, 1, dim_i) = mean(pdist(tmp(1:5,:)));
+        % combine iso_h and iso_l
+        dis_mean(roi_i, 2, dim_i) = mean(pdist([tmp(1, :); mean(tmp(2:3, :)); tmp(4:5, :)]));
         % mean distance between pleasant and unpleasant(odor mean first)
-        dis_mean(roi_i,5,dim_i) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));
-        % 6 condition
-        dis_mean(roi_i,6,dim_i) = mean(pdist(tmp));
+        dis_mean(roi_i, 3, dim_i) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));
+        % mean distance between iso_h and iso_l
+        dis_mean(roi_i, 4, dim_i) = pdist2(tmp(2, :), tmp(3, :));
     end
 end
 save([pic_dir 'dis_sep_' m '.mat'],'dis_mean','cur_level_roi','dis_time')
 
 %% scatter plot in 3d space
 load([pic_dir 'dis_sep_' m '.mat'])
-distance = {'odor', 'odor-air', 'valence', 'mean-odor-air', 'mean-valence', '6condition'};
+distance = {'odor5','odor4','valence','intensity'};
 plot_data = cell2mat(cur_level_roi(:,1));
 % deal with some strange points
 plot_data(346,2)=plot_data(346,2)-0.001;
@@ -176,7 +176,7 @@ for monkey_i=1:2
 
 end
 %% get and normalize distance data
-for dis=[1 4 5]
+for dis=[1 3 4]
     % get distance
     color_data = dis_mean(:,dis,1);
     % normalization for each monkey

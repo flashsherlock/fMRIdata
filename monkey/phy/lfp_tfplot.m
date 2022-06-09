@@ -23,7 +23,11 @@ function lfp_tfplot(data,cluster,format)
     xlabel('Time (s)')
     ylabel('Frequency (Hz)')
     colormap jet
-    ylabel(colorbar, data.cbarlabel)
+    % ylabel(colorbar, data.cbarlabel)
+    c = colorbar;
+    c.Label.String = data.cbarlabel;
+    c.Label.FontSize = 18;
+    c.Ticks = min(data.clim):1:max(data.clim);
     
     % map
     contour(data.time,data.freq, map ,1,'linecolor','k','LineWidth',1)
@@ -42,7 +46,10 @@ function lfp_tfplot(data,cluster,format)
         'lineProps',{'k', 'LineWidth', 2},'patchSaturation',0.2);
     % plot(data.time,data.resp_mean,'k','LineWidth',2)
     set(gca, 'xlim', data.time_range, 'ytick', []);
-    title([data.label '-' cor])
+    set(gca,'FontSize',18)    
+    % title([data.label '-' cor])
+    t=strsplit(data.label,'-');
+    title(t{1})
     
     % save
     saveas(gcf, [data.pic_dir cor '-' data.label '.' format], format)

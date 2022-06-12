@@ -497,10 +497,10 @@ Combine data from monkey RM033 and RM035, tunning parameters and train model, th
         # save tree plot
         color_list <- color_tar(color_list_all, tar)
         # svg(file.path(pic_dir, "decision_tree.svg"))
-        # pdf(file.path(pic_dir, paste0("decision_tree_", tar, ".pdf")))
+        pdf(file.path(pic_dir, paste0("b2monkey_treetun_", tar, ".pdf")))
         title <- paste(m, tar, sprintf("%.2f%%", 100 * acc_train), sep = "_")
         tree_plot(learner$model, color_list, title)
-        # dev.off()
+        dev.off()
     }
 # }
 ```

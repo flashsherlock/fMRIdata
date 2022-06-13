@@ -625,6 +625,39 @@ boxplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
   scale_x_discrete(labels=c("Happy","Fearful"))
 ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 5, height = 4)
 
+# diagplot for bootstrapped mean RT
+# combine with pm
+set.seed(1)
+#perform bootstrapping with 1000 replications
+reps <- boot(data_exp2[c("happyF","happyH","fearF","fearH")], statistic=boot_mean, R=1000)
+data <- data.frame(reps$t)
+names(data) <- names(reps$data)
+# point size
+p_size <- 2
+p_jitter <- 0*p_size
+bound1 <- round(min(data),1)-0.1
+bound2 <- round(max(data),1)+0.1
+diag_exp2_faces <- ggplot(data)+
+  geom_point(aes(fearF,happyF, color = "f"), size = p_size, alpha = 0.5, shape=16,stroke = 0,
+             position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
+  geom_point(aes(fearH,happyH, color = "h"), size = p_size, alpha = 0.5, shape=16,stroke = 0,
+             position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
+  geom_abline(intercept = 0, slope = 1, color = "black",size = 0.5)+
+  coord_cartesian(xlim = c(bound1,bound2),ylim = c(bound1,bound2))+
+  scale_color_manual(labels = c("Fearful","Happy"),values = c(f = "#f8c898", h = "#a1d08d"))+
+  labs(x="odor paired with fearful faces", y="odor paired with happy faces")
+ggsave(paste0(data_dir,"diag_va_faces.pdf"),diag1, width = 5, height = 3.5)
+# separate by odors
+diag_exp2_odors <- ggplot(data)+
+  geom_point(aes(fearF,fearH, color = "f"), size = p_size, alpha = 0.5, shape=16,stroke = 0,
+             position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
+  geom_point(aes(happyF,happyH, color = "h"), size = p_size, alpha = 0.5, shape=16,stroke = 0,
+             position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
+  geom_abline(intercept = 0, slope = 1, color = "black",size = 0.5)+
+  coord_cartesian(xlim = c(bound1,bound2),ylim = c(bound1,bound2))+
+  scale_color_manual(labels = c("Fearful","Happy"),values = c(f = "#f8c898", h = "#a1d08d"))+
+  labs(x="fearful faces", y="happy faces")
+ggsave(paste0(data_dir,"diag_va_odors.pdf"),diag1, width = 5, height = 3.5)
 
 # 4.2 bar plot ----------------------------------------------------------------
 bar_hf <- barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+

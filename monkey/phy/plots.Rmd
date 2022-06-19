@@ -504,3 +504,29 @@ Combine data from monkey RM033 and RM035, tunning parameters and train model, th
     }
 # }
 ```
+
+## test cross validation 
+```{r}
+m  <- "2monkey"
+# for each coding methods
+for (tar in tars){
+    power_by_time <- recode_odor(power_data[[m]], tar)
+    # model by mlr3, select fearures
+    task <- as_task_classif(power_by_time, target = tar)
+    # Stratified resampling
+    task$col_roles$stratum <- "odor"
+    if (av_freq) {
+        task_freq <- task$clone()$select(freqbands_name)
+    } else {
+        task_freq <- task$clone()$select(freqnames)
+    }
+    # rpart classifier
+    learner <- lrn("classif.rpart")
+    measure <- msr("classif.acc")
+    resampling  <-  rsmp("cv", folds = 61)
+    rr <- resample(task_freq, learner, resampling, store_models = TRUE)
+    print(rr$aggregate(measure))
+    print(rr$score(measure))
+    autoplot(rr, measure = measure)
+}
+```

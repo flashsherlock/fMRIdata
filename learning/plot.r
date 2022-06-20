@@ -646,7 +646,7 @@ diag_exp2_faces <- ggplot(data)+
   coord_cartesian(xlim = c(bound1,bound2),ylim = c(bound1,bound2))+
   scale_color_manual(labels = c("Fearful","Happy"),values = c(f = "#f8c898", h = "#a1d08d"))+
   labs(x="odor paired with fearful faces", y="odor paired with happy faces")
-ggsave(paste0(data_dir,"diag_va_faces.pdf"),diag1, width = 5, height = 3.5)
+ggsave(paste0(data_dir,"diag_va_faces.pdf"),diag_exp2_faces, width = 5, height = 3.5)
 # separate by odors
 diag_exp2_odors <- ggplot(data)+
   geom_point(aes(fearF,fearH, color = "f"), size = p_size, alpha = 0.5, shape=16,stroke = 0,
@@ -657,7 +657,18 @@ diag_exp2_odors <- ggplot(data)+
   coord_cartesian(xlim = c(bound1,bound2),ylim = c(bound1,bound2))+
   scale_color_manual(labels = c("Fearful","Happy"),values = c(f = "#f8c898", h = "#a1d08d"))+
   labs(x="fearful faces", y="happy faces")
-ggsave(paste0(data_dir,"diag_va_odors.pdf"),diag1, width = 5, height = 3.5)
+ggsave(paste0(data_dir,"diag_va_odors.pdf"),diag_exp2_odors, width = 5, height = 3.5)
+
+# difference between fearful and happy faces
+data <- mutate(data,feardiff = fearH-fearF,happydiff = happyH-happyF)
+diag_exp2_odors <- ggplot(data)+
+  geom_point(aes(feardiff,happydiff), size = p_size, alpha = 0.5, shape=16,stroke = 0,
+             position=position_jitter(h=p_jitter,w=p_jitter,seed = 1))+
+  geom_abline(intercept = 0, slope = 1, color = "black",size = 0.5)+
+  coord_cartesian(xlim = c(0.1,0.3),ylim = c(0.1,0.3))+
+  scale_color_manual(values = c(data = "#0073c2"))+
+  labs(x="odor paired with fearful faces", y="odor paired with happy faces")
+
 
 # 4.2 bar plot ----------------------------------------------------------------
 bar_hf <- barplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+

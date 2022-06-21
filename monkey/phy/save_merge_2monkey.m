@@ -61,7 +61,13 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
                 end
 
                 lfp{i} = ft_redefinetrial(cfg, data.lfp{i});
+                % block
+                lfp{i}.trialinfo(:,2) = i;
+                % date (diff in monkeys)
+                lfp{i}.trialinfo(:,3) = i_date+(1+strcmp(monkey,'RM035'))*100;
                 resp{i} = ft_redefinetrial(cfg, data.bioresp{i});
+                resp{i}.trialinfo(:,2) = i;
+                resp{i}.trialinfo(:,3) = i_date;
             end
 
             %% append data
@@ -118,6 +124,8 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
                     lfp{i} = ft_selectdata(cfg, data_lfp{locations(loc_i, 1)});
                     % rename label to roi name
                     lfp{i}.label = {cur_roi};
+                    % channel (diff in monkeys)
+                    lfp{i}.trialinfo(:,4) = locations(loc_i, 2)+(1+strcmp(monkey,'RM035'))*100;
                     % copy resp to match each trial of lfp
                     resp{i} = data_resp{locations(loc_i, 1)};
                     resp{i}.label{1} = strjoin([resp{i}.label, lfp{i}.label], '_');
@@ -133,6 +141,12 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
         cfg.keepsampleinfo = 'no';
         roi_lfp{roi_i} = ft_appenddata(cfg, lfp{:});
         roi_resp{roi_i} = ft_appenddata(cfg, resp{:});
+        % save additional trialinfo to another variable
+        roi_lfp{roi_i}.trialinfo_add = roi_lfp{roi_i}.trialinfo;
+        roi_resp{roi_i}.trialinfo_add = roi_resp{roi_i}.trialinfo;
+        % remove additional info from trialinfo field
+        roi_lfp{roi_i}.trialinfo = roi_lfp{roi_i}.trialinfo(:,1);
+        roi_resp{roi_i}.trialinfo = roi_resp{roi_i}.trialinfo(:,1);
     end
 
 end

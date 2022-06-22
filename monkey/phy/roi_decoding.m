@@ -12,7 +12,7 @@ if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % generate data
-level = 3;
+level = 5;
 trl_type = 'odorresp';
 % combine 2 monkeys
 [roi_lfp,~,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
@@ -29,7 +29,7 @@ roi_num=size(cur_level_roi,1);
 % number of repeats
 repeat_num=100;
 % time_range=[1.4 2];
-time=[0:0.2:1.8];
+time=[0:0.05:1];
 % time=[0 0.4 0.6 1 1.2];
 time_win=0.2;
 
@@ -60,6 +60,7 @@ for time_i = 1:length(time)
             cfg = [];
             cfg.latency = time_range;
             lfp_odor = ft_selectdata(cfg, lfp_odor);
+            lfp_odor.trialinfo_add = roi_lfp{roi_i}.trialinfo_add;
             % run decoding
             parfor repeat_i=1:repeat_num
                 results_odor{roi_i,repeat_i}=sample_lfp_decoding(lfp_odor, condition, tnum);

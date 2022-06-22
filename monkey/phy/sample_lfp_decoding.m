@@ -1,6 +1,7 @@
 function results = sample_lfp_decoding(data,condition,trial_num)
     cfg = [];
     balence = 0;
+    trialinfo_add = data.trialinfo_add;
     switch condition
         case '5odor'
             cfg.trials  = find(data.trialinfo<=5);
@@ -92,6 +93,7 @@ function results = sample_lfp_decoding(data,condition,trial_num)
     cfg         = [];
     cfg.trials  = find(data.trialinfo~=0);
     data=ft_selectdata(cfg, data);
+    trialinfo_add = trialinfo_add(cfg.trials,:);
     % sort data according to conditions
     [data.trialinfo,I] = sort(data.trialinfo);
     label = data.trialinfo;
@@ -99,7 +101,7 @@ function results = sample_lfp_decoding(data,condition,trial_num)
     % zscore
     % passed_data.data=zscore(sample_data,0,2);
     % decoding
-    passed_data.data = squeeze(data.trial(I,:,:));
+    passed_data.data = [squeeze(data.trial(I,:,:)) trialinfo_add(I,2:end)];
     clear data
     [results,~]=odor_decoding_function(passed_data,length(unique(label)));
     % return condtion and number of selection

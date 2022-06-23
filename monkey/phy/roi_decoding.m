@@ -75,6 +75,6 @@ for time_i = 1:length(time)
     matname = ['decoding_results' num2str(tnum) '_base_linear_' time_bin '.mat'];
     save([pic_dir matname],'results')
     % plot acc
-%     odor_decoding_results(matname);
+%     odor_decoding_results(matname,monkeys);
 %     close all
 end

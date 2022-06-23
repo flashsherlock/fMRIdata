@@ -1,7 +1,12 @@
-function odor_decoding_results(result_file)
+function odor_decoding_results(result_file, monkeys)
     %% load and reorganize data
+    if length(monkeys) > 1
+    m = '2monkey';
+    else
+        m = monkeys{1};
+    end
     data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-    pic_dir=[data_dir 'pic/decoding/'];
+    pic_dir=[data_dir 'pic/decoding/' m '/'];
     % result_file='decoding_results_odor.mat';
     load([pic_dir result_file]);
     %% analyze results

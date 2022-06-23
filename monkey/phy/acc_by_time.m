@@ -1,11 +1,12 @@
 %% load and reorganize data
-m = 'RM033';
+% m = '2monkey';
+m = 'RM035';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 pic_dir=[data_dir 'pic/decoding/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-times=[0:0.2:1.8];
+times=[0:0.05:1];
 time_win=0.2;
 tnum=120;
 time_bin=cell(1,length(times));
@@ -58,15 +59,16 @@ end
 line_wid=1.5;
 % large regiion
 % roi_select=[3:5 7:11 13];
-switch m
-    case 'RM033'
-        roi_select=[4 5 8 9 7 11];
-    case 'RM035'
-        roi_select=[2 3 5 6 4 8];
-    otherwise
-        roi_select=[4 5 8 9 7 11];
-end
-colors = {'#cf3f4f', '#DE7B14', '#ECB556', '#41AB5D', '#149ade', '#69b4d9', '#4292C6', '#E12A3C', '#cb2111'};
+% switch m
+%     case 'RM033'
+%         roi_select=[4 5 8 9 7 11];
+%     case 'RM035'
+%         roi_select=[2 3 5 6 4 8];
+%     otherwise
+%         roi_select=[4 5 8 9 7 11];
+% end
+roi_select = 1:length(rois);
+colors = {'#cf3f4f', '#DE7B14', '#ECB556', '#41AB5D', '#149ade', '#E12A3C', '#4292C6', '#69b4d9', '#cb2111'};
 for condition_i = 1:length(conditions)
     condition = results_bytime{condition_i,1};
     data_select=results_bytime{condition_i,4};
@@ -79,7 +81,7 @@ for condition_i = 1:length(conditions)
     set(gca,'YTick',1:length(rois))
     set(gca,'YTickLabel',rois)
     set(gca,'XTick',1:length(times))
-    set(gca,'XTickLabel',time_bin)
+    set(gca,'XTickLabel',times)
     title(condition)
     saveas(gcf, [pic_dir 'Matrix_' condition methods num2str(tnum) , '.png'], 'png')
     close all
@@ -96,7 +98,7 @@ for condition_i = 1:length(conditions)
     ylabel('ACC')    
     set(gca,'xlim',[1 length(times)])
     set(gca,'XTick',1:length(times))
-    set(gca,'XTickLabel',time_bin)
+    set(gca,'XTickLabel',times)
     set(gca,'ylim',[min(min(data_select(roi_select,:))) max(max(data_select(roi_select,:)))]);
     % p-value
     subplot(2,1,2)
@@ -112,7 +114,7 @@ for condition_i = 1:length(conditions)
     set(gca,'yscale','log');
     set(gca,'xlim',[1 length(times)])
     set(gca,'XTick',1:length(times))
-    set(gca,'XTickLabel',time_bin)
+    set(gca,'XTickLabel',times)
     legend(rois(roi_select),'Location','eastoutside')
     xnum = get(gca,'Xlim');
     plot(xnum,[0.05 0.05],'k','linestyle','--','LineWidth',2)

@@ -8,7 +8,7 @@ if ~exist(pic_dir,'dir')
 end
 times=[0:0.05:1];
 time_win=0.2;
-tnum=120;
+tnum=100;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 % conditions = {'5odor', 'vaodor', 'airodor'};

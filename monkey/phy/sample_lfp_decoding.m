@@ -1,4 +1,4 @@
-function results = sample_lfp_decoding(data,condition,trial_num)
+function passed_data = sample_lfp_decoding(data,condition,trial_num)
     cfg = [];
     balence = 0;
     trialinfo_add = data.trialinfo_add;
@@ -102,8 +102,9 @@ function results = sample_lfp_decoding(data,condition,trial_num)
     % passed_data.data=zscore(sample_data,0,2);
     % decoding
     passed_data.data = [squeeze(data.trial(I,:,:)) trialinfo_add(I,2:end)];
-    clear data
-    [results,~]=odor_decoding_function(passed_data,length(unique(label)));
-    % return condtion and number of selection
-    results.analysis=[condition '_' num2str(select_num')];
+%     passed_data.label = label;
+%     clear data
+%     [results,~]=odor_decoding_function(passed_data,length(unique(label)));
+%     % return condtion and number of selection
+%     results.analysis=[condition '_' num2str(select_num')];
 end

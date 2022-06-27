@@ -37,10 +37,10 @@ time_win=0.2;
 
 conditions = {'5odor','vaodor'};
 % number of classes
-nlabels = [5 3];
+nlabels = [5 2];
 % conditions = [conditions {'6odor','banana','intensity','fakeva'}];
 % trial_num = [100 100 100 100 100 100 100];
-trial_num = 100*ones(1,length(conditions));
+trial_num = 200*ones(1,length(conditions));
 results_all = cell(length(conditions),2);
 results_all(:,1) = conditions';
 
@@ -67,7 +67,7 @@ for condition_i = 1:length(conditions)
         lfp_odor.trialinfo_add = roi_lfp{roi_i}.trialinfo_add;
         % sampleling
         sample = cell(repeat_num,1);
-        for repeat_i=1:repeat_num
+        parfor repeat_i=1:repeat_num
             sample{repeat_i}=sample_lfp_decoding(lfp_odor, condition, tnum);
         end
     

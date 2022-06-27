@@ -8,7 +8,7 @@ if ~exist(pic_dir,'dir')
 end
 times=[0:0.05:1];
 time_win=0.2;
-tnum=100;
+tnum=200;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 % conditions = {'5odor', 'vaodor', 'airodor'};
@@ -115,9 +115,9 @@ for condition_i = 1:length(conditions)
     set(gca,'xlim',[1 length(times)])
     set(gca,'XTick',1:length(times))
     set(gca,'XTickLabel',times)
-    legend(rois(roi_select),'Location','eastoutside')
     xnum = get(gca,'Xlim');
     plot(xnum,[0.05 0.05],'k','linestyle','--','LineWidth',2)
+    legend([rois(roi_select);{'p=0.05'}],'Location','eastoutside')    
     % save plot
     saveas(gcf, [pic_dir condition methods num2str(tnum) , '.png'], 'png')
     close all

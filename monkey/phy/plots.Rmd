@@ -507,7 +507,16 @@ Combine data from monkey RM033 and RM035, tunning parameters and train model, th
 
 ## test cross validation 
 ```{r}
+ptm <- proc.time()
 m  <- "2monkey"
+# parallel
+# future::plan("multisession")
+# multisession need to start a bunch of r sessions
+if (future::supportsMulticore()) {
+    future::plan(future::multicore)
+} else {
+    future::plan(future::multisession)
+}
 # for each coding methods
 for (tar in tars){
     power_by_time <- recode_odor(power_data[[m]], tar)
@@ -529,4 +538,5 @@ for (tar in tars){
     print(rr$score(measure))
     autoplot(rr, measure = measure)
 }
+proc.time() - ptm
 ```

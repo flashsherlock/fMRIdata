@@ -7,7 +7,7 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir = [data_dir 'pic/erp_resp/' m '_0.2cb/'];
+pic_dir = [data_dir 'pic/erp_resp/' m '_0.3cb/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -50,7 +50,7 @@ else
             % cfg.lpfreq = 0.6;
             cfg.bpfilter = 'yes';
             cfg.bpfilttype = 'fir';
-            cfg.bpfreq = [0.2 0.6];
+            cfg.bpfreq = [0.3 0.6];
             if condition<=6
                 % air
                 cfg.trials = find(lfp.trialinfo==condition);

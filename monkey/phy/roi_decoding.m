@@ -31,7 +31,7 @@ roi_num=size(cur_level_roi,1);
 % number of repeats
 repeat_num=100;
 % time_range=[1.4 2];
-time=[0:0.05:1];
+time=[-0.4:0.05:1];
 % time=[0 0.4 0.6 1 1.2];
 time_win=0.2;
 
@@ -40,7 +40,7 @@ conditions = {'5odor','vaodor'};
 nlabels = [5 2];
 % conditions = [conditions {'6odor','banana','intensity','fakeva'}];
 % trial_num = [100 100 100 100 100 100 100];
-trial_num = 200*ones(1,length(conditions));
+trial_num = 120*ones(1,length(conditions));
 results_all = cell(length(conditions),2);
 results_all(:,1) = conditions';
 
@@ -74,10 +74,11 @@ for condition_i = 1:length(conditions)
         % decoding
         fs = 1000;
         % start column of additional trial infomation
-        data_add = 2+(time(end)+time_win)*fs;
+        add_minus = abs(time(1))*fs;
+        data_add = add_minus+2+(time(end)+time_win)*fs;
         for time_i = 1:length(time)
-            start = 1+time(time_i)*fs;
-            stop = 1+(time(time_i)+time_win)*fs;
+            start = add_minus+1+time(time_i)*fs;
+            stop = add_minus+1+(time(time_i)+time_win)*fs;
             parfor repeat_i=1:repeat_num
                 passed_data = sample{repeat_i};
                 passed_data.data = [passed_data.data(:,start:stop) passed_data.data(:,data_add:end)];

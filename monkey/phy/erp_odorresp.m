@@ -12,7 +12,7 @@ if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 %% generate data
-level = 3;
+level = 5;
 trl_type = 'odorresp';
 % combine 2 monkeys
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);

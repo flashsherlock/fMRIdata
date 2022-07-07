@@ -51,21 +51,21 @@ for roi_i=1:roi_num
         lfp = ft_concat(ft_selectdata(cfg,roi_lfp{roi_i}), con_i+5);
         resp = ft_concat(ft_selectdata(cfg,roi_resp{roi_i}), con_i+5);
         time = resp.time;
-    % frequency analysis
-    cfg_tf=[];
-    cfg_tf.output='fourier';
-    cfg_tf.method='mtmconvol';
-    cfg_tf.taper='hanning';
+        % frequency analysis
+        cfg_tf=[];
+        cfg_tf.output='fourier';
+        cfg_tf.method='mtmconvol';
+        cfg_tf.taper='hanning';
         cfg_tf.toi = [0:1:time(end)]; 
-    cfg_tf.keeptrials='yes';
+        cfg_tf.keeptrials='yes';
         % cfg_tf.pad = 'nextpow2';
-    % resp
+        % resp
         cfg_tf.foi=0.2:0.1:0.5;
         % cfg_tf.t_ftimwin = ones(length(cfg_tf.foi),1).*2;
         cfg_tf.t_ftimwin = 5./cfg_tf.foi;
         resp_freq=ft_freqanalysis(cfg_tf,resp);
-    % lfp
-    cfg_tf.foi=1:freqhigh;
+        % lfp
+        cfg_tf.foi=1:freqhigh;
         % cfg_tf.t_ftimwin = ones(length(cfg_tf.foi),1).*1;
         cfg_tf.t_ftimwin = 5./cfg_tf.foi;
         lfp_freq=ft_freqanalysis(cfg_tf,lfp);
@@ -74,105 +74,105 @@ for roi_i=1:roi_num
         lfp_freq.dimord = 'rpt_chan_freq_time';
 
         % select non nan data
-    cfg = [];
+        cfg = [];
         cfg.latency= [15 time(end)-15];
-    resp_freq = ft_selectdata(cfg,resp_freq);
-    lfp_freq = ft_selectdata(cfg,lfp_freq);
+        resp_freq = ft_selectdata(cfg,resp_freq);
+        lfp_freq = ft_selectdata(cfg,lfp_freq);
         
-    % modulation index
-    cfg=[];
+        % modulation index
+        cfg=[];
         cfg.freqlow = [0.1 1];
-    cfg.freqhigh = [1 freqhigh];
-    cfg.method = method;
-    cfg.keeptrials = 'yes';
+        cfg.freqhigh = [1 freqhigh];
+        cfg.method = method;
+        cfg.keeptrials = 'yes';
         cross_freq_result{roi_i,1,con_i} = ft_crossfrequencyanalysis(cfg, resp_freq, lfp_freq);
-    cfg.freqlow = [4 8];
-    cfg.freqhigh = [13 freqhigh];
+        cfg.freqlow = [4 8];
+        cfg.freqhigh = [13 freqhigh];
         cross_freq_result{roi_i,2,con_i} = ft_crossfrequencyanalysis(cfg, lfp_freq, lfp_freq);
         % remove cfg
-    for low_i=1:length(low)
+        for low_i=1:length(low)
             cross_freq_result{roi_i,low_i,con_i} = rmfield(cross_freq_result{roi_i,low_i,con_i}, 'cfg');        
-    end
-    %% permutation test
+        end
+        %% permutation test
     
         cross_resp_per=zeros([size(squeeze(cross_freq_result{roi_i,1,con_i}.crsspctrm)) nper]);
         cross_theta_per=zeros([size(squeeze(cross_freq_result{roi_i,2,con_i}.crsspctrm)) nper]);
     
-    parfor per_i=1:nper
-        % too slow
-%         lfp_per=lfp;
-%         cutp=randi([2 length(lfp.time{1})],length(lfp.trialinfo),1);
-%         % cut and move
-%         for trial_i=1:length(lfp.trialinfo)
-%             temp=lfp.trial{trial_i};
-%             lfp_per.trial{trial_i}=temp([cutp(trial_i):length(lfp.time{1}) 1:cutp(trial_i)-1]);
-%         end                     
-%         % frequency analysis
-%         lfp_per_freq=ft_freqanalysis(cfg_tf,lfp_per);
-%         % select 7s
-%         cfg = [];
-%         cfg.latency= latency;
-%         lfp_per_freq = ft_selectdata(cfg,lfp_per_freq);
-        
-        % shuffle trials in each condition
-%         lfp_per_freq = lfp_freq;
-%         for class_i = unique(lfp_per_freq.trialinfo)'
-%             class_idx = find(lfp_per_freq.trialinfo == class_i);
-%             class_idx_per = class_idx(randperm(length(class_idx)));
-%             lfp_per_freq.fourierspctrm(class_idx,:,:,:) = lfp_per_freq.fourierspctrm(class_idx_per,:,:,:);            
-%         end
-        
-        lfp_per_freq = lfp_freq;
-        % cut and move
-        time_len = length(lfp_per_freq.time);
-            cutp=randi([2 time_len],size(lfp_per_freq.fourierspctrm,1),1);
-            for trial_i=1:size(lfp_per_freq.fourierspctrm,1)
-            temp=lfp_per_freq.fourierspctrm(trial_i,:,:,:);
-            lfp_per_freq.fourierspctrm(trial_i,:,:,:)=temp(:,:,:,[cutp(trial_i):time_len 1:cutp(trial_i)-1]);
-        end
-        
-        % shuffle time points
-%         for trial_i=1:length(lfp_per_freq.trialinfo)
-%             temp=lfp_per_freq.fourierspctrm(trial_i,:,:,:);
-%             lfp_per_freq.fourierspctrm(trial_i,:,:,:)=temp(:,:,:,randperm(time_len));
-%         end
+        parfor per_i=1:nper
+            % too slow
+            % lfp_per=lfp;
+            % cutp=randi([2 length(lfp.time{1})],length(lfp.trialinfo),1);
+            % % cut and move
+            % for trial_i=1:length(lfp.trialinfo)
+            %     temp=lfp.trial{trial_i};
+            %     lfp_per.trial{trial_i}=temp([cutp(trial_i):length(lfp.time{1}) 1:cutp(trial_i)-1]);
+            % end                     
+            % % frequency analysis
+            % lfp_per_freq=ft_freqanalysis(cfg_tf,lfp_per);
+            % % select 7s
+            % cfg = [];
+            % cfg.latency= latency;
+            % lfp_per_freq = ft_selectdata(cfg,lfp_per_freq);
 
-        % coherence
-        cfg=[];
+            % shuffle trials in each condition
+            % lfp_per_freq = lfp_freq;
+            % for class_i = unique(lfp_per_freq.trialinfo)'
+            %     class_idx = find(lfp_per_freq.trialinfo == class_i);
+            %     class_idx_per = class_idx(randperm(length(class_idx)));
+            %     lfp_per_freq.fourierspctrm(class_idx,:,:,:) = lfp_per_freq.fourierspctrm(class_idx_per,:,:,:);            
+            % end
+
+            lfp_per_freq = lfp_freq;
+            % cut and move
+            time_len = length(lfp_per_freq.time);
+                cutp=randi([2 time_len],size(lfp_per_freq.fourierspctrm,1),1);
+            for trial_i=1:size(lfp_per_freq.fourierspctrm,1)
+                temp=lfp_per_freq.fourierspctrm(trial_i,:,:,:);
+                lfp_per_freq.fourierspctrm(trial_i,:,:,:)=temp(:,:,:,[cutp(trial_i):time_len 1:cutp(trial_i)-1]);
+            end
+
+            % shuffle time points
+            % for trial_i=1:length(lfp_per_freq.trialinfo)
+            %     temp=lfp_per_freq.fourierspctrm(trial_i,:,:,:);
+            %     lfp_per_freq.fourierspctrm(trial_i,:,:,:)=temp(:,:,:,randperm(time_len));
+            % end
+
+            % coherence
+            cfg=[];
             cfg.freqlow = [0.1 1];
-        cfg.freqhigh = [1 freqhigh];
-        cfg.method = method;
-        cfg.keeptrials = 'yes';
-        temp = ft_crossfrequencyanalysis(cfg, resp_freq, lfp_per_freq);
-        % save results to matrix
-            cross_resp_per(:,:,per_i) = squeeze(temp.crsspctrm);
-        % theta
-        cfg.freqlow = [4 8];
-        cfg.freqhigh = [13 freqhigh];
-        temp = ft_crossfrequencyanalysis(cfg, lfp_freq, lfp_per_freq);
-        % save results to matrix        
-            cross_theta_per(:,:,per_i) = squeeze(temp.crsspctrm);
-    end
-    % save to a field in cross_freq_results
+            cfg.freqhigh = [1 freqhigh];
+            cfg.method = method;
+            cfg.keeptrials = 'yes';
+            temp = ft_crossfrequencyanalysis(cfg, resp_freq, lfp_per_freq);
+            % save results to matrix
+                cross_resp_per(:,:,per_i) = squeeze(temp.crsspctrm);
+            % theta
+            cfg.freqlow = [4 8];
+            cfg.freqhigh = [13 freqhigh];
+            temp = ft_crossfrequencyanalysis(cfg, lfp_freq, lfp_per_freq);
+            % save results to matrix        
+                cross_theta_per(:,:,per_i) = squeeze(temp.crsspctrm);
+        end
+        % save to a field in cross_freq_results
         cross_freq_result{roi_i,1,con_i}.permute = cross_resp_per;
         cross_freq_result{roi_i,2,con_i}.permute = cross_theta_per;
     end
 end
 
-save([pic_dir 'coherence_7s.mat'],'cross_freq_result','-v7.3')
+save([pic_dir 'coherence_7s.mat'],'cross_freq_result','cur_level_roi','-v7.3')
 
 %% plot
 label = {'Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor'};
-for roi_i=1:roi_num
+for roi_i=1:size(cross_freq_result,1)
     % respiration and theta
     for low_i=1:length(low)
         
-        figure('position',[20,20,600,600]);
+        figure('position',[20,20,600,600],'Renderer','Painters');
         % modulation index
-        subplot(2,1,1)
-        hold on;
-        title([cur_level_roi{roi_i,1} low{low_i}])
-        freqs=cross_freq_result{roi_i,low_i}.freqhigh;
+%         subplot(3,1,1)
+%         hold on;
+        suptitle([cur_level_roi{roi_i,1} low{low_i}])
+        freqs=cross_freq_result{roi_i,low_i,1}.freqhigh;
         
         % calculate mean modulation index and plot
         p=cell(odor_num,1);
@@ -184,8 +184,8 @@ for roi_i=1:roi_num
             % p-value percentage of plv_per larger than plv
             p{odor_i} = (sum(bsxfun(@gt, plv_per, squeeze(plv)),3)+1 )./(size(plv_per,3)+1);
             p{odor_i} = squeeze(mean(p{odor_i},1));
-            plot(freqs,squeeze(mean(mean(plv,1),3)),...
-                'Color',hex2rgb(colors{odor_i+5}),'linewidth', line_wid)
+%             plot(freqs,squeeze(mean(mean(plv,1),3)),...
+%                 'Color',hex2rgb(colors{odor_i+5}),'linewidth', line_wid)
         end
         if low_i==1
             xl = [1 80];
@@ -194,11 +194,34 @@ for roi_i=1:roi_num
             xl = [13 80];
             xt = [13 20:10:80];
         end
-        set(gca,'xlim', xl);
-        set(gca,'XTick', xt);
+%         set(gca,'xlim', xl);
+%         set(gca,'XTick', xt);
+%         set(gca,'XTickLabel',xt);
+%         legend(label(6:7))
+%         ylabel('Modulation Index')
+        
+        % normalized mi
+        subplot(2,1,1)
+        hold on;
+        for odor_i=1:odor_num            
+            % rpt_chan_freqlow_freqhigh
+            plv=cross_freq_result{roi_i,low_i,odor_i}.crsspctrm;
+            % chan_freqlow_freqhigh_nper
+            plv_per=cross_freq_result{roi_i,low_i,odor_i}.permute;
+            % calculate zscore according to permutated distribution
+            mean_per = mean(plv_per,3);
+            std_per = std(plv_per,0,3);
+            zmi = (squeeze(plv)-mean_per)./std_per;
+            % plot zmi (average low freq)
+            plot(freqs,mean(zmi),'Color',hex2rgb(colors{odor_i+5}),'linewidth', line_wid)
+        end
+        set(gca,'xlim',xl);
+        set(gca,'XTick',xt);
         set(gca,'XTickLabel',xt);
-        legend(label(6:7))
-        ylabel('Modulation Index')
+        set(gca,'FontSize',18);
+        legend(label(6:7));
+        ylabel('Normalized MI (z score)');
+        xlabel('Frequency(Hz)');
         
         % p-value        
         subplot(2,1,2)
@@ -211,10 +234,12 @@ for roi_i=1:roi_num
         set(gca,'xlim',xl);
         set(gca,'XTick',xt);
         set(gca,'XTickLabel',xt);
-        ylabel('p')
-        xlabel('Frequency(Hz)')  
+        set(gca,'FontSize',18);
+        xlabel('Frequency(Hz)');
+        ylabel('p');
+                
         % save picture
-        saveas(gcf, [pic_dir cur_level_roi{roi_i,1} low{low_i} '-mi', '.fig'], 'fig')
+        saveas(gcf, [pic_dir cur_level_roi{roi_i,1} low{low_i} '-mi', '.svg'], 'svg')
         saveas(gcf, [pic_dir cur_level_roi{roi_i,1} low{low_i} '-mi', '.png'], 'png')
         close all
     end

@@ -12,7 +12,7 @@ if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 %% generate data
-level = 3;
+level = 5;
 trl_type = 'odorresp';
 % combine 2 monkeys
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
@@ -20,8 +20,8 @@ trl_type = 'odorresp';
 roi_num=size(cur_level_roi,1);
 odor_num=7;
 %% TF analysis
-if exist([data_dir 'tf_' m '.mat'],'file')
-    load([data_dir 'tf_' m '.mat'])
+if exist([data_dir 'tf_cb_' m '.mat'],'file')
+    load([data_dir 'tf_cb_' m '.mat'])
 else
     freq_sep_all=cell(roi_num,1);
     for roi_i=1:roi_num
@@ -46,7 +46,7 @@ else
         cfgtf.keeptrials = 'yes';
         freq_sep_all{roi_i} = ft_freqanalysis(cfgtf, lfp);
     end
-    save([data_dir 'tf_' m '.mat'],'freq_sep_all','-v7.3')
+    save([data_dir 'tf_cb_' m '.mat'],'freq_sep_all','-v7.3')
 end
 %% parameters
 if exist([pic_dir 'tf_results_' m '.mat'],'file')
@@ -54,7 +54,7 @@ if exist([pic_dir 'tf_results_' m '.mat'],'file')
 else
     freq_range = [1.5 200];
     time_ranges = {[-1 7.5],[-1 4]};
-    bsline = [-1 -0.5];
+    bsline = [-0.55 -0.05];
     conditions = {'-oddtrial',''};
     % set comparison
     comp = cell(7,3);

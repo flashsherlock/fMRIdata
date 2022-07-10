@@ -1,6 +1,6 @@
 %% load and reorganize data
 % monkeys = {'RM035','RM033'};
-monkeys = {'RM033'};
+monkeys = {'RM035'};
 if length(monkeys) > 1
     m = '2monkey';
 else
@@ -16,8 +16,8 @@ if exist([pic_dir 'powspec_odor_7s_1_80hz.mat'],'file')
     load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
     roi_num=size(cur_level_roi,1);
 else
-    level = 3;
-    trl_type = 'odorresp';
+    level = 5;
+    trl_type = 'odor';
 
     % one monkey data
     % one_data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/rm035_ane/mat/';
@@ -36,7 +36,7 @@ else
     %     resp=roi_resp{roi_i};
         % select time
         cfg         = [];
-        cfg.latency = [0 2];
+        cfg.latency = [0 7];
         lfp=ft_selectdata(cfg, lfp);
     %     resp=ft_selectdata(cfg, resp);
         % frequency spectrum

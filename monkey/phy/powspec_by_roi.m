@@ -7,7 +7,7 @@ load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
 % get number of roi
 roi_num=size(cur_level_roi,1);
 odor_num=7;
-%% average each condition (same as roi_powspec)
+% average each condition (same as roi_powspec)
 spectr_resp=cell(roi_num,odor_num);
 spectr_lfp=spectr_resp;
 % zscore
@@ -30,7 +30,7 @@ for roi_i=1:roi_num
         spectr_lfpz{roi_i,odor_i} = ft_selectdata(cfg, lfp);
     end
 end
-%% calculate mean zpower for each condition
+% calculate mean zpower for each condition
 % left-open right-close
 bands={[0 4],[4 8],[8 13],[13 30],[30 50],[50 80],[30 80]};
 zpower=zeros(roi_num,odor_num,length(bands));
@@ -46,6 +46,8 @@ for roi_i=1:roi_num
         end
     end
 end
+rois=cur_level_roi(:,1);
+save([pic_dir 'zpower_7s_1_80hz.mat'],'zpower','rois');
 %% reorganize data
 switch m
 case '2monkey'
@@ -55,12 +57,10 @@ case 'RM033'
 case 'RM035'
     roi_select=[5 2 3 10 7 6 1 9 4 8];
 end
-rois=cur_level_roi(:,1);
 rois=rois(roi_select);
 zpower=zpower(roi_select,:,:);
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D'};
 colors_cp = colors([1:5 7]);
-save([pic_dir 'zpower_7s_1_80hz.mat'],'zpower','rois');
 %% plot mean zpower
 for band_i=1:length(bands)
     figure('position',[20,20,900,450])

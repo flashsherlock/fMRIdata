@@ -159,7 +159,7 @@ for roi_i=1:roi_num
     xlabel('Frequency (Hz)')
     ylabel('p')
     set(gca, 'FontSize', 18);
-    saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.fig'], 'fig')
+    % saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.fig'], 'fig')
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.png'], 'png')
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.pdf'], 'pdf')
     close all

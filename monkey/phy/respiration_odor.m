@@ -10,7 +10,6 @@ pic_dir=[data_dir 'pic/respiration_odor/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-cur_roi = 'resp';
 %% load data
 resp_monkey=cell(1,length(monkeys));
 for monkey_i = 1:length(monkeys)
@@ -123,29 +122,41 @@ for i=1:9
 end
 ls{8}='-';
 ls{9}='-';
+cur_roi = 'resp';
 %% plot
-smooth_win=1;
+odor_plot = 6;
+smooth_win = 1;
+alpha = 0.5;
 time_range = [-0.2 4];
+labels = {'Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air', 'Odor'};
 % plot 5 odors and air
 % set renderer to generate vector image
 figure('position',[20,0,450,400],'Renderer', 'Painters');
 subplot(2,1,1)
 hold on
-for i=1:7
-plot(erp_h_blc{1}.time,smooth(erp_h_blc{i}.trial,smooth_win),'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
+% use aline to obtain correct legends
+aline = zeros(odor_plot,1);
+for i=1:odor_plot
+% plot without errorbar
+% plot(erp_h_blc{1}.time,smooth(erp_h_blc{i}.trial,smooth_win),'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
+
+% plot using shadedEBar
 % shadedEBar(erp_h_blc{1}.time,squeeze(erp_h_blc{i}.trial),1.96*squeeze(erp_h_blc{i}.sem),...
-%     'lineProps',{'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i}},'patchSaturation',0.2)
+%     'lineProps',{'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i}},'patchSaturation',alpha)
+
+% plot using stdshade(modified)
+aline(i) = stdshade(erp_h_blc{i}.trial,erp_h_blc{i}.sem,alpha,hex2rgb(colors{i}),erp_h_blc{1}.time,smooth_win);
 end
 ylabel('Voltage (V)')
 set(gca,'xlim',time_range);
 set(gca, 'FontSize', 18);
 title([cur_roi '-odor'])
-legend('Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Air', 'Odor', 'Location', 'eastoutside')
+legend(aline,labels(1:odor_plot), 'Location', 'eastoutside')
 hold off
 % pvalue
 subplot(2,1,2)
 hold on
-for odor_i=1:6
+for odor_i=1:min(6,odor_plot)
     % replace 0 with eps
     stat_t{odor_i}.prob=max(stat_t{odor_i}.prob,eps);
     plot(stat_t{odor_i}.time, smooth(stat_t{odor_i}.prob,smooth_win),'Color',hex2rgb(colors_cp{odor_i}),'linewidth', lw{i})
@@ -161,12 +172,11 @@ set(gca,'yminortick','off');
 set(gca,'xlim',time_range);
 xlabel('Time (s)')
 ylabel('p')
-legend('Ind','Iso_l','Iso_h','Pea','Ban','Odor','0.05','Location','eastoutside')
+legend([labels(1:min(6,odor_plot)),'0.05'],'Location','eastoutside')
 set(gca, 'FontSize', 18);
-saveas(gcf, [pic_dir cur_roi '-5odor', '.fig'],'fig')
+% saveas(gcf, [pic_dir cur_roi '-5odor', '.fig'],'fig')
 saveas(gcf, [pic_dir cur_roi '-5odor', '.png'],'png')
 saveas(gcf, [pic_dir cur_roi '-5odor', '.pdf'],'pdf')
-% print(gcf, [pic_dir cur_roi '-5odor', '.pdf'],'-dpdf')
 close all
 
 %% power spectrum analysis

@@ -23,6 +23,7 @@ function lfp_tfplot(data,cluster,format)
     xlabel('Time (s)')
     ylabel('Frequency (Hz)')
     colormap jet
+    % colormap(bluered(1000))
     % ylabel(colorbar, data.cbarlabel)
     c = colorbar;
     c.Label.String = data.cbarlabel;
@@ -42,9 +43,17 @@ function lfp_tfplot(data,cluster,format)
     % plot respiration
     yyaxis right
     respx = linspace(data.time(1),data.time(end),length(data.resp_mean));
-    shadedEBar(respx,squeeze(data.resp_mean),1.96*squeeze(data.resp_sem),...
-        'lineProps',{'k', 'LineWidth', 2},'patchSaturation',0.2);
+    
+    % use shadedEBar to plot resp
+    % shadedEBar(respx,squeeze(data.resp_mean),1.96*squeeze(data.resp_sem),...
+    %    'lineProps',{'k', 'LineWidth', 2},'patchSaturation',0.2);
+    
+    % use stdshade to plot resp
+    stdshade(squeeze(data.resp_mean)',1.96*squeeze(data.resp_sem)',0.2,hex2rgb('000000'),respx);
+    
+    % only mean value
     % plot(data.time,data.resp_mean,'k','LineWidth',2)
+    
     set(gca, 'xlim', data.time_range, 'ytick', []);
     set(gca,'FontSize',18)    
     % title([data.label '-' cor])

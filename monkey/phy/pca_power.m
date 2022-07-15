@@ -12,8 +12,8 @@ t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
 if exist([pic_dir 'data_pca.mat'],'file')
     load([pic_dir 'data_pca.mat']);
 else
-    load([data_dir 'tf_' m '.mat'])
-    load([data_dir 'pic/trial_count/odor_level3_trial_count_' m '.mat'])
+    load([data_dir 'tf_cb_' m '.mat'])
+    load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'])
     roi_num=size(cur_level_roi,1);
     data_pca=cell(roi_num,3);
     data_pca(:,1)=cur_level_roi(:,1);
@@ -46,7 +46,7 @@ save([pic_dir 'data_pca.mat'],'data_pca');
 end
 %% plot
 % parameters
-save_pic=0;
+save_pic=1;
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556',...
     '#000000', '#E12A3C', '#777DDD', '#41AB5D'};  
 colors = cellfun(@(x) hex2rgb(x),colors,'UniformOutput',false);

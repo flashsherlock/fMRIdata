@@ -58,7 +58,7 @@ parfor i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_labelbr_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -119,9 +119,12 @@ parfor i=1:length(comb)
     %% Nothing needs to be changed below for a standard leave-one-run out cross
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg); 
-
+    % load data the standard way
+    [passed_data, ~, cfg] = decoding_load_data(cfg);
+    % add run number and repeat num as features
+    passed_data.data = [passed_data.data timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2),[3 4])];
     % Run decoding
-    results = decoding(cfg);    
+    decoding(cfg, passed_data);    
 end
 end
 end

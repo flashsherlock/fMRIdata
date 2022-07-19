@@ -58,7 +58,7 @@ parfor i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_labelbr_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_labelbrc_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -67,15 +67,18 @@ parfor i=1:length(comb)
     cfg.files.labelname = {};
     cfg.files.chunk = [];
     cfg.files.label = [];
-
+    
+    % tr stores all the timing information
+    tr = [];
     for shift_i = 1:length(shift)
         timing = findtrs(shift(shift_i), sub);
         % images selected by odornumber
-        tr = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), 2);
+        timing = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), :);
+        tr = [tr;timing];
         numtr=6*6*2;
         F=cell(1,numtr);
         for subi = 1:numtr
-            t=tr(subi);
+            t=timing(subi,2);
             F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
         end
         cfg.files.name = [cfg.files.name F];
@@ -116,13 +119,25 @@ parfor i=1:length(comb)
     % will use the function transres_SVM_pattern.m to get the pattern from 
     % linear svm weights (see Haufe et al, 2015, Neuroimage)
 
-    %% Nothing needs to be changed below for a standard leave-one-run out cross
-    % This creates the leave-one-run-out cross validation design:
-    cfg.design = make_design_cv(cfg); 
+    %% Nothing needs to be changed below for a standard leave-one-run out cross    
     % load data the standard way
     [passed_data, ~, cfg] = decoding_load_data(cfg);
     % add run number and repeat num as features
-    passed_data.data = [passed_data.data timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2),[3 4])];
+    combine = 1;
+    if combine == 1
+       nsample = size(passed_data.data, 1);
+       passed_data.data = reshape(passed_data.data,nsample/length(shift),[]);
+       passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
+       % change design
+       cfg.files.name = cfg.files.name(1:nsample/length(shift));
+       cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift));
+       cfg.files.label = cfg.files.label(1:nsample/length(shift));
+       cfg.files.labelname = cfg.files.labelname(1:nsample/length(shift));
+    else
+       passed_data.data = [passed_data.data tr(:,[3 4])];
+    end
+    % This creates the leave-one-run-out cross validation design:
+    cfg.design = make_design_cv(cfg); 
     % Run decoding
     decoding(cfg, passed_data);    
 end

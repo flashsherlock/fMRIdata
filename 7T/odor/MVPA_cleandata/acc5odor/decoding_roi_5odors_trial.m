@@ -124,8 +124,10 @@ for i=1:length(rois)
     combine = 1;
     if combine == 1
        nsample = size(passed_data.data, 1);
-       passed_data.data = reshape(passed_data.data,nsample/length(shift),[]);
-       passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
+       nvoxel = size(passed_data.data, 2);
+       passed_data.data = reshape(passed_data.data,[nsample/length(shift),length(shift),nvoxel]);
+       passed_data.data = squeeze(mean(passed_data.data, 2));
+       % passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
        % change design
        cfg.files.name = cfg.files.name(1:nsample/length(shift));
        cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift));
@@ -136,7 +138,7 @@ for i=1:length(rois)
     end
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
-    save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');
+    % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');
     % Run decoding
     decoding(cfg, passed_data);   
     

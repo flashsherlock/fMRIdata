@@ -54,7 +54,7 @@ for i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_labelrpt_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelbr_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -76,7 +76,8 @@ for i=1:length(rois)
         F=cell(1,numtr);
         for subi = 1:numtr
             t=timing(subi,2);
-            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
         end
         cfg.files.name = [cfg.files.name F];
         % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -130,11 +131,11 @@ for i=1:length(rois)
        % passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
        % change design
        cfg.files.name = cfg.files.name(1:nsample/length(shift));
-       % cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift))
+       cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift));
        % run as chunk
-       %cfg.files.chunk = tr(1:nsample/length(shift),3);
+       % cfg.files.chunk = tr(1:nsample/length(shift),3);
        % rept as chunk
-        cfg.files.chunk = tr(1:nsample/length(shift),4);
+       % cfg.files.chunk = tr(1:nsample/length(shift),4);
        cfg.files.label = cfg.files.label(1:nsample/length(shift));
        cfg.files.labelname = cfg.files.labelname(1:nsample/length(shift));
     else

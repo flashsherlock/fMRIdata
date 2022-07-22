@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach ub (`count -dig 2 9 18`)
+foreach ub (`count -dig 2 4 18`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
@@ -16,9 +16,20 @@ cd ${subj}.results
 # mv ../${subj}.results.old/Piriform.seg* ../mask
 
 # remove files
-rm allrun.volreg*
+rm all_runs*
 # rm pb0[0-4]*
 rm NIfitts*
+
+# cd mvpa
+# rm -r *br*
+# rm -r *rpt*
+
+set pb=`ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1`
+# cat all runs
+if (! -e allrun.volreg.${subj}+orig.HEAD) then
+    # echo nodata
+    3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
+endif
 
 # rm tent.${subj}.odorVI+orig*
 # rm NIerrts.${subj}.odorVIv_noblur+orig*

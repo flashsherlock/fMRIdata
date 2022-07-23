@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach ub (`count -dig 2 13 18`)
+foreach ub (`count -dig 2 13 15`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
@@ -32,13 +32,24 @@ if (! -e allrun.volreg.${subj}+orig.HEAD) then
     3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
 endif
 
+# normalize Anatomical img to mni space
+# @auto_tlrc -no_ss -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${sub}.${analysis}+orig
+if (! -e stats.${subj}.odorVI+orig.HEAD) then
+    # rename
+    mv  stats.${subj}+orig.HEAD stats.${subj}.odorVI+orig.HEAD
+    mv  stats.${subj}+orig.BRIK stats.${subj}.odorVI+orig.BRIK
+endif
+# align to nomalized Anatomical img
+@auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}.odorVI+orig
+
 # synthesize fitts of no interests, use -dry for debug
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select baseline -prefix NIfittsbs.${subj}.${filedec}
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select baseline -prefix NIfittsbs.${subj}.${filedec}
 
-# subtract fitts of no interests from all runs
-3dcalc -a allrun.volreg.${subj}+orig -b NIfittsbs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmbs
+# # subtract fitts of no interests from all runs
+# 3dcalc -a allrun.volreg.${subj}+orig -b NIfittsbs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmbs
 
-rm NIfitts*
+# rm NIfitts*
+
 # rm tent.${subj}.odorVI+orig*
 # rm NIerrts.${subj}.odorVIv_noblur+orig*
 # rm NIerrts.${subj}.odorVIvat_noblur+orig*

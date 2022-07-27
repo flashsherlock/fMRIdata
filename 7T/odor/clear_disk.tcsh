@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach ub (`count -dig 2 13 18`)
+foreach ub (`count -dig 2 4 11`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
@@ -43,10 +43,10 @@ endif
 # @auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}.odorVI+orig
 
 # synthesize fitts of no interests, use -dry for debug
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select val int -prefix NIfittsnobs.${subj}.${filedec}
+3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort val int -prefix NIfittsnobs.${subj}.${filedec}
 
 # # subtract fitts of no interests from all runs
-3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmexpbs
+3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmpolort
 
 rm NIfitts*
 

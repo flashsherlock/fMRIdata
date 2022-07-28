@@ -24,7 +24,7 @@ cd ${subj}.results
 # rm -r *br*
 # rm -r *rpt*
 
-set filedec = odorVI_noblur
+set filedec = odorVIva_noblur
 set pb=`ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1`
 # cat all runs
 if (! -e allrun.volreg.${subj}+orig.HEAD) then
@@ -43,10 +43,10 @@ endif
 # @auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}.odorVI+orig
 
 # synthesize fitts of no interests, use -dry for debug
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort val int -prefix NIfittsnobs.${subj}.${filedec}
+3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort val int odor_va -prefix NIfittsnobs.${subj}.${filedec}
 
 # # subtract fitts of no interests from all runs
-3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmpolort
+3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmpolortva
 
 rm NIfitts*
 

@@ -4,7 +4,7 @@ params:
     path: "/Volumes/WD_E/gufei/7T_odor/"
     roi: !r c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
     roiname: !r c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
-    sub: !r c(sprintf('S%02d',c(4:8)))
+    sub: !r c(sprintf('S%02d',c(4:11,13,14,16:18)))
     suffix: "_tent_12.txt"
 title: "ROIs"
 author: "Fei"
@@ -171,7 +171,7 @@ for (sub_i in params$sub) {
 ```
 
 ## Separate
-```{r}
+```{r include=FALSE}
 for (sub_i in params$sub) {
   for (region in params$roi) {
   # choose data
@@ -212,18 +212,53 @@ datachosen$odor <- factor(datachosen$odor,levels = odors)
 # plot time course
 figure_4 <- ggplot(datachosen, aes(x=time, y=mean,color=odor,group=odor)) + 
   labs(title = paste("All",region,sep = "_"),
-       x='Time(s)',y='Percent of signal change (%)',color='Odor')+#设置坐标轴
+       x='Time(s)',y='Percent of signal change (%)',color='odor')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1))) + 
+  coord_cartesian(ylim=c(min(datachosen$mean)-0.1,max(datachosen$mean+0.1))) + 
   # scale_fill_manual(values = colors[1:2])+ #颜色
   scale_color_manual(values = gf_color)+ #自选颜色
+  scale_fill_manual(values = gf_color)+ #自选颜色
   scale_x_discrete(expand = c(0,0.1))+
   geom_line(position = pd) +
   geom_hline(yintercept=0, linetype="dotted")+
   # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = odor), 
+              alpha = 0.2,linetype=0)+
   geom_point(position = pd)
 # print(figure_4)
 pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
+print(pfigure)
+
+# plot smoothed time course
+stent <- reshape2::dcast(datachosen,time~odor,value.var = "mean")
+stentse <- reshape2::dcast(datachosen,time~odor,value.var = "se")
+# pad the edge (weighted average)
+stent[,-1] <- zoo::rollapply(rbind(stent[1,-1],stent[,-1],stent[nrow(stent),-1]),3,mean)
+stentse[,-1] <- zoo::rollapply(rbind(stentse[1,-1],stentse[,-1],stentse[nrow(stentse),-1]),3,mean)
+stent <- reshape2::melt(stent,c("time"))
+stentse <- reshape2::melt(stentse,c("time"))
+# merge mean and se
+names(stent) <- c("time","odor","mean")
+names(stentse) <- c("time","odor","se")
+stent <- merge(stent, stentse, by = c("time","odor"))
+# plot
+figure_roi <- ggplot(stent, aes(x=time, y=mean,group=odor,color=odor)) + 
+  labs(title = paste("All",region,"smooth",sep = "_"),
+       x='Time(s)',y='Percent of signal change (%)',color='odor')+#设置坐标轴
+  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(min(stent$mean)-0.1,max(stent$mean+0.1)),
+                  clip = 'off') + 
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_fill_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(expand = c(0,0))+
+  geom_line(position = pd) +
+  geom_hline(yintercept=0, linetype="dotted")+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = odor),
+              alpha = 0.2,linetype=0)+
+  geom_point(position = pd)
+# print(figure_4)
+pfigure <- figure_roi + theme_prism(base_line_size = 0.5)
 print(pfigure)
 }
 ```
@@ -240,25 +275,27 @@ datachosen <- subset(datachosen,select = c(group1,mean,se))
 names(datachosen) <- c("time","mean","se")
 # set time and odor levels
 datachosen$time <- factor(datachosen$time,levels = as.character(c(0:12)))
-# plot time course
-figure_4 <- ggplot(datachosen, aes(x=time, y=mean,group=1)) + 
-  labs(title = paste("All",region,sep = "_"),
-       x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
-  scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1)),
-                  clip = 'off') + 
-  scale_fill_manual(values = gf_color)+ #颜色
-  scale_color_manual(values = gf_color)+ #自选颜色
-  scale_x_discrete(expand = c(0,0))+
-  geom_line(position = pd) +
-  geom_hline(yintercept=0, linetype="dotted")+
-  geom_ribbon(aes(ymin = mean - se,
-                  ymax = mean + se), alpha = 0.2)+
-  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
-  geom_point(position = pd)
-# print(figure_4)
-pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
-print(pfigure)
+
+# # plot time course
+# figure_4 <- ggplot(datachosen, aes(x=time, y=mean,group=1)) + 
+#   labs(title = paste("All",region,sep = "_"),
+#        x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
+#   scale_y_continuous(expand = c(0,0))+
+#   coord_cartesian(ylim=c(min(datachosen$mean)-1,max(datachosen$mean+1)),
+#                   clip = 'off') + 
+#   scale_fill_manual(values = gf_color)+ #颜色
+#   scale_color_manual(values = gf_color)+ #自选颜色
+#   scale_x_discrete(expand = c(0,0))+
+#   geom_line(position = pd) +
+#   geom_hline(yintercept=0, linetype="dotted")+
+#   geom_ribbon(aes(ymin = mean - se,
+#                   ymax = mean + se), alpha = 0.2)+
+#   # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+#   geom_point(position = pd)
+# # print(figure_4)
+# pfigure <- figure_4 + theme_prism(base_line_size = 0.5)
+# print(pfigure)
+
 # save datachosen to roi_tent
 datachosen <- cbind(datachosen,rep(region,each=nrow(datachosen)))
 roi_tent <- rbind(roi_tent,datachosen)
@@ -267,6 +304,7 @@ roi_tent <- rbind(roi_tent,datachosen)
 names(roi_tent)[4] <- "roi"
 # set levels
 roi_tent$roi <- factor(roi_tent$roi,levels = params$roi,labels = params$roiname)
+
 # plot time course
 figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) + 
   labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
@@ -285,26 +323,36 @@ print(pfigure)
 
 # plot smoothed time course
 stent <- reshape2::dcast(roi_tent,time~roi,value.var = "mean")
+stentse <- reshape2::dcast(roi_tent,time~roi,value.var = "se")
 
-# pad the edge
+# pad the edge (weighted average)
 stent[,-1] <- zoo::rollapply(rbind(stent[1,-1],stent[,-1],stent[nrow(stent),-1]),3,mean)
+stentse[,-1] <- zoo::rollapply(rbind(stentse[1,-1],stentse[,-1],stentse[nrow(stentse),-1]),3,mean)
 # use the 2 points at the edge
 # stent[,-1] <- rbind(apply(stent[1:2,-1], 2, mean),
 #                     zoo::rollapply(stent[,-1],3,mean),
 #                     apply(stent[nrow(stent)-1:nrow(stent),-1], 2, mean))
 
 stent <- reshape2::melt(stent,c("time"))
+stentse <- reshape2::melt(stentse,c("time"))
+# merge mean and se
 names(stent) <- c("time","roi","mean")
+names(stentse) <- c("time","roi","se")
+stent <- merge(stent, stentse, by = c("time","roi"))
+# plot
 figure_roi <- ggplot(stent, aes(x=time, y=mean,group=roi,color=roi)) + 
   labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(stent$mean)-0.05,max(stent$mean+0.05)),
+  coord_cartesian(ylim=c(min(stent$mean)-0.1,max(stent$mean+0.1)),
                   clip = 'off') + 
   scale_color_brewer(palette = "Paired")+ #自选颜色
+  scale_fill_brewer(palette = "Paired")+ #自选颜色
   scale_x_discrete(expand = c(0,0))+
   geom_line(position = pd) +
   geom_hline(yintercept=0, linetype="dotted")+
   # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = roi),
+              alpha = 0.2,linetype=0)+
   geom_point(position = pd)
 # print(figure_4)
 pfigure <- figure_roi + theme_prism(base_line_size = 0.5)

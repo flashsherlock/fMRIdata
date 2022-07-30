@@ -18,7 +18,10 @@ cd ${subj}.results
 # remove files
 # rm all_runs*
 # rm pb0[0-4]*
-
+# rm NIerrts.${subj}.rmexpbs*
+# rm NIerrts.${subj}.rmbs*
+# rm fitts.${subj}+orig*
+# rm errts.${subj}+orig*
 
 # cd mvpa
 # rm -r *br*

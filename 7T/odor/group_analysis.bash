@@ -2,7 +2,7 @@
 
 datafolder=/Volumes/WD_E/gufei/7T_odor
 cd "${datafolder}" || exit
-stats=stats_WARP
+stats=stats
 mask=group/mask/Amy8_align.freesurfer+tlrc
 # count
 # check sub brick
@@ -104,3 +104,12 @@ mask=group/mask/Amy8_align.freesurfer+tlrc
                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[13]" \
                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[13]" \
                 13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[13]" 
+
+# calculate p-values for the group-level tests
+tthr=$(ccalc -expr "cdf2stat(0.975,3,12,0,0)")
+# extract voxels with p-values below the threshold
+3dcalc \
+-a "group/${stats}_car-lim+tlrc[1]" \
+-b "group/${stats}_cit-lim+tlrc[1]" \
+-expr "astep(a,${tthr})+astep(b,${tthr})*10" \
+-prefix group/combine_car_cit

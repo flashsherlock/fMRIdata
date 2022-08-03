@@ -4,7 +4,7 @@
 # if ( $# > 0 ) then
 # set sub = $1
 
-foreach ub (`count -dig 2 13 18`)
+foreach ub (`count -dig 2 4 18`)
 # set sub=S01_yyt
 set sub=S${ub}
 set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
@@ -68,7 +68,12 @@ cd ${subj}.results
 -master anatQQ.${sub}+tlrc                              \
 -source stats.${subj}.odorVI+orig                       \
 -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
--prefix stats_WARP.${subj}
+-prefix stats_WARP.${subj}.odorVI
+
+# rename
+# mv stats_WARP.${subj}+tlrc.HEAD stats_WARP.${subj}.odorVI+tlrc.HEAD
+# mv stats_WARP.${subj}+tlrc.BRIK stats_WARP.${subj}.odorVI+tlrc.BRIK
+
 # rm *t165.freesurfer*
 # rm ../mask/*at165*
 

@@ -31,11 +31,13 @@ echo ${sub} ${analysis}
 
 # run the regression analysis
 set subj = ${sub}.${analysis}
-if (${ub} =~ 0[45678]) then
-    set subjva = ${subj}.odorVI
-else
-    set subjva = ${subj}
-endif
+# file names have been unified
+set subjva = ${subj}.odorVI
+# if (${ub} =~ 0[45678]) then
+#     set subjva = ${subj}.odorVI
+# else
+#     set subjva = ${subj}
+# endif
 cd ${subj}.results
 
 # rename
@@ -51,11 +53,22 @@ cd ${subj}.results
 # mv X.tent.odorVI_noblur.jpg X.tent.odorVI.jpg
 # mv X.xmat.tent.odorVI_noblur.1D X.xmat.tent.odorVI.1D
 
-# # auto tlrc to MNI space
-# # normalize Anatomical img to mni space
+# normalize Anatomical img to mni space (linear warp)
 # @auto_tlrc -no_ss -init_xform AUTO_CENTER -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${sub}.${analysis}+orig
-# # align to nomalized Anatomical img
-# @auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}+orig
+# if (! -e stats.${subj}.odorVI+orig.HEAD) then
+#     # rename
+#     mv  stats.${subj}+orig.HEAD stats.${subj}.odorVI+orig.HEAD
+#     mv  stats.${subj}+orig.BRIK stats.${subj}.odorVI+orig.BRIK
+# endif
+# align to nomalized Anatomical img
+# @auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}.odorVI+orig
+
+# normalize Anatomical img to mni space (nonlinear warp)
+3dNwarpApply                                            \
+-master anatQQ.${sub}+tlrc                              \
+-source stats.${subj}.odorVI+orig                       \
+-nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
+-prefix stats_WARP.${subj}
 # rm *t165.freesurfer*
 # rm ../mask/*at165*
 
@@ -67,58 +80,58 @@ cd ${subj}.results
 #     3dcalc -a Amy.seg_t165.freesurfer+orig -expr "equals(a,${region})" -prefix ../mask/Amy_at165${region}seg.freesurfer+orig
 # end
 
-# extract tent and beta values
-set filedec = odorVI_12
-set maskdec = align # at165 or align
-set maskdec_t = at165_p # at165 or align
-set data_tent=tent.${subj}.${filedec}+orig
-set data_beta=stats.${subj}+orig
+# # extract tent and beta values
+# set filedec = odorVI_12
+# set maskdec = align # at165 or align
+# set maskdec_t = at165_p # at165 or align
+# set data_tent=tent.${subj}.${filedec}+orig
+# set data_beta=stats.${subj}+orig
 
-# make dir
-if (! -e ../../stats) then
-    mkdir ../../stats
-endif
-if (! -e ../../stats/${sub}) then
-    mkdir ../../stats/${sub}
-endif
+# # make dir
+# if (! -e ../../stats) then
+#     mkdir ../../stats
+# endif
+# if (! -e ../../stats/${sub}) then
+#     mkdir ../../stats/${sub}
+# endif
 
-foreach region (Pir_new Pir_old APC_new APC_old PPC)
-    # generate t threshold masks
-    # different regions of amygdala
-    3dcalc  -a stats.${subjva}+orig'[2]' \
-            -b stats.${subjva}+orig'[5]' \
-            -c stats.${subjva}+orig'[8]' \
-            -d stats.${subjva}+orig'[11]' \
-            -e stats.${subjva}+orig'[14]' \
-            -f ../mask/${region}.draw+orig \
-            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
-            -prefix ../mask/${region}_${maskdec_t}.draw
+# foreach region (Pir_new Pir_old APC_new APC_old PPC)
+#     # generate t threshold masks
+#     # different regions of amygdala
+#     3dcalc  -a stats.${subjva}+orig'[2]' \
+#             -b stats.${subjva}+orig'[5]' \
+#             -c stats.${subjva}+orig'[8]' \
+#             -d stats.${subjva}+orig'[11]' \
+#             -e stats.${subjva}+orig'[14]' \
+#             -f ../mask/${region}.draw+orig \
+#             -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
+#             -prefix ../mask/${region}_${maskdec_t}.draw
 
-    3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
+#     3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
+#     -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
 
-    # extract betas from blurred statas
-    # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
-    # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
-end
+#     # extract betas from blurred statas
+#     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
+#     # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
+# end
 
-foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
-     3dcalc  -a stats.${subjva}+orig'[2]' \
-            -b stats.${subjva}+orig'[5]' \
-            -c stats.${subjva}+orig'[8]' \
-            -d stats.${subjva}+orig'[11]' \
-            -e stats.${subjva}+orig'[14]' \
-            -f ../mask/${region}_${maskdec}.freesurfer+orig \
-            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
-            -prefix ../mask/${region}_${maskdec_t}.freesurfer
+# foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
+#      3dcalc  -a stats.${subjva}+orig'[2]' \
+#             -b stats.${subjva}+orig'[5]' \
+#             -c stats.${subjva}+orig'[8]' \
+#             -d stats.${subjva}+orig'[11]' \
+#             -e stats.${subjva}+orig'[14]' \
+#             -f ../mask/${region}_${maskdec}.freesurfer+orig \
+#             -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
+#             -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
-    3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
+#     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
+#     -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
 
-    # extract betas from blurred statas
-    # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
-    # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
-end
+#     # extract betas from blurred statas
+#     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
+#     # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
+# end
 
 # foreach region (1 3 5 6 7 8 9 10 15)
 #     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \

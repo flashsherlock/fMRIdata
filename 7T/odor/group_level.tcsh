@@ -82,3 +82,21 @@ foreach region (1 3 5 6 7 8 9 10 15)
     3dcalc -a mask/sAmy.freesurfer+tlrc -expr "equals(a,${region})" -prefix mask/Amy_align${region}seg.freesurfer+tlrc
 end
 
+# mask for piriform
+# resample Piriform mask
+3dcopy COPY_MNI152_T1_2009c+tlrc mask/Piriform.seg+tlrc
+# creat piriform mask and remove voxels in Amy
+3dcalc -a mask/Piriform.seg+tlrc -b mask/sAmy.freesurfer+tlrc -expr 'amongst(a,21,22,29)*iszero(b)' -prefix mask/Pir_new.draw+orig
+# creat old piriform mask
+3dcalc -a mask/Piriform.seg+tlrc -b mask/sAmy.freesurfer+tlrc -expr 'amongst(a,21,22)*iszero(b)' -prefix mask/Pir_old.draw+orig
+# create APC_new
+3dcalc -a mask/Piriform.seg+tlrc -b mask/sAmy.freesurfer+tlrc -expr 'amongst(a,21,29)*iszero(b)' -prefix mask/APC_new.draw+orig
+# create APC_old
+3dcalc -a mask/Piriform.seg+tlrc -b mask/sAmy.freesurfer+tlrc -expr 'amongst(a,21)*iszero(b)' -prefix mask/APC_old.draw+orig
+# creat PPC
+3dcalc -a mask/Piriform.seg+tlrc -b mask/sAmy.freesurfer+tlrc -expr 'amongst(a,22)*iszero(b)' -prefix mask/PPC.draw+orig
+
+# combine Piriform and Amygdala
+3dcalc -a mask/Amy8_align.freesurfer+tlrc -b mask/Pir_new.draw+tlrc \
+-prefix mask/allROI \
+-expr "or(a,b)"

@@ -3,7 +3,8 @@
 datafolder=/Volumes/WD_E/gufei/7T_odor
 cd "${datafolder}" || exit
 stats=stats
-mask=group/mask/Amy8_align.freesurfer+tlrc
+# mask=group/mask/Amy8_align.freesurfer+tlrc
+mask=group/mask/allROI+tlrc
 # count
 # check sub brick
 # skip 12 24 36 ...

@@ -100,3 +100,10 @@ end
 3dcalc -a mask/Amy8_align.freesurfer+tlrc -b mask/Pir_new.draw+tlrc \
 -prefix mask/allROI \
 -expr "or(a,b)"
+
+# all roi with labels (exclude AA)
+3dcalc -a mask/Piriform.seg+tlrc \
+-b mask/sAmy.freesurfer+tlrc \
+-c mask/Amy8_align.freesurfer+tlrc \
+-expr 'a*iszero(b)+b*c' \
+-prefix mask/all.seg

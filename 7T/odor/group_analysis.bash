@@ -114,3 +114,17 @@ tthr=$(ccalc -expr "cdf2stat(0.975,3,12,0,0)")
 -b "group/${stats}_cit-lim+tlrc[1]" \
 -expr "astep(a,${tthr})+astep(b,${tthr})*10" \
 -prefix group/combine_car_cit
+
+# dunmp group level results
+3dmaskdump                                      \
+-mask group/mask/all.seg+tlrc                   \
+group/mask/all.seg+tlrc                         \
+group/${stats}_car-lim+tlrc"[0]"                \
+group/${stats}_cit-lim+tlrc"[0]"                \
+group/${stats}_lim-tra+tlrc"[0]"                \
+group/${stats}_lim-ind+tlrc"[0]"                \
+group/${stats}_car-lim+tlrc"[1]"                \
+group/${stats}_cit-lim+tlrc"[1]"                \
+group/${stats}_lim-tra+tlrc"[1]"                \
+group/${stats}_lim-ind+tlrc"[1]"                \
+> group/${stats}_results.txt

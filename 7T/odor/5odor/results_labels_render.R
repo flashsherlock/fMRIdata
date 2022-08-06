@@ -33,6 +33,13 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/roistatas.
                   output_file = paste0("ROIstatas_13sub_12"),
                   params = list(sub = subs, roi = roi, suffix = suffix))
 
+# render voxel group
+threshold <- 2.178813
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("group"),
+                  params = list(thr = threshold))
+
 
 # render mvpa results for each subject
 for (i_sub in subs) {

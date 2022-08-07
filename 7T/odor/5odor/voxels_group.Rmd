@@ -49,7 +49,7 @@ calcact <- function(results,roilist,threshold){
   for (roi_i in names(roilist)) {
   # select ROI
   roi_label <- roilist[[roi_i]]
-  results_r <- subset(results,roi %in% roi_label,select = c(10:13))
+  results_r <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
   subs <- subset(results,roi %in% roi_label,select = 1)
   # check if activated
   results_r <- ifelse(abs(results_r)>threshold,1,0)
@@ -68,6 +68,39 @@ calcact <- function(results,roilist,threshold){
   # change to percentage
   data[c((4+c):(3+c+c))] <- data[c((4+c):(3+c+c))]*100
   data <- reshape2::melt(data,c("sub","roi"))
+  return(data)
+}
+####################################################
+# function to calculate mean values
+####################################################
+calmean <- function(results,roilist, threshold = 0){
+  c <- 4
+  data <- data.frame(matrix(ncol = 3+c, nrow = 0))
+  
+  for (roi_i in names(roilist)) {
+  # select ROI
+  roi_label <- roilist[[roi_i]]
+  results_r <- subset(results,roi %in% roi_label,select = c(6:(5+c)))
+  subs <- subset(results,roi %in% roi_label,select = 1)
+  # absolute value
+  results_r <- abs(results_r)
+  act <- cbind(subs,results_r)
+  # threshold t value
+  results_t <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
+  index <- apply(abs(results_t),1,function(x) any(x>threshold))
+  # significant voxels only
+  act <- act[index]
+  # calculate mean value
+  # m <- aggregate(.~sub, act, mean)
+  m <- describeBy(act[,-1],list(act$sub),mat=T)
+  m <- subset(m,select = c("group1","mean","se"))
+  m <- cbind(str_remove(rownames(m),"1"),m)
+  # add roi name
+  act <- cbind(rep(roi_i,times=nrow(number)),m)
+  data <- rbind(data,act)
+  }
+  # change column names
+  names(data)[1:3] <- c("roi","voxels","sub")
   return(data)
 }
 # odor pairs
@@ -96,7 +129,7 @@ names(results) <- c("sub","i","j","k","roi",paste("m",opair,sep = "_"),paste("t"
 results <- as.data.table(results)
 ```
 
-# activated voxels
+# Activated voxels
 ```{r fig.height=5, fig.width=12}
 data_act <- calcact(results,roilist,params$thr)
 s <- c("all",paste0("c_",opair))
@@ -123,12 +156,29 @@ s <- c(paste0("r_",opair))
 datachosen <- subset(data_act_mean,voxels %in% s)
 datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = opair))
 # plot
-gf_color <- c("#56a2d4","#ECB556","#55b96f","#777DDD")
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
   labs(x='ROI',y='Percentage',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
-  scale_fill_manual(values=gf_color[1:4])+ #颜色
+  scale_fill_manual(values=gf_color[2:5])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+```
+
+# Mean value
+```{r fig.height=5, fig.width=12}
+data_mean <- calmean(results,roilist)
+s <- c(paste0("m_",opair))
+datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = opair))
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+# plot
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[2:5])+ #颜色
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                 position=position_dodge(.9))+
   theme_prism(base_line_size = 0.5)

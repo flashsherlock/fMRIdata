@@ -33,16 +33,22 @@ if (! -e allrun.volreg.${subj}+orig.HEAD) then
     # echo nodata
     3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
 endif
-# synthesize fitts of no interests, use -dry for debug
-set filedec = odorVI_noblur
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 31..66 -prefix NIfittshead.${subj}.${filedec}
+
+# set filedec = odorVI_noblur
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 31..66 -prefix NIfittshead.${subj}.${filedec}
 # with va regressors
 set filedec = odorVIva_noblur
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 29..64 -prefix NIfittshead.${subj}.${filedec}
-# # subtract fitts of no interests from all runs
-# 3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmpolortva
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 29..64 -prefix NIfittshead.${subj}.${filedec}
 
-# rm NIfitts*
+# synthesize fitts of no interests, use -dry for debug
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort val int odor_va -prefix NIfittsnobs.${subj}.${filedec}
+# remove polort only
+3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort -prefix NIfittsnobs.${subj}.${filedec}
+
+# subtract fitts of no interests from all runs
+3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.onlypolva
+
+rm NIfitts*
 
 # rm tent.${subj}.odorVI+orig*
 # rm NIerrts.${subj}.odorVIv_noblur+orig*

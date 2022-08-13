@@ -17,7 +17,9 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
     roi_focus{5} = {'Hi', 'S', ...
                     'BM', 'VCo','La', 'APir', 'BL', 'PaL', ...
                     'Ce', 'Me'};
-    comb = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'}};
+    roi_focus{6} = roi_focus{1};
+    comb{1} = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'}};
+    comb{2} = {{'HF'},{'HF'}; {'Amy'}, {'pAmy', 'spAmy'}};
     data_roi_lfp = cell(1, length(monkeys));
     data_resp_lfp = data_roi_lfp;
     data_cur_level_roi = data_roi_lfp;
@@ -30,9 +32,11 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
         label = [file_dir monkey '_datpos_label.mat'];
         load(label);
         % current roi for certain level
-        if level >= 5
+        if level >= 5 && level ~= 6
             cur_level_roi = ele_date_alevel{3};
-        else
+        elseif level == 6
+            cur_level_roi = ele_date_alevel{1};
+        else 
             cur_level_roi = ele_date_alevel{level};
         end
         % remove non interested roi
@@ -90,7 +94,7 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
     end
 
     % combine 2 monkeys
-    all_roi = unique(combine_roi(all_roi,comb,level));
+    all_roi = unique(combine_roi(all_roi,comb{level-4},level));
     roi_num = size(all_roi, 1);
     roi_resp = cell(roi_num, 1);
     roi_lfp = roi_resp;
@@ -110,7 +114,7 @@ function [roi_lfp, roi_resp, level_roi] = save_merge_2monkey(level, trl_type, mo
             data_resp = data_roi_lfp{monkey_i};
             data_lfp = data_resp_lfp{monkey_i};
             % index for current roi
-            index = strcmp(combine_roi(cur_level_roi(:, 1),comb,level), cur_roi);
+            index = strcmp(combine_roi(cur_level_roi(:, 1),comb{level-4},level), cur_roi);
             % if contain current roi
             if any(index)
                 % combine some of the area

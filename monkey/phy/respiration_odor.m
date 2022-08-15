@@ -1,5 +1,6 @@
 %% set path
-monkeys = {'RM035','RM033'};
+% monkeys = {'RM035','RM033'};
+monkeys = {'RM033'};
 if length(monkeys)>1
     m = '2monkey';
 else
@@ -100,6 +101,7 @@ for odor_i=1:7
 end
 save([pic_dir 'resp_figure_data.mat'],'erp_h_blc','stat_t');
 %% plot setting
+load([pic_dir 'resp_figure_data.mat'])
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D', '#DE7B14'};
 colors_cp = colors([1:5 7 10]);
 %linewidth
@@ -138,20 +140,21 @@ hold on
 aline = zeros(odor_plot,1);
 for i=1:odor_plot
 % plot without errorbar
-% plot(erp_h_blc{1}.time,smooth(erp_h_blc{i}.trial,smooth_win),'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
+plot(erp_h_blc{1}.time,smooth(erp_h_blc{i}.trial,smooth_win),'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i})
 
 % plot using shadedEBar
 % shadedEBar(erp_h_blc{1}.time,squeeze(erp_h_blc{i}.trial),1.96*squeeze(erp_h_blc{i}.sem),...
 %     'lineProps',{'LineStyle',ls{i},'Color',hex2rgb(colors{i}),'LineWidth',lw{i}},'patchSaturation',alpha)
 
 % plot using stdshade(modified)
-aline(i) = stdshade(erp_h_blc{i}.trial,erp_h_blc{i}.sem,alpha,hex2rgb(colors{i}),erp_h_blc{1}.time,smooth_win);
+% aline(i) = stdshade(erp_h_blc{i}.trial,erp_h_blc{i}.sem,alpha,hex2rgb(colors{i}),erp_h_blc{1}.time,smooth_win);
 end
 ylabel('Voltage (V)')
-set(gca,'xlim',time_range);
+set(gca,'xlim',time_range,'ylim',[-0.2 5.1]);
 set(gca, 'FontSize', 18);
 title([cur_roi '-odor'])
-legend(aline,labels(1:odor_plot), 'Location', 'eastoutside')
+% legend(aline,labels(1:odor_plot), 'Location', 'eastoutside')
+legend(labels(1:odor_plot), 'Location', 'eastoutside')
 hold off
 % pvalue
 subplot(2,1,2)
@@ -175,8 +178,9 @@ ylabel('p')
 legend([labels(1:min(6,odor_plot)),'0.05'],'Location','eastoutside')
 set(gca, 'FontSize', 18);
 % saveas(gcf, [pic_dir cur_roi '-5odor', '.fig'],'fig')
-saveas(gcf, [pic_dir cur_roi '-5odor', '.png'],'png')
-saveas(gcf, [pic_dir cur_roi '-5odor', '.pdf'],'pdf')
+% saveas(gcf, [pic_dir cur_roi '-5odor', '.png'],'png')
+% saveas(gcf, [pic_dir cur_roi '-5odor', '.pdf'],'pdf')
+saveas(gcf, [pic_dir cur_roi '-5odor_ebar', '.svg'],'svg')
 close all
 
 %% power spectrum analysis

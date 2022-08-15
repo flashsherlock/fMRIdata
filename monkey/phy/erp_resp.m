@@ -7,7 +7,7 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir = [data_dir 'pic/erp_resp/' m '_0.3cb/'];
+pic_dir = [data_dir 'pic/erp_resp/' m '_HA0.2cb/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -16,7 +16,7 @@ time_ranges = {[-1 3], [-1 4]};
 if exist([pic_dir 'correlation.mat'],'file')
     load([pic_dir 'correlation.mat']);
 else
-    level = 5;
+    level = 6;
     trl_type = 'odorresp';
     % combine 2 monkeys
     [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
@@ -50,7 +50,7 @@ else
             % cfg.lpfreq = 0.6;
             cfg.bpfilter = 'yes';
             cfg.bpfilttype = 'fir';
-            cfg.bpfreq = [0.3 0.6];
+            cfg.bpfreq = [0.2 0.6];
             if condition<=6
                 % air
                 cfg.trials = find(lfp.trialinfo==condition);

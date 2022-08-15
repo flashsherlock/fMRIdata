@@ -54,7 +54,7 @@ for i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelrmvapol_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelrmpolvabr_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -76,7 +76,7 @@ for i=1:length(rois)
         F=cell(1,numtr);
         for subi = 1:numtr
             t=timing(subi,2);
-            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.rmpolort+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.rmpolortva+orig.BRIK,' num2str(t)];
 %             F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIfittshead.' sub '.' analysis '.odorVIva_noblur+orig.BRIK,' num2str(t)];
             % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
         end
@@ -123,7 +123,7 @@ for i=1:length(rois)
     % load data the standard way
     [passed_data, ~, cfg] = decoding_load_data(cfg);
     % add run number and repeat num as features    
-    combine = 1;
+    combine = 0;
     if combine == 1
        nsample = size(passed_data.data, 1);
        nvoxel = size(passed_data.data, 2);

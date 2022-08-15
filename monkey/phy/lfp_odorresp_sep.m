@@ -10,10 +10,10 @@ pic_dir=[data_dir 'pic/lfp_sep/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-%% load data or generate data
 level = 3;
 trl_type = 'odorresp';
 odor_num=7;
+%% load data or generate data
 if exist([data_dir 'tf_sep_' m '.mat'],'file')
     load([data_dir 'tf_sep_' m '.mat'])
     % get number of positions
@@ -50,88 +50,90 @@ else
     save([data_dir 'tf_sep_' m '.mat'],'freq_sep_all','cur_level_roi','-v7.3')
 end
 %% analyze mean distance
-dims = 2:3;
-dis_time = cell(roi_num,2);
-dis_mean = zeros(roi_num,6,2);
-% 2 and 3 dimension
-for dim_i=1:2
-    n_dim = dims(dim_i);
-    for roi_i=1:roi_num
-        cur_roi = cur_level_roi{roi_i,1};
-        % get data
-        data = squeeze(freq_sep_all{roi_i}.powspctrm);
-        % time range
-        time_range = [0 3];
-        t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
-        time_idx = dsearchn(freq_sep_all{roi_i}.time', time_range');
-        diff_1s = diff(time_idx)/diff(time_range);
-        % frequency below 80Hz
-        data = data(:,1:42,time_idx(1):time_idx(2));
-        % calculate z score
-        data = zscore(data,0,1);
-        % label
-        label = freq_sep_all{roi_i}.trialinfo;
-        % odor mean
-        mean_data = zeros(length(unique(label)),size(data,3),size(data,2));
-        mean_label = repmat([1:length(unique(label))]',[1,size(data,3)]);
-        for odor_i = 1:length(unique(label))
-            mean_data(odor_i,:,:) = squeeze(mean(data(label==odor_i,:,:),1))';
-        end
-        data = reshape(mean_data,[],size(data,2));
-        label = reshape(mean_label,[],1);
+if exist([pic_dir 'dis_sep_' m '.mat'],'file')
+    load([pic_dir 'dis_sep_' m '.mat'])
+else
+    dims = 2:3;
+    dis_time = cell(roi_num,2);
+    dis_mean = zeros(roi_num,6,2);
+    % 2 and 3 dimension
+    for dim_i=1:2
+        n_dim = dims(dim_i);
+        for roi_i=1:roi_num
+            cur_roi = cur_level_roi{roi_i,1};
+            % get data
+            data = squeeze(freq_sep_all{roi_i}.powspctrm);
+            % time range
+            time_range = [0 3];
+            t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
+            time_idx = dsearchn(freq_sep_all{roi_i}.time', time_range');
+            diff_1s = diff(time_idx)/diff(time_range);
+            % frequency below 80Hz
+            data = data(:,1:42,time_idx(1):time_idx(2));
+            % calculate z score
+            data = zscore(data,0,1);
+            % label
+            label = freq_sep_all{roi_i}.trialinfo;
+            % odor mean
+            mean_data = zeros(length(unique(label)),size(data,3),size(data,2));
+            mean_label = repmat([1:length(unique(label))]',[1,size(data,3)]);
+            for odor_i = 1:length(unique(label))
+                mean_data(odor_i,:,:) = squeeze(mean(data(label==odor_i,:,:),1))';
+            end
+            data = reshape(mean_data,[],size(data,2));
+            label = reshape(mean_label,[],1);
 
-        % method
-    %     mapped = compute_mapping(data,'t-SNE', n_dim, init_dim, perplex);
-        [mapped, mapping]= compute_mapping(data,'PCA', size(data,2));
-        % get lambda
-        mapped = mapped(:,1:n_dim);
-        lambda = mapping.lambda;
-        % variance explained
-        var_exp = lambda ./ sum(lambda);
-        var_cum = cumsum(var_exp);   
+            % method
+        %     mapped = compute_mapping(data,'t-SNE', n_dim, init_dim, perplex);
+            [mapped, mapping]= compute_mapping(data,'PCA', size(data,2));
+            % get lambda
+            mapped = mapped(:,1:n_dim);
+            lambda = mapping.lambda;
+            % variance explained
+            var_exp = lambda ./ sum(lambda);
+            var_cum = cumsum(var_exp);   
 
-        % calculate mean distance    
-        dis_data = reshape(mapped,length(unique(label)),[],n_dim);    
-        % smoothed data
-        % smooth_width = 20;
-        % line_data = reshape(mapped,length(unique(label)),[],n_dim);
-        % for comp_i = 1:size(line_data,3)
-        %     for odor_i = 1:size(line_data,1)
-        %         line_data(odor_i,:,comp_i) = smooth(line_data(odor_i,:,comp_i),smooth_width);
-        %     end
-        % end
-        % line_data = reshape(line_data,[],n_dim);
-        % dis_data = reshape(line_data,length(unique(label)),[],n_dim);    
-        dis_time_roi = zeros(size(dis_data,2),3);
-        for time_i = 1:size(dis_data,2)
-            tmp = squeeze(dis_data(:,time_i,:));
+            % calculate mean distance    
+            dis_data = reshape(mapped,length(unique(label)),[],n_dim);    
+            % smoothed data
+            % smooth_width = 20;
+            % line_data = reshape(mapped,length(unique(label)),[],n_dim);
+            % for comp_i = 1:size(line_data,3)
+            %     for odor_i = 1:size(line_data,1)
+            %         line_data(odor_i,:,comp_i) = smooth(line_data(odor_i,:,comp_i),smooth_width);
+            %     end
+            % end
+            % line_data = reshape(line_data,[],n_dim);
+            % dis_data = reshape(line_data,length(unique(label)),[],n_dim);    
+            dis_time_roi = zeros(size(dis_data,2),3);
+            for time_i = 1:size(dis_data,2)
+                tmp = squeeze(dis_data(:,time_i,:));
+                % 5 condition
+                dis_time_roi(time_i, 1) = mean(pdist(tmp(1:5,:)));
+                % conbine iso_h and iso_l        
+                dis_time_roi(time_i, 2) = mean(pdist([tmp(1, :);mean(tmp(2:3,:));tmp(4:5,:)]));
+                % mean distance between pleasant and unpleasant(odor mean first)
+                dis_time_roi(time_i, 3) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));   
+                % mean distance between iso_h and iso_l
+                dis_time_roi(time_i, 4) = pdist2(tmp(2, :), tmp(3, :));        
+            end
+            dis_time{roi_i,dim_i} = dis_time_roi;
+
+            % mean distance
+            tmp = squeeze(mean(dis_data,2));
             % 5 condition
-            dis_time_roi(time_i, 1) = mean(pdist(tmp(1:5,:)));
-            % conbine iso_h and iso_l        
-            dis_time_roi(time_i, 2) = mean(pdist([tmp(1, :);mean(tmp(2:3,:));tmp(4:5,:)]));
+            dis_mean(roi_i, 1, dim_i) = mean(pdist(tmp(1:5,:)));
+            % combine iso_h and iso_l
+            dis_mean(roi_i, 2, dim_i) = mean(pdist([tmp(1, :); mean(tmp(2:3, :)); tmp(4:5, :)]));
             % mean distance between pleasant and unpleasant(odor mean first)
-            dis_time_roi(time_i, 3) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));   
+            dis_mean(roi_i, 3, dim_i) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));
             % mean distance between iso_h and iso_l
-            dis_time_roi(time_i, 4) = pdist2(tmp(2, :), tmp(3, :));        
+            dis_mean(roi_i, 4, dim_i) = pdist2(tmp(2, :), tmp(3, :));
         end
-        dis_time{roi_i,dim_i} = dis_time_roi;
-
-        % mean distance
-        tmp = squeeze(mean(dis_data,2));
-        % 5 condition
-        dis_mean(roi_i, 1, dim_i) = mean(pdist(tmp(1:5,:)));
-        % combine iso_h and iso_l
-        dis_mean(roi_i, 2, dim_i) = mean(pdist([tmp(1, :); mean(tmp(2:3, :)); tmp(4:5, :)]));
-        % mean distance between pleasant and unpleasant(odor mean first)
-        dis_mean(roi_i, 3, dim_i) = pdist2(mean(tmp(1:3,:)),mean(tmp(4:5,:)));
-        % mean distance between iso_h and iso_l
-        dis_mean(roi_i, 4, dim_i) = pdist2(tmp(2, :), tmp(3, :));
     end
+    save([pic_dir 'dis_sep_' m '.mat'],'dis_mean','cur_level_roi','dis_time')
 end
-save([pic_dir 'dis_sep_' m '.mat'],'dis_mean','cur_level_roi','dis_time')
-
 %% scatter plot in 3d space
-load([pic_dir 'dis_sep_' m '.mat'])
 distance = {'odor5','odor4','valence','intensity'};
 plot_data = cell2mat(cur_level_roi(:,1));
 % deal with some strange points
@@ -176,6 +178,7 @@ for monkey_i=1:2
 
 end
 %% get and normalize distance data
+dis_data = plot_data;
 for dis=[1 3 4]
     % get distance
     color_data = dis_mean(:,dis,1);
@@ -195,10 +198,51 @@ for dis=[1 3 4]
         hist(color_data(monkey))
         title([monkeys{monkey_i} '-normalized-' distance{dis}])       
     end
+    % output to dis_data matrix
+    dis_data = [dis_data color_data];
     % output data to csv
-        file_dir = [data_dir '../IMG/']; 
-        outfile = [file_dir '2m_' distance{dis} '.csv'];
-        dlmwrite(outfile,[plot_data color_data],'delimiter',',');
+    file_dir = [data_dir '../IMG/']; 
+    outfile = [file_dir '2m_' distance{dis} '.csv'];
+    dlmwrite(outfile,[plot_data color_data],'delimiter',',');
+end
+%% correlation between x,y,z and distances
+xl = {'x','y','z'};
+yl = distance([1 3 4]);
+monkeys = {'RM033','RM035','2m'};
+for m = 1:length(monkeys)
+    figure('position',[20,450,900,800],'Renderer','Painters');
+    % change x to abs(x)
+    dis_data_select = dis_data;
+    % select roi
+%     index = ~ismember(cur_level_roi(:,2),{'Hi','S'});
+%     dis_data_select = dis_data_select(index,:);
+    switch monkeys{m}
+        case 'RM033'
+            dis_data_select = dis_data_select(dis_data_select(:,1)<0,:);
+        case 'RM035'
+            dis_data_select = dis_data_select(dis_data_select(:,1)>0,:);
+    end
+    dis_data_select(:,1) = abs(dis_data_select(:,1));
+    % plot 3 coords
+    coord = 3;
+    for dis=1:3
+        for j=1:coord
+            % get data
+            x = dis_data_select(:,j);
+            y = dis_data_select(:,3+dis);
+            % correlation
+            [r,p]=corr(x,y);
+            % scatter plot
+            subplot(3,coord,(dis-1)*coord+j);
+            scatter(x,y,'.')
+            xlabel(xl(j))
+            ylabel(yl(dis))
+            set(gca,'ylim',[0 1],'xlim',[min(x)-1 max(x)+1],'FontSize',18);
+            text(min(x),0.9,[sprintf('r=%0.2f, p=%0.3f',round(r,2),round(p,3))],'Fontsize',18)
+        end
+    end
+    saveas(gcf, [pic_dir 'corr_' monkeys{m} '.svg'],'svg')
+    close all
 end
 %% plot each distance
 file_dir = [data_dir '../IMG/'];

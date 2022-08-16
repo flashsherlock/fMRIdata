@@ -1,18 +1,18 @@
 %% load and reorganize data
 % monkeys = {'RM035','RM033'};
-monkeys = {'RM035'};
+monkeys = {'RM033'};
 if length(monkeys) > 1
     m = '2monkey';
 else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/coherence/' m '/'];
+pic_dir=[data_dir 'pic/coherence/' m '_HA/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % generate data
-level = 5;
+level = 6;
 trl_type = 'odor';
 % combine 2 monkeys
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);

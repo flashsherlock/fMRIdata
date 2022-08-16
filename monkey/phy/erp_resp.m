@@ -1,13 +1,13 @@
 %% set path
-monkeys = {'RM035','RM033'};
-% monkeys = {'RM033'};
+% monkeys = {'RM035','RM033'};
+monkeys = {'RM033'};
 if length(monkeys) > 1
     m = '2monkey';
 else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir = [data_dir 'pic/erp_resp/' m '_HA0.2cb/'];
+pic_dir = [data_dir 'pic/erp_resp/' m '_HA0.1cb/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -50,7 +50,7 @@ else
             % cfg.lpfreq = 0.6;
             cfg.bpfilter = 'yes';
             cfg.bpfilttype = 'fir';
-            cfg.bpfreq = [0.2 0.6];
+            cfg.bpfreq = [0.1 0.6];
             if condition<=6
                 % air
                 cfg.trials = find(lfp.trialinfo==condition);

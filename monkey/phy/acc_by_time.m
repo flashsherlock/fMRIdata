@@ -1,6 +1,6 @@
 %% load and reorganize data
-% m = '2monkey';
-m = 'RM035';
+m = '2monkey';
+% m = 'RM033';
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
 pic_dir=[data_dir 'pic/decoding/' m '/'];
 if ~exist(pic_dir,'dir')
@@ -9,6 +9,10 @@ end
 times=[-0.4:0.05:1];
 time_win=0.2;
 tnum=120;
+% xaxis
+xlim=[5 length(times)];
+interval=4;
+smooth_win=5;
 time_bin=cell(1,length(times));
 % time_bin={'0.2-0.8s','0.8-1.4s','1.4-2s'};
 % conditions = {'5odor', 'vaodor', 'airodor'};
@@ -68,7 +72,7 @@ line_wid=1.5;
 %         roi_select=[4 5 8 9 7 11];
 % end
 roi_select = 1:length(rois);
-colors = {'#cf3f4f', '#DE7B14', '#ECB556', '#41AB5D', '#149ade', '#E12A3C', '#4292C6', '#69b4d9', '#cb2111'};
+colors = {'#cf3f4f', '#FC690C', '#ECB556', '#41AB5D', '#777DDD', '#414141', '#4292C6', '#69b4d9', '#cb2111'};
 for condition_i = 1:length(conditions)
     condition = results_bytime{condition_i,1};
     data_select=results_bytime{condition_i,4};
@@ -84,21 +88,22 @@ for condition_i = 1:length(conditions)
     set(gca,'XTickLabel',times)
     title(condition)
     saveas(gcf, [pic_dir 'Matrix_' condition methods num2str(tnum) , '.png'], 'png')
+    saveas(gcf, [pic_dir 'Matrix_' condition methods num2str(tnum) , '.svg'], 'svg')
     close all
     % line plot
-    figure('Position',[20 20 800 600])
+    figure('Position',[20 20 400 400])
     subplot(2,1,1)
     hold on    
     for i=1:length(roi_select)
-        plot(data_select(roi_select(i),:),'Color',hex2rgb(colors{i}),'linewidth', line_wid)
+        plot(smooth(data_select(roi_select(i),:),smooth_win),'Color',hex2rgb(colors{i}),'linewidth', line_wid)
     end
     % plot chance
     title(condition)
     legend(rois(roi_select),'Location','eastoutside')
     ylabel('ACC')    
-    set(gca,'xlim',[1 length(times)])
-    set(gca,'XTick',1:length(times))
-    set(gca,'XTickLabel',times)
+    set(gca,'xlim',xlim)
+    set(gca,'XTick',xlim(1):interval:xlim(2))
+    set(gca,'XTickLabel',times(xlim(1):interval:xlim(2)))
     set(gca,'ylim',[min(min(data_select(roi_select,:))) max(max(data_select(roi_select,:)))]);
     % p-value
     subplot(2,1,2)
@@ -112,13 +117,14 @@ for condition_i = 1:length(conditions)
     ylabel('p')
     xlabel('Time')
     set(gca,'yscale','log');
-    set(gca,'xlim',[1 length(times)])
-    set(gca,'XTick',1:length(times))
-    set(gca,'XTickLabel',times)
+    set(gca,'xlim',xlim)
+    set(gca,'XTick',xlim(1):interval:xlim(2))
+    set(gca,'XTickLabel',times(xlim(1):interval:xlim(2)))
     xnum = get(gca,'Xlim');
     plot(xnum,[0.05 0.05],'k','linestyle','--','LineWidth',2)
     legend([rois(roi_select);{'p=0.05'}],'Location','eastoutside')    
     % save plot
-    saveas(gcf, [pic_dir condition methods num2str(tnum) , '.png'], 'png')
+    % saveas(gcf, [pic_dir condition methods num2str(tnum) , '.png'], 'png')
+    saveas(gcf, [pic_dir condition methods num2str(tnum) , '.svg'], 'svg')
     close all
 end

@@ -7,7 +7,7 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/lfp_odorresp/' m '/'];
+pic_dir=[data_dir 'pic/lfp_odorresp/' m '_0.5base/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -18,7 +18,6 @@ trl_type = 'odorresp';
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
 % get number of roi
 roi_num=size(cur_level_roi,1);
-odor_num=7;
 %% TF analysis
 if exist([data_dir 'tf_cb_' m '.mat'],'file')
     load([data_dir 'tf_cb_' m '.mat'])
@@ -53,8 +52,8 @@ if exist([pic_dir 'tf_results_' m '.mat'],'file')
     load([pic_dir 'tf_results_' m '.mat'])
 else
     freq_range = [1.5 200];
-    time_ranges = {[-1 7.5],[-1 4]};
-    bsline = [-0.55 -0.05];
+    time_ranges = {[-0.5 7.5],[-0.5 4]};
+    bsline = [-0.5 -0.05];
     conditions = {'-oddtrial',''};
     % set comparison
     comp = cell(7,3);

@@ -1,13 +1,13 @@
 %% load and reorganize data
-% monkeys = {'RM035','RM033'};
-monkeys = {'RM035'};
+monkeys = {'RM035','RM033'};
+% monkeys = {'RM033'};
 if length(monkeys) > 1
     m = '2monkey';
 else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/powerspec/' m '/'];
+pic_dir=[data_dir 'pic/powerspec/' m '_HA/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -16,7 +16,7 @@ if exist([pic_dir 'powspec_odor_7s_1_80hz.mat'],'file')
     load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
     roi_num=size(cur_level_roi,1);
 else
-    level = 5;
+    level = 6;
     trl_type = 'odor';
 
     % one monkey data

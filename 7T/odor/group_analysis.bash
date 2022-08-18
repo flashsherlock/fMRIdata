@@ -209,7 +209,9 @@ tthri=1.96
       -expr "b-a"
 
 # dunmp group level results
+# xyz are in RAI order
 3dmaskdump                                      \
+-noijk -xyz                                     \
 -mask group/mask/all.seg+tlrc                   \
 group/mask/all.seg+tlrc                         \
 group/${stats}_car-lim+tlrc"[0]"                \

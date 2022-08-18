@@ -96,7 +96,7 @@ calmean <- function(results,roilist, threshold = 0){
   m <- subset(m,select = c("group1","mean","se"))
   m <- cbind(str_remove(rownames(m),"1"),m)
   # add roi name
-  act <- cbind(rep(roi_i,times=nrow(number)),m)
+  act <- cbind(rep(roi_i,times=nrow(m)),m)
   data <- rbind(data,act)
   }
   # change column names
@@ -104,7 +104,7 @@ calmean <- function(results,roilist, threshold = 0){
   return(data)
 }
 # odor pairs
-opair <- c("car-lim","cit-lim","lim-tra","lim-ind")
+opair <- c("car-lim","cit-lim","tra-lim","ind-lim")
 # roi labels
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
 A <- c(1,3,5,6,7,8,9,15)
@@ -121,11 +121,11 @@ roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=A
 
 
 ```{r}
-# sub i j k roi 4mean 4t-value
+# sub x y z roi 4mean 4t-value
 results <- data.frame(matrix(ncol = 1+12, nrow = 0))
 # extract group results
 results <- rbind(results,extractdata(params$path,"group","stats_results.txt"))
-names(results) <- c("sub","i","j","k","roi",paste("m",opair,sep = "_"),paste("t",opair,sep = "_"))
+names(results) <- c("sub","x","y","z","roi",paste("m",opair,sep = "_"),paste("t",opair,sep = "_"))
 results <- as.data.table(results)
 ```
 
@@ -184,3 +184,39 @@ figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) +
   theme_prism(base_line_size = 0.5)
 print(figure)
 ```
+```{r fig.height=9, fig.width=9}
+# absolute difference and x
+results_abs<- abs(results[,2:13])
+# reverse y
+results_abs$y <- -results$y
+# Pir and Amy
+for (roi in c("Pir","Amy","All")) {
+  # pir
+  if (roi == "Pir")
+    results_select <- subset(results_abs,roi>20)
+  else if (roi == "Amy")
+    results_select <- subset(results_abs,roi<20)
+  else
+    results_select <- results_abs
+  
+  # plot
+  plots <- list()
+  odors <- c("car","cit","tra","ind")
+  for (odor in odors) {
+    for (xlab in c("x","y","z")) {
+    p <- paste(xlab,odor,sep = "_")
+    indx <- results_select[[paste0("t_",odor,"-lim")]]>params$thr
+    plots[[p]] <- ggscatter(results_select[indx,],color = "#4c95c8",
+                   x = xlab, y = paste0("m_",odor,"-lim"),alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+              position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+        stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                 show.legend=F)+
+        # labs(title = roi)+
+        theme_prism(base_line_size = 0.5)
+    }
+  }
+  print(wrap_plots(plots,ncol = 3,nrow = length(odors)))
+}
+```
+

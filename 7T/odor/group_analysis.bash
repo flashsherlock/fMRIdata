@@ -142,6 +142,8 @@ mask=group/mask/allROI+tlrc
 
 # calculate p-values for the group-level tests
 tthr=$(ccalc -expr "cdf2stat(0.975,3,12,0,0)")
+# individual level t threshold
+tthri=1.96
 # extract voxels with p-values below the threshold
 3dcalc \
 -a "group/${stats}_car-lim+tlrc[1]" \
@@ -164,6 +166,47 @@ tthr=$(ccalc -expr "cdf2stat(0.975,3,12,0,0)")
 -d "group/${stats}_lim-ind+tlrc[1]" \
 -expr "astep(a,${tthr})+astep(b,${tthr})*10+astep(c,${tthr})*20+astep(d,${tthr})*50" \
 -prefix group/combine_4lim
+
+# # rm group/*percent*
+
+3dcalc -prefix group/${stats}_car-lim_percent                           \
+      -a ${mask}                                                        \
+      -b "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[32]" \
+      -c "S05/S05.pabiode.results/${stats}.S05.pabiode.odorVI+tlrc[32]" \
+      -d "S06/S06.pabiode.results/${stats}.S06.pabiode.odorVI+tlrc[32]" \
+      -e "S07/S07.pabiode.results/${stats}.S07.pabiode.odorVI+tlrc[32]" \
+      -f "S08/S08.pabiode.results/${stats}.S08.pabiode.odorVI+tlrc[32]" \
+      -g "S09/S09.pabiode.results/${stats}.S09.pabiode.odorVI+tlrc[32]" \
+      -h "S10/S10.pabiode.results/${stats}.S10.pabiode.odorVI+tlrc[32]" \
+      -i "S11/S11.pabiode.results/${stats}.S11.pabiode.odorVI+tlrc[32]" \
+      -j "S13/S13.pabiode.results/${stats}.S13.pabiode.odorVI+tlrc[32]" \
+      -k "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[32]" \
+      -l "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[32]" \
+      -m "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[32]" \
+      -n "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[32]" \
+      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri})))"
+
+3dcalc -prefix group/${stats}_cit-lim_percent                           \
+      -a ${mask}                                                        \
+      -b "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[35]" \
+      -c "S05/S05.pabiode.results/${stats}.S05.pabiode.odorVI+tlrc[35]" \
+      -d "S06/S06.pabiode.results/${stats}.S06.pabiode.odorVI+tlrc[35]" \
+      -e "S07/S07.pabiode.results/${stats}.S07.pabiode.odorVI+tlrc[35]" \
+      -f "S08/S08.pabiode.results/${stats}.S08.pabiode.odorVI+tlrc[35]" \
+      -g "S09/S09.pabiode.results/${stats}.S09.pabiode.odorVI+tlrc[35]" \
+      -h "S10/S10.pabiode.results/${stats}.S10.pabiode.odorVI+tlrc[35]" \
+      -i "S11/S11.pabiode.results/${stats}.S11.pabiode.odorVI+tlrc[35]" \
+      -j "S13/S13.pabiode.results/${stats}.S13.pabiode.odorVI+tlrc[35]" \
+      -k "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[35]" \
+      -l "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[35]" \
+      -m "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[35]" \
+      -n "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[35]" \
+      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri})))"
+
+3dcalc -prefix group/${stats}_carcit_percent                           \
+      -a group/${stats}_car-lim_percent+tlrc                           \
+      -b group/${stats}_cit-lim_percent+tlrc                           \
+      -expr "b-a"
 
 # dunmp group level results
 3dmaskdump                                      \

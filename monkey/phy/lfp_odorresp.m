@@ -170,9 +170,15 @@ end
 
 %% plot data
 roi_num = size(lfp_results,1);
+data_num = size(lfp_results,2);
 for roi_i=1:roi_num
-    data = lfp_results{roi_i,20};
-    lfp_tfplot(data,1);
-    data = lfp_results{roi_i,21};
-    lfp_tfplot(data,1);
+%     data = lfp_results{roi_i,20};
+%     lfp_tfplot(data,1);
+%     data = lfp_results{roi_i,21};
+%     lfp_tfplot(data,1);
+    for data_i=1:data_num
+        data = lfp_results{roi_i,data_i};
+        lfp_tfplot(data,0);
+        lfp_tfplot(data,1);
+    end
 end

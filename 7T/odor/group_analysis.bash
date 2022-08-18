@@ -106,6 +106,40 @@ mask=group/mask/allROI+tlrc
                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[13]" \
                 13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[13]" 
 
+# 3dttest++ -prefix group/${stats}_val                                       \
+#           -mask ${mask}                                      \
+#           -setA lim-tra                                               \
+#                 01 "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[16]" \
+#                 02 "S05/S05.pabiode.results/${stats}.S05.pabiode.odorVI+tlrc[16]" \
+#                 03 "S06/S06.pabiode.results/${stats}.S06.pabiode.odorVI+tlrc[16]" \
+#                 04 "S07/S07.pabiode.results/${stats}.S07.pabiode.odorVI+tlrc[16]" \
+#                 05 "S08/S08.pabiode.results/${stats}.S08.pabiode.odorVI+tlrc[16]" \
+#                 06 "S09/S09.pabiode.results/${stats}.S09.pabiode.odorVI+tlrc[16]" \
+#                 07 "S10/S10.pabiode.results/${stats}.S10.pabiode.odorVI+tlrc[16]" \
+#                 08 "S11/S11.pabiode.results/${stats}.S11.pabiode.odorVI+tlrc[16]" \
+#                 09 "S13/S13.pabiode.results/${stats}.S13.pabiode.odorVI+tlrc[16]" \
+#                 10 "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[16]" \
+#                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[16]" \
+#                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[16]" \
+#                 13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[16]" 
+
+# 3dttest++ -prefix group/${stats}_int                                       \
+#           -mask ${mask}                                      \
+#           -setA lim-tra                                               \
+#                 01 "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[19]" \
+#                 02 "S05/S05.pabiode.results/${stats}.S05.pabiode.odorVI+tlrc[19]" \
+#                 03 "S06/S06.pabiode.results/${stats}.S06.pabiode.odorVI+tlrc[19]" \
+#                 04 "S07/S07.pabiode.results/${stats}.S07.pabiode.odorVI+tlrc[19]" \
+#                 05 "S08/S08.pabiode.results/${stats}.S08.pabiode.odorVI+tlrc[19]" \
+#                 06 "S09/S09.pabiode.results/${stats}.S09.pabiode.odorVI+tlrc[19]" \
+#                 07 "S10/S10.pabiode.results/${stats}.S10.pabiode.odorVI+tlrc[19]" \
+#                 08 "S11/S11.pabiode.results/${stats}.S11.pabiode.odorVI+tlrc[19]" \
+#                 09 "S13/S13.pabiode.results/${stats}.S13.pabiode.odorVI+tlrc[19]" \
+#                 10 "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[19]" \
+#                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[19]" \
+#                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[19]" \
+#                 13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[19]" 
+
 # calculate p-values for the group-level tests
 tthr=$(ccalc -expr "cdf2stat(0.975,3,12,0,0)")
 # extract voxels with p-values below the threshold
@@ -114,6 +148,22 @@ tthr=$(ccalc -expr "cdf2stat(0.975,3,12,0,0)")
 -b "group/${stats}_cit-lim+tlrc[1]" \
 -expr "astep(a,${tthr})+astep(b,${tthr})*10" \
 -prefix group/combine_car_cit
+
+# valance and intensity rating screen (not odor_va)
+# 3dcalc \
+# -a "group/${stats}_val+tlrc[1]" \
+# -b "group/${stats}_int+tlrc[1]" \
+# -expr "astep(a,${tthr})+astep(b,${tthr})*10" \
+# -prefix group/combine_val_int
+
+# all 4 lim pairs
+3dcalc \
+-a "group/${stats}_car-lim+tlrc[1]" \
+-b "group/${stats}_cit-lim+tlrc[1]" \
+-c "group/${stats}_lim-tra+tlrc[1]" \
+-d "group/${stats}_lim-ind+tlrc[1]" \
+-expr "astep(a,${tthr})+astep(b,${tthr})*10+astep(c,${tthr})*20+astep(d,${tthr})*50" \
+-prefix group/combine_4lim
 
 # dunmp group level results
 3dmaskdump                                      \

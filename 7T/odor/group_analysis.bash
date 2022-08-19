@@ -167,8 +167,8 @@ tthri=1.96
 -expr "astep(a,${tthr})+astep(b,${tthr})*10+astep(c,${tthr})*20+astep(d,${tthr})*50" \
 -prefix group/combine_4lim
 
+# percent of subjects activated in each voxel
 # # rm group/*percent*
-
 3dcalc -prefix group/${stats}_car-lim_percent                           \
       -a ${mask}                                                        \
       -b "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[32]" \
@@ -208,6 +208,22 @@ tthri=1.96
       -b group/${stats}_cit-lim_percent+tlrc                           \
       -expr "b-a"
 
+3dttest++ -prefix group/stats_cit-car_abs                               \
+          -mask ${mask}                                                 \
+          -setA cit_lim-car-lim                                         \
+                01 "S04/S04.pabiode.results/citcar.S04.pabiode+tlrc" \
+                02 "S05/S05.pabiode.results/citcar.S05.pabiode+tlrc" \
+                03 "S06/S06.pabiode.results/citcar.S06.pabiode+tlrc" \
+                04 "S07/S07.pabiode.results/citcar.S07.pabiode+tlrc" \
+                05 "S08/S08.pabiode.results/citcar.S08.pabiode+tlrc" \
+                06 "S09/S09.pabiode.results/citcar.S09.pabiode+tlrc" \
+                07 "S10/S10.pabiode.results/citcar.S10.pabiode+tlrc" \
+                08 "S11/S11.pabiode.results/citcar.S11.pabiode+tlrc" \
+                09 "S13/S13.pabiode.results/citcar.S13.pabiode+tlrc" \
+                10 "S14/S14.pabiode.results/citcar.S14.pabiode+tlrc" \
+                11 "S16/S16.pabiode.results/citcar.S16.pabiode+tlrc" \
+                12 "S17/S17.pabiode.results/citcar.S17.pabiode+tlrc" \
+                13 "S18/S18.pabiode.results/citcar.S18.pabiode+tlrc" 
 # dunmp group level results
 # xyz are in RAI order
 3dmaskdump                                      \

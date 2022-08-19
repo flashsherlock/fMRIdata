@@ -64,15 +64,21 @@ cd ${subj}.results
 # @auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}.odorVI+orig
 
 # normalize Anatomical img to mni space (nonlinear warp)
-3dNwarpApply                                            \
--master anatQQ.${sub}+tlrc                              \
--source stats.${subj}.odorVI+orig                       \
--nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
--prefix stats_WARP.${subj}.odorVI
+# 3dNwarpApply                                            \
+# -master anatQQ.${sub}+tlrc                              \
+# -source stats.${subj}.odorVI+orig                       \
+# -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
+# -prefix stats_WARP.${subj}.odorVI
 
 # rename
 # mv stats_WARP.${subj}+tlrc.HEAD stats_WARP.${subj}.odorVI+tlrc.HEAD
 # mv stats_WARP.${subj}+tlrc.BRIK stats_WARP.${subj}.odorVI+tlrc.BRIK
+
+# calculate abs(cit-lim)-abs(car-lim)
+3dcalc -prefix citcar.${subj}       \
+-a stats.${subj}.odorVI+tlrc"[34]"  \
+-b stats.${subj}.odorVI+tlrc"[31]"  \
+-expr "abs(a)-abs(b)"
 
 # rm *t165.freesurfer*
 # rm ../mask/*at165*

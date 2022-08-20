@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach ub (`count -dig 2 13 18`)
+foreach ub (`count -dig 2 1 8`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
@@ -16,12 +16,15 @@ cd ${subj}.results
 # mv ../${subj}.results.old/Piriform.seg* ../mask
 
 # remove files
-# rm all_runs*
+rm all_runs*
 # rm pb0[0-4]*
-rm NIerrts.${subj}.rmpolort+orig*
+# rm NIerrts.${subj}.rmpolort+orig*
 # rm NIerrts.${subj}.rmbs*
 # rm fitts.${subj}+orig*
 # rm errts.${subj}+orig*
+rm *odorVIv_noblur*
+rm *odorVIvat_noblur*
+rm errts.${subj}.odorVI+orig*
 
 # cd mvpa
 # rm -r *br*
@@ -37,16 +40,16 @@ endif
 # set filedec = odorVI_noblur
 # 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 31..66 -prefix NIfittshead.${subj}.${filedec}
 # with va regressors
-set filedec = odorVIva_noblur
+# set filedec = odorVIva_noblur
 # 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 29..64 -prefix NIfittshead.${subj}.${filedec}
 
 # synthesize fitts of no interests, use -dry for debug
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort val int -prefix NIfittsnobs.${subj}.${filedec}
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort val int -prefix NIfittsnobs.${subj}.${filedec}
 
 # subtract fitts of no interests from all runs
-3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmpolort
+# 3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmpolort
 
-rm NIfitts*
+# rm NIfitts*
 
 # rm tent.${subj}.odorVI+orig*
 # rm NIerrts.${subj}.odorVIv_noblur+orig*

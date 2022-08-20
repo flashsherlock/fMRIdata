@@ -48,10 +48,6 @@ Generate parameters for physiology correction.
 ## prodata.m
 Generate proc files for each subject by running `afni_proc.py` and command files for parallel analysis.
 
-## proc_anatomy.tcsh
-Use `@SSwarper` to preprocessing anatomical image, then do recon (resample to 1mm by default) to show data on surface (SUMA).
-Only for testing, because high resolution results will be used.
-
 ## proc_anatomy_hires.tcsh
 Use `@SSwarper` to preprocessing anatomical image, then do recon (keep 0.7mm) to show data on surface (SUMA).
 Amygdala can be automatically segmented to 9 nucleis by command `segmentHA_T1.sh`, and `3dAllineate` to EPI grid.
@@ -63,42 +59,16 @@ It may improve accuracy (avoid transformation) after align to EPI.
 ## proc_anatomy_alignUACepi_e2a.tcsh
 Use anatQQ (skull-stripped and normalized image) to do recon-all and generate masks.
 
-## proc_fmri2xsmooth.tcsh
-Use `afni_proc.py` to do preprocessing and deconvolve for all runs (one beta one conditon, adding valence and intensity rating as regressors). Set to 2.2mm smooth. Add odor_va regressor.
-
-## proc_fmri2xsmooth_e2a.tcsh
-Same as `proc_fmri2xsmooth.tcsh` but align EPI to anatomical image.
-
 ## proc_fmri2xsmooth_censor.tcsh
-Same as `proc_fmri2xsmooth.tcsh` but censor motions.
+Use `afni_proc.py` to do preprocessing and deconvolve for all runs (one beta one conditon, adding valence and intensity rating as regressors). Set to 2.2mm smooth. Add odor_va regressor and censor motions.
 
 ## proc_fmri2xsmooth_censor_e2a.tcsh
 Same as `proc_fmri2xsmooth_censor.tcsh` but align EPI to anatomy.
-
-## change_label.tcsh
-Change labels in stats file because of a mistake in pro_fmri.tcsh leads to wrong label for a regressor.
 
 ## sepmotion.tcsh
 Seperate motion files for deconvolve each run.
 
 # Deconvolution
-## deconvolve_noblur_rating_odor_TENT.tcsh
-Use `TENT(0,10,11)` function to do deconvolution.(${filedec}=odorVI_noblur)
-
-## deconvolve_noblur_rating_odor_va_TENT.tcsh
-Use `TENT(0,10,11)` function and odor_va regressor to do deconvolution.(${filedec}=odorVIva_noblur)
-
-## deconvolve_noblur_rating_odor.tcsh
-Deconvole with the same regressors as rating_odor, but use the data without blur and scale. Then, subtract fits of no interest from the original data to obtain clean data.(${filedec}=odorVI_noblur)
-
-## deconvolve_noblur_rating_odor_va.tcsh
-Deconvole with the regressors in noblur_rating_odor plus amplitude modulated valence regressors.(${filedec}=odorVIva_noblur)
-
-## deconvolve_rating_odor.tcsh
-Add valence and intensity ratings to regressors, including regressors for odors.(${filedec}=odorVI)
-
-## deconvolve_rating_odor_va.tcsh
-Add odor_va to regressors.(${filedec}=odorVIva)
 
 ## deconvolve_censor_odor.tcsh
 Only odor and time modulated regressors (for activation mask).
@@ -108,12 +78,6 @@ Use TENT function to deconvolve odors (for time course).
 
 ## deconvolve_censor_odorva.tcsh
 Amplitude modulated rating regressors but no odor regressor (for clean data).
-
-## deconvolve_run.tcsh
-Deconvolve for each run (one beta one conditon in each run).(${filedec}=Run)
-
-## deconvolve_trial.tcsh
-Deconvolve for all runs but get betas for each trial (one beta one trial in one brick).(${filedec}=IM)
 
 ## parallelproc.tcsh
 Parallel processing for deconvolving each run.

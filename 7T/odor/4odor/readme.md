@@ -1,4 +1,35 @@
-# Generate results for 4 odors experiment.
+# Preprocessing
+
+## proc_fmri2xsmooth.tcsh
+Use `afni_proc.py` to do preprocessing and deconvolve for all runs (one beta one conditon, adding valence and intensity rating as regressors). Set to 2.2mm smooth. Add odor_va regressor and censor motions.
+
+## proc_fmri2xsmooth_e2a.tcsh
+Same as `proc_fmri2xsmooth.tcsh` but align EPI to anatomical image.
+
+## change_label.tcsh
+Change labels in stats file because of a mistake in pro_fmri.tcsh leads to wrong label for a regressor.
+
+# Deconvolve for 4 odors experiment
+
+## deconvolve_noblur_rating_odor_TENT.tcsh
+Use `TENT(0,10,11)` function to do deconvolution.(${filedec}=odorVI_noblur)
+
+## deconvolve_noblur_rating_odor_va_TENT.tcsh
+Use `TENT(0,10,11)` function and odor_va regressor to do deconvolution.(${filedec}=odorVIva_noblur)
+
+## deconvolve_noblur_rating_odor.tcsh
+Deconvole with the same regressors as rating_odor, but use the data without blur and scale. Then, subtract fits of no interest from the original data to obtain clean data.(${filedec}=odorVI_noblur)
+
+## deconvolve_noblur_rating_odor_va.tcsh
+Deconvole with the regressors in noblur_rating_odor plus amplitude modulated valence regressors.(${filedec}=odorVIva_noblur)
+
+## deconvolve_rating_odor.tcsh
+Add valence and intensity ratings to regressors (for cleandata), including regressors for odors.(${filedec}=odorVI)
+
+## deconvolve_rating_odor_va.tcsh
+Add odor_va to regressors.(${filedec}=odorVIva)
+
+# Generate results
 
 ## generate_statas.tcsh
 Generate activation masks and statistics for each ROI. Try to extract time course from TENT deconvolution

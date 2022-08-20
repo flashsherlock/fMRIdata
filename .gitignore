@@ -1,3 +1,4 @@
+.DS_Store
 .Rproj.user
 .Rhistory
 *.Rproj
@@ -14,11 +15,13 @@
 /7T/odor/*_cache
 /7T/odor/*_files
 /7T/odor/*.html
-/7T/odor/5odor/*_cache
-/7T/odor/5odor/*_files
-/7T/odor/5odor/*.html
+/7T/odor/*/*_cache
+/7T/odor/*/*_files
+/7T/odor/*/*.html
 # word to pictures folders
 /learning/ResourceFolder
 /learning/ParameterSetting
 /learning/PicturesFolder
 /learning/TextFolder
+# python
+__pycache__/

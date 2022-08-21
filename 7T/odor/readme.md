@@ -79,6 +79,12 @@ Use TENT function to deconvolve odors (for time course).
 ## deconvolve_censor_odorva.tcsh
 Amplitude modulated rating regressors but no odor regressor (for clean data).
 
+## deconvolve_censor_odorva_e2a.tcsh
+Amplitude modulated rating regressors but no odor regressor in the standard space (for clean data).
+
+## deconvolve_REML.tcsh
+Use REML to deconvolve odors after `deconvolve_censor_odor.tcsh`.
+
 ## parallelproc.tcsh
 Parallel processing for deconvolving each run.
 

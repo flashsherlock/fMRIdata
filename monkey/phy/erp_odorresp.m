@@ -1,18 +1,18 @@
 %% set path
-% monkeys = {'RM035','RM033'};
-monkeys = {'RM033'};
+monkeys = {'RM035','RM033'};
+% monkeys = {'RM033'};
 if length(monkeys) > 1
     m = '2monkey';
 else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/erp_odorresp/' m '/'];
+pic_dir=[data_dir 'pic/erp_odorresp/' m '_HA/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 %% generate data
-level = 5;
+level = 6;
 trl_type = 'odorresp';
 % combine 2 monkeys
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
@@ -44,7 +44,7 @@ ls{8}='-';
 ls{9}='-';
 %% analyze
 % frequencies={[0.7 80],[0.7 2],[2 4],[4 8],[8 13],[13 30],[30 80]};
-frequencies={[0.1 80]};
+frequencies={[0.7 50]};
 for fre_i=1:length(frequencies)
 frequency=frequencies{fre_i};
 frequency_range = ['(' num2str(frequency(1)) '-' num2str(frequency(2)) 'Hz)'];

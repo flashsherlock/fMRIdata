@@ -20,10 +20,10 @@ end
 % reorganize data
 freq_2m = cell(roi_num,2);
 % RM035
-load([data_dir 'tf_RM035.mat']);
+load([data_dir 'tf_level3_RM035.mat']);
 freq_2m(:,1)=freq_sep_all(cell2mat(cur_level_roi(:,2)));
 % RM033
-load([data_dir 'tf_RM033.mat']);
+load([data_dir 'tf_level3_RM033.mat']);
 freq_2m(:,2)=freq_sep_all(cell2mat(cur_level_roi(:,3)));
 odor_num=7;        
 %% parameters

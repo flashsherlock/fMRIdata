@@ -7,13 +7,12 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-tf_dir=[data_dir 'pic/tf_odorresp/' m '/'];
 pic_dir=[data_dir 'pic/decoding/tf/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % load time-frequency data
-load([tf_dir 'tf_' m '.mat'])
+load([data_dir 'tf_level3_' m '.mat'])
 % get number of roi
 load([data_dir 'pic/trial_count/odor_level3_trial_count_' m '.mat'])
 %% analysis

@@ -12,7 +12,7 @@ t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
 if exist([pic_dir 'data_pca.mat'],'file')
     load([pic_dir 'data_pca.mat']);
 else
-    load([data_dir 'tf_cb_' m '.mat'])
+    load([data_dir 'tf_level5_' m '.mat'])
     load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'])
     roi_num=size(cur_level_roi,1);
     data_pca=cell(roi_num,3);

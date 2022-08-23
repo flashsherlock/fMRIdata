@@ -1,3 +1,4 @@
+% function lfp_odorresp(monkeys)
 %% load and reorganize data
 monkeys = {'RM035','RM033'};
 % monkeys = {'RM033'};
@@ -7,20 +8,24 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/lfp_odorresp/' m '_0.5base/'];
+pic_dir=[data_dir 'pic/lfp_odorresp/' m '_0.5base_HA/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 %% generate data
-level = 5;
+level = 6;
 trl_type = 'odorresp';
 % combine 2 monkeys
 [roi_lfp,roi_resp,cur_level_roi] = save_merge_2monkey(level,trl_type,monkeys);
 % get number of roi
 roi_num=size(cur_level_roi,1);
 %% TF analysis
-if exist([data_dir 'tf_cb_' m '.mat'],'file')
-    load([data_dir 'tf_cb_' m '.mat'])
+if exist([data_dir 'tf_level' num2str(level) '_' m '.mat'],'file')
+    load([data_dir 'tf_level' num2str(level) '_' m '.mat'])
+elseif level==6
+    [freq_sep_all, cur_level_roi] = roi_merge_tf(m);
+    % get new number of roi
+    roi_num = size(cur_level_roi, 1);
 else
     freq_sep_all=cell(roi_num,1);
     for roi_i=1:roi_num
@@ -45,7 +50,7 @@ else
         cfgtf.keeptrials = 'yes';
         freq_sep_all{roi_i} = ft_freqanalysis(cfgtf, lfp);
     end
-    save([data_dir 'tf_cb_' m '.mat'],'freq_sep_all','-v7.3')
+    save([data_dir 'tf_level' num2str(level) '_' m '.mat'],'freq_sep_all','-v7.3')
 end
 %% parameters
 if exist([pic_dir 'tf_results_' m '.mat'],'file')
@@ -182,3 +187,4 @@ for roi_i=1:roi_num
         lfp_tfplot(data,1);
     end
 end
+% end

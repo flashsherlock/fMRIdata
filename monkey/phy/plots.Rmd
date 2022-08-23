@@ -185,6 +185,22 @@ for (m in monkeys) {
     # power[,(c(3:4)):=lapply(.SD,as.numeric),.SDcols=c(3:4)]
     # store to list
     power_data[[m]] <- power
+    
+    # permutated data    
+    data_pca_per <- readMat(file.path(pic_dir, "data_pca_per.mat"))
+    per_num <- length(data_pca_per[[1]])
+    power_data_per <- list()
+    power_data_per[[m]] <- data.table(matrix(ncol = 4+per_num, nrow = nrow(power)))
+    power_data_per[[m]][,1:4] <- power[,1:4]
+    # for each permutation
+    for (per_i in 1:per_num) {
+        p_i <- abind(map(data_pca_per[[1]][[per_i]][[1]][(roi_num * 1 + 1):(roi_num * 2)], 1), along = 0)
+        # convert to data.table
+        p_i <- as.data.table(p_i)
+        power_data_per[[m]][,4+per_i] <- p_i[,5]
+    }
+    setnames(power_data_per[[m]],names(power_data_per[[m]]),
+             c("roi", "odor", "time", "freq", paste0("power",1:per_num)))
 }
 # settings for decodings
 # use power for each frequency band
@@ -322,7 +338,9 @@ for (m in monkeys) {
     distance[, target := factor(target, levels = tars)]
     # store to list
     dis_data[[m]] <- distance
-
+    # xlim for time
+    time_up <- 1.2
+    xrange <- c(1, time_up/0.05+1)
     # plot distance
     for (tar in tars){
         # average by odor and roi
@@ -342,7 +360,8 @@ for (m in monkeys) {
         geom_line() +
         labs(title = paste(m, sep = "_")) +
         scale_color_manual(values = cmap) +
-        scale_x_discrete(expand = c(0, 0), breaks = seq(0, 3, 0.5)) +
+        coord_cartesian(xlim = xrange)+
+        scale_x_discrete(expand = c(0, 0), breaks = seq(0, time_up, 0.5)) +
         scale_y_continuous(expand = c(0, 0))
     ggsave(file.path(pic_dir, paste0("Dis_time", ".pdf")), width = 4, height = 2.5)
     # average by roi
@@ -523,7 +542,7 @@ for (tar in tars){
     # model by mlr3, select fearures
     task <- as_task_classif(power_by_time, target = tar)
     # Stratified resampling
-    task$col_roles$stratum <- "odor"
+    task$col_roles$stratum <- c("odor","roi")
     if (av_freq) {
         task_freq <- task$clone()$select(freqbands_name)
     } else {
@@ -534,9 +553,22 @@ for (tar in tars){
     measure <- msr("classif.acc")
     resampling  <-  rsmp("cv", folds = 61)
     rr <- resample(task_freq, learner, resampling, store_models = TRUE)
+    
+    # check resampling
+    # task$strata
+    # rr$resampling$instance
+    
     print(rr$aggregate(measure))
     print(rr$score(measure))
+
     autoplot(rr, measure = measure)
 }
 proc.time() - ptm
+```
+
+## test pipeline
+```{r}
+# show operators
+# as.data.table(mlr_pipeops)
+
 ```

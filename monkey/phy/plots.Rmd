@@ -151,14 +151,7 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   # acc for each cv
   cv_acc <- rr$score(measure)$classif.acc
   # rr$aggregate(measure)
-  importance <- matrix(nrow = length(rr$learners),
-                       ncol = length(rr$learners[[1]]$importance()))
-  for (cv_i in 1:length(rr$learners)) {
-    importance[cv_i,] <- rr$learners[[cv_i]]$importance()
-    # importance <- importance/sum(importance)
-  }
-  # as data.table
-  importance <- as.data.table(importance)
+  importance <- rbindlist(lapply(rr$learners, function(x) data.table(t(x$importance()))))
   # set column names
   setnames(importance,new = names(rr$learners[[1]]$importance()))
   # predict labels
@@ -621,15 +614,16 @@ proc.time() - ptm
 for (m in monkeys) {
     for (tar in tars){
       # extract list of accs
-      accs <- map_depth(results_per[[m]][[tar]] , 1, "acc")
+      accs_per <- map_depth(results_per[[m]][[tar]], 1, "acc")
+      accs_tru <- results[[m]][[tar]][["acc"]]
       # t-test on 61 cv
-      t.test(Reduce("+", accs) / length(accs), results[[m]][[tar]][["acc"]], var.equal = T)
-      # mean acc for each permutation
-      acc_per <- data.frame(acc = sapply(accs,mean))
+      t.test(Reduce("+", accs_per) / length(accs_per), accs_tru, var.equal = T)
+      # mean acc across 61 cvs for each permutation
+      acc_per <- data.frame(acc = sapply(accs_per,mean))
       # 95% percentile
       cri <- quantile(acc_per$acc,0.95)
       # actual acc
-      tru <- mean(results[[m]][[tar]][["acc"]])
+      tru <- mean(accs_tru)
       # mean(acc_per<=tru)
       # histogram
       psize <- 2
@@ -644,6 +638,27 @@ for (m in monkeys) {
         coord_cartesian(xlim = xrange)+
         labs(x="Accuracy",y="Count",title = paste(m,tar,sep = "_"))
       print(p)
+      
+      # importance
+      impts_per <- map_depth(results_per[[m]][[tar]], 1, "import")
+      impts_tru <- results[[m]][[tar]][["import"]]
+      
+      # divide by the sum of each row
+      # impts_tru <- impts_tru[,.SD/rowSums(.SD)]
+      # impts_per <- lapply(impts_per,function(x) x[,.SD/rowSums(.SD)])
+      
+      # mean importance for each permutation
+      impt_per <- lapply(impts_per,function(x) data.table(t(apply(x,2,mean))))
+      # set use.names=TRUE because the order are not the same
+      impt_per <- rbindlist(impts_per,use.names=TRUE)
+      # 95% percentile
+      cri <- apply(impt_per,2, quantile, c(0.025,0.95,0.975))
+      m_impt <- apply(impt_per,2, mean)
+      # actual importance
+      tru <- apply(impts_tru, 2, mean)
+      # combine
+      cb_impt <- rbind(data.table(t(m_impt)),data.table(cri),data.table(t(tru)))
+      print(cb_impt[,.SD/rowSums(.SD)])
     }
 }
 ```

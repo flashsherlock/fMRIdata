@@ -18,9 +18,12 @@ library(ggprism)
 library(sysfonts)
 library(pheatmap)
 library(mlr3verse)
+library(randomForest)
 library(rpart.plot)
 library(abind)
 library(purrr)
+library(foreach)
+library(doParallel)
 font_add("Helvetica", "Helvetica.ttc")
 theme_set(theme_prism(base_size = 9,
                       base_family = "Helvetica",
@@ -29,6 +32,10 @@ theme_set(theme_prism(base_size = 9,
                       base_rect_size = 0.5,))
 # theme_update(text = element_text(family = "Helvetica",
 #                                  face = "plain", size = 9))
+lgr::get_logger("mlr3")$set_threshold("warn")
+# progress bar
+progressr::handlers(global = TRUE)
+progressr::handlers("progress")
 ```
 
 # settings and functions
@@ -107,6 +114,55 @@ color_tar <- function(color_list_all,tar){
     } else if (tar == "intensity") {
         color_list <- color_list_all[c(2, 3)]
     }
+}
+# function to get classification results
+class_results <- function(power_data,tar,av_freq=TRUE){
+  # parallel
+  future::plan(future::sequential)
+  # multisession need to start a bunch of r sessions
+  # if (future::supportsMulticore()) {
+  #     future::plan(future::multicore)
+  # } else {
+  #     future::plan(future::multisession)
+  # }
+  power_by_time <- recode_odor(power_data, tar)
+  # model by mlr3, select fearures
+  task <- as_task_classif(power_by_time, target = tar)
+  # Stratified resampling
+  task$col_roles$stratum <- c("odor","roi")
+  if (av_freq) {
+    task_freq <- task$clone()$select(freqbands_name)
+  } else {
+    task_freq <- task$clone()$select(freqnames)
+  }
+  # rpart classifier
+  # random forest with gini as importance measure
+  # learner <- lrn("classif.randomForest", importance = "gini")
+  learner <- lrn("classif.rpart")
+  measure <- msr("classif.acc")
+  resampling  <-  rsmp("cv", folds = 61)
+  rr <- resample(task_freq, learner, resampling, store_models = TRUE)
+  
+  # check resampling
+  # task$strata
+  # rr$resampling$instance
+  # autoplot(rr, measure = measure)
+  
+  # acc for each cv
+  cv_acc <- rr$score(measure)$classif.acc
+  # rr$aggregate(measure)
+  importance <- rr$learners[[1]]$importance()
+  importance <- importance/sum(importance)
+  # predict labels
+  response <- data.table(ids=rr$prediction()$row_ids,res = rr$prediction()$response)
+  response <- response[order(ids),]
+  results <- cbind(power_by_time[, .SD, .SDcols = c("roi", "time", tar)], response$res)
+  setnames(results, 3:4, c("true", "response"))
+  # add a column indicating target
+  results[, `:=`(target = tar)]
+  # calculate accuracy
+  results <- results[, acc := ifelse(true == response, 1, 0)]
+  return(list(resp = results, acc = cv_acc, import = importance))
 }
 ```
 
@@ -213,7 +269,7 @@ tars <- c("odor5", "odor4", "valence", "intensity")
 
 # decision tree based on time-frequency analysis
 
-```{r, fig.height=4, fig.width=4}
+```{r eval=FALSE, fig.height=4, fig.width=4, include=FALSE}
 # for each monkey
 for (m in monkeys) {
     # set random seed
@@ -314,7 +370,7 @@ for (m in monkeys) {
 
 # plot distance results
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 dis_data <- list()
 # for each monkey
 for (m in monkeys) {  
@@ -383,7 +439,7 @@ for (m in monkeys) {
 
 Train model on 2monkey and test on monkey RM033 and RM035 separately.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 m  <- "2monkey"
 # for each coding methods
 for (tar in tars){
@@ -442,7 +498,7 @@ for (tar in tars){
 
 Combine data from monkey RM033 and RM035, tunning parameters and train model, then caculate accuracy for monkey RM033 and RM035 separately.
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 # for each monkey
 # for (m in monkeys) {
     # load power data
@@ -525,50 +581,66 @@ Combine data from monkey RM033 and RM035, tunning parameters and train model, th
 ```
 
 ## test cross validation 
-```{r}
+```{r fig.height=2, fig.width=3}
+set.seed(823)
+# record processing time
 ptm <- proc.time()
-m  <- "2monkey"
-# parallel
-# future::plan("multisession")
-# multisession need to start a bunch of r sessions
-if (future::supportsMulticore()) {
-    future::plan(future::multicore)
-} else {
-    future::plan(future::multisession)
-}
-# for each coding methods
-for (tar in tars){
-    power_by_time <- recode_odor(power_data[[m]], tar)
-    # model by mlr3, select fearures
-    task <- as_task_classif(power_by_time, target = tar)
-    # Stratified resampling
-    task$col_roles$stratum <- c("odor","roi")
-    if (av_freq) {
-        task_freq <- task$clone()$select(freqbands_name)
-    } else {
-        task_freq <- task$clone()$select(freqnames)
+# monkeys  <- c("RM033", "RM035", "2monkey")
+monkeys  <- c("2monkey")
+results <- list()
+results_per <- list()
+for (m in monkeys) {  
+    # for each coding methods
+    for (tar in tars){
+      # true results
+      results[[m]][[tar]] <- class_results(power_data[[m]],tar,av_freq)
+      # permutation results in parallel
+      cluster <- parallel::makeCluster(20, type = "FORK")
+      doParallel::registerDoParallel(cl = cluster)
+      # doparalell
+      results_per[[m]][[tar]] <- foreach (per_i = 1:per_num) %dopar% {
+        power_per <- power_data_per[[m]][,.SD,.SDcols=c(1:4,per_i+4)]
+        setnames(power_per,paste0("power",per_i),"power")
+        class_results(power_per,tar,av_freq)
+      }
+      # stop cluster
+      parallel::stopCluster(cl = cluster)
     }
-    # rpart classifier
-    learner <- lrn("classif.rpart")
-    measure <- msr("classif.acc")
-    resampling  <-  rsmp("cv", folds = 61)
-    rr <- resample(task_freq, learner, resampling, store_models = TRUE)
-    
-    # check resampling
-    # task$strata
-    # rr$resampling$instance
-    
-    print(rr$aggregate(measure))
-    print(rr$score(measure))
-
-    autoplot(rr, measure = measure)
 }
 proc.time() - ptm
+
+# average results
+for (m in monkeys) {
+    for (tar in tars){
+      # extract list of accs
+      accs <- map_depth(results_per[[m]][[tar]] , 1, "acc")
+      # t-test on 61 cv
+      t.test(Reduce("+", accs) / length(accs), results[[m]][[tar]][["acc"]], var.equal = T)
+      # mean acc for each permutation
+      acc_per <- data.frame(acc = sapply(accs,mean))
+      # 95% percentile
+      cri <- quantile(acc_per$acc,0.95)
+      # actual acc
+      tru <- mean(results[[m]][[tar]][["acc"]])
+      # mean(acc_per<=tru)
+      # histogram
+      psize <- 2
+      p <- ggplot(acc_per,aes(x = acc))+
+        geom_histogram(bins = 50,fill="#4d9dd4")+
+        # plot p=0.95
+        geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
+        geom_point(x=tru,y=psize*2,size=psize,color="red")+
+        scale_y_continuous(expand = c(0,0))+
+        coord_cartesian(xlim = c(round(min(acc_per),1)-0.05,round(max(acc_per,tru),1)+0.1))+
+        labs(x="Accuracy",y="Count",title = paste(m,tar,sep = "_"))
+      print(p)
+    }
+}
 ```
 
 ## test pipeline
-```{r}
+```{r eval=FALSE, include=FALSE}
 # show operators
-# as.data.table(mlr_pipeops)
+oper <- as.data.table(mlr_pipeops)
 
 ```

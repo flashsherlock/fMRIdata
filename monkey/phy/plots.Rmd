@@ -151,8 +151,16 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   # acc for each cv
   cv_acc <- rr$score(measure)$classif.acc
   # rr$aggregate(measure)
-  importance <- rr$learners[[1]]$importance()
-  importance <- importance/sum(importance)
+  importance <- matrix(nrow = length(rr$learners),
+                       ncol = length(rr$learners[[1]]$importance()))
+  for (cv_i in 1:length(rr$learners)) {
+    importance[cv_i,] <- rr$learners[[cv_i]]$importance()
+    # importance <- importance/sum(importance)
+  }
+  # as data.table
+  importance <- as.data.table(importance)
+  # set column names
+  setnames(importance,new = names(rr$learners[[1]]$importance()))
   # predict labels
   response <- data.table(ids=rr$prediction()$row_ids,res = rr$prediction()$response)
   response <- response[order(ids),]
@@ -625,13 +633,15 @@ for (m in monkeys) {
       # mean(acc_per<=tru)
       # histogram
       psize <- 2
+      xrange <- c(floor(min(acc_per)*100)/100,ceiling(max(acc_per,tru)*100)/100)
       p <- ggplot(acc_per,aes(x = acc))+
         geom_histogram(bins = 50,fill="#4d9dd4")+
         # plot p=0.95
         geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
         geom_point(x=tru,y=psize*2,size=psize,color="red")+
         scale_y_continuous(expand = c(0,0))+
-        coord_cartesian(xlim = c(round(min(acc_per),1)-0.05,round(max(acc_per,tru),1)+0.1))+
+        scale_x_continuous(expand = c(0,0))+
+        coord_cartesian(xlim = xrange)+
         labs(x="Accuracy",y="Count",title = paste(m,tar,sep = "_"))
       print(p)
     }

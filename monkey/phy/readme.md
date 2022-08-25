@@ -92,6 +92,9 @@
 ### roi_coherence
 计算呼吸和LFP之间的相幅锁定关系。
 
+### ft_concat
+将trial的LFP合并。
+
 ### get_sinal_pa
 获取信号的phase和amplitude。
 
@@ -108,6 +111,9 @@
 
 ### pca_power_2m
 用合并的数据做PCA。
+
+### pca_permutation
+生成1000个标签打乱之后平均的结果。
 
 ## Time-frequency analysis
 
@@ -143,6 +149,9 @@
 
 ### plots
 使用R分析频谱分析和时频分析的结果并画图。
+
+### roi_merge_tf
+基于level5的时频分析结果合并数据到只有HF和Amy。
 
 ## ERP
 

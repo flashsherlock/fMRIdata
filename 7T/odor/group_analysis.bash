@@ -151,6 +151,17 @@ tthri=1.96
 -expr "astep(a,${tthr})+astep(b,${tthr})*10" \
 -prefix group/combine_car_cit
 
+# ab(cit-lim) and abs(car-lim)
+3dcalc \
+-a "group/${stats}_car-lim+tlrc[1]" \
+-expr "abs(a)" \
+-prefix group/${stats}_abs_car_lim
+
+3dcalc \
+-a "group/${stats}_cit-lim+tlrc[1]" \
+-expr "abs(a)" \
+-prefix group/${stats}_abs_cit_lim
+
 # valance and intensity rating screen (not odor_va)
 # 3dcalc \
 # -a "group/${stats}_val+tlrc[1]" \

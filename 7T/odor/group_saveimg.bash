@@ -21,16 +21,21 @@ afni                                                  \
 -com "SAVE_PNG A.coronalimage ./image/group_sig_coronal.png"     \
 -com "SAVE_PNG A.axialimage ./image/group_sig_axial.png"         \
 -com "SAVE_PNG A.sagittalimage ./image/group_sig_sagittal.png"   \
--com "PBAR_SAVEIM ./image/group_sig_pbar.png"   \
 -com "SWITCH_OVERLAY ${stats}_carcit_percent+tlrc"                \
 -com "SAVE_PNG A.coronalimage ./image/group_percent_coronal.png" \
 -com "SAVE_PNG A.axialimage ./image/group_percent_axial.png"     \
 -com "SAVE_PNG A.sagittalimage ./image/group_percent_sagittal.png"     \
--com "PBAR_SAVEIM ./image/group_percent_pbar.png"   \
+-com "SWITCH_OVERLAY ${stats}_abs_car_lim+tlrc"                \
+-com "SAVE_PNG A.coronalimage ./image/group_abs_car-lim_coronal.png" \
+-com "SAVE_PNG A.axialimage ./image/group_abs_car-lim_axial.png"     \
+-com "SAVE_PNG A.sagittalimage ./image/group_abs_car-lim_sagittal.png"     \
+-com "SWITCH_OVERLAY ${stats}_abs_cit_lim+tlrc"                \
+-com "SAVE_PNG A.coronalimage ./image/group_abs_cit-lim_coronal.png" \
+-com "SAVE_PNG A.axialimage ./image/group_abs_cit-lim_axial.png"     \
+-com "SAVE_PNG A.sagittalimage ./image/group_abs_cit-lim_sagittal.png"     \
 -com "SWITCH_OVERLAY stats_cit-car_abs+tlrc"                            \
 -com "SAVE_PNG A.coronalimage ./image/group_abs_coronal.png"           \
 -com "SAVE_PNG A.axialimage ./image/group_abs_axial.png"               \
 -com "SAVE_PNG A.sagittalimage ./image/group_abs_sagittal.png"         \
--com "PBAR_SAVEIM ./image/group_abs_pbar.png"   \
 -com "QUIT"                                     \
 ./

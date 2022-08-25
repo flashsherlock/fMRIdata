@@ -131,16 +131,18 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   # Stratified resampling
   task$col_roles$stratum <- c("odor","roi")
   if (av_freq) {
-    task_freq <- task$clone()$select(freqbands_name)
+    feature_names <- freqbands_name
   } else {
-    task_freq <- task$clone()$select(freqnames)
+    feature_names <- freqnames
   }
+  task_freq <- task$clone()$select(feature_names)
   # rpart classifier
   # random forest with gini as importance measure
   # learner <- lrn("classif.randomForest", importance = "gini")
   learner <- lrn("classif.rpart")
   measure <- msr("classif.acc")
-  resampling  <-  rsmp("cv", folds = 61)
+  f <- length(unique(power_by_time$time))
+  resampling  <-  rsmp("cv", folds = f)
   rr <- resample(task_freq, learner, resampling, store_models = TRUE)
   
   # check resampling
@@ -151,9 +153,17 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   # acc for each cv
   cv_acc <- rr$score(measure)$classif.acc
   # rr$aggregate(measure)
-  importance <- rbindlist(lapply(rr$learners, function(x) data.table(t(x$importance()))))
-  # set column names
-  setnames(importance,new = names(rr$learners[[1]]$importance()))
+  importance <- rbindlist(lapply(rr$learners, function(x) data.table(t(x$importance()))),
+                          use.names=TRUE,fill = TRUE)
+  # replace na with 0
+  # importance[is.na(importance)] <- 0
+  setnafill(importance,fill=0)
+  # deal with null (is_empty)
+  if (dim(importance)[1]==0){
+    importance <- data.table(matrix(data = 1/length(feature_names),
+                                    nrow = f,ncol = length(feature_names)))
+    setnames(importance,new = feature_names)
+  }
   # predict labels
   response <- data.table(ids=rr$prediction()$row_ids,res = rr$prediction()$response)
   response <- response[order(ids),]
@@ -200,6 +210,7 @@ for (m in monkeys){
 # load and store power data
 ```{r}
 power_data <- list()
+power_data_per <- list()
 # for each monkey
 for (m in monkeys) {       
     # colors for tree plot
@@ -246,7 +257,6 @@ for (m in monkeys) {
     # permutated data    
     data_pca_per <- readMat(file.path(pic_dir, "data_pca_per.mat"))
     per_num <- length(data_pca_per[[1]])
-    power_data_per <- list()
     power_data_per[[m]] <- data.table(matrix(ncol = 4+per_num, nrow = nrow(power)))
     power_data_per[[m]][,1:4] <- power[,1:4]
     # for each permutation
@@ -343,7 +353,7 @@ for (m in monkeys) {
         dev.off()
     }
     # bind all results
-    results <- rbindlist(datalist)
+    results <- rbindlist(datalist,use.names=TRUE)
     # convert target to factor
     results[, target := factor(results$target, levels = tars)]    
     # plot averaged results
@@ -587,10 +597,12 @@ set.seed(823)
 # record processing time
 ptm <- proc.time()
 # monkeys  <- c("RM033", "RM035", "2monkey")
-monkeys  <- c("2monkey")
+# monkeys  <- c("2monkey")
 results <- list()
 results_per <- list()
 for (m in monkeys) {  
+    # permutation data for current monkey
+    power_data_per_m <- power_data_per[[m]]
     # for each coding methods
     for (tar in tars){
       # true results
@@ -600,7 +612,7 @@ for (m in monkeys) {
       doParallel::registerDoParallel(cl = cluster)
       # doparalell
       results_per[[m]][[tar]] <- foreach (per_i = 1:per_num) %dopar% {
-        power_per <- power_data_per[[m]][,.SD,.SDcols=c(1:4,per_i+4)]
+        power_per <- power_data_per_m[,.SD,.SDcols=c(1:4,per_i+4)]
         setnames(power_per,paste0("power",per_i),"power")
         class_results(power_per,tar,av_freq)
       }
@@ -611,7 +623,9 @@ for (m in monkeys) {
 proc.time() - ptm
 
 # average results
+impt_results <- list()
 for (m in monkeys) {
+    pic_dir <- file.path(root_dir, 'pic/pca_power/noair',m);
     for (tar in tars){
       # extract list of accs
       accs_per <- map_depth(results_per[[m]][[tar]], 1, "acc")
@@ -628,7 +642,7 @@ for (m in monkeys) {
       # histogram
       psize <- 2
       xrange <- c(floor(min(acc_per)*100)/100,ceiling(max(acc_per,tru)*100)/100)
-      p <- ggplot(acc_per,aes(x = acc))+
+      ggplot(acc_per,aes(x = acc))+
         geom_histogram(bins = 50,fill="#4d9dd4")+
         # plot p=0.95
         geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
@@ -637,7 +651,7 @@ for (m in monkeys) {
         scale_x_continuous(expand = c(0,0))+
         coord_cartesian(xlim = xrange)+
         labs(x="Accuracy",y="Count",title = paste(m,tar,sep = "_"))
-      print(p)
+      ggsave(file.path(pic_dir, paste0("Per_acc_",tar, ".pdf")), width = 3, height = 2)
       
       # importance
       impts_per <- map_depth(results_per[[m]][[tar]], 1, "import")
@@ -648,9 +662,10 @@ for (m in monkeys) {
       # impts_per <- lapply(impts_per,function(x) x[,.SD/rowSums(.SD)])
       
       # mean importance for each permutation
-      impt_per <- lapply(impts_per,function(x) data.table(t(apply(x,2,mean))))
+      impt_per <- lapply(impts_per,colMeans)
       # set use.names=TRUE because the order are not the same
-      impt_per <- rbindlist(impts_per,use.names=TRUE)
+      impt_per <- rbindlist(impts_per,use.names=TRUE,fill = TRUE)
+      setnafill(impt_per,fill=0)
       # 95% percentile
       cri <- apply(impt_per,2, quantile, c(0.025,0.95,0.975))
       m_impt <- apply(impt_per,2, mean)
@@ -658,8 +673,23 @@ for (m in monkeys) {
       tru <- apply(impts_tru, 2, mean)
       # combine
       cb_impt <- rbind(data.table(t(m_impt)),data.table(cri),data.table(t(tru)))
-      print(cb_impt[,.SD/rowSums(.SD)])
+      labels <- c("per_mean","2.5%","95%","97.5%","true")
+      target <- rep(tar,times=nrow(cb_impt))
+      cb_impt <- cbind(cb_impt[,.SD/rowSums(.SD)],labels,target)
+      impt_results[[m]][[tar]] <- cb_impt
     }
+    data_impt <- rbindlist(impt_results[[m]],use.names=TRUE)
+    data_impt <- melt(data_impt, id = 6:7,variable.name="frequency", value.name = "importance")
+    # change frequency labels and target to factors
+    data_impt[,frequency:=factor(frequency,levels = c("delta", "theta", "alpha", "beta", "gamma"))]
+    data_impt[,labels:=factor(labels,levels = c("true","95%","per_mean","2.5%","97.5%"))]
+    data_impt[,target:=factor(target,levels = tars)]
+    # line plot
+    ggplot(data_impt[labels%in%c("true","95%"),],aes(x=frequency,y=importance))+
+      geom_line(aes(group=interaction(labels,target),linetype=labels,color=target))+
+      scale_color_manual(values = cmap) +
+      labs(title = paste(m))
+    ggsave(file.path(pic_dir, paste0("Per_impt", ".pdf")), width = 3.5, height = 2)
 }
 ```
 

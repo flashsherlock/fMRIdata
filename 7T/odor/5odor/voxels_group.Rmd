@@ -28,7 +28,7 @@ library(gridExtra)
 ggthemr('fresh',layout = "clean")
 ```
 
-# odor_va not excluded
+# Functions and parameters
 ```{r}
 ####################################################
 # function to load txt file
@@ -117,6 +117,8 @@ An <- c(21,29)
 Ao <- 21
 PPC <- 22
 roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+# colors
+gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 ```
 
 
@@ -140,7 +142,6 @@ data_act_mean <- mutate(data_act_mean,roi = factor(roi,levels=roi_name))
 datachosen <- subset(data_act_mean,voxels %in% s)
 datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("all",opair)))
 # plot
-gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
   labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
@@ -173,6 +174,24 @@ data_mean <- calmean(results,roilist)
 s <- c(paste0("m_",opair))
 datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = opair))
 datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+datachosen <- subset(datachosen,voxels%in%c("car-lim","cit-lim"))
+# plot
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color[2:5])+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# activated only
+data_mean <- calmean(results,roilist,params$thr)
+s <- c(paste0("m_",opair))
+datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = opair))
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+datachosen <- subset(datachosen,voxels%in%c("car-lim","cit-lim"))
 # plot
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
   labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴

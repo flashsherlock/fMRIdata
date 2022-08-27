@@ -37,5 +37,10 @@ afni                                                  \
 -com "SAVE_PNG A.coronalimage ./image/group_abs_coronal.png"           \
 -com "SAVE_PNG A.axialimage ./image/group_abs_axial.png"               \
 -com "SAVE_PNG A.sagittalimage ./image/group_abs_sagittal.png"         \
+-com "SET_SUBBRICKS A -1 0 1"                         \
+-com "SET_THRESHNEW A 0.05 *p"                            \
+-com "SAVE_PNG A.coronalimage ./image/group_pabs_coronal.png"           \
+-com "SAVE_PNG A.axialimage ./image/group_pabs_axial.png"               \
+-com "SAVE_PNG A.sagittalimage ./image/group_pabs_sagittal.png"         \
 -com "QUIT"                                     \
 ./

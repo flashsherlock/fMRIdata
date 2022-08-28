@@ -61,9 +61,22 @@ saveas(gcf, [userOptions.rootPath filesep 'model_avg.jpg']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % calculate averaged correlation using model RDMs
 corrmat=rsa.pairwiseCorrelateRDMs({RDMs, Modelsavg}, userOptions);
+
+% % understand the corrmat
+% corrmat(2)
+% a=RDMs(1).RDM;
+% b=RDMs(2).RDM;
+% b=Modelsavg(1).RDM;
+% % exclude the diag
+% corr(a(triu(true(size(a)),1)),b(triu(true(size(b)),1)),'type','Pearson')
+% %same as corrmat (spearman)
+% corr(a(triu(true(size(a)),1)),b(triu(true(size(b)),1)),'type','Spearman')
+% % contain the diag
+% corr(a(triu(true(size(a)),0)),b(triu(true(size(b)),0)))
+
 saveas(gcf, [userOptions.rootPath filesep 'pair_avg.jpg']);
 % allocate space for results
-corrmat=repmat(corrmat,[1 1 5]);
+corrmat=repmat(corrmat,[1 1 13]);
 for i=1:13
     corrmat(:,:,i)=rsa.pairwiseCorrelateRDMs({sRDMs(:,i), Models(:,i)}, userOptions);
     saveas(gcf, [userOptions.rootPath filesep 'pair' num2str(i) '.jpg']);

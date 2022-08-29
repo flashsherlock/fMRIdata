@@ -180,8 +180,14 @@ class_results <- function(power_data,tar,av_freq=TRUE){
 # heatmap of monkey's zpower
 
 ```{r fig.height=4, fig.width=4}
+# whether calculate zscore relative to air
+cp_air  <- 1
 for (m in monkeys){    
     pic_dir <- file.path(root_dir, 'pic/powerspec',m);
+    # if cp_air is 1, add _air to pic_dir
+    if (cp_air == 1) {
+        pic_dir <- paste0(pic_dir, "_air")
+    }
     # read zpower mat file
     data_pow <- readMat(file.path(pic_dir,'zpower_7s_1_80hz.mat'))
     # roi-odor condition-frequency bands

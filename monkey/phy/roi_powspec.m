@@ -7,10 +7,12 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/powerspec/' m '_HA/'];
+pic_dir=[data_dir 'pic/powerspec/' m '_HA_air/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
+% whether zscore to air
+cp_air = 1;
 %% generate data or load data
 if exist([pic_dir 'powspec_odor_7s_1_80hz.mat'],'file')
     load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
@@ -58,13 +60,22 @@ end
 odor_num=7;
 spectr_resp=cell(roi_num,odor_num);
 spectr_lfp=spectr_resp;
-% zscore
+% zscore results
 spectr_respz=cell(roi_num,odor_num);
 spectr_lfpz=spectr_respz;
 for roi_i=1:roi_num
-    for odor_i=1:odor_num
+    % calculate mean and sd for air condition
+    lfp = spectr_lfp_all{roi_i};
+%     resp = spectr_resp_all{roi_i};
+    cfg = [];
+    cfg.avgoverrpt =  'no';
+    cfg.trials  = find(lfp.trialinfo==6);
+    spectr_air = ft_selectdata(cfg, lfp);
+    mean_air = mean(spectr_air.powspctrm);
+    std_air = std(spectr_air.powspctrm);
+    for odor_i=1:odor_num        
+        % lfp for this roi
         lfp = spectr_lfp_all{roi_i};
-%         resp = spectr_resp_all{roi_i};
         % frequency spectrum
         cfg         = [];
         cfg.avgoverrpt =  'no';
@@ -76,7 +87,11 @@ for roi_i=1:roi_num
 %         spectr_resp{roi_i,odor_i} = ft_selectdata(cfg, resp);
         spectr_lfp{roi_i,odor_i} = ft_selectdata(cfg, lfp);
         % zscore
-        lfp.powspctrm = zscore(lfp.powspctrm,0,1);
+        if cp_air == 1
+            lfp.powspctrm = (lfp.powspctrm-mean_air)./std_air;
+        else
+            lfp.powspctrm = zscore(lfp.powspctrm,0,1);
+        end
 %         resp = spectr_resp_all{roi_i};
 %         resp.powspctrm = zscore(resp.powspctrm,0,1);
         spectr_lfpz{roi_i,odor_i} = ft_selectdata(cfg, lfp);

@@ -5,12 +5,14 @@ if nargin<2
     seed = 100;
 end
 rng(seed);
+% whether zscore to air
+cp_air = 1;
 % monkeys = {'RM033','RM035','2monkey'};
 for m_i = 1:length(monkeys)
     % load and reorganize data
     m = monkeys{m_i};
     data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-    pic_dir=[data_dir 'pic/pca_power/noair/' m '/'];
+    pic_dir=[data_dir 'pic/pca_power/noair/' m '_air/'];
     % time range
     time_range = [0 3];
     % load data or analyze data
@@ -35,7 +37,14 @@ for m_i = 1:length(monkeys)
         % frequency below 80Hz
         data = data(:,1:42,time_idx(1):time_idx(2));
         % calculate z score
-        data = zscore(data,0,1);
+        if cp_air == 1
+            data_air = data(true_label==6,:,:);
+            mean_air = mean(data_air);
+            std_air = std(data_air);
+            data = (data-mean_air)./std_air;
+        else
+            data = zscore(data,0,1);
+        end
         parfor per_i = 1:per_num
             % shuffle labels for 5 odors
             label = true_label;

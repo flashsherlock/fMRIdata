@@ -1,7 +1,11 @@
 %% load and reorganize data
-m = '2monkey';
+% m = '2monkey';
+m = 'RM033';
+% whether zscore to air
+cp_air = 1;
+% data directories
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/pca_power/noair/' m '/'];
+pic_dir=[data_dir 'pic/pca_power/noair/' m '_air/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -32,7 +36,14 @@ else
         % frequency below 80Hz
         data = data(:,1:42,time_idx(1):time_idx(2));
         % calculate z score
-        data = zscore(data,0,1);
+        if cp_air == 1
+            data_air = data(label==6,:,:);
+            mean_air = mean(data_air);
+            std_air = std(data_air);
+            data = (data-mean_air)./std_air;
+        else
+            data = zscore(data,0,1);
+        end
         % odor mean
         mean_data = zeros(length(unique(label)),size(data,3),size(data,2));
         mean_label = repmat([1:length(unique(label))]',[1,size(data,3)]);

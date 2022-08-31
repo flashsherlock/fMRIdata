@@ -45,10 +45,9 @@ end
 seq = gen_seq('si', id);
 
 % record
-result=zeros(length(seq),7);
+result=zeros(length(seq),4);
 result(:,1:2)=seq;
 % record all keystrokes
-response=cell(length(seq),2);
 
 AssertOpenGL;
 whichscreen=max(Screen('Screens'));
@@ -64,8 +63,7 @@ gray=round((white+black)*4/5);
 backcolor=gray;
 
 % data file
-% datafile=sprintf('Data%s%s_inva%s.mat',filesep,subject,datestr(now,30));
-datafile=sprintf('test.mat');
+datafile=sprintf('Data%s%s_inva%s.mat',filesep,subject,datestr(now,30));
 % open screen
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -172,6 +170,7 @@ while cyc~=size(seq, 1)+1
     WaitSecs(blanktime);
     
     % rating    
+    results(cyc,4:end) = gen_rating(exp,windowPtr);
     
     % if not the last trial
     if cyc~=length(seq)
@@ -219,6 +218,6 @@ ShowCursor;
 ListenChar(0);      %restore keyboard
 Screen('CloseAll');
 %save
-save(datafile,'result','response');
+save(datafile,'result');
 
 return

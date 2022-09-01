@@ -20,12 +20,8 @@ fixcolor_inhale=[0 154 70];  %[0 0 240];
 port='COM3';%COM3
 % keys
 KbName('UnifyKeyNames');
-Key1 = KbName('1!');
-Key2 = KbName('2@');
 escapeKey = KbName('ESCAPE');
 triggerKey = KbName('s');
-
-% rating instruction
 air=0;
 
 % input
@@ -48,7 +44,6 @@ seq = gen_seq(exp, id);
 % record
 result=zeros(length(seq),4);
 result(:,1:2)=seq;
-% record all keystrokes
 
 AssertOpenGL;
 whichscreen=max(Screen('Screens'));
@@ -69,8 +64,6 @@ datafile=sprintf('Data%s%s_inva%s.mat',filesep,subject,datestr(now,30));
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 Screen('TextFont', windowPtr, 'Kaiti');
-% get screen size
-[width, height] = Screen('WindowSize',windowPtr);
 
 fixationp1=OffsetRect(CenterRect([0 0 fix_thick fix_size],rect),offcenter_x,offcenter_y);
 fixationp2=OffsetRect(CenterRect([0 0 fix_size fix_thick],rect),offcenter_x,offcenter_y);
@@ -164,6 +157,7 @@ while cyc~=size(seq, 1)+1
 
     % offset
     WaitSecs(offset);
+    
     % blank screen
     Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
@@ -171,10 +165,10 @@ while cyc~=size(seq, 1)+1
     WaitSecs(blanktime);
     
     % rating    
-    [results(cyc,4:end), again] = gen_rating(exp,windowPtr);
+    [result(cyc,4:end), again]= gen_rating(exp,windowPtr,rect,whichscreen);
     
     % if not the last trial
-    if cyc~=length(seq)
+    if again==0 && cyc~=length(seq)
     % count down iti
     timer=iti;
     Screen('TextSize', windowPtr, 32);
@@ -201,15 +195,15 @@ while cyc~=size(seq, 1)+1
             return
         end
     end
-    
     % wait time 2s
     Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_back,fixationp2);
     Screen('Flip',windowPtr);
     WaitSecs(waittime);    
+        cyc = cyc + 1;
+    elseif again==0 && cyc==length(seq)
+        cyc = cyc + 1;
     end
-    
-    cyc = cyc+1;
 end
 
 toc;

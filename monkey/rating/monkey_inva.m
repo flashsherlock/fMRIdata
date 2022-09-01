@@ -41,7 +41,8 @@ if nargin < 2
     offcenter_x=0; offcenter_y=0;
 end
 % odor seq
-seq = gen_seq('vi', id);
+exp = 'vi';
+seq = gen_seq(exp, id);
 
 % record
 result=zeros(length(seq),7);
@@ -141,7 +142,7 @@ while cyc~=size(seq, 1)+1
     WaitSecs(blanktime);
     
     % rating  
-    results(cyc,4:end) = gen_rating(exp,windowPtr);
+    [results(cyc,4:end), again]= gen_rating(exp,windowPtr,rect,whichscreen);
      
     % if not the last trial
     if cyc~=length(seq)

@@ -171,7 +171,6 @@ while true
         % label rated rects
         blanks = cellfun('isempty', rallxs);
         rectchosen = rectlables_vif(blanks == 0);
-        Screen('PreloadTextures', windowPtr, ratingbody);
         Screen('DrawTexture', windowPtr, ratingbody);
         % restore other ratings
         if size(rectchosen, 2) >= 2
@@ -192,8 +191,9 @@ while true
         if sum(blanks) == 0
             break;
         end
-    % right click on confirm
-    elseif buttons(2) && IsInRect(x, y, [centerx - floor(msg_certainWidth / 2) - 10, 11 * height / 12 - floor(msg_certainHeight / 2) - 10, centerx + floor(msg_certainWidth / 2) + 10, 11 * height / 12 + floor(msg_certainHeight / 2) + 10])
+    % any other click on confirm
+    % buttons(2) on mac but buttons(3) on win for right click
+    elseif ~buttons(1) && any(buttons) && IsInRect(x, y, [centerx - floor(msg_certainWidth / 2) - 10, 11 * height / 12 - floor(msg_certainHeight / 2) - 10, centerx + floor(msg_certainWidth / 2) + 10, 11 * height / 12 + floor(msg_certainHeight / 2) + 10])
         % the same odor again
         again = 1;
         break;

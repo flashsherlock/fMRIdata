@@ -1,13 +1,13 @@
 function monkey_similarity(offcenter_x, offcenter_y)
 % rate similarity
 % times
-waittime=1;
+waittime=2;
 cuetime=1.5;
 odortime=2;
 offset=1;
 blanktime=0.5;
 interval=3.5;% +1.5=time between firs odor finished and second start
-iti=2;
+iti=15;
 
 % fixation
 fix_size=18;
@@ -17,7 +17,7 @@ fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
 
 % port
-port='COM3';%COM3
+port='COM5';%COM3
 % keys
 KbName('UnifyKeyNames');
 escapeKey = KbName('ESCAPE');
@@ -50,7 +50,7 @@ whichscreen=max(Screen('Screens'));
 
 % ettport
 delete(instrfindall('Type','serial'));
-% ettport=ett('init',port);
+ettport=ett('init',port);
 
 % colors
 black=BlackIndex(whichscreen);
@@ -76,7 +76,7 @@ HideCursor;
 ListenChar(2);      % turn off keyboard
 
 % air
-% ett('set',ettport,air); 
+ett('set',ettport,air); 
 
 % start screen
 msg=sprintf('Press [s] key to start...');
@@ -142,7 +142,7 @@ while cyc~=size(seq, 1)+1
     
     % open
     WaitSecs(cuetime-offset);
-%     ett('set',ettport,odor);
+    ett('set',ettport,odor);
     
     % inhale
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
@@ -153,7 +153,7 @@ while cyc~=size(seq, 1)+1
     
     % close 
     WaitSecs(odortime-offset);
-%     ett('set',ettport,air);    
+    ett('set',ettport,air);    
 
     % offset
     WaitSecs(offset);
@@ -191,7 +191,6 @@ while cyc~=size(seq, 1)+1
         if touch && keyCode(escapeKey)
             ListenChar(0);      % open keyboard
             Screen('CloseAll');
-            save(datafile,'result','response');
             return
         end
     end

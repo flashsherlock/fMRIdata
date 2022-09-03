@@ -8,6 +8,8 @@ offset=1;
 blanktime=0.5;
 interval=3.5;% +1.5=time between firs odor finished and second start
 iti=15;
+% set 6 if use 7-11
+channel=6;
 
 % fixation
 fix_size=18;
@@ -42,7 +44,7 @@ exp = 'si';
 seq = gen_seq(exp, id);
 
 % record
-result=zeros(length(seq),4);
+result=zeros(length(seq),7);
 result(:,1:2)=seq;
 
 AssertOpenGL;
@@ -59,7 +61,7 @@ gray=round((white+black)*4/5);
 backcolor=gray;
 
 % data file
-datafile=sprintf('Data%s%s_inva%s.mat',filesep,subject,datestr(now,30));
+datafile=sprintf('Data%s%s_similarity%s.mat',filesep,subject,datestr(now,30));
 % open screen
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -103,26 +105,29 @@ WaitSecs(waittime);
 cyc = 1;
 while cyc~=size(seq, 1)+1
    
-    odor=seq(cyc,1);
+    odor=seq(cyc,1)+channel;
     
     % hint
     Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_cue,fixationp2);
     vbl=Screen('Flip',windowPtr);
     starttime=GetSecs;
+    result(cyc,3)=starttime-zerotime;
     
     % open
     WaitSecs(cuetime-offset);
-%     ett('set',ettport,odor);
+    ett('set',ettport,odor);
     
     % inhale
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
-    vbl=Screen('Flip', windowPtr, vbl + (fps*cuetime-0.1)*ifi);
+    Screen('Flip', windowPtr, vbl + (fps*cuetime-0.1)*ifi);
+    trialtime=GetSecs;
+    result(cyc,5)=trialtime-zerotime;
     
     % close 
     WaitSecs(odortime-offset);
-%     ett('set',ettport,air);    
+    ett('set',ettport,air);    
 
     % offset
     WaitSecs(offset);
@@ -133,7 +138,7 @@ while cyc~=size(seq, 1)+1
     Screen('Flip', windowPtr);
     WaitSecs(interval);
     %---------------- odor2 start -----------------
-    odor=seq(cyc,2);
+    odor=seq(cyc,2)+channel;
     
     % hint
     Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
@@ -147,9 +152,9 @@ while cyc~=size(seq, 1)+1
     % inhale
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
-    vbl=Screen('Flip', windowPtr, vbl + (fps*cuetime-0.1)*ifi);
+    Screen('Flip', windowPtr, vbl + (fps*cuetime-0.1)*ifi);
     trialtime=GetSecs;
-    result(cyc,3)=trialtime-zerotime;% only record this time
+    result(cyc,6)=trialtime-zerotime;
     
     % close 
     WaitSecs(odortime-offset);
@@ -165,7 +170,9 @@ while cyc~=size(seq, 1)+1
     WaitSecs(blanktime);
     
     % rating    
-    [result(cyc,4:end), again]= gen_rating(exp,windowPtr,rect,whichscreen);
+    [result(cyc,4), again]= gen_rating(exp,windowPtr,rect,whichscreen);
+    trialtime=GetSecs;
+    result(cyc,7)=trialtime-zerotime;
     
     % if not the last trial
     if again==0 && cyc~=length(seq)

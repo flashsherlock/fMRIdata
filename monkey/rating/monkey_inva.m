@@ -7,6 +7,8 @@ odortime=2;
 offset=1;
 blanktime=0.5;
 iti=5;
+% set 6 if use 7-11
+channel=6;
 
 % fixation
 fix_size=18;
@@ -102,7 +104,7 @@ WaitSecs(waittime);
 cyc = 1;
 while cyc~=size(seq, 1)+1
     
-    odor=seq(cyc,1);
+    odor=seq(cyc,1)+channel;
     
     % hint
     Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
@@ -118,7 +120,7 @@ while cyc~=size(seq, 1)+1
     % inhale
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
-    vbl=Screen('Flip', windowPtr, vbl + (fps*cuetime-0.1)*ifi);
+    Screen('Flip', windowPtr, vbl + (fps*cuetime-0.1)*ifi);
     trialtime=GetSecs;
     result(cyc,3)=trialtime-zerotime;
     

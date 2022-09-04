@@ -183,7 +183,8 @@ while true
         % update the screen
         Screen('FramePoly', windowPtr, yellow, points, 2);
         Screen('Flip', windowPtr);
-        ratingresults_vif(rectnumber) = ceil((rallxs{rectnumber}(end) - srm(rectnumber, 1)) / (7 * width / 16) * 100);
+        % calculate rating score 1-100
+        ratingresults_vif(rectnumber) = max(1,ceil((rallxs{rectnumber}(end) - srm(rectnumber, 1)) / (line_right-line_left) * 100));
         WaitSecs(0.1);
     % left click on confirm but ratings not finished
     elseif buttons(1) && IsInRect(x, y, [centerx - floor(msg_certainWidth / 2) - 10, 11 * height / 12 - floor(msg_certainHeight / 2) - 10, centerx + floor(msg_certainWidth / 2) + 10, 11 * height / 12 + floor(msg_certainHeight / 2) + 10])

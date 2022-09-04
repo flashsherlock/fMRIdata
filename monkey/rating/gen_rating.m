@@ -25,7 +25,7 @@ line_right = 13 * width / 16;
 % set scale
 line_width = 3;
 tick_width = 2;
-tick_num = 5;
+tick_num = 3;
 tick_pos = linspace(line_left,line_right,tick_num);
 tick_pos(1) = tick_pos(1) + tick_width;
 % which experiment
@@ -107,8 +107,8 @@ switch exp
         v_insWidth = RectWidth(v_insBoundsRect);
         v_insHeight = RectHeight(v_insBoundsRect);
         % labels
-        rating_v1 = double('非常相似');
-        rating_v2 = double('非常不同');
+        rating_v1 = double('非常不同');
+        rating_v2 = double('非常相似');
         rv1_BoundsRect = Screen('TextBounds', windowPtr, rating_v1);
         rv1_Width = RectWidth(rv1_BoundsRect);
         rv1_Height = RectHeight(rv1_BoundsRect);

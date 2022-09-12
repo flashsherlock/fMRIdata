@@ -50,3 +50,29 @@ means_vi = [mean(rating.valence);mean(rating.intensity);mean(rating.familarity);
 sems_vi = [std(rating.valence);std(rating.intensity);std(rating.familarity);std(rating.edibility)]./sqrt(sub_num);
 means_si = mean(rating.similarity);
 sems_si = std(rating.similarity)./sqrt(sub_num);
+%% plot
+% vi
+figure;
+hold on
+alpha = 0.2;
+colors = { '#7E2F8E', '#0072BD', '#D95319', '#EDB120'};
+for i=1:4
+    stdshade(means_vi(i,:),sems_vi(i,:),alpha,hex2rgb(colors{i}));    
+end
+set(gca,'xtick',1:odor_num,'XTickLabel',odor_names)
+% si
+figure;
+stdshade(means_si,sems_si,alpha,hex2rgb(colors{1}));    
+odor_pairs = odor_names(nchoosek(1:odor_num,2));
+set(gca,'xtick',1:nchoosek(odor_num,2),'XTickLabel',strcat(odor_pairs(:,1),{'-'},odor_pairs(:,2)))
+%% RDMs
+% 100-similarity as distance
+d=mean(100-rating.similarity);
+rating.simRDM=squareform(d);
+% distances of 4 dimensions
+% dis = 'euclidean';
+dis = 'correlation';
+rating.valRDM=pdist2(rating.valence',rating.valence',dis);
+rating.intRDM=pdist2(rating.intensity',rating.intensity',dis);
+rating.famRDM=pdist2(rating.familarity',rating.familarity',dis);
+rating.ediRDM=pdist2(rating.edibility',rating.edibility',dis);

@@ -1,4 +1,4 @@
-subs=[5:13 15:16];
+subs=[5 7 14 18:20 22 25 29:31];
 datadir='Data';
 ratings=zeros(length(subs),14);
 for subi = 1:length(subs)

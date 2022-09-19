@@ -1,6 +1,7 @@
-subs=[5 7 14 18:20 22 25 29:31];
+subs=[4 5 7 14 18:20 22 25 29:31];
 datadir='Data';
 ratings=zeros(length(subs),14);
+rate = behrate(subs(1));
 for subi = 1:length(subs)
     sub=sprintf('S%02d',subs(subi));
     % inva
@@ -37,9 +38,9 @@ for subi = 1:length(subs)
     simlim=similarity(1:4);
     
     % practice
-%     data=dir([datadir filesep lower(sub) '_practice*.mat']);
-%     load([datadir filesep data.name]);
-    
+    if subi > 1
+        rate = catfields(rate, behrate(subs(subi)));
+    end
     
     ratings(subi,:)=[int(1,:) int(2,:) simlim];
 end

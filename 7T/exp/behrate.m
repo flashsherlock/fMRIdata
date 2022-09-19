@@ -8,7 +8,7 @@ end
 if ~ischar(sub)
     sub=sprintf('S%02d',sub);
 end
-datadir=['./behavior/'];
+datadir=['./Data/'];
 
 %% similarity
 data=dir([datadir lower(sub) '_similarity*.mat']);

@@ -19,7 +19,8 @@ for subi = 1:sub_num
     load([datadir filesep file_si]);
     % change odors to 1-4 and sort columns
     result(:,1:2)=sort(result(:,1:2),2);
-    
+    % remove the first trial
+    % result(1, 4) = nan;
     % sort rows
     result=sortrows(result,[1 2]);
     % reshape to 2 rows
@@ -27,12 +28,15 @@ for subi = 1:sub_num
     % calculate means
     similarity(similarity==0)=nan;
     rating.similarity(subi,:)=nanmean(similarity);
+    
 
     % intensity and valence
     file_vi = filevi(subi).name;
     load([datadir filesep file_vi]);
     % get odor labels
     odors=unique(result(:,1));
+    % remove the first trial
+    % result = result(2:end, :);
     for odori=1:length(odors)
         % caculate mean score
         % valence 4th colomn

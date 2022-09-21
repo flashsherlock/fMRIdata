@@ -74,12 +74,24 @@ colors = { '#7E2F8E', '#0072BD', '#D95319', '#EDB120'};
 for i=1:4
     stdshade(means_vi(i,:),sems_vi(i,:),alpha,hex2rgb(colors{i}));    
 end
-set(gca,'xtick',1:odor_num,'XTickLabel',odor_names)
+set(gca,'xtick',1:odor_num,'XTickLabel',odor_names,'FontSize',12)
 % si
 figure;
 stdshade(means_si,sems_si,alpha,hex2rgb(colors{1}));    
 odor_pairs = odor_names(nchoosek(1:odor_num,2));
-set(gca,'xtick',1:nchoosek(odor_num,2),'XTickLabel',strcat(odor_pairs(:,1),{'-'},odor_pairs(:,2)))
+set(gca,'xtick',1:nchoosek(odor_num,2),'XTickLabel',strcat(odor_pairs(:,1),{'-'},odor_pairs(:,2)),...
+    'xlim',[1 nchoosek(odor_num, 2)],'FontSize',12)
+% correlation
+figure;
+x = reshape(rating.edibility, [],1);
+y = reshape(rating.valence, [], 1);
+[r,p]=corr(x,y);
+% scatter plot
+scatter(x,y,'.')
+xlabel('edibility')
+ylabel('valence')
+set(gca,'ylim',[1 100],'xlim',[1 100],'FontSize',12);
+text(10,90,[sprintf('r=%0.2f, p=%0.3f',r,p)],'Fontsize',12)
 %% RDMs
 % 100-similarity as distance
 d=mean(100-rating.similarity);

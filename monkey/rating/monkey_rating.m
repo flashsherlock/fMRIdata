@@ -54,6 +54,17 @@ means_vi = [mean(rating.valence);mean(rating.intensity);mean(rating.familarity);
 sems_vi = [std(rating.valence);std(rating.intensity);std(rating.familarity);std(rating.edibility)]./sqrt(sub_num);
 means_si = mean(rating.similarity);
 sems_si = std(rating.similarity)./sqrt(sub_num);
+%% iso
+iso_in = mean(rating.intensity(:,2:3), 2);
+iso_min = min(rating.intensity(:,2:3), [], 2);
+iso_max = max(rating.intensity(:,2:3), [], 2);
+% average intensity of iso is the max or min
+% idx = bsxfun(@gt, iso_in, max(rating.intensity(:,[1 4 5]),[],2)) | bsxfun(@lt, iso_in, min(rating.intensity(:,[1 4 5]),[],2));
+% more strict
+idx = bsxfun(@gt, iso_min, max(rating.intensity(:,[1 4 5]),[],2)) | bsxfun(@lt, iso_max, min(rating.intensity(:,[1 4 5]),[],2));
+% remove
+intensity_new = rating.intensity(~idx,:);
+[h,p]=ttest(intensity_new(:,2), intensity_new(:,3));
 %% plot
 % vi
 figure;

@@ -50,11 +50,13 @@ for subi = 1:sub_num
     end
 end
 %% calculate means
+all= [rating.valence, rating.intensity, rating.familarity, rating.edibility];
 means_vi = [mean(rating.valence);mean(rating.intensity);mean(rating.familarity);mean(rating.edibility)];
 sems_vi = [std(rating.valence);std(rating.intensity);std(rating.familarity);std(rating.edibility)]./sqrt(sub_num);
 means_si = mean(rating.similarity);
 sems_si = std(rating.similarity)./sqrt(sub_num);
 %% iso
+expected = sum(bsxfun(@gt,rating.intensity(:,3),rating.intensity(:,2)));
 iso_in = mean(rating.intensity(:,2:3), 2);
 iso_min = min(rating.intensity(:,2:3), [], 2);
 iso_max = max(rating.intensity(:,2:3), [], 2);

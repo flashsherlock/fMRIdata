@@ -1,4 +1,4 @@
-function rating=mrirate(sub,times)
+function rating=mrirate_quick(sub,times)
 % extract ratings for odors presented by olfactometer
 % sub is the number of subject
 run=6;
@@ -8,32 +8,10 @@ end
 if ~ischar(sub)
     sub=sprintf('S%02d',sub);
 end
-% datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% datadir=['/Volumes/WD_E/gufei/7T_odor/behavior/'];
 % quick review after exp
-datadir=['/Volumes/WD_E/gufei/7T_odor/behavior/'];
+datadir=['/Volumes/WD_F/gufei/7T_odor/behavior/'];
 odornum=5;
-%% similarity
-% if strcmp(sub,'S01_yyt')
-%     data=dir([datadir lower('S01') '_similarity*.mat']);
-% else
-%     data=dir([datadir lower(sub) '_similarity*.mat']);
-% end
-% dataname=data(1).name;
-% load([datadir filesep dataname]);
-% % change odors to 1-4 and sort columns
-% result(:,1:2)=sort(result(:,1:2),2)-6;
-% % sort columns
-% % result(:,1:2)=sort(result(:,1:2),2);
-% % get odornumber
-% odornum=length(unique([result(:,1);result(:,2)]));
-% % sort rows
-% result=sortrows(result,[1 2]);
-% % reshape to 2 rows
-% similarity=reshape(result(:,6),2,[]);
-% % calculate means
-% similarity(similarity==0)=nan;
-% rating.similarity=nanmean(similarity);
-
 %% intensity and valence
 intensity=zeros(run*times/2,odornum);
 valence=intensity;
@@ -71,9 +49,4 @@ intensity(intensity==0)=nan;
 rating.valence=nanmean(valence);
 rating.intensity=nanmean(intensity);
 
-%% RDMs
-% d=(7-rating.similarity)/6;
-% rating.simRDM=squareform(d);
-% rating.valRDM=pdist2(rating.valence',rating.valence')/6;
-% rating.intRDM=pdist2(rating.intensity',rating.intensity')/6;
 end

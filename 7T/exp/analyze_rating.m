@@ -1,4 +1,4 @@
-subs=[4 5 7 14 18:20 22 25 29:34];
+subs=[4 5 7 14 18:20 22 25 29:34 40 42:44];
 datadir='Data';
 ratings=zeros(length(subs),14);
 rate = behrate(subs(1));

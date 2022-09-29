@@ -4,10 +4,10 @@
 # use input as sub
 if ( $# > 0 ) then
 set sub = $1
-# set sub = S01
-# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
-set rawfolder=/Volumes/WD_E/gufei/7T_odor/phy_raw/2021*${sub}
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+# set rootfolder=/Volumes/WD_D/gufei/7T_odor
+set rootfolder=/Volumes/WD_F/gufei/7T_odor
+set rawfolder=${rootfolder}/phy_raw/202*${sub}
+set datafolder=${rootfolder}/${sub}
 cd "${rawfolder}"
 
 # copy resp and pulse to phy

@@ -6,7 +6,8 @@ if ( $# > 0 ) then
 set sub = $1
 
 # set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/*_S40_*
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}
 cd "${datafolder}"
 cd *_S40_*${sub}
 # to3d 结果是有问题的，Dimon比较好

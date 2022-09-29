@@ -6,7 +6,8 @@ set sub = $1
 set sub_beh = $2
 # change to lowercase
 set sub_l=`echo ${sub} | tr '[A-Z]' '[a-z]'`
-set datafolder=/Volumes/WD_E/gufei/7T_odor/
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/
+set datafolder=/Volumes/WD_F/gufei/7T_odor/
 cd "${datafolder}"
 
 # make folders
@@ -16,9 +17,10 @@ mkdir ${sub}/respiration
 mkdir ${sub}/phy
 # move images
 mv *S40_${sub} ${sub}/
-# rename and move behavior data
+# rename and move behavior data before fMRI
 cd behavior
-foreach file (`ls ${sub_beh}*`)
+# use *a*.mat to select inva similarity and practice
+foreach file (`ls ${sub_beh}*a*.mat`)
     # extract name
     set name=`echo ${file} | cut -d _ -f 2`
     mv ${file} ${sub_l}_${name}

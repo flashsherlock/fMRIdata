@@ -9,7 +9,8 @@ else
     maxrt=4.5;
 end
 % sub='s01_run';
-datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+datadir=['/Volumes/WD_F/gufei/7T_odor/' sub '/behavior/'];
 % cd(datadir);
 % change sub to match filename
 sub=[lower(sub) '_run'];

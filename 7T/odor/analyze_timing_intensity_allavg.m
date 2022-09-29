@@ -4,7 +4,8 @@ if nargin<2
     times=[8 4];
 end
 % sub='s01_run';
-datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+datadir=['/Volumes/WD_F/gufei/7T_odor/' sub '/behavior/'];
 % get mean intensity rating
 rating=mrirate(sub,times(1));
 intensity=rating.intensity;

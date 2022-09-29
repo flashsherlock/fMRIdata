@@ -8,7 +8,8 @@ end
 if ~ischar(sub)
     sub=sprintf('S%02d',sub);
 end
-datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+datadir=['/Volumes/WD_F/gufei/7T_odor/' sub '/behavior/'];
 
 %% similarity
 if strcmp(sub,'S01_yyt')

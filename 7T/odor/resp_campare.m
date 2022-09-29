@@ -1,6 +1,8 @@
 function resp_campare(sub)
-respdir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/respiration/'];
-phydir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/phy/'];
+% respdir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/respiration/'];
+% phydir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/phy/'];
+respdir = ['/Volumes/WD_F/gufei/7T_odor/' sub '/respiration/'];
+phydir = ['/Volumes/WD_F/gufei/7T_odor/' sub '/phy/'];
 
 filename=dir([respdir filesep 'resp*.mat']);
 phy_file=dir([phydir filesep 'resp*.1D']);

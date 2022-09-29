@@ -1,7 +1,6 @@
 function resp_savebio(sub,rev,scale)
+% fieldtrip filter: data stores in each row
 % fieldtrip的滤波器 每一行是一组数据
-% clc;
-% clear
 % default values are 0
 if nargin < 2
     rev = 0;
@@ -9,8 +8,10 @@ end
 if nargin < 3
     scale = 0;
 end
-respdir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/respiration/'];
-phydir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/phy/'];
+% respdir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/respiration/'];
+% phydir = ['/Volumes/WD_E/gufei/7T_odor/' sub '/phy/'];
+respdir = ['/Volumes/WD_F/gufei/7T_odor/' sub '/respiration/'];
+phydir = ['/Volumes/WD_F/gufei/7T_odor/' sub '/phy/'];
 % make phy dir
 if ~exist(phydir,'dir')
     mkdir(phydir)

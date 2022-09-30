@@ -3,8 +3,8 @@
 if ( $# > 0 ) then
 set sub = $1
 set analysis=pabiode
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
-# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}
 cd "${datafolder}"
 
 set subj = ${sub}.${analysis}

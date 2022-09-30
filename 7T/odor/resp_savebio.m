@@ -34,14 +34,18 @@ for i = 1:run
 
 %     load([respdir filesep filename(i).name]);
     % acq file
-    rawdata=load_acq([respdir filesep filename(i).name]);
-    % resample to 50hz, i.e. 50/500
-    data=marker_trans_7T(rawdata.data);
-    data(:, 1) = ft_preproc_lowpassfilter(data(:, 1)', biopac_sprate, lowpass)';
-    % cut according to mark 1
-    start=find(data(:,2)==1);
-    data=data(start:start+biopac_sprate*time-1,:);
-    save([respdir filesep 'resp0' num2str(i) '.mat'],'data');
+    if ~exist([respdir filesep 'resp0' num2str(i) '.mat'],'file') 
+        rawdata=load_acq([respdir filesep filename(i).name]);
+        % resample to 50hz, i.e. 50/500
+        data=marker_trans_7T(rawdata.data);
+        data(:, 1) = ft_preproc_lowpassfilter(data(:, 1)', biopac_sprate, lowpass)';
+        % cut according to mark 1
+        start=find(data(:,2)==1);
+        data=data(start:start+biopac_sprate*time-1,:);
+        save([respdir filesep 'resp0' num2str(i) '.mat'],'data');
+    else
+        load([respdir filesep 'resp0' num2str(i) '.mat'])
+    end
     % downsample to match puls
     data = resample(data(:, 1), fmri_sprate, biopac_sprate);
     % flip biopac data if rev==1

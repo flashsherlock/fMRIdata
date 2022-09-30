@@ -5,7 +5,8 @@
 # use input as sub
 if ( $# > 0 ) then
 set sub = $1
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}
 cd "${datafolder}"
 # make dir to save masks
 if (! -e mask) then

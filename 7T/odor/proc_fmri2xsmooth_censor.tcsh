@@ -4,8 +4,8 @@
 # use input as sub
 if ( $# > 0 ) then
 set sub = $1
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
-# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}
 cd "${datafolder}"
 # use resampled pa if it exist
 if (-e ${sub}.par+orig.HEAD) then

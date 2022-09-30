@@ -64,6 +64,8 @@ for di=1:length(diff)
         temp(diff(di)+1)=temp(diff(di));
     end
 end
+% add 0 between 1 and 2
+temp((temp(1:end-1)==1 & temp(2:end)==2))=0;
 %tabulate(temp);
 %把数据和转后的marker合并
 temp=[matrix(:,1) temp];

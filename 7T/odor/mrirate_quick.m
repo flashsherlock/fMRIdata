@@ -50,7 +50,7 @@ rating.valence=nanmean(valence);
 rating.intensity=nanmean(intensity);
 %% combine ratings
 % % get new ratins
-% subs = 19:26;
+% subs = 27:28;
 % rating = zeros(length(subs), 10);
 % for sub_i=1:length(subs)
 %     rate = mrirate_quick(subs(sub_i));
@@ -59,5 +59,5 @@ rating.intensity=nanmean(intensity);
 % end
 % % combine with old ratings
 % load('/Volumes/WD_F/gufei/7T_odor/rating5odor.mat')
-% mean([rate_avg([4:11 13:14 16:18],1:10);rating]);
+% mean([rate_avg([4:11 13:14 16:26],1:10);rating]);
 end

@@ -134,6 +134,8 @@ else
     save([pic_dir 'dis_sep_' m '.mat'],'dis_mean','cur_level_roi','dis_time')
 end
 %% scatter plot in 3d space
+% load cur_level_roi
+% load([data_dir 'tf_sep_' m '.mat'],'cur_level_roi')
 distance = {'odor5','odor4','valence','intensity'};
 plot_data = cell2mat(cur_level_roi(:,1));
 % deal with some strange points

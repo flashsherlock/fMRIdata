@@ -1,11 +1,23 @@
 %% load and convert corrdinates
 monkeys = {'RM035','RM033'};
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-elec_dir='/Volumes/WD_D/gufei/monkey_data/IMG/visual/';
+% elec_dir='/Volumes/WD_D/gufei/monkey_data/IMG/visual/';
+elec_dir='/Volumes/WD_D/gufei/monkey_data/IMG/olfactory/';
+% load position saved by lfp_odorresp_sep
+m = '2monkey';
+load([data_dir 'tf_sep_' m '.mat'],'cur_level_roi')
+bad_pos = [cur_level_roi{346,1};cur_level_roi{414,1}];
 % convert coordinates
 for monkey_i=1:2
     load([elec_dir monkeys{monkey_i} '_allpos_coord.mat'])
     elec = cat(1,allpos_l{:,1,:});
+    % deal with strange position in RM033
+    if monkey_i==2
+        elec(ismember(elec,bad_pos(1,:),'rows'),2) = elec(ismember(elec,bad_pos(1,:),'rows'),2)-0.001;
+        elec(ismember(elec,bad_pos(2,:),'rows'),1) = elec(ismember(elec,bad_pos(2,:),'rows'),1)-0.001;
+        % no label position
+        % elec(ismember(elec,elec(260,:),'rows'),2) = elec(ismember(elec,elec(260,:),'rows'),2)-0.001;        
+    end
     file_dir = [data_dir '../IMG/' monkeys{monkey_i}];   
     infile = [elec_dir '_elec_LPI.1D'];
     outfile = [elec_dir '_elec_STD.1D'];

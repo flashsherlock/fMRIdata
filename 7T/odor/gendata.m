@@ -1,6 +1,6 @@
 % generate images, timing files, and phy files for each subject
-subs=19:26;
-subs_behavior=[29 19 22 33 34 14 5 7];
+subs=27:34;
+subs_behavior=[44 43 26 50 30 42 22 31];
 % rootfolder='/Volumes/WD_E/gufei/7T_odor/';
 rootfolder='/Volumes/WD_F/gufei/7T_odor/';
 % save all subject ratings
@@ -44,7 +44,7 @@ for subi=1:length(subs)
             uni=10;
             runs = 12:2:22;
             pa = 24;
-        case 21
+        case {21 30}
             inv1=3;
             inv2=8;
             uni=6;
@@ -56,7 +56,19 @@ for subi=1:length(subs)
             uni=15;
             runs = 21:2:31;
             pa = 33;
-        case {4 7 8 11 17 18 23 26}
+        case 27
+            runs=11:2:21;
+            pa=23;
+            inv1=4;
+            inv2=9;
+            uni=7;
+        case 32
+            runs=[10 14 16 26:2:30];
+            pa=32;
+            inv1=3;
+            inv2=8;
+            uni=6;
+        case {4 7 8 11 17 18 23 26 29 33}
             inv1=3;
             inv2=8;
             uni=6;

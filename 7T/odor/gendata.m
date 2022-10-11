@@ -44,7 +44,7 @@ for subi=1:length(subs)
             uni=10;
             runs = 12:2:22;
             pa = 24;
-        case {21 30}
+        case 21
             inv1=3;
             inv2=8;
             uni=6;
@@ -62,6 +62,12 @@ for subi=1:length(subs)
             inv1=4;
             inv2=9;
             uni=7;
+        case 30
+            inv1=3;
+            inv2=8;
+            uni=6;
+            runs = [10:2:14 18:2:22];
+            pa = 24;
         case 32
             runs=[10 14 16 26:2:30];
             pa=32;

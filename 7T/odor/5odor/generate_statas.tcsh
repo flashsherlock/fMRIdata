@@ -40,39 +40,22 @@ set subjva = ${subj}.odorVI
 # endif
 cd ${subj}.results
 
-# rename
-# mv tent.${subj}.odorVI_noblur+orig.BRIK tent.${subj}.odorVI+orig.BRIK
-# mv tent.${subj}.odorVI_noblur+orig.HEAD tent.${subj}.odorVI+orig.HEAD
-# foreach data (errts fitts stats)
-#     mv ${data}.${subj}.odorVI_noblur+orig.BRIK ${data}.${subj}.odorVI+orig.BRIK
-#     mv ${data}.${subj}.odorVI_noblur+orig.HEAD ${data}.${subj}.odorVI+orig.HEAD
-# end
-# mv X.odorVI_noblur.jpg X.odorVI.jpg
-# mv X.nocensor.odorVI_noblur.xmat.1D X.nocensor.odorVI.xmat.1D
-# mv X.xmat.odorVI_noblur.1D X.xmat.odorVI.1D
-# mv X.tent.odorVI_noblur.jpg X.tent.odorVI.jpg
-# mv X.xmat.tent.odorVI_noblur.1D X.xmat.tent.odorVI.1D
-
 # normalize Anatomical img to mni space (linear warp)
-# @auto_tlrc -no_ss -init_xform AUTO_CENTER -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${sub}.${analysis}+orig
-# if (! -e stats.${subj}.odorVI+orig.HEAD) then
-#     # rename
-#     mv  stats.${subj}+orig.HEAD stats.${subj}.odorVI+orig.HEAD
-#     mv  stats.${subj}+orig.BRIK stats.${subj}.odorVI+orig.BRIK
-# endif
+@auto_tlrc -no_ss -init_xform AUTO_CENTER -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${sub}.${analysis}+orig
+if (! -e stats.${subj}.odorVI+orig.HEAD) then
+    # rename
+    mv  stats.${subj}+orig.HEAD stats.${subj}.odorVI+orig.HEAD
+    mv  stats.${subj}+orig.BRIK stats.${subj}.odorVI+orig.BRIK
+endif
 # align to nomalized Anatomical img
-# @auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}.odorVI+orig
+@auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${subj}.odorVI+orig
 
 # normalize Anatomical img to mni space (nonlinear warp)
-# 3dNwarpApply                                            \
-# -master anatQQ.${sub}+tlrc                              \
-# -source stats.${subj}.odorVI+orig                       \
-# -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
-# -prefix stats_WARP.${subj}.odorVI
-
-# rename
-# mv stats_WARP.${subj}+tlrc.HEAD stats_WARP.${subj}.odorVI+tlrc.HEAD
-# mv stats_WARP.${subj}+tlrc.BRIK stats_WARP.${subj}.odorVI+tlrc.BRIK
+3dNwarpApply                                            \
+-master anatQQ.${sub}+tlrc                              \
+-source stats.${subj}.odorVI+orig                       \
+-nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
+-prefix stats_WARP.${subj}.odorVI
 
 # calculate abs(cit-lim)-abs(car-lim)
 3dcalc -prefix citcar.${subj}       \

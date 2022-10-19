@@ -3,7 +3,8 @@
 if ( $# > 0 ) then
 set sub = $1
 set analysis=pabiode
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}
 
 cd "${datafolder}"
 
@@ -19,7 +20,7 @@ else
     set mat=X.xmat.1D
 endif
 # use multiple threads to speed up the analysis
-setenv OMP_NUM_THREADS 8
+setenv OMP_NUM_THREADS 4
 # no mask on the individual level was recommended
 # https://afni.nimh.nih.gov/afni/community/board/read.php?1,70967
 # -mask mask_anat.${subj}+orig

@@ -8,7 +8,7 @@ touch command.txt
 # 清空之后文件大小为0
 cat /dev/null >! command.txt
 
-foreach run (`count -dig 2 16 18`)
+foreach run (`count -dig 2 29 34`)
   echo tcsh deconvolve_REML.tcsh S${run} >> command.txt
 end
 # cat command.txt

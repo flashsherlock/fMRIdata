@@ -1,10 +1,10 @@
 #! /bin/csh
-foreach ub (`count -dig 2 1 8`)
+foreach ub (`count -dig 2 19 34`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
-# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 # make dir to save masks
 set analysis=pabiode
@@ -16,15 +16,15 @@ cd ${subj}.results
 # mv ../${subj}.results.old/Piriform.seg* ../mask
 
 # remove files
-rm all_runs*
+# rm all_runs*
 # rm pb0[0-4]*
 # rm NIerrts.${subj}.rmpolort+orig*
 # rm NIerrts.${subj}.rmbs*
 # rm fitts.${subj}+orig*
 # rm errts.${subj}+orig*
-rm *odorVIv_noblur*
-rm *odorVIvat_noblur*
-rm errts.${subj}.odorVI+orig*
+# rm *odorVIv_noblur*
+# rm *odorVIvat_noblur*
+# rm errts.${subj}.odorVI+orig*
 
 # cd mvpa
 # rm -r *br*

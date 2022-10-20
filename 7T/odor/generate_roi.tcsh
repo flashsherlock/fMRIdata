@@ -1,11 +1,12 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 13 18`)
+foreach ub (`count -dig 2 19 34`)
 # set sub=S01_yyt
 set sub=S${ub}
 set analysis=pabiode
 
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}/
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}/
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
 cd ${sub}.${analysis}.results

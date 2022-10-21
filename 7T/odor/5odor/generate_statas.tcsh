@@ -4,28 +4,13 @@
 # if ( $# > 0 ) then
 # set sub = $1
 
-foreach ub (`count -dig 2 4 18`)
+foreach ub (`count -dig 2 19 34`)
 # set sub=S01_yyt
 set sub=S${ub}
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
-# set datafolder=/Volumes/WD_D/gufei/7T_odor/${sub}/
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}
 cd "${datafolder}"
 set analysis=pabiode
-
-# switch ($2)
-#     case bio:
-#         set analysis=pabiode
-#         breaksw
-#     case phy:
-#         set analysis=paphde
-#         breaksw
-#     case no:
-#         set analysis=pade
-#         breaksw
-#     default:
-#         echo The second input must be bio, phy or no.
-#         echo ${analysis}
-# endsw
 
 echo ${sub} ${analysis}
 
@@ -74,58 +59,77 @@ endif
 #     3dcalc -a Amy.seg_t165.freesurfer+orig -expr "equals(a,${region})" -prefix ../mask/Amy_at165${region}seg.freesurfer+orig
 # end
 
-# # extract tent and beta values
-# set filedec = odorVI_12
-# set maskdec = align # at165 or align
-# set maskdec_t = at165_p # at165 or align
-# set data_tent=tent.${subj}.${filedec}+orig
-# set data_beta=stats.${subj}+orig
+# extract tent and beta values
+set filedec = odorVI_12
+set maskdec = align # at165 or align
+set maskdec_t2 = at165
+set maskdec_t = ${maskdec_t2}_p # positive only for tent
+set data_tent=tent.${subj}.${filedec}+orig
+set data_beta=stats.${subjva}+orig
 
-# # make dir
-# if (! -e ../../stats) then
-#     mkdir ../../stats
-# endif
-# if (! -e ../../stats/${sub}) then
-#     mkdir ../../stats/${sub}
-# endif
+# make dir
+if (! -e ../../stats) then
+    mkdir ../../stats
+endif
+if (! -e ../../stats/${sub}) then
+    mkdir ../../stats/${sub}
+endif
 
-# foreach region (Pir_new Pir_old APC_new APC_old PPC)
-#     # generate t threshold masks
-#     # different regions of amygdala
-#     3dcalc  -a stats.${subjva}+orig'[2]' \
-#             -b stats.${subjva}+orig'[5]' \
-#             -c stats.${subjva}+orig'[8]' \
-#             -d stats.${subjva}+orig'[11]' \
-#             -e stats.${subjva}+orig'[14]' \
-#             -f ../mask/${region}.draw+orig \
-#             -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
-#             -prefix ../mask/${region}_${maskdec_t}.draw
+foreach region (Pir_new Pir_old APC_new APC_old PPC)
+    # generate t threshold masks
+    # different regions of amygdala
+    3dcalc  -a ${data_beta}'[2]' \
+            -b ${data_beta}'[5]' \
+            -c ${data_beta}'[8]' \
+            -d ${data_beta}'[11]' \
+            -e ${data_beta}'[14]' \
+            -f ../mask/${region}.draw+orig \
+            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
+            -prefix ../mask/${region}_${maskdec_t2}.draw
 
-#     3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
-#     -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
+    3dcalc  -a ${data_beta}'[2]' \
+            -b ${data_beta}'[5]' \
+            -c ${data_beta}'[8]' \
+            -d ${data_beta}'[11]' \
+            -e ${data_beta}'[14]' \
+            -f ../mask/${region}.draw+orig \
+            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
+            -prefix ../mask/${region}_${maskdec_t}.draw
 
-#     # extract betas from blurred statas
-#     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
-#     # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
-# end
+    3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
 
-# foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
-#      3dcalc  -a stats.${subjva}+orig'[2]' \
-#             -b stats.${subjva}+orig'[5]' \
-#             -c stats.${subjva}+orig'[8]' \
-#             -d stats.${subjva}+orig'[11]' \
-#             -e stats.${subjva}+orig'[14]' \
-#             -f ../mask/${region}_${maskdec}.freesurfer+orig \
-#             -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
-#             -prefix ../mask/${region}_${maskdec_t}.freesurfer
+    # extract betas from blurred statas
+    # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
+    # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
+end
 
-#     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
-#     -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
+foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
+    3dcalc  -a ${data_beta}'[2]' \
+            -b ${data_beta}'[5]' \
+            -c ${data_beta}'[8]' \
+            -d ${data_beta}'[11]' \
+            -e ${data_beta}'[14]' \
+            -f ../mask/${region}_${maskdec}.freesurfer+orig \
+            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
+            -prefix ../mask/${region}_${maskdec_t2}.freesurfer
+    
+    3dcalc  -a ${data_beta}'[2]' \
+            -b ${data_beta}'[5]' \
+            -c ${data_beta}'[8]' \
+            -d ${data_beta}'[11]' \
+            -e ${data_beta}'[14]' \
+            -f ../mask/${region}_${maskdec}.freesurfer+orig \
+            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
+            -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
-#     # extract betas from blurred statas
-#     # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
-#     # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
-# end
+    3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 64`65]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
+
+    # extract betas from blurred statas
+    # 3dROIstats -mask ../mask/${region}_${maskdec}.freesurfer+orig \
+    # -nzmean ${data_beta}"[`seq -s , 1 3 9`10]" >! ../../stats/${sub}/${region}_${maskdec}_beta.txt
+end
 
 # foreach region (1 3 5 6 7 8 9 10 15)
 #     3dROIstats -mask ../mask/Amy_${maskdec}${region}seg.freesurfer+orig \

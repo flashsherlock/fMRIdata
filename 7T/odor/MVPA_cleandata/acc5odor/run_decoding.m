@@ -20,7 +20,7 @@ rois={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_
 %     end
 % end
 % S04-S08
-for i=[4:11,13,14,16:18]
+for i=[19:34]
     sub=sprintf('S%02d',i);
 %     try
     decoding_roi_5odors_trial(sub,analysis_all,rois,shift);    

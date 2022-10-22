@@ -5,7 +5,8 @@ if nargin<3
     run=1:6;
 end
 
-datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+% datadir=['/Volumes/WD_E/gufei/7T_odor/' sub '/behavior/'];
+datadir=['/Volumes/WD_F/gufei/7T_odor/' sub '/behavior/'];
 sub=[lower(sub) '_run'];
 
 

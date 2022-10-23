@@ -1,10 +1,10 @@
 ---
 output: html_document
 params:
-    path: "/Volumes/WD_E/gufei/7T_odor/"
+    path: "/Volumes/WD_F/gufei/7T_odor/"
     roi: !r c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
     roiname: !r c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
-    sub: !r c(sprintf('S%02d',c(4:11,13,14,16:18)))
+    sub: !r c(sprintf('S%02d',c(4:11,13,14,16:29,31:34)))
     suffix: "_tent_12.txt"
 title: "ROIs"
 author: "Fei"
@@ -116,7 +116,7 @@ tc_smooth <- function(data_tent){
   #                     apply(time_data[nrow(time_data)-1:nrow(time_data),], 2, mean))
   tc_smooth <- reshape2::melt(stent,c("sub","roi","odor"),value.name = "NZmean")
   # change column name
-  tc_smooth <- rename(tc_smooth,time = variable)
+  tc_smooth <- dplyr::rename(tc_smooth,time = variable)
 }
 ```
 
@@ -302,7 +302,7 @@ roi_tent$roi <- factor(roi_tent$roi,levels = params$roi,labels = params$roiname)
 figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) + 
   labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
   scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(stent$mean)-0.1,max(stent$mean+0.1)),
+  coord_cartesian(ylim=c(min(roi_tent$mean)-0.1,max(roi_tent$mean+0.1)),
                   clip = 'off') + 
   scale_color_brewer(palette = "Paired")+ #自选颜色
   scale_fill_brewer(palette = "Paired")+ #自选颜色

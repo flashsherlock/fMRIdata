@@ -1,9 +1,10 @@
 # default values
-path <- "/Volumes/WD_E/gufei/7T_odor/"
-mp<- c("roi_ARodor_l1_labelrmpolvabr_6")
+# path <- "/Volumes/WD_E/gufei/7T_odor/"
+path <- "/Volumes/WD_F/gufei/7T_odor/"
+mp<- c("roi_ARodor_l1_labelrmpolortva_6")
 analysis <- c("pabiode")
-# subs 
-subs <- c(sprintf('S%02d',c(4:11,13,14,16:18)))
+# subs no 12 15 30
+subs <- c(sprintf('S%02d',c(4:11,13,14,16:29,31:34)))
 # rois
 roi <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
 roi <- c('Amy8_at196','corticalAmy_at196','CeMeAmy_at196','BaLaAmy_at196','Pir_new_at196','Pir_old_at196','APC_new_at196','APC_old_at196','PPC_at196')
@@ -15,30 +16,30 @@ roiname <- c("Amy","Cortical","CeMe","BaLa")
 # render ratings
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Raings_13sub"))
+                  output_file = paste0("Raings_28sub"))
 
 # odor_va results
 # render mean mvpa results
-title <- "Mean6rmpolvabr_ARodor_4-18"
+title <- "Mean6rmpolortva_ARodor_4-34"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Mean_6ARrmpolvabr_418"),
-                  params = list(sub = subs, set_title = title, analysis = analysis, 
+                  output_file = paste0("Mean_6ARrmpolortva_434"),
+                  params = list(path = path, sub = subs, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))
 
 # render roistats
 suffix <- "_tent_12.txt"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/roistatas.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("ROIstatas_13sub_12"),
-                  params = list(sub = subs, roi = roi, suffix = suffix))
+                  output_file = paste0("ROIstatas_28sub_12"),
+                  params = list(path = path, sub = subs, roi = roi, suffix = suffix))
 
 # render voxel group
 threshold <- 2.178813
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0("group"),
-                  params = list(thr = threshold))
+                  params = list(path = path, thr = threshold))
 
 
 # render mvpa results for each subject

@@ -1,7 +1,7 @@
 ---
 output: html_document
 params:
-    path: "/Volumes/WD_E/gufei/7T_odor/"
+    path: "/Volumes/WD_F/gufei/7T_odor/"
 title: "Ratings"
 author: "Fei"
 date: "`r Sys.time()`"

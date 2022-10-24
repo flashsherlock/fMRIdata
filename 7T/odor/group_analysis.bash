@@ -217,7 +217,7 @@ mask=group/mask/allROI+tlrc
 #                 13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[19]" 
 
 # calculate p-values for the group-level tests
-tthr=$(ccalc -expr "cdf2stat(0.975,3,12,0,0)")
+tthr=$(ccalc -expr "cdf2stat(0.975,3,27,0,0)")
 # individual level t threshold
 tthri=1.96
 # extract voxels with p-values below the threshold
@@ -227,7 +227,7 @@ tthri=1.96
 -expr "astep(a,${tthr})+astep(b,${tthr})*10" \
 -prefix group/combine_car_cit
 
-# ab(cit-lim) and abs(car-lim)
+# abs(cit-lim) and abs(car-lim)
 3dcalc \
 -a "group/${stats}_car-lim+tlrc[1]" \
 -expr "abs(a)" \

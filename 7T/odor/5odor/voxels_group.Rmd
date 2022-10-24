@@ -5,12 +5,12 @@ date: "`r Sys.time()`"
 output: html_document
 params:
     path: "/Volumes/WD_F/gufei/7T_odor"
-    sub: !r c(sprintf('S%02d',c(4:11,13,14,16:29,31:34)))
-    thr: 2.178813
+    sub: "results"
+    thr: 2.051831
 ---
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(warning = F, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+knitr::opts_chunk$set(warning = F, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
 library(psych)
 library(ggplot2)
@@ -123,10 +123,11 @@ gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 
 
 ```{r}
+cat(params$sub)
 # sub x y z roi 4mean 4t-value
 results <- data.frame(matrix(ncol = 1+12, nrow = 0))
 # extract group results
-results <- rbind(results,extractdata(params$path,"group","stats_results.txt"))
+results <- rbind(results,extractdata(params$path,"group",paste0("stats_",params$sub,".txt")))
 names(results) <- c("sub","x","y","z","roi",paste("m",opair,sep = "_"),paste("t",opair,sep = "_"))
 results <- as.data.table(results)
 ```
@@ -215,6 +216,10 @@ for (roi in c("Pir","Amy","All")) {
     results_select <- subset(results_abs,roi>20)
   else if (roi == "Amy")
     results_select <- subset(results_abs,roi<20)
+  else if (roi == "APC")
+    results_select <- subset(results_abs,roi %in% c(21,29))
+  else if (roi == "PPC")
+    results_select <- subset(results_abs,roi==22)
   else
     results_select <- results_abs
   
@@ -224,6 +229,7 @@ for (roi in c("Pir","Amy","All")) {
   for (odor in odors) {
     for (xlab in c("x","y","z")) {
     p <- paste(xlab,odor,sep = "_")
+    # activated only
     indx <- results_select[[paste0("t_",odor,"-lim")]]>params$thr
     plots[[p]] <- ggscatter(results_select[indx,],color = "#4c95c8",
                    x = xlab, y = paste0("m_",odor,"-lim"),alpha = 0.8,

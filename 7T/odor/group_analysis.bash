@@ -1,6 +1,7 @@
 #! /bin/bash
 
-datafolder=/Volumes/WD_E/gufei/7T_odor
+# datafolder=/Volumes/WD_E/gufei/7T_odor
+datafolder=/Volumes/WD_F/gufei/7T_odor
 cd "${datafolder}" || exit
 stats=stats
 # mask=group/mask/Amy8_align.freesurfer+tlrc
@@ -22,7 +23,7 @@ mask=group/mask/allROI+tlrc
 # done
 # cd "${datafolder}" || exit
 
-# 3dttest for subs 4-18
+# 3dttest for subs 4-34
 3dttest++ -prefix group/${stats}_car-lim                                       \
           -mask ${mask}                                      \
           -setA car-lim                                               \
@@ -38,7 +39,22 @@ mask=group/mask/allROI+tlrc
                 10 "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[31]" \
                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[31]" \
                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[31]" \
-                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[31]" 
+                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[31]" \
+                14 "S19/S19.pabiode.results/${stats}.S19.pabiode.odorVI+tlrc[31]" \
+                15 "S20/S20.pabiode.results/${stats}.S20.pabiode.odorVI+tlrc[31]" \
+                16 "S21/S21.pabiode.results/${stats}.S21.pabiode.odorVI+tlrc[31]" \
+                17 "S22/S22.pabiode.results/${stats}.S22.pabiode.odorVI+tlrc[31]" \
+                18 "S23/S23.pabiode.results/${stats}.S23.pabiode.odorVI+tlrc[31]" \
+                19 "S24/S24.pabiode.results/${stats}.S24.pabiode.odorVI+tlrc[31]" \
+                20 "S25/S25.pabiode.results/${stats}.S25.pabiode.odorVI+tlrc[31]" \
+                21 "S26/S26.pabiode.results/${stats}.S26.pabiode.odorVI+tlrc[31]" \
+                22 "S27/S27.pabiode.results/${stats}.S27.pabiode.odorVI+tlrc[31]" \
+                23 "S28/S28.pabiode.results/${stats}.S28.pabiode.odorVI+tlrc[31]" \
+                24 "S29/S29.pabiode.results/${stats}.S29.pabiode.odorVI+tlrc[31]" \
+                25 "S31/S31.pabiode.results/${stats}.S31.pabiode.odorVI+tlrc[31]" \
+                26 "S32/S32.pabiode.results/${stats}.S32.pabiode.odorVI+tlrc[31]" \
+                27 "S33/S33.pabiode.results/${stats}.S33.pabiode.odorVI+tlrc[31]" \
+                28 "S34/S34.pabiode.results/${stats}.S34.pabiode.odorVI+tlrc[31]"
 
 3dttest++ -prefix group/${stats}_cit-lim                                       \
           -mask ${mask}                                      \
@@ -55,7 +71,22 @@ mask=group/mask/allROI+tlrc
                 10 "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[34]" \
                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[34]" \
                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[34]" \
-                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[34]" 
+                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[34]" \
+                14 "S19/S19.pabiode.results/${stats}.S19.pabiode.odorVI+tlrc[34]" \
+                15 "S20/S20.pabiode.results/${stats}.S20.pabiode.odorVI+tlrc[34]" \
+                16 "S21/S21.pabiode.results/${stats}.S21.pabiode.odorVI+tlrc[34]" \
+                17 "S22/S22.pabiode.results/${stats}.S22.pabiode.odorVI+tlrc[34]" \
+                18 "S23/S23.pabiode.results/${stats}.S23.pabiode.odorVI+tlrc[34]" \
+                19 "S24/S24.pabiode.results/${stats}.S24.pabiode.odorVI+tlrc[34]" \
+                20 "S25/S25.pabiode.results/${stats}.S25.pabiode.odorVI+tlrc[34]" \
+                21 "S26/S26.pabiode.results/${stats}.S26.pabiode.odorVI+tlrc[34]" \
+                22 "S27/S27.pabiode.results/${stats}.S27.pabiode.odorVI+tlrc[34]" \
+                23 "S28/S28.pabiode.results/${stats}.S28.pabiode.odorVI+tlrc[34]" \
+                24 "S29/S29.pabiode.results/${stats}.S29.pabiode.odorVI+tlrc[34]" \
+                25 "S31/S31.pabiode.results/${stats}.S31.pabiode.odorVI+tlrc[34]" \
+                26 "S32/S32.pabiode.results/${stats}.S32.pabiode.odorVI+tlrc[34]" \
+                27 "S33/S33.pabiode.results/${stats}.S33.pabiode.odorVI+tlrc[34]" \
+                28 "S34/S34.pabiode.results/${stats}.S34.pabiode.odorVI+tlrc[34]"
 
 3dttest++ -prefix group/${stats}_lim-tra                                       \
           -mask ${mask}                                      \
@@ -72,7 +103,22 @@ mask=group/mask/allROI+tlrc
                 10 "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[22]" \
                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[22]" \
                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[22]" \
-                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[22]" 
+                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[22]" \
+                14 "S19/S19.pabiode.results/${stats}.S19.pabiode.odorVI+tlrc[22]" \
+                15 "S20/S20.pabiode.results/${stats}.S20.pabiode.odorVI+tlrc[22]" \
+                16 "S21/S21.pabiode.results/${stats}.S21.pabiode.odorVI+tlrc[22]" \
+                17 "S22/S22.pabiode.results/${stats}.S22.pabiode.odorVI+tlrc[22]" \
+                18 "S23/S23.pabiode.results/${stats}.S23.pabiode.odorVI+tlrc[22]" \
+                19 "S24/S24.pabiode.results/${stats}.S24.pabiode.odorVI+tlrc[22]" \
+                20 "S25/S25.pabiode.results/${stats}.S25.pabiode.odorVI+tlrc[22]" \
+                21 "S26/S26.pabiode.results/${stats}.S26.pabiode.odorVI+tlrc[22]" \
+                22 "S27/S27.pabiode.results/${stats}.S27.pabiode.odorVI+tlrc[22]" \
+                23 "S28/S28.pabiode.results/${stats}.S28.pabiode.odorVI+tlrc[22]" \
+                24 "S29/S29.pabiode.results/${stats}.S29.pabiode.odorVI+tlrc[22]" \
+                25 "S31/S31.pabiode.results/${stats}.S31.pabiode.odorVI+tlrc[22]" \
+                26 "S32/S32.pabiode.results/${stats}.S32.pabiode.odorVI+tlrc[22]" \
+                27 "S33/S33.pabiode.results/${stats}.S33.pabiode.odorVI+tlrc[22]" \
+                28 "S34/S34.pabiode.results/${stats}.S34.pabiode.odorVI+tlrc[22]"
 
 3dttest++ -prefix group/${stats}_lim-ind                                       \
           -mask ${mask}                                      \
@@ -91,6 +137,21 @@ mask=group/mask/allROI+tlrc
                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[1]" \
                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[1]" \
                 13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[1]" \
+                14 "S19/S19.pabiode.results/${stats}.S19.pabiode.odorVI+tlrc[1]" \
+                15 "S20/S20.pabiode.results/${stats}.S20.pabiode.odorVI+tlrc[1]" \
+                16 "S21/S21.pabiode.results/${stats}.S21.pabiode.odorVI+tlrc[1]" \
+                17 "S22/S22.pabiode.results/${stats}.S22.pabiode.odorVI+tlrc[1]" \
+                18 "S23/S23.pabiode.results/${stats}.S23.pabiode.odorVI+tlrc[1]" \
+                19 "S24/S24.pabiode.results/${stats}.S24.pabiode.odorVI+tlrc[1]" \
+                20 "S25/S25.pabiode.results/${stats}.S25.pabiode.odorVI+tlrc[1]" \
+                21 "S26/S26.pabiode.results/${stats}.S26.pabiode.odorVI+tlrc[1]" \
+                22 "S27/S27.pabiode.results/${stats}.S27.pabiode.odorVI+tlrc[1]" \
+                23 "S28/S28.pabiode.results/${stats}.S28.pabiode.odorVI+tlrc[1]" \
+                24 "S29/S29.pabiode.results/${stats}.S29.pabiode.odorVI+tlrc[1]" \
+                25 "S31/S31.pabiode.results/${stats}.S31.pabiode.odorVI+tlrc[1]" \
+                26 "S32/S32.pabiode.results/${stats}.S32.pabiode.odorVI+tlrc[1]" \
+                27 "S33/S33.pabiode.results/${stats}.S33.pabiode.odorVI+tlrc[1]" \
+                28 "S34/S34.pabiode.results/${stats}.S34.pabiode.odorVI+tlrc[1]" \
           -setB Ind                                               \
                 01 "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[13]" \
                 02 "S05/S05.pabiode.results/${stats}.S05.pabiode.odorVI+tlrc[13]" \
@@ -104,7 +165,22 @@ mask=group/mask/allROI+tlrc
                 10 "S14/S14.pabiode.results/${stats}.S14.pabiode.odorVI+tlrc[13]" \
                 11 "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[13]" \
                 12 "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[13]" \
-                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[13]" 
+                13 "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[13]" \
+                14 "S19/S19.pabiode.results/${stats}.S19.pabiode.odorVI+tlrc[13]" \
+                15 "S20/S20.pabiode.results/${stats}.S20.pabiode.odorVI+tlrc[13]" \
+                16 "S21/S21.pabiode.results/${stats}.S21.pabiode.odorVI+tlrc[13]" \
+                17 "S22/S22.pabiode.results/${stats}.S22.pabiode.odorVI+tlrc[13]" \
+                18 "S23/S23.pabiode.results/${stats}.S23.pabiode.odorVI+tlrc[13]" \
+                19 "S24/S24.pabiode.results/${stats}.S24.pabiode.odorVI+tlrc[13]" \
+                20 "S25/S25.pabiode.results/${stats}.S25.pabiode.odorVI+tlrc[13]" \
+                21 "S26/S26.pabiode.results/${stats}.S26.pabiode.odorVI+tlrc[13]" \
+                22 "S27/S27.pabiode.results/${stats}.S27.pabiode.odorVI+tlrc[13]" \
+                23 "S28/S28.pabiode.results/${stats}.S28.pabiode.odorVI+tlrc[13]" \
+                24 "S29/S29.pabiode.results/${stats}.S29.pabiode.odorVI+tlrc[13]" \
+                25 "S31/S31.pabiode.results/${stats}.S31.pabiode.odorVI+tlrc[13]" \
+                26 "S32/S32.pabiode.results/${stats}.S32.pabiode.odorVI+tlrc[13]" \
+                27 "S33/S33.pabiode.results/${stats}.S33.pabiode.odorVI+tlrc[13]" \
+                28 "S34/S34.pabiode.results/${stats}.S34.pabiode.odorVI+tlrc[13]"
 
 # 3dttest++ -prefix group/${stats}_val                                       \
 #           -mask ${mask}                                      \
@@ -180,7 +256,9 @@ tthri=1.96
 
 # percent of subjects activated in each voxel
 # # rm group/*percent*
-3dcalc -prefix group/${stats}_car-lim_percent                           \
+
+# first half of the subjects
+3dcalc -prefix group/${stats}_car-lim_per_half1                         \
       -a ${mask}                                                        \
       -b "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[32]" \
       -c "S05/S05.pabiode.results/${stats}.S05.pabiode.odorVI+tlrc[32]" \
@@ -195,9 +273,10 @@ tthri=1.96
       -l "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[32]" \
       -m "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[32]" \
       -n "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[32]" \
-      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri})))"
+      -o "S19/S19.pabiode.results/${stats}.S19.pabiode.odorVI+tlrc[32]" \
+      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri}),astep(o,${tthri})))"
 
-3dcalc -prefix group/${stats}_cit-lim_percent                           \
+3dcalc -prefix group/${stats}_cit-lim_per_half1                         \
       -a ${mask}                                                        \
       -b "S04/S04.pabiode.results/${stats}.S04.pabiode.odorVI+tlrc[35]" \
       -c "S05/S05.pabiode.results/${stats}.S05.pabiode.odorVI+tlrc[35]" \
@@ -212,8 +291,63 @@ tthri=1.96
       -l "S16/S16.pabiode.results/${stats}.S16.pabiode.odorVI+tlrc[35]" \
       -m "S17/S17.pabiode.results/${stats}.S17.pabiode.odorVI+tlrc[35]" \
       -n "S18/S18.pabiode.results/${stats}.S18.pabiode.odorVI+tlrc[35]" \
-      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri})))"
+      -o "S19/S19.pabiode.results/${stats}.S19.pabiode.odorVI+tlrc[35]" \
+      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri}),astep(o,${tthri})))"
+# second half of the subjects
+3dcalc -prefix group/${stats}_car-lim_per_half2                         \
+      -a ${mask}                                                        \
+      -b "S20/S20.pabiode.results/${stats}.S20.pabiode.odorVI+tlrc[32]" \
+      -c "S21/S21.pabiode.results/${stats}.S21.pabiode.odorVI+tlrc[32]" \
+      -d "S22/S22.pabiode.results/${stats}.S22.pabiode.odorVI+tlrc[32]" \
+      -e "S23/S23.pabiode.results/${stats}.S23.pabiode.odorVI+tlrc[32]" \
+      -f "S24/S24.pabiode.results/${stats}.S24.pabiode.odorVI+tlrc[32]" \
+      -g "S25/S25.pabiode.results/${stats}.S25.pabiode.odorVI+tlrc[32]" \
+      -h "S26/S26.pabiode.results/${stats}.S26.pabiode.odorVI+tlrc[32]" \
+      -i "S27/S27.pabiode.results/${stats}.S27.pabiode.odorVI+tlrc[32]" \
+      -j "S28/S28.pabiode.results/${stats}.S28.pabiode.odorVI+tlrc[32]" \
+      -k "S29/S29.pabiode.results/${stats}.S29.pabiode.odorVI+tlrc[32]" \
+      -l "S31/S31.pabiode.results/${stats}.S31.pabiode.odorVI+tlrc[32]" \
+      -m "S32/S32.pabiode.results/${stats}.S32.pabiode.odorVI+tlrc[32]" \
+      -n "S33/S33.pabiode.results/${stats}.S33.pabiode.odorVI+tlrc[32]" \
+      -o "S34/S34.pabiode.results/${stats}.S34.pabiode.odorVI+tlrc[32]" \
+      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri}),astep(o,${tthri})))"
 
+3dcalc -prefix group/${stats}_cit-lim_per_half2                         \
+      -a ${mask}                                                        \
+      -b "S20/S20.pabiode.results/${stats}.S20.pabiode.odorVI+tlrc[35]" \
+      -c "S21/S21.pabiode.results/${stats}.S21.pabiode.odorVI+tlrc[35]" \
+      -d "S22/S22.pabiode.results/${stats}.S22.pabiode.odorVI+tlrc[35]" \
+      -e "S23/S23.pabiode.results/${stats}.S23.pabiode.odorVI+tlrc[35]" \
+      -f "S24/S24.pabiode.results/${stats}.S24.pabiode.odorVI+tlrc[35]" \
+      -g "S25/S25.pabiode.results/${stats}.S25.pabiode.odorVI+tlrc[35]" \
+      -h "S26/S26.pabiode.results/${stats}.S26.pabiode.odorVI+tlrc[35]" \
+      -i "S27/S27.pabiode.results/${stats}.S27.pabiode.odorVI+tlrc[35]" \
+      -j "S28/S28.pabiode.results/${stats}.S28.pabiode.odorVI+tlrc[35]" \
+      -k "S29/S29.pabiode.results/${stats}.S29.pabiode.odorVI+tlrc[35]" \
+      -l "S31/S31.pabiode.results/${stats}.S31.pabiode.odorVI+tlrc[35]" \
+      -m "S32/S32.pabiode.results/${stats}.S32.pabiode.odorVI+tlrc[35]" \
+      -n "S33/S33.pabiode.results/${stats}.S33.pabiode.odorVI+tlrc[35]" \
+      -o "S34/S34.pabiode.results/${stats}.S34.pabiode.odorVI+tlrc[35]" \
+      -expr "a*(mean(astep(b,${tthri}),astep(c,${tthri}),astep(d,${tthri}),astep(e,${tthri}),astep(f,${tthri}),astep(g,${tthri}),astep(h,${tthri}),astep(i,${tthri}),astep(j,${tthri}),astep(k,${tthri}),astep(l,${tthri}),astep(m,${tthri}),astep(n,${tthri}),astep(o,${tthri})))"
+# combine the two halves
+3dcalc -prefix group/${stats}_car-lim_percent                           \
+      -a group/${stats}_car-lim_per_half1+tlrc                           \
+      -b group/${stats}_car-lim_per_half2+tlrc                           \
+      -expr "mean(a,b)"
+3dcalc -prefix group/${stats}_cit-lim_percent                           \
+      -a group/${stats}_cit-lim_per_half1+tlrc                           \
+      -b group/${stats}_cit-lim_per_half2+tlrc                           \
+      -expr "mean(a,b)"
+
+# cit-car
+3dcalc -prefix group/${stats}_carcit_per_half1                           \
+      -a group/${stats}_car-lim_per_half1+tlrc                           \
+      -b group/${stats}_cit-lim_per_half1+tlrc                           \
+      -expr "b-a"
+3dcalc -prefix group/${stats}_carcit_per_half2                           \
+      -a group/${stats}_car-lim_per_half2+tlrc                           \
+      -b group/${stats}_cit-lim_per_half2+tlrc                           \
+      -expr "b-a"
 3dcalc -prefix group/${stats}_carcit_percent                           \
       -a group/${stats}_car-lim_percent+tlrc                           \
       -b group/${stats}_cit-lim_percent+tlrc                           \
@@ -234,7 +368,23 @@ tthri=1.96
                 10 "S14/S14.pabiode.results/citcar.S14.pabiode+tlrc" \
                 11 "S16/S16.pabiode.results/citcar.S16.pabiode+tlrc" \
                 12 "S17/S17.pabiode.results/citcar.S17.pabiode+tlrc" \
-                13 "S18/S18.pabiode.results/citcar.S18.pabiode+tlrc" 
+                13 "S18/S18.pabiode.results/citcar.S18.pabiode+tlrc" \
+                14 "S19/S19.pabiode.results/citcar.S19.pabiode+tlrc" \
+                15 "S20/S20.pabiode.results/citcar.S20.pabiode+tlrc" \
+                16 "S21/S21.pabiode.results/citcar.S21.pabiode+tlrc" \
+                17 "S22/S22.pabiode.results/citcar.S22.pabiode+tlrc" \
+                18 "S23/S23.pabiode.results/citcar.S23.pabiode+tlrc" \
+                19 "S24/S24.pabiode.results/citcar.S24.pabiode+tlrc" \
+                20 "S25/S25.pabiode.results/citcar.S25.pabiode+tlrc" \
+                21 "S26/S26.pabiode.results/citcar.S26.pabiode+tlrc" \
+                22 "S27/S27.pabiode.results/citcar.S27.pabiode+tlrc" \
+                23 "S28/S28.pabiode.results/citcar.S28.pabiode+tlrc" \
+                24 "S29/S29.pabiode.results/citcar.S29.pabiode+tlrc" \
+                25 "S31/S31.pabiode.results/citcar.S31.pabiode+tlrc" \
+                26 "S32/S32.pabiode.results/citcar.S32.pabiode+tlrc" \
+                27 "S33/S33.pabiode.results/citcar.S33.pabiode+tlrc" \
+                28 "S34/S34.pabiode.results/citcar.S34.pabiode+tlrc"
+
 # dunmp group level results
 # xyz are in RAI order
 3dmaskdump                                      \

@@ -4,8 +4,8 @@ author: "Fei"
 date: "`r Sys.time()`"
 output: html_document
 params:
-    path: "/Volumes/WD_E/gufei/7T_odor"
-    sub: !r c(sprintf('S%02d',c(4:11,13,14,16:18)))
+    path: "/Volumes/WD_F/gufei/7T_odor"
+    sub: !r c(sprintf('S%02d',c(4:11,13,14,16:29,31:34)))
     thr: 2.178813
 ---
 

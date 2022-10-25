@@ -38,17 +38,17 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/roistatas.
 threshold <- 2.051831 # DOF = 27
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("group"),
-                  params = list(path = path, thr = threshold))
+                  output_file = paste0("WARP_group"),
+                  params = list(path = path, sub = "WARP_results", thr = threshold))
 threshold <- 2.160369 # DOF = 13
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("group_half1"),
-                  params = list(path = path, sub = "results_half1", thr = threshold))
+                  output_file = paste0("WARP_group_half1"),
+                  params = list(path = path, sub = "WARP_results_half1", thr = threshold))
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("group_half2"),
-                  params = list(path = path, sub = "results_half2", thr = threshold))
+                  output_file = paste0("WARP_group_half2"),
+                  params = list(path = path, sub = "WARP_results_half2", thr = threshold))
 
 
 # render mvpa results for each subject

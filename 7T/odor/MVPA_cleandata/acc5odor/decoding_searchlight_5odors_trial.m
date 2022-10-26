@@ -12,7 +12,8 @@ function decoding_searchlight_5odors_trial(sub,analysis_all,rois,shift)
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % subn=1;
 % sub='S01_yyt';
-datafolder='/Volumes/WD_E/gufei/7T_odor/';
+% datafolder='/Volumes/WD_E/gufei/7T_odor/';
+datafolder='/Volumes/WD_F/gufei/7T_odor/';
 % analysis_all={'pabiode','paphde','pade'};
 % rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
 % for region=[1 3 5 6 7 8 9 10 15]
@@ -48,7 +49,7 @@ for i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIodor_l1_label_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_VIvaodor_l1_label_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -62,7 +63,7 @@ for i=1:length(rois)
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVIva_noblur+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)

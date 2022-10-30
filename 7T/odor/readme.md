@@ -111,6 +111,9 @@ Genereate group level rois.
 ## group_analysis.bash
 Group level analysis by 3dttest++ and dump results to txt files.
 
+## group_saveimg.bash
+Drive AFNI to save group level results.
+
 # MVPA
 
 ## RSA

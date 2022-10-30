@@ -12,5 +12,14 @@ Decode all 4 odors for each ROI.
 ## decoding_roi_trial.m
 Decode 6 odors pairs for each ROI.
 
+## decoding_searchlight_4odors_trial.m
+Run searchlignt to 4 odors pairs in a box ROI.
+
+## decoding_searchlight_trial.m
+Run searchlignt to decode 6 odors pairs in a box ROI.
+
 ## run_decoding.m
 Use two functions above to run MVPA decoding for each subject.
+
+## check_decoding.m
+Check decoding results for each subject.

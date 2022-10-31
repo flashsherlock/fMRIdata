@@ -1,4 +1,4 @@
-function odors_exp(offcenter_x, offcenter_y)
+function [result, response]=odors_exp(offcenter_x, offcenter_y)
 % ROIsLocalizer(offcenter_x, offcenter_y), [LO, FFA, and EBA]
 % Scan = 396s, TR = 3s, 132TR
 if nargin < 2
@@ -12,7 +12,7 @@ scale=0.8;
 waittime=6;
 cuetime=1.5;
 odortime=2;
-offset=1;
+offset=1.3;
 blanktime=0.5;
 ratetime=7;
 jmean=13-ratetime-blanktime-odortime-cuetime;
@@ -30,11 +30,16 @@ fix_thick=3;
 fixcolor_back=[0 0 0];
 fixcolor_cue=[246 123 0]; %[211 82 48];
 fixcolor_inhale=[0 154 70];  %[0 0 240];
-
-% port
+% ett port
 port='COM4';
 % open ttl port
-ttlport='COM3';
+% ttlport='COM3';
+ttlport = 'D100';
+ioObject = io64;
+status = io64(ioObject);
+disp(status);
+address = hex2dec(ttlport);
+io64(ioObject,address,0);
 
 % keys
 KbName('UnifyKeyNames');
@@ -61,7 +66,7 @@ distance=25;
 rect_w=2;
 % block config
 % odor seq
-odors=[7 8 9 10 12];
+odors=[7 8 9 10 11]-6;
 air=0;
 odors=repmat(odors,[times 1]);
 % rating 1 valence 2 intensity
@@ -82,19 +87,19 @@ response=cell(length(seq),2);
 
 % input
 [subject, runnum] = inputsubinfo;
-Screen('Preference', 'SkipSyncTests', 1);
+Screen('Preference', 'SkipSyncTests', 0);
 
 AssertOpenGL;
 whichscreen=max(Screen('Screens'));
 % backup resolution
-oldResolution=Screen('Resolution', whichscreen);
-Screen('Resolution', whichscreen, 800, 600);
+% oldResolution=Screen('Resolution', whichscreen);
+oldResolution = Screen('Resolution', whichscreen, 800, 600);
 
 % ettport
 delete(instrfindall('Type','serial'));
 ettport=ett('init',port);
-s = serial(ttlport, 'BaudRate',115200);
-fopen(s); 
+% s = serial(ttlport, 'BaudRate',115200);
+% fopen(s); 
 
 % rand according to time
 ctime = datestr(now, 30);
@@ -145,7 +150,8 @@ end
 tic;
 zerotime=GetSecs;
 % start marker
-fwrite(s, 1);
+% fwrite(s, 1);
+io64(ioObject,address,1);
 
 % start
 Screen('FillRect',windowPtr,fixcolor_back,fixationp1);
@@ -155,7 +161,8 @@ Screen('Flip',windowPtr);
 % wait time
 WaitSecs(waittime);
 % after wait
-fwrite(s, 0);
+% fwrite(s, 0);
+io64(ioObject,address,0);
 
 % start
 for cyc=1:length(seq)
@@ -169,17 +176,15 @@ for cyc=1:length(seq)
     starttime=GetSecs;
     result(cyc,4)=starttime-zerotime;
     % trial start
-    fwrite(s, 2);
+%     fwrite(s, 2);
+    io64(ioObject,address,2);
     
     % open
     WaitSecs(cuetime-offset);
     ett('set',ettport,odor);
     % odor
-    if odor==12
-        fwrite(s, 11);
-    else
-        fwrite(s, odor);%7-11
-    end
+%     fwrite(s, odor+6);%7-11
+    io64(ioObject,address,odor+6);
     
     % offset
     % WaitSecs(offset);
@@ -195,7 +200,8 @@ for cyc=1:length(seq)
     WaitSecs(odortime-offset);
     ett('set',ettport,air);    
     % odor off
-    fwrite(s, air);
+%     fwrite(s, air);
+    io64(ioObject,address,air);
 
     % offset
     WaitSecs(offset);
@@ -275,6 +281,8 @@ for cyc=1:length(seq)
 end
 
 toc;
+%save
+save(datafile,'result','response');
 % restore
 Priority(oldPriority);
 ShowCursor;
@@ -282,6 +290,4 @@ ListenChar(0);      % open keyboard
 Screen('CloseAll');
 %restore resolution
 Screen('Resolution', whichscreen, oldResolution.width, oldResolution.height);
-%save
-save(datafile,'result','response');
 return

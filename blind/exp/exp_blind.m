@@ -55,9 +55,9 @@ result(:,1:3)=seq;
 response=cell(length(seq),2);
 
 % load odors
-wavedata = cell(1,length(odors));
-for odor_i = 1: length(odors)
-    wavfilename = ['./odor/odor ' num2str(odor_i) '.wav'];
+wavedata = cell(1,length(odors)+2);
+for odor_i = 1: length(odors)+2
+    wavfilename = sprintf('./odor/odor %02d.wav', odor_i);
     [y, freq] = psychwavread(wavfilename);
     wavedata{odor_i} = y';
     % Number of rows == number of channels
@@ -121,7 +121,11 @@ zerotime=GetSecs;
 
 % wait time
 Screen('Flip',windowPtr);
-WaitSecs(waittime);
+PsychPortAudio('FillBuffer', pahandle, wavedata{end-1});
+PsychPortAudio('Start', pahandle, 1, 0, 1);
+PsychPortAudio('Stop', pahandle, 1);  
+Screen('Flip',windowPtr,zerotime+waittime);
+
 % after wait marker
 
 % start
@@ -141,8 +145,7 @@ for cyc=1:size(seq,1)
     [~, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
     % record the start of odor
     result(cyc,4)=starttime-zerotime;
-    result(cyc,8)=estStopTime-zerotime;
-    % trial start       
+    result(cyc,8)=estStopTime-zerotime;     
     
     % orange fixation
     Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
@@ -155,6 +158,8 @@ for cyc=1:size(seq,1)
     result(cyc,9)=startbeep-zerotime;
     result(cyc,10)=estStopTime-zerotime;
     
+    % trial start marker
+    
     % green fixation
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
@@ -163,9 +168,12 @@ for cyc=1:size(seq,1)
     
     % stop and rating
     PsychPortAudio('Start', pahandle, 1, (trialtime + odortime  ), 1);
-    [stopbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);
+    [stopbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
     result(cyc,11)=stopbeep-zerotime;
     result(cyc,12)=estStopTime-zerotime;
+    
+    % trial stop marker
+    
     % black fix
     Screen('FillRect',windowPtr,fixcolor_black,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_black,fixationp2);
@@ -202,11 +210,12 @@ end
 toc;
 %save
 save(datafile,'result','response');
+PsychPortAudio('FillBuffer', pahandle, wavedata{end});
+PsychPortAudio('Start', pahandle, 1, 0, 1);
+PsychPortAudio('Stop', pahandle);
 % restore
 Priority(oldPriority);
 ShowCursor;
-% Stop playback:
-PsychPortAudio('Stop', pahandle);
 % Close the audio device:
 PsychPortAudio('Close', pahandle);
 Screen('CloseAll');

@@ -1,5 +1,5 @@
 function [result, response]=exp_blind
-% 3*8*16s + 6s = 390s = 195TRs
+% 3*8*16s + 6s = 390s = 195 TRs
 % repeat
 times=3;
 % times
@@ -49,7 +49,7 @@ seq=randseq(seq);
 seq=seq(:,1:3);
 
 % record
-result=zeros(length(seq),7);
+result=zeros(length(seq),12);
 result(:,1:3)=seq;
 % record all keystrokes
 response=cell(length(seq),2);
@@ -129,47 +129,52 @@ for cyc=1:size(seq,1)
     
     odor=seq(cyc,1);
     
-    % odor hint
-    PsychPortAudio('FillBuffer', pahandle, wavedata{odor});
-    starttime = GetSecs;
-    PsychPortAudio('Start', pahandle, 1, 0, 1);
-    PsychPortAudio('Stop', pahandle, 1);
     % black fixation
     Screen('FillRect',windowPtr,fixcolor_black,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_black,fixationp2);
     Screen('Flip',windowPtr);
+    
+    % odor hint
+    starttime = GetSecs;
+    PsychPortAudio('FillBuffer', pahandle, wavedata{odor});
+    PsychPortAudio('Start', pahandle, 1, 0, 1);
+    [~, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
     % record the start of odor
     result(cyc,4)=starttime-zerotime;
+    result(cyc,8)=estStopTime-zerotime;
     % trial start       
     
-    % orange fixation after 2s
+    % orange fixation
     Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_cue,fixationp2);    
-    Screen('Flip', windowPtr, starttime + (fps*(cuetime-1)-0.1)*ifi);
-    
+    Screen('Flip', windowPtr);
     % odor beep
     PsychPortAudio('FillBuffer', pahandle, beep);
     PsychPortAudio('Start', pahandle, 1, (starttime + cuetime - beep_du), 1);
-    PsychPortAudio('Stop', pahandle, 1);
+    [startbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
+    result(cyc,9)=startbeep-zerotime;
+    result(cyc,10)=estStopTime-zerotime;
     
     % green fixation
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
-    trialtime = Screen('Flip', windowPtr);
+    trialtime = Screen('Flip', windowPtr,estStopTime);
     result(cyc,5)=trialtime-zerotime;
     
     % stop and rating
-    PsychPortAudio('Start', pahandle, 1, (trialtime + odortime), 1);
-    PsychPortAudio('Stop', pahandle, 1);
+    PsychPortAudio('Start', pahandle, 1, (trialtime + odortime  ), 1);
+    [stopbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);
+    result(cyc,11)=stopbeep-zerotime;
+    result(cyc,12)=estStopTime-zerotime;
     % black fix
     Screen('FillRect',windowPtr,fixcolor_black,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_black,fixationp2);
     Screen('Flip',windowPtr);
-    
+    % lastsecs=0;
     while GetSecs-starttime < (cuetime+odortime+seq(cyc,3))
         [touch, secs, keyCode] = KbCheck;
         ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4) keyCode(Key5)];
-        if touch && ismember(1,ifkey)
+        if touch && ismember(1,ifkey)  %&& secs-lastsecs>0.2
                     result(cyc,6)=find(ifkey==1, 1, 'last');
                     result(cyc,7)=secs-trialtime;
                     response{cyc,1}=[response{cyc,1} result(cyc,6)];
@@ -180,6 +185,7 @@ for cyc=1:size(seq,1)
                     count=CenterRect(norm,rect);
                     Screen('DrawText', windowPtr, num2str(result(cyc,6)),count(1),count(2),0);
                     Screen('Flip', windowPtr);
+                    % lastsecs=secs;
         elseif touch && keyCode(escapeKey)
             Screen('CloseAll');
             % Stop playback:

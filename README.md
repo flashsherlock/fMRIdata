@@ -44,4 +44,7 @@ Some files for olfaction experitments on monkeys.
 ## consciousness
 Analysis and experiment programms for iEEG study.
 
+## bind
+Experiment on blind people.
+
 2020.1.15

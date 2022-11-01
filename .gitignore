@@ -11,6 +11,8 @@
 *.asv
 # exp data
 /7T/exp/Data
+/blind/exp/Data
+/blind/exp/odor
 /monkey/rating/Data
 # rmarkdown files and cache
 /7T/odor/*_cache

@@ -643,3 +643,33 @@ group/${stats}_lim-ind_half2+tlrc"[1]"                \
 #                 12 "S32/S32.pabiode.results/citcar.S32.pabiode+tlrc" \
 #                 13 "S33/S33.pabiode.results/citcar.S33.pabiode+tlrc" \
 #                 14 "S34/S34.pabiode.results/citcar.S34.pabiode+tlrc"
+
+
+################ mvpa results ################
+stats=ARodor_l1_labelpolandva
+# searchlight results for 10 odor pairs
+3dmaskdump                                      \
+-noijk -xyz                                     \
+-mask group/mask/all.seg+tlrc                   \
+group/mask/all.seg+tlrc                         \
+group/mvpa/${stats}_lim-car+tlrc"[0]"           \
+group/mvpa/${stats}_lim-cit+tlrc"[0]"           \
+group/mvpa/${stats}_lim-tra+tlrc"[0]"           \
+group/mvpa/${stats}_lim-ind+tlrc"[0]"           \
+group/mvpa/${stats}_tra-car+tlrc"[0]"           \
+group/mvpa/${stats}_tra-cit+tlrc"[0]"           \
+group/mvpa/${stats}_tra-ind+tlrc"[0]"           \
+group/mvpa/${stats}_car-cit+tlrc"[0]"           \
+group/mvpa/${stats}_car-ind+tlrc"[0]"           \
+group/mvpa/${stats}_cit-ind+tlrc"[0]"           \
+group/mvpa/${stats}_lim-car+tlrc"[1]"           \
+group/mvpa/${stats}_lim-cit+tlrc"[1]"           \
+group/mvpa/${stats}_lim-tra+tlrc"[1]"           \
+group/mvpa/${stats}_lim-ind+tlrc"[1]"           \
+group/mvpa/${stats}_tra-car+tlrc"[1]"           \
+group/mvpa/${stats}_tra-cit+tlrc"[1]"           \
+group/mvpa/${stats}_tra-ind+tlrc"[1]"           \
+group/mvpa/${stats}_car-cit+tlrc"[1]"           \
+group/mvpa/${stats}_car-ind+tlrc"[1]"           \
+group/mvpa/${stats}_cit-ind+tlrc"[1]"           \
+> group/${stats}_search_polandva.txt

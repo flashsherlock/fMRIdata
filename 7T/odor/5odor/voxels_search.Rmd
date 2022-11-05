@@ -1,11 +1,11 @@
 ---
-title: "Voxel_group"
+title: "Voxel_search"
 author: "Fei"
 date: "`r Sys.time()`"
 output: html_document
 params:
     path: "/Volumes/WD_F/gufei/7T_odor"
-    sub: "results"
+    sub: "search_polandva"
     thr: 2.051831
 ---
 
@@ -43,7 +43,7 @@ extractdata <- function(path,sub,txtname){
 # function to calculate activated voxels
 ####################################################
 calcact <- function(results,roilist,threshold){
-  c <- 4
+  c <- 10
   data <- data.frame(matrix(ncol = 3+c*2, nrow = 0))
   
   for (roi_i in names(roilist)) {
@@ -74,7 +74,7 @@ calcact <- function(results,roilist,threshold){
 # function to calculate mean values
 ####################################################
 calmean <- function(results,roilist, threshold = 0){
-  c <- 4
+  c <- 10
   data <- data.frame(matrix(ncol = 3+c, nrow = 0))
   
   for (roi_i in names(roilist)) {
@@ -82,12 +82,12 @@ calmean <- function(results,roilist, threshold = 0){
   roi_label <- roilist[[roi_i]]
   results_r <- subset(results,roi %in% roi_label,select = c(6:(5+c)))
   subs <- subset(results,roi %in% roi_label,select = 1)
-  # absolute value
-  results_r <- abs(results_r)
   act <- cbind(subs,results_r)
   # threshold t value
   results_t <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
-  index <- apply(abs(results_t),1,function(x) any(x>threshold))
+  # # remove any acc below chance
+  # index <- apply(results_t,1,function(x) any(x>threshold) & all(x>0))
+  index <- apply(results_t,1,function(x) any(x>threshold))
   # significant voxels only
   act <- act[index]
   # calculate mean value
@@ -104,7 +104,9 @@ calmean <- function(results,roilist, threshold = 0){
   return(data)
 }
 # odor pairs
-opair <- c("car-lim","cit-lim","tra-lim","ind-lim")
+odors <- c("lim", "tra", "car", "cit", "ind")
+pairs <- apply(combn(odors, 2), 2, function(x) paste(x[1], x[2], sep = "-"))
+opair <- pairs[1:4]
 # roi labels
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
 A <- c(1,3,5,6,7,8,9,15)
@@ -128,8 +130,12 @@ cat(params$sub)
 results <- data.frame(matrix(ncol = 1+12, nrow = 0))
 # extract group results
 results <- rbind(results,extractdata(params$path,"group",paste0("stats_",params$sub,".txt")))
-names(results) <- c("sub","x","y","z","roi",paste("m",opair,sep = "_"),paste("t",opair,sep = "_"))
+names(results) <- c("sub","x","y","z","roi",paste("m",pairs,sep = "_"),paste("t",pairs,sep = "_"))
 results <- as.data.table(results)
+# acc = 0 if below chance
+temp <- results[,6:dim(results)[2]]
+temp[temp<0] <- 0
+results[,6:dim(results)[2]] <- temp
 ```
 
 # Activated voxels
@@ -175,10 +181,10 @@ data_mean <- calmean(results,roilist)
 s <- c(paste0("m_",opair))
 datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = opair))
 datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
-datachosen <- subset(datachosen,voxels%in%c("car-lim","cit-lim"))
+datachosen <- subset(datachosen,voxels%in%c("lim-car","lim-cit"))
 # plot
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
-  labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
+  labs(x='ROI',y='Mean acc',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
   scale_fill_manual(values=gf_color[2:5])+ #颜色
@@ -192,10 +198,10 @@ data_mean <- calmean(results,roilist,params$thr)
 s <- c(paste0("m_",opair))
 datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = opair))
 datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
-datachosen <- subset(datachosen,voxels%in%c("car-lim","cit-lim"))
+datachosen <- subset(datachosen,voxels%in%c("lim-car","lim-cit"))
 # plot
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
-  labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
+  labs(x='ROI',y='Mean acc',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
   scale_fill_manual(values=gf_color[2:5])+ #颜色
@@ -206,7 +212,7 @@ print(figure)
 ```
 ```{r fig.height=9, fig.width=9}
 # absolute difference and x
-results_abs<- abs(results[,2:13])
+results_abs<- abs(results[,2:25])
 # reverse y
 results_abs$y <- -results$y
 # Pir and Amy
@@ -230,9 +236,9 @@ for (roi in c("Pir","Amy","All")) {
     for (xlab in c("x","y","z")) {
     p <- paste(xlab,odor,sep = "_")
     # activated only
-    indx <- results_select[[paste0("t_",odor,"-lim")]]>params$thr
+    indx <- results_select[[paste0("t_","lim-",odor)]]>params$thr
     plots[[p]] <- ggscatter(results_select[indx,],color = "#4c95c8",
-                   x = xlab, y = paste0("m_",odor,"-lim"),alpha = 0.8,
+                   x = xlab, y = paste0("m_","lim-",odor),alpha = 0.8,
               conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
               position=position_jitter(h=0.02,w=0.02, seed = 5)) +
         stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),

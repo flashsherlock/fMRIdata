@@ -672,4 +672,4 @@ group/mvpa/${stats}_tra-ind+tlrc"[1]"           \
 group/mvpa/${stats}_car-cit+tlrc"[1]"           \
 group/mvpa/${stats}_car-ind+tlrc"[1]"           \
 group/mvpa/${stats}_cit-ind+tlrc"[1]"           \
-> group/${stats}_search_polandva.txt
+> group/stats_search_polandva.txt

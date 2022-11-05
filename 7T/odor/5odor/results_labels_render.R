@@ -34,8 +34,13 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/roistatas.
                   output_file = paste0("ROIstatas_28sub_12"),
                   params = list(path = path, sub = subs, roi = roi, suffix = suffix))
 
-# render voxel group
+# render voxel search
 threshold <- 2.051831 # DOF = 27
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_search.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("searchlight_group"),
+                  params = list(path = path, sub = "search_polandva", thr = threshold))
+# render voxel group
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0("WARP_group"),

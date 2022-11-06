@@ -44,15 +44,15 @@ set filedec = odorVIva_noblur
 # 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 29..64 -prefix NIfittshead.${subj}.${filedec}
 
 # synthesize fitts of no interests, use -dry for debug
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort val int odor_va -prefix NIfittsnobs.${subj}.${filedec}
+3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort -prefix NIfittsnobs.${subj}.${filedec}
 # subtract fitts of no interests from all runs
-3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.rmpolortva
+3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.onlypolva
 rm NIfitts*
-# remove polort and odor_va
-3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort odor_va -prefix NIfittsnobs.${subj}.${filedec}
-# subtract fitts of no interests from all runs
-3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.onlypolandva
-rm NIfitts*
+# # remove polort and odor_va
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort odor_va -prefix NIfittsnobs.${subj}.${filedec}
+# # subtract fitts of no interests from all runs
+# 3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.onlypolandva
+# rm NIfitts*
 
 # rm tent.${subj}.odorVI+orig*
 # rm tent.${subj}.odorVI_noblur+orig*

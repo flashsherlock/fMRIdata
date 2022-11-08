@@ -5,7 +5,7 @@ datafolder=/Volumes/WD_F/gufei/7T_odor
 cd "${datafolder}" || exit
 
 mask=group/mask/allROI+tlrc
-stats=VIvaodor_l1_label
+stats=ARodor_l1_labelpolva
 
 3dttest++ -prefix group/mvpa/${stats}_lim-tra -mask ${mask} -setA lim-tra \
 01 "S04/S04.pabiode.results/mvpa/searchlight_${stats}_6/BoxROI/2odors_lim_tra/res_accuracy_minus_chance+tlrc" \

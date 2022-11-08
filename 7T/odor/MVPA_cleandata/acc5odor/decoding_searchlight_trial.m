@@ -56,7 +56,7 @@ for roi_i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelpolandva_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelpolva_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -69,7 +69,7 @@ for roi_i=1:length(rois)
     F=cell(1,numtr);
     for subi = 1:numtr
         t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolandva+orig.BRIK,' num2str(t)];
+        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
     end
     cfg.files.name =  F;
     % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -110,7 +110,8 @@ for roi_i=1:length(rois)
     %% Nothing needs to be changed below for a standard leave-one-run out cross
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg); 
-
+    % overwrite existing results
+    cfg.results.overwrite = 1;
     % Run decoding
     results = decoding(cfg);    
 % end

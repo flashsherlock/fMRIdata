@@ -10,8 +10,10 @@ rois={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC'};
 % rois={'Amy8_align','corticalAmy','CeMeAmy','BaLaAmy'};
 % rois={'whole_brain'};
-decode=[reshape(repmat([4:11,13,14,16:18],10,1),[],1) repmat([1:10]',13,1)];
-parfor i=1:130    
+% subs = [4:11,13,14,16:18,19:29 31:34];
+% subs = [19:29 31:34];
+decode=[reshape(repmat(subs,10,1),[],1) repmat([1:10]',size(subs,2),1)];
+parfor i=1:size(decode,1)  
 %     try
     sub=sprintf('S%02d',decode(i,1));
     decoding_searchlight_trial(sub,analysis_all,rois,shift,decode(i,2));
@@ -19,16 +21,16 @@ parfor i=1:130
 %         disp(decode(i,:))
 %     end
 end
-% S04-S08
-% for i=[19:34]
-%     sub=sprintf('S%02d',i);
-% %     try
-%     decoding_roi_5odors_trial(sub,analysis_all,rois,shift);    
-%     decoding_roi_trial(sub,analysis_all,rois,shift);
-% %     catch
-% %     disp(['error in' sub]);
-% %     end
-% %     searchlight
-% %     decoding_searchlight_5odors_trial(sub,analysis_all,rois,shift);
-% %     decoding_searchlight_trial(sub,analysis_all,rois,shift);
-% end
+% S19-S34
+for i=[30:34]
+    sub=sprintf('S%02d',i);
+%     try
+    decoding_roi_5odors_trial(sub,analysis_all,rois,shift);    
+    decoding_roi_trial(sub,analysis_all,rois,shift);
+%     catch
+%     disp(['error in' sub]);
+%     end
+%     searchlight
+%     decoding_searchlight_5odors_trial(sub,analysis_all,rois,shift);
+%     decoding_searchlight_trial(sub,analysis_all,rois,shift);
+end

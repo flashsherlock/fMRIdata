@@ -86,8 +86,8 @@ calmean <- function(results,roilist, threshold = 0){
   # threshold t value
   results_t <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
   # # remove any acc below chance
-  # index <- apply(results_t,1,function(x) any(x>threshold) & all(x>0))
-  index <- apply(results_t,1,function(x) any(x>threshold))
+  index <- apply(results_t,1,function(x) any(x>threshold) & all(x>0))
+  # index <- apply(results_t,1,function(x) any(x>threshold))
   # significant voxels only
   act <- act[index]
   # calculate mean value
@@ -120,7 +120,7 @@ Ao <- 21
 PPC <- 22
 roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
 # colors
-gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
+gf_color <- c("#f0803b", "#55b96f", "#56a2d4", "#ECB556","#777DDD")
 ```
 
 
@@ -187,7 +187,7 @@ figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) +
   labs(x='ROI',y='Mean acc',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
-  scale_fill_manual(values=gf_color[2:5])+ #颜色
+  scale_fill_manual(values=gf_color[3:4])+ #颜色
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                 position=position_dodge(.9))+
   theme_prism(base_line_size = 0.5)
@@ -204,12 +204,13 @@ figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) +
   labs(x='ROI',y='Mean acc',fill='voxels')+#设置坐标轴
   geom_bar(position="dodge", stat="identity") +
   scale_y_continuous(expand = c(0,0))+
-  scale_fill_manual(values=gf_color[2:5])+ #颜色
+  scale_fill_manual(values=gf_color[3:4])+ #颜色
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                 position=position_dodge(.9))+
   theme_prism(base_line_size = 0.5)
 print(figure)
 ```
+
 ```{r fig.height=9, fig.width=9}
 # absolute difference and x
 results_abs<- abs(results[,2:25])

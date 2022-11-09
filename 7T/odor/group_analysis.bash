@@ -646,7 +646,7 @@ group/${stats}_lim-ind_half2+tlrc"[1]"                \
 
 
 ################ mvpa results ################
-stats=ARodor_l1_labelpolandva
+stats=ARodor_l1_labelpolva
 # searchlight results for 10 odor pairs
 3dmaskdump                                      \
 -noijk -xyz                                     \
@@ -672,4 +672,4 @@ group/mvpa/${stats}_tra-ind+tlrc"[1]"           \
 group/mvpa/${stats}_car-cit+tlrc"[1]"           \
 group/mvpa/${stats}_car-ind+tlrc"[1]"           \
 group/mvpa/${stats}_cit-ind+tlrc"[1]"           \
-> group/stats_search_polandva.txt
+> group/stats_search_polva.txt

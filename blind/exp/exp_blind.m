@@ -1,16 +1,21 @@
 function [result, response]=exp_blind
 % 3*8*16s + 6s = 390s = 195 TRs
+% 4*8*12s + 6s = 390s = 195 TRs
 % repeat
-times=3;
+times=4;
 % times
 waittime=6;
-cuetime=3;
-odortime=3;
+cuetime=4;
+odortime=2;
 beep_du = 0.2;
-jmean=16-odortime-cuetime;
+jmean=12-odortime-cuetime;
 % jitter
 range = 2;
-jitter=jmean-range:2:jmean+range;
+if ~mod(times,2)
+    jitter=linspace(jmean-range,jmean+range,times);   
+else
+    jitter=repmat([jmean-range jmean+range jmean jmean],1,times/4);
+end
 % rand according to time
 ctime = datestr(now, 30);
 tseed = str2num(ctime((end - 5) : end));
@@ -55,16 +60,19 @@ result(:,1:3)=seq;
 response=cell(length(seq),2);
 
 % load odors
-wavedata = cell(1,length(odors)+2);
-for odor_i = 1: length(odors)+2
+wavedata = cell(1,length(odors)+4);
+soundtime = zeros(1,length(odors)+4);
+for odor_i = 1: length(odors)+4
     wavfilename = sprintf('./odor/odor %02d.wav', odor_i);
     [y, freq] = psychwavread(wavfilename);
     wavedata{odor_i} = y';
     % Number of rows == number of channels
-    if size(wavedata,1) < 2
+    if size(wavedata{odor_i},1) < 2
         % make stero sound
         wavedata{odor_i} = [wavedata{odor_i} ; wavedata{odor_i}];
     end
+    % calculate time of sounds
+    soundtime(odor_i) = size(wavedata{odor_i},2)/freq;
 end
 
 % input
@@ -121,9 +129,11 @@ zerotime=GetSecs;
 
 % wait time
 Screen('Flip',windowPtr);
-PsychPortAudio('FillBuffer', pahandle, wavedata{end-1});
-PsychPortAudio('Start', pahandle, 1, 0, 1);
-PsychPortAudio('Stop', pahandle, 1);  
+
+% PsychPortAudio('FillBuffer', pahandle, wavedata{9});
+% PsychPortAudio('Start', pahandle, 1, 0, 1);
+% PsychPortAudio('Stop', pahandle, 1);  
+
 Screen('Flip',windowPtr,zerotime+waittime);
 
 % after wait marker
@@ -154,6 +164,8 @@ for cyc=1:size(seq,1)
     % odor beep
     PsychPortAudio('FillBuffer', pahandle, beep);
     PsychPortAudio('Start', pahandle, 1, (starttime + cuetime - beep_du), 1);
+%     PsychPortAudio('FillBuffer', pahandle, wavedata{11});
+%     PsychPortAudio('Start', pahandle, 1, (starttime + cuetime - soundtime(11)), 1);
     [startbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
     result(cyc,9)=startbeep-zerotime;
     result(cyc,10)=estStopTime-zerotime;
@@ -167,6 +179,7 @@ for cyc=1:size(seq,1)
     result(cyc,5)=trialtime-zerotime;
     
     % stop and rating
+%     PsychPortAudio('FillBuffer', pahandle, wavedata{12});
     PsychPortAudio('Start', pahandle, 1, (trialtime + odortime  ), 1);
     [stopbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
     result(cyc,11)=stopbeep-zerotime;
@@ -181,7 +194,7 @@ for cyc=1:size(seq,1)
     % lastsecs=0;
     while GetSecs-starttime < (cuetime+odortime+seq(cyc,3))
         [touch, secs, keyCode] = KbCheck;
-        ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4) keyCode(Key5)];
+        ifkey=[keyCode(Key1) keyCode(Key2) keyCode(Key3) keyCode(Key4)];
         if touch && ismember(1,ifkey)  %&& secs-lastsecs>0.2
                     result(cyc,6)=find(ifkey==1, 1, 'last');
                     result(cyc,7)=secs-trialtime;
@@ -210,9 +223,11 @@ end
 toc;
 %save
 save(datafile,'result','response');
-PsychPortAudio('FillBuffer', pahandle, wavedata{end});
-PsychPortAudio('Start', pahandle, 1, 0, 1);
-PsychPortAudio('Stop', pahandle);
+
+% PsychPortAudio('FillBuffer', pahandle, wavedata{10});
+% PsychPortAudio('Start', pahandle, 1, 0, 1);
+% PsychPortAudio('Stop', pahandle);
+
 % restore
 Priority(oldPriority);
 ShowCursor;

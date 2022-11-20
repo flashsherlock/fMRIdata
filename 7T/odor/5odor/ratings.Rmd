@@ -35,16 +35,20 @@ gf_color <- c("#4CA5CF","#F18549")
 data <- readMat(file.path(params$path,'rating5odor.mat'))
 # avgdata is a dataframe
 avgdata <- as.data.frame(data$rate.avg)
-# remove zeros
-avgdata <- avgdata[4:nrow(avgdata),]
+# add subject number
 snum <- nrow(avgdata)
-row.names(avgdata) <- sprintf("S%02d",c(4:(3+snum)))
+row.names(avgdata) <- sprintf("S%02d",c(1:snum))
 avgdata <- cbind(avgdata,row.names(avgdata))
 names(avgdata) <- c(paste("valence",odors,"olfactometer",sep = "_"),
                     paste("intensity",odors,"olfactometer",sep = "_"),
                     paste("similarity",pairs,"olfactometer",sep = "_"),
                     "sub")
+# remove zeros
+avgdata <- avgdata[rowSums(avgdata==0)==0,]
 avgdata <- as.data.table(avgdata)
+# export to spss
+bruceR::export(avgdata[,1:10], file = paste0(path,"ratings.sav"))
+# melt to long format
 avgdata <- separate(melt(id.vars="sub",avgdata),variable,c("dimension","odor","presentation"),sep = "_")
 
 # 建立一个list保存plotyly的结果
@@ -100,6 +104,16 @@ for (dim in unique(avgdata$dimension)) {
     # 互动式的图
     plotly_plots[[dim]][[i]] <- ggplotly(figure,tooltip = c("label","y"))%>%layout(boxmode="group")
     i <- i+1
+    
+    # ANOVA
+    cat(paste0("\n\n",dim,"\n\n"))
+    bruceR::MANOVA(current,subID = "sub",dv = "value", within = "odor")%>%
+      EMMEANS("odor", p.adjust="fdr")
+    # intensity for 4 odors
+    if (dim == "intensity") {
+      cat(paste0("\n4odors\n"))
+      bruceR::MANOVA(current[odor!="ind",],subID = "sub",dv = "value", within = "odor")
+    }
 }
 #输出交互式绘图的结果
 plotly_plots
@@ -109,13 +123,14 @@ plotly_plots
 # rundata is a 3d matrix, change it to dataframe
 gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556","#777DDD")
 rundata <- as.data.frame(data$rate.run)
-# remove zeros
-rundata <- rundata[,-c(1:30)]
+# add subject number
 rundata <- cbind(rundata,paste("run",c(1:6),sep = "_"))
-names(rundata) <- c(paste0(rep(sprintf("S%02d_",c(4:(3+snum))),each=10),
+names(rundata) <- c(paste0(rep(sprintf("S%02d_",c(1:snum)),each=10),
                          rep(c(paste("valence",odors,sep = "_"),
                                paste("intensity",odors,sep = "_"))
                              ,times=snum)),"run")
+# remove zeros
+rundata <- rundata[,colSums(rundata==0)==0]
 # change to data.table so that melt will not redirect to reshape method
 rundata <- as.data.table(rundata)
 rundata <- separate(melt(id.vars="run",rundata),variable,c("sub","dimension","odor"),sep = "_")
@@ -148,6 +163,9 @@ figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
 # print(figure_int)
 pfigure <- figure_int + theme_prism(base_line_size = 0.5)
 print(pfigure)
+# ANOVA
+bruceR::MANOVA(intensity,subID = "sub",dv = "value", within = c("odor","run"))%>%
+  EMMEANS("run", by = "odor", p.adjust="fdr")
 
 # valence
 datachosen <- subset(analyze_valence,select = c(group1,group2,mean,se))
@@ -174,5 +192,8 @@ figure_val <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) +
 # print(figure_val)
 pfigure <- figure_val + theme_prism(base_line_size = 0.5)
 print(pfigure)
+# ANOVA
+bruceR::MANOVA(valence,subID = "sub",dv = "value", within = c("odor","run"))%>%
+  EMMEANS("run", by = "odor", p.adjust="fdr")
 ```
 

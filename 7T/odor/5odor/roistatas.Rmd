@@ -263,7 +263,9 @@ roi_tent <- data.frame(matrix(ncol = 4, nrow = 0))
 for (region in params$roi) {
 # choose data
 datachosen <- subset(data_tent,roi==region)
-datachosen <- describeBy(datachosen$NZmean,list(datachosen$time),mat = T)
+# average by odors first so that df for standard error is number of subs
+datachosen <- aggregate(datachosen$NZmean, list(datachosen$sub,datachosen$roi,datachosen$time), FUN=mean)
+datachosen <- describeBy(datachosen$x,list(datachosen$Group.3),mat = T)
 datachosen <- subset(datachosen,select = c(group1,mean,se))
 names(datachosen) <- c("time","mean","se")
 # set time and odor levels

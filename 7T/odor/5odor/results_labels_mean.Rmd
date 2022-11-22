@@ -4,7 +4,7 @@ params:
     path: "/Volumes/WD_F/gufei/7T_odor/"
     sub: !r c(sprintf('S%02d', c(4:11,13,14,16:29,31:34)))
     analysis: "pabiode"
-    mvpa_pattern: "roi_ARodor_l1_labelpolandva_6"
+    mvpa_pattern: "roi_ARodor_l1_labelpolva_6"
     roi: !r c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
     roiname: !r c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
     set_title: "Amygdala_decoding_mean"
@@ -232,6 +232,13 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
   }
 ```
 
+```{r}
+# ANOVA
+bruceR::MANOVA(subset(acc4odor,roi != "control"), 
+               subID="sub", dv = "acc", within = c("roi"))%>%
+  EMMEANS("roi",p.adjust = "fdr")
+```
+
 ### accuracy for each run 4 odors
 ```{r echo=FALSE, fig.height=3, fig.width=5}
 acc4odor_run <- subset(acc_run,run!="run_all"&odor%in%unique(acc_run$odor)[grepl("^4",unique(acc_run$odor))])
@@ -296,6 +303,20 @@ for (ana in analysis) {
       print(figure)
   }
 }
+```
+
+```{r}
+# ANOVA
+nroi <- length(params$roi)
+act <- subset(acc2odor,roi%in%params$roi[(nroi-2):nroi] & odor%in%c("2odors_lim_car","2odors_lim_cit"))
+# APC_new
+bruceR::MANOVA(subset(act,roi %in% params$roi[c(nroi-2,nroi)]), 
+               subID="sub", dv = "acc", within = c("roi","odor"))%>%
+  EMMEANS("odor",by = "roi")
+# APC_old
+bruceR::MANOVA(subset(act,roi %in% params$roi[c(nroi-1,nroi)]), 
+               subID="sub", dv = "acc", within = c("roi","odor"))%>%
+  EMMEANS("odor",by = "roi")
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=12}

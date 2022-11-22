@@ -204,6 +204,28 @@ figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) +
   theme_prism(base_line_size = 0.5)
 print(figure)
 ```
+
+```{r}
+# select ROI
+c <- 4
+results_r <- subset(results,roi %in% c(21,22,29),select = c(5:(5+c)))
+# threshold t value
+results_t <- subset(results,roi %in% c(21,22,29),select = c((6+c):(5+c+c)))
+index <- apply(abs(results_t),1,function(x) any(x>params$thr))
+# significant voxels only
+act <- results_r[index,1:3]
+# add roi name
+act <- mutate(abs(act),roinew = if_else(roi == 22, "PPC","APC"))
+# APC_new
+bruceR::MANOVA(act,between = "roinew", within = "pairs",
+               dvs = c("m_car-lim","m_cit-lim"),dvs.pattern = "m_(.*)")%>%
+  EMMEANS("pairs",by = "roinew")
+# APC_old
+bruceR::MANOVA(subset(act,roi != 29),between = "roinew", within = "pairs",
+               dvs = c("m_car-lim","m_cit-lim"),dvs.pattern = "m_(.*)")%>%
+  EMMEANS("pairs",by = "roinew")
+```
+
 ```{r fig.height=9, fig.width=9}
 # absolute difference and x
 results_abs<- abs(results[,2:13])

@@ -23,8 +23,8 @@ userOptions.analysisName = 'Cleandata';
 
 % This is the root directory of the project.
 % some files will be saved in this folder
-userOptions.rootPath = '/Volumes/WD_E/gufei/7T_odor/results_RSA/5odor_rmpolort_trial';
-datafolder = '/Volumes/WD_E/gufei/7T_odor';
+userOptions.rootPath = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial';
+datafolder = '/Volumes/WD_F/gufei/7T_odor';
 if ~exist(userOptions.rootPath,'dir')
     mkdir(userOptions.rootPath)
 end
@@ -42,7 +42,7 @@ userOptions.shift=6;
 
 % The list of subjects to be included in the study.
 userOptions.subn={};
-for sub_i=[4:11 13 14 16:18]
+for sub_i=[4:11 13 14 16:18 19:29 31:34]
     userOptions.subn=[userOptions.subn sprintf('S%02d',sub_i)];
 end
 userOptions.subjectNames = userOptions.subn';

@@ -9,6 +9,8 @@ timing=findtrs(userOptions.shift,subn);
 
 tr=timing(:,2);
 % generate image name
-image_name=[folder filesep 'NIerrts.' subn '.' userOptions.analysis 'onlypolva+orig.BRIK,'];
+% only remove pol
+image_name=[folder filesep 'NIerrts.' subn '.' userOptions.analysis '.onlypolva+orig.BRIK,'];
+% image_name=[folder filesep 'allrun.volreg.' subn '.' userOptions.analysis '+orig.BRIK,'];
 image_name=strcat(image_name,num2str(tr));
 end

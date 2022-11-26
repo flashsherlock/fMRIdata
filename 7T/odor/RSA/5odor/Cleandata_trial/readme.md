@@ -24,8 +24,5 @@ Hypothesis RDMs to be tested.
 ## Recipe_fMRI.m
 Main workflow for ROI analysis. Correlation matrice for model and neuro RDMs are averaged across subjects or use the averaged model and neuro RDMs to compute.
 
-## saverclass.m
-Save within class and between class correlations from RDMs.
-
-## rclass.m
-Function used in `saveclass.m` to compute within class and between class correlations from RDMs.
+## test_corr.m
+Try to compute correlation between model and neuro RDMs without functions from rsatoolbox.

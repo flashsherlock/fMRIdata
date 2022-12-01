@@ -3,7 +3,7 @@
 # datafolder=/Volumes/WD_E/gufei/7T_odor
 datafolder=/Volumes/WD_F/gufei/7T_odor
 cd "${datafolder}" || exit
-stats=stats_WARP
+stats=stats
 # mask=group/mask/Amy8_align.freesurfer+tlrc
 mask=group/mask/allROI+tlrc
 # count
@@ -352,6 +352,18 @@ mask=group/mask/allROI+tlrc
 #       -a group/${stats}_car-lim_percent+tlrc                           \
 #       -b group/${stats}_cit-lim_percent+tlrc                           \
 #       -expr "b-a"
+3dcalc -prefix group/${stats}_carcit_pernorm_half1                       \
+      -a group/${stats}_car-lim_per_half1+tlrc                           \
+      -b group/${stats}_cit-lim_per_half1+tlrc                           \
+      -expr "(b-a)/(b+a)"
+3dcalc -prefix group/${stats}_carcit_pernorm_half2                       \
+      -a group/${stats}_car-lim_per_half2+tlrc                           \
+      -b group/${stats}_cit-lim_per_half2+tlrc                           \
+      -expr "(b-a)/(b+a)"
+3dcalc -prefix group/${stats}_carcit_pernorm                           \
+      -a group/${stats}_car-lim_percent+tlrc                           \
+      -b group/${stats}_cit-lim_percent+tlrc                           \
+      -expr "(b-a)/(b+a)"
 
 # 3dttest++ -prefix group/stats_cit-car_abs                               \
 #           -mask ${mask}                                                 \
@@ -384,6 +396,38 @@ mask=group/mask/allROI+tlrc
 #                 26 "S32/S32.pabiode.results/citcar.S32.pabiode+tlrc" \
 #                 27 "S33/S33.pabiode.results/citcar.S33.pabiode+tlrc" \
 #                 28 "S34/S34.pabiode.results/citcar.S34.pabiode+tlrc"
+
+3dttest++ -prefix group/stats_cit-car_norm                              \
+          -mask ${mask}                                                 \
+          -setA cit_lim-car-lim                                         \
+                01 "S04/S04.pabiode.results/citcar_norm.S04.pabiode+tlrc" \
+                02 "S05/S05.pabiode.results/citcar_norm.S05.pabiode+tlrc" \
+                03 "S06/S06.pabiode.results/citcar_norm.S06.pabiode+tlrc" \
+                04 "S07/S07.pabiode.results/citcar_norm.S07.pabiode+tlrc" \
+                05 "S08/S08.pabiode.results/citcar_norm.S08.pabiode+tlrc" \
+                06 "S09/S09.pabiode.results/citcar_norm.S09.pabiode+tlrc" \
+                07 "S10/S10.pabiode.results/citcar_norm.S10.pabiode+tlrc" \
+                08 "S11/S11.pabiode.results/citcar_norm.S11.pabiode+tlrc" \
+                09 "S13/S13.pabiode.results/citcar_norm.S13.pabiode+tlrc" \
+                10 "S14/S14.pabiode.results/citcar_norm.S14.pabiode+tlrc" \
+                11 "S16/S16.pabiode.results/citcar_norm.S16.pabiode+tlrc" \
+                12 "S17/S17.pabiode.results/citcar_norm.S17.pabiode+tlrc" \
+                13 "S18/S18.pabiode.results/citcar_norm.S18.pabiode+tlrc" \
+                14 "S19/S19.pabiode.results/citcar_norm.S19.pabiode+tlrc" \
+                15 "S20/S20.pabiode.results/citcar_norm.S20.pabiode+tlrc" \
+                16 "S21/S21.pabiode.results/citcar_norm.S21.pabiode+tlrc" \
+                17 "S22/S22.pabiode.results/citcar_norm.S22.pabiode+tlrc" \
+                18 "S23/S23.pabiode.results/citcar_norm.S23.pabiode+tlrc" \
+                19 "S24/S24.pabiode.results/citcar_norm.S24.pabiode+tlrc" \
+                20 "S25/S25.pabiode.results/citcar_norm.S25.pabiode+tlrc" \
+                21 "S26/S26.pabiode.results/citcar_norm.S26.pabiode+tlrc" \
+                22 "S27/S27.pabiode.results/citcar_norm.S27.pabiode+tlrc" \
+                23 "S28/S28.pabiode.results/citcar_norm.S28.pabiode+tlrc" \
+                24 "S29/S29.pabiode.results/citcar_norm.S29.pabiode+tlrc" \
+                25 "S31/S31.pabiode.results/citcar_norm.S31.pabiode+tlrc" \
+                26 "S32/S32.pabiode.results/citcar_norm.S32.pabiode+tlrc" \
+                27 "S33/S33.pabiode.results/citcar_norm.S33.pabiode+tlrc" \
+                28 "S34/S34.pabiode.results/citcar_norm.S34.pabiode+tlrc"
 
 # dunmp group level results
 # xyz are in RAI order
@@ -608,6 +652,7 @@ group/${stats}_lim-tra_half2+tlrc"[1]"                \
 group/${stats}_lim-ind_half2+tlrc"[1]"                \
 > group/${stats}_results_half2.txt
 
+#################### half results for absolute diff ##########################
 # 3dttest++ -prefix group/stats_cit-car_abs_half1                         \
 #           -mask ${mask}                                                 \
 #           -setA cit_lim-car-lim                                         \
@@ -643,6 +688,42 @@ group/${stats}_lim-ind_half2+tlrc"[1]"                \
 #                 12 "S32/S32.pabiode.results/citcar.S32.pabiode+tlrc" \
 #                 13 "S33/S33.pabiode.results/citcar.S33.pabiode+tlrc" \
 #                 14 "S34/S34.pabiode.results/citcar.S34.pabiode+tlrc"
+
+3dttest++ -prefix group/stats_cit-car_norm_half1                        \
+          -mask ${mask}                                                 \
+          -setA cit_lim-car-lim                                         \
+                01 "S04/S04.pabiode.results/citcar_norm.S04.pabiode+tlrc" \
+                02 "S05/S05.pabiode.results/citcar_norm.S05.pabiode+tlrc" \
+                03 "S06/S06.pabiode.results/citcar_norm.S06.pabiode+tlrc" \
+                04 "S07/S07.pabiode.results/citcar_norm.S07.pabiode+tlrc" \
+                05 "S08/S08.pabiode.results/citcar_norm.S08.pabiode+tlrc" \
+                06 "S09/S09.pabiode.results/citcar_norm.S09.pabiode+tlrc" \
+                07 "S10/S10.pabiode.results/citcar_norm.S10.pabiode+tlrc" \
+                08 "S11/S11.pabiode.results/citcar_norm.S11.pabiode+tlrc" \
+                09 "S13/S13.pabiode.results/citcar_norm.S13.pabiode+tlrc" \
+                10 "S14/S14.pabiode.results/citcar_norm.S14.pabiode+tlrc" \
+                11 "S16/S16.pabiode.results/citcar_norm.S16.pabiode+tlrc" \
+                12 "S17/S17.pabiode.results/citcar_norm.S17.pabiode+tlrc" \
+                13 "S18/S18.pabiode.results/citcar_norm.S18.pabiode+tlrc" \
+                14 "S19/S19.pabiode.results/citcar_norm.S19.pabiode+tlrc"
+
+3dttest++ -prefix group/stats_cit-car_norm_half2                        \
+          -mask ${mask}                                                 \
+          -setA cit_lim-car-lim                                         \
+                01 "S20/S20.pabiode.results/citcar_norm.S20.pabiode+tlrc" \
+                02 "S21/S21.pabiode.results/citcar_norm.S21.pabiode+tlrc" \
+                03 "S22/S22.pabiode.results/citcar_norm.S22.pabiode+tlrc" \
+                04 "S23/S23.pabiode.results/citcar_norm.S23.pabiode+tlrc" \
+                05 "S24/S24.pabiode.results/citcar_norm.S24.pabiode+tlrc" \
+                06 "S25/S25.pabiode.results/citcar_norm.S25.pabiode+tlrc" \
+                07 "S26/S26.pabiode.results/citcar_norm.S26.pabiode+tlrc" \
+                08 "S27/S27.pabiode.results/citcar_norm.S27.pabiode+tlrc" \
+                09 "S28/S28.pabiode.results/citcar_norm.S28.pabiode+tlrc" \
+                10 "S29/S29.pabiode.results/citcar_norm.S29.pabiode+tlrc" \
+                11 "S31/S31.pabiode.results/citcar_norm.S31.pabiode+tlrc" \
+                12 "S32/S32.pabiode.results/citcar_norm.S32.pabiode+tlrc" \
+                13 "S33/S33.pabiode.results/citcar_norm.S33.pabiode+tlrc" \
+                14 "S34/S34.pabiode.results/citcar_norm.S34.pabiode+tlrc"
 
 
 ################ mvpa results ################

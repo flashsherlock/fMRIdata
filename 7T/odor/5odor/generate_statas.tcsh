@@ -50,10 +50,35 @@ cd ${subj}.results
 # -expr "abs(a)-abs(b)"
 
 # calculate abs(cit-lim)-abs(car-lim) and normalized by abs(cit-lim)+abs(car-lim)
-3dcalc -prefix citcar_norm.${subj}       \
--a stats.${subj}.odorVI+tlrc"[34]"       \
--b stats.${subj}.odorVI+tlrc"[31]"       \
--expr "(abs(a)-abs(b))/(abs(a)+abs(b))"
+# 3dcalc -prefix citcar_norm.${subj}       \
+# -a stats.${subj}.odorVI+tlrc"[34]"       \
+# -b stats.${subj}.odorVI+tlrc"[31]"       \
+# -expr "(abs(a)-abs(b))/(abs(a)+abs(b))"
+
+# for individual plots
+3dcalc -prefix allroi_citcar.${subj}        \
+-a stats.${subj}.odorVI+orig"[34]"          \
+-b stats.${subj}.odorVI+orig"[31]"          \
+-c ../mask/allROI+orig                      \
+-expr "c*(abs(a)-abs(b))"
+
+3dcalc -prefix allroi_citcar.${subj}        \
+-a stats.${subj}.odorVI+tlrc"[34]"          \
+-b stats.${subj}.odorVI+tlrc"[31]"          \
+-c ../../group/mask/allROI+tlrc             \
+-expr "c*(abs(a)-abs(b))"
+
+3dcalc -prefix allroi_citcar_norm.${subj}       \
+-a stats.${subj}.odorVI+orig"[34]"              \
+-b stats.${subj}.odorVI+orig"[31]"              \
+-c ../mask/allROI+orig                          \
+-expr "c*(abs(a)-abs(b))/(abs(a)+abs(b))"
+
+3dcalc -prefix allroi_citcar_norm.${subj}       \
+-a stats.${subj}.odorVI+tlrc"[34]"              \
+-b stats.${subj}.odorVI+tlrc"[31]"              \
+-c ../../group/mask/allROI+tlrc                 \
+-expr "c*(abs(a)-abs(b))/(abs(a)+abs(b))"
 
 # rm *t165.freesurfer*
 # rm ../mask/*at165*

@@ -610,20 +610,24 @@ bruceR::TTEST(data_exp2, y=c("con", "incon"), paired=TRUE)
 # 4.1 boxplots -------------------------------------------------------------------
 # H and F represent visual condition
 # boxplot(data_exp2,c("happy","fear"),c("happyF","fearF","happyH","fearH"),test="H")+
-boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+box_hf <- boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   coord_cartesian(ylim = c(0,3.5))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
   labs(y="Response time (s)")+
   scale_x_discrete(labels=c("Happy","Fearful"))
-ggsave(paste0(data_dir,"box_RT_hf.pdf"), width = 5, height = 4)
+# ggsave(paste0(data_dir,"box_RT_hf.pdf"), width = 5, height = 4)
 
 # plus and minus
-boxplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
+box_pm <- boxplotv(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
   coord_cartesian(ylim = c(0,3.5))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
   labs(y="Response time (s)")+
   scale_x_discrete(labels=c("Happy","Fearful"))
-ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 5, height = 4)
+# ggsave(paste0(data_dir,"box_RT_pm.pdf"), width = 5, height = 4)
+box <- wrap_plots(box_hf,box_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+print(box)
+ggsave(paste0(data_dir,"box_2_RT.pdf"), box, width = 10, height = 4,
+       device = cairo_pdf)
 
 # diagplot for bootstrapped mean RT
 # combine with pm
@@ -723,7 +727,14 @@ t.test(RT2incon.con ~ learnva, data = data_exp2, var.equal = T)
 data_dir <- "/Volumes/WD_D/gufei/writing/"
 data_expv2 <- spss.get(paste0(data_dir,"result_expv2.sav"))
 data_expv3 <- spss.get(paste0(data_dir,"result_expv3.sav"))
-# plot
+# 4.1 boxplots -------------------------------------------------------------------
+box_hf <- boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+  coord_cartesian(ylim = c(0,3.5))+
+  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy","Fearful"))
+
+# 4.2 barplots -------------------------------------------------------------------
 exp_con <- c("Happy","Fearful")
 bar2 <- barplot(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
   coord_cartesian(ylim = c(1,1.5))+

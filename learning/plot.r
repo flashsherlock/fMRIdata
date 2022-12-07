@@ -773,7 +773,10 @@ box3 <- boxplotv(data_expv3,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Ha
 boxv <- wrap_plots(box2,box3,ncol = 2)+plot_annotation(tag_levels = "A")
 print(boxv)
 ggsave(paste0(data_dir,"box_v23_RT.pdf"), boxv, width = 10, height = 4)
-
+# all box plots
+box_all <- wrap_plots(box2,box3,box_hf,box_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"box_RT.pdf"), box_all, width = 10, height = 8,
+       device = cairo_pdf)
 # 4.2 barplots -------------------------------------------------------------------
 bar2 <- barplot(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
   coord_cartesian(ylim = c(1,1.5))+
@@ -810,3 +813,8 @@ vio3 <- vioplot(data_expv3,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Hap
 viov <- wrap_plots(vio2,vio3,ncol = 2)+plot_annotation(tag_levels = "A")
 print(viov)
 ggsave(paste0(data_dir,"vio_v23_RT.pdf"), viov, width = 10, height = 4)
+
+# all vio plots
+vio_all <- wrap_plots(vio2,vio3,vio_hf,vio_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"vio_RT.pdf"), vio_all, width = 10, height = 8,
+       device = cairo_pdf)

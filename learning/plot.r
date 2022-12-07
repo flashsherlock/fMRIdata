@@ -98,15 +98,28 @@ correplot <- function(data,x1,y1,x2,y2){
 }
 
 # violinplot
-vioplot <- function(data,condition, select){
+vioplot <- function(data, con, select, test="pre"){
   # select data
-  Violin_data <- subset(data,select = c("id","gender",select))
-  Violin_data <- reshape2::melt(Violin_data, c("id","gender"),variable.name = "Task", value.name = "Score")
-  Violin_data <- mutate(Violin_data,
-                        test=ifelse(str_detect(Task,"pre"),"pre_test","post_test"),
-                        condition=ifelse(str_detect(Task,condition[1]),condition[1],condition[2]))
+  Violin_data <- subset(data,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  if (test=="pre"){
+    tests <- c("Pre-test","Post-test")
+  } else if (test=="happy"){
+    tests <- c("Happy_odor","Fearful_odor")
+  } else if (test=="plus"){
+    tests <- c("Plus","Minus")
+  } else if (test=="Citral"){
+    tests <- c("Citral","Indole")
+  } else {
+    tests <- c("H","F")
+  }
   
-  Violin_data$test <- factor(Violin_data$test, levels = c("pre_test","post_test"),ordered = TRUE)
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,test),tests[1],tests[2]),
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
+  
   # violinplot
   ggplot(data=Violin_data, aes(x=condition, y=Score, fill=test)) + 
     geom_split_violin(trim=FALSE,color="black",na.rm = TRUE, scale = "area") +
@@ -699,6 +712,24 @@ print(bar)
 ggsave(paste0(data_dir,"bar_2_RT.pdf"), bar, width = 10, height = 3,
        device = cairo_pdf)
 
+# 4.3 vioplots -------------------------------------------------------------------
+vio_hf <- vioplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+  coord_cartesian(ylim = c(0,3.5))+
+  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy","Fearful"))
+# plus and minus
+vio_pm <- vioplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
+  coord_cartesian(ylim = c(0,3.5))+
+  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy","Fearful"))
+
+vio <- wrap_plots(vio_hf,vio_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+print(vio)
+ggsave(paste0(data_dir,"vio_2_RT.pdf"), vio, width = 10, height = 4,
+       device = cairo_pdf)
+
 # count subjects
 nochange <- sum(data_exp2$learn.dif==0)
 positive <- sum(data_exp2$learn.dif>0)
@@ -727,15 +758,23 @@ t.test(RT2incon.con ~ learnva, data = data_exp2, var.equal = T)
 data_dir <- "/Volumes/WD_D/gufei/writing/"
 data_expv2 <- spss.get(paste0(data_dir,"result_expv2.sav"))
 data_expv3 <- spss.get(paste0(data_dir,"result_expv3.sav"))
+exp_con <- c("Happy","Fearful")
 # 4.1 boxplots -------------------------------------------------------------------
-box_hf <- boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
-  coord_cartesian(ylim = c(0,3.5))+
-  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
-  labs(y="Response time (s)")+
-  scale_x_discrete(labels=c("Happy","Fearful"))
+box2 <- boxplotv(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(0,3))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  scale_x_discrete(labels=exp_con)
+
+box3 <- boxplotv(data_expv3,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(0,3))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  scale_x_discrete(labels=exp_con)
+# arrange
+boxv <- wrap_plots(box2,box3,ncol = 2)+plot_annotation(tag_levels = "A")
+print(boxv)
+ggsave(paste0(data_dir,"box_v23_RT.pdf"), boxv, width = 10, height = 4)
 
 # 4.2 barplots -------------------------------------------------------------------
-exp_con <- c("Happy","Fearful")
 bar2 <- barplot(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
   coord_cartesian(ylim = c(1,1.5))+
   scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=1, to=1.5, by=0.1)))+
@@ -756,3 +795,18 @@ ggsave(paste0(data_dir,"bar_v23_RT.pdf"), barv, width = 10, height = 3)
 bar_all <- wrap_plots(bar2,bar3,bar_hf,bar_pm,ncol = 2)+plot_annotation(tag_levels = "A")
 ggsave(paste0(data_dir,"bar_RT.pdf"), bar_all, width = 10, height = 6,
        device = cairo_pdf)
+
+# 4.3 vioplots -------------------------------------------------------------------
+vio2 <- vioplot(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(0,3.5))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  scale_x_discrete(labels=exp_con)
+
+vio3 <- vioplot(data_expv3,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(0,3.5))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
+  scale_x_discrete(labels=exp_con)
+# arrange
+viov <- wrap_plots(vio2,vio3,ncol = 2)+plot_annotation(tag_levels = "A")
+print(viov)
+ggsave(paste0(data_dir,"vio_v23_RT.pdf"), viov, width = 10, height = 4)

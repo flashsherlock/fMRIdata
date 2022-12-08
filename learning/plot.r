@@ -260,7 +260,8 @@ boxplotv <- function(data, con, select, test="pre"){
     summarise(y0 = quantile(Score, 0.05), 
               #y0 = mean(Score)-ci90(Score),
               y25 = quantile(Score, 0.25), 
-              y50 = median(Score), 
+              #y50 = median(Score), 
+              y50 = mean(Score), 
               y75 = quantile(Score, 0.75), 
               #y100 = mean(Score)+ci90(Score))
               y100 = quantile(Score, 0.95))
@@ -562,7 +563,9 @@ ggsave(paste0(data_dir,"distribution.pdf"),dis1, width = 4, height = 3)
 # ggsave(paste0(data_dir,"violin_in_pm.eps"), width = 4, height = 3)
 # ggsave(paste0(data_dir,"violin_in_pm.pdf"), width = 4, height = 3)
 
-va_hf <- boxplotv(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))+
+# va_hf <- boxplotv(data_exp1,c("happy","fearful"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"))+
+#   ylab("Valence")
+va_hf <- boxplotv(data_exp1,c("pre","post"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"),"happy")+
   ylab("Valence")
 ggsave(paste0(data_dir,"box_va_hf.pdf"), va_hf, width = 5, height = 4)
 
@@ -570,7 +573,10 @@ boxplotv(data_exp1,c("happy","fearful"),c("prehappy.in","prefear.in","afterhappy
   ylab("Intensity")
 ggsave(paste0(data_dir,"box_in_hf.pdf"), width = 5, height = 4)
 
-va_pm <- boxplotv(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))+
+# va_pm <- boxplotv(data_exp1,c("plus","minus"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"))+
+#   ylab("Valence")+
+#   scale_x_discrete(labels = paste(c("(+)","(−)"),"\u03B1","pinene",sep = "-"))
+va_pm <- boxplotv(data_exp1,c("pre","post"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"),"plus")+
   ylab("Valence")+
   scale_x_discrete(labels = paste(c("(+)","(−)"),"\u03B1","pinene",sep = "-"))
 ggsave(paste0(data_dir,"box_va_pm.pdf"), va_pm, width = 5, height = 4)

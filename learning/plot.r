@@ -463,6 +463,8 @@ summary(data_exp1)
 
 # paired t test with cohen's d
 bruceR::TTEST(data_exp1, y=c("pre.acc", "after.acc"), paired=TRUE)
+# 1-back acc
+bruceR::TTEST(data_exp1, y=c("acc.h", "acc.f"), paired=TRUE)
 # ANOVA
 bruceR::MANOVA(data_exp1, dvs=c("prehappy.va","prefear.va", "afterhappy.va", "afterfear.va"), dvs.pattern="(pre|after)(happy|fear).va",
                within=c("learn", "emotion"))%>%
@@ -578,8 +580,7 @@ ggsave(paste0(data_dir,"box_in_hf.pdf"), width = 5, height = 4)
 #   ylab("Valence")+
 #   scale_x_discrete(labels = paste(c("(+)","(−)"),"\u03B1","pinene",sep = "-"))
 va_pm <- boxplotv(data_exp1,c("pre","post"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"),"plus")+
-  ylab("Valence")+
-  scale_x_discrete(labels = paste(c("(+)","(−)"),"\u03B1","pinene",sep = "-"))
+  ylab("Valence")
 ggsave(paste0(data_dir,"box_va_pm.pdf"), va_pm, width = 5, height = 4)
 
 boxplotv(data_exp1,c("plus","minus"),c("preplus.in","preminus.in","afterplus.in","afterminus.in"))+
@@ -627,6 +628,8 @@ data_exp2 <- subset(data_exp2, id!=35)
 
 # paired t test with cohen's d
 bruceR::TTEST(data_exp2, y=c("con", "incon"), paired=TRUE)
+# 1-back acc
+bruceR::TTEST(data_exp2, y=c("acc.h", "acc.f"), paired=TRUE)
 # 4.1 boxplots -------------------------------------------------------------------
 # H and F represent visual condition
 # boxplot(data_exp2,c("happy","fear"),c("happyF","fearF","happyH","fearH"),test="H")+

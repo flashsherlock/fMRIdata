@@ -604,8 +604,16 @@ va_after <- pair_sep_plot(data_exp1,c("afterplus.va","afterminus.va"))+
   scale_color_manual(values=c("grey50","black"),labels = paste(c("(+)","(−)"),"\u03B1","pinene",sep = "-"))
 ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4, device = cairo_pdf)
 
+# 3.6 delta valence -----------------------------------------------------------
+# happy-fear and plus-minus
+data_exp1 <- mutate(data_exp1, fearfacevadif=afterfear.va-prefear.va, happyfacevadif=afterhappy.va-prehappy.va)
+data_exp1 <- mutate(data_exp1, fearpmvadif=afterminus.va-preminus.va, happypmvadif=afterplus.va-preplus.va)
+delta <- boxplotv(data_exp1,c("face","structure"),c("fearfacevadif","happyfacevadif","fearpmvadif","happypmvadif"),"happy")+
+  coord_cartesian(ylim = c(-50,50))+
+  scale_y_continuous(name = "Delta Valence",expand = c(0,0),breaks = c(seq(from=-50, to=50, by=10)))
+ggsave(paste0(data_dir,"box_delta.pdf"),delta, width = 5, height = 4, device = cairo_pdf)
 
-# 3.6 arrange plots -------------------------------------------------------
+# 3.7 arrange plots -------------------------------------------------------
 # box plots
 # exp1_box <- ggarrange(va_before,va_after,va_hf,va_pm,ncol=4)
 exp1_box <- wrap_plots(va_hf,va_pm,va_after,va_before,ncol=4)+plot_annotation(tag_levels = "A")

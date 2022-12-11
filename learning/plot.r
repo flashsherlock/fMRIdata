@@ -613,14 +613,54 @@ delta <- boxplotv(data_exp1,c("face","structure"),c("fearfacevadif","happyfaceva
   scale_y_continuous(name = "Delta Valence",expand = c(0,0),breaks = c(seq(from=-50, to=50, by=10)))
 ggsave(paste0(data_dir,"box_delta.pdf"),delta, width = 5, height = 4, device = cairo_pdf)
 
-# 3.7 arrange plots -------------------------------------------------------
+# 3.7 discriminate acc -------------------------------------------------------
+# select data
+Violin_data <- subset(data_exp1,select = c("id","pre.acc","after.acc"))
+Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+con <- c("pre","post")
+Violin_data <- mutate(Violin_data,
+                      condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
+
+# summarise data 5% and 90% quantile
+df <- Violin_data %>% group_by(condition) %>% 
+  summarise(y0 = quantile(Score, 0.05), 
+            #y0 = mean(Score)-ci90(Score),
+            y25 = quantile(Score, 0.25), 
+            #y50 = median(Score), 
+            y50 = mean(Score), 
+            y75 = quantile(Score, 0.75), 
+            #y100 = mean(Score)+ci90(Score))
+            y100 = quantile(Score, 0.95))
+
+# jitter
+set.seed(111)
+Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), 0.3))
+# boxplot
+acc <- ggplot(data=Violin_data, aes(x=condition)) + 
+  # geom_boxplot(aes(y=Score,color=test),
+  #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
+  geom_errorbar(data=df, position = position_dodge(0.6),
+                aes(ymin=y0,ymax=y100),linetype = 1,width = 0.15)+ # add line to whisker
+  geom_boxplot(data=df,
+               aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+               outlier.shape = NA, fill="white", width=0.25, position = position_dodge(0.6),
+               stat = "identity") +
+  geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
+  geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8")+
+  coord_cartesian(ylim = c(0,1))+
+  scale_y_continuous(name = "Accuracy",expand = expansion(add = c(0,0)),breaks = c(1,seq(from=0, to=1, by=0.2)))+
+  theme(axis.title.x=element_blank())
+ggsave(paste0(data_dir,"box_acc.pdf"),acc, width = 5, height = 4, device = cairo_pdf)
+
+# 3.8 arrange plots -------------------------------------------------------
 # box plots
 # exp1_box <- ggarrange(va_before,va_after,va_hf,va_pm,ncol=4)
-exp1_box <- wrap_plots(va_hf,va_pm,va_after,va_before,ncol=4)+plot_annotation(tag_levels = "A")
+exp1_box <- wrap_plots(va_hf,va_pm,va_after,va_before,delta,acc,ncol=2)+plot_annotation(tag_levels = "A")
 
 ggsave(paste0(data_dir,"box_exp1.pdf"),
        exp1_box,
-       width = 20, height = 3.5,
+       width = 10, height = 10.5,
        device = cairo_pdf)
 
 exp1_other <- wrap_plots(dis1,diag1,corr1,ncol=3)+plot_annotation(tag_levels = "A")

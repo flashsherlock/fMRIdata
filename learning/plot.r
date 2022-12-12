@@ -216,7 +216,11 @@ barplot <- function(data, con, select, test="pre"){
   Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   df <- summarySEwithin(Violin_data,measurevar = "Score",withinvars = c("condition","test"),idvar = "id")
-  
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = ifelse(test == tests[1], 
+                                                     jitter(as.numeric(condition) - 0.15, 0.3),
+                                                     jitter(as.numeric(condition) + 0.15, 0.3) ))
   # boxplot
   pd <- position_dodge(0.8)
   ggplot(data=df, aes(x=condition,y=Score,fill=test)) + 
@@ -227,6 +231,8 @@ barplot <- function(data, con, select, test="pre"){
     scale_color_manual(values=c("#a1d08d","#f8c898"))+
     coord_cartesian(ylim = c(1.3,1.8))+
     scale_fill_manual(values = c("#a1d08d","#f8c898")) + 
+    geom_point(data=Violin_data,aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
+    geom_line(data=Violin_data,aes(x=con,y=Score,group = interaction(id,condition)), color = "#e8e8e8")+
     scale_y_continuous(expand = c(0,0),
                        breaks = seq(from=1.3, to=1.8, by=0.1))+
     theme(axis.title.x=element_blank())
@@ -608,7 +614,7 @@ ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4, devi
 # happy-fear and plus-minus
 data_exp1 <- mutate(data_exp1, fearfacevadif=afterfear.va-prefear.va, happyfacevadif=afterhappy.va-prehappy.va)
 data_exp1 <- mutate(data_exp1, fearpmvadif=afterminus.va-preminus.va, happypmvadif=afterplus.va-preplus.va)
-delta <- boxplotv(data_exp1,c("face","structure"),c("fearfacevadif","happyfacevadif","fearpmvadif","happypmvadif"),"happy")+
+delta <- barplot(data_exp1,c("face","structure"),c("fearfacevadif","happyfacevadif","fearpmvadif","happypmvadif"),"happy")+
   coord_cartesian(ylim = c(-50,50))+
   scale_y_continuous(name = "Delta Valence",expand = c(0,0),breaks = c(seq(from=-50, to=50, by=10)))
 ggsave(paste0(data_dir,"box_delta.pdf"),delta, width = 5, height = 4, device = cairo_pdf)

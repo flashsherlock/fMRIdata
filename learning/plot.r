@@ -220,9 +220,9 @@ lineplot <- function(data, con, select, test="pre"){
   # lineplot
   pd <- position_dodge(0.15)
   ggplot(data=df, aes(x=condition,y=Score,color=test)) + 
-    geom_point(size = 0.5, show.legend = F, position = pd)+
-    geom_line(aes(group=test),stat = "identity", position = pd)+
-    geom_errorbar(aes(ymin=Score-se, ymax=Score+se),width=.15, position = pd)+
+    geom_point(size = 0.5, show.legend = F)+
+    geom_line(aes(group=test),stat = "identity")+
+    geom_errorbar(aes(ymin=Score-se, ymax=Score+se),width=.15)+
     scale_color_manual(values=c("#a1d08d","#f8c898"))+
     coord_cartesian(ylim = c(1.3,1.8))+
     scale_fill_manual(values = c("#a1d08d","#f8c898")) + 
@@ -652,7 +652,7 @@ ggsave(paste0(data_dir,"box_va_after.pdf"),va_after, width = 5, height = 4, devi
 # happy-fear and plus-minus
 data_exp1 <- mutate(data_exp1, fearfacevadif=afterfear.va-prefear.va, happyfacevadif=afterhappy.va-prehappy.va)
 data_exp1 <- mutate(data_exp1, fearpmvadif=afterminus.va-preminus.va, happypmvadif=afterplus.va-preplus.va)
-delta <- barplot(data_exp1,c("face","structure"),c("fearfacevadif","happyfacevadif","fearpmvadif","happypmvadif"),"happy")+
+delta <- boxplotv(data_exp1,c("face","structure"),c("fearfacevadif","happyfacevadif","fearpmvadif","happypmvadif"),"happy")+
   coord_cartesian(ylim = c(-50,50))+
   scale_y_continuous(name = "Delta Valence",expand = c(0,0),breaks = c(seq(from=-50, to=50, by=10)))
 ggsave(paste0(data_dir,"box_delta.pdf"),delta, width = 5, height = 4, device = cairo_pdf)

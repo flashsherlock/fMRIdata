@@ -193,6 +193,44 @@ boxplot <- function(data, con, select, test="pre"){
     theme(axis.title.x=element_blank())
 }
 
+lineplot <- function(data, con, select, test="pre"){
+  # select data
+  Violin_data <- subset(data,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  if (test=="pre"){
+    tests <- c("Pre-test","Post-test")
+  } else if (test=="happy"){
+    tests <- c("Happy_odor","Fearful_odor")
+  } else if (test=="plus"){
+    tests <- c("Plus","Minus")
+  } else if (test=="Citral"){
+    tests <- c("Citral","Indole")
+  } else {
+    tests <- c("H","F")
+  }
+  
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,test),tests[1],tests[2]),
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
+  
+  df <- summarySEwithin(Violin_data,measurevar = "Score",withinvars = c("condition","test"),idvar = "id")
+  
+  # lineplot
+  pd <- position_dodge(0.15)
+  ggplot(data=df, aes(x=condition,y=Score,color=test)) + 
+    geom_point(size = 0.5, show.legend = F, position = pd)+
+    geom_line(aes(group=test),stat = "identity", position = pd)+
+    geom_errorbar(aes(ymin=Score-se, ymax=Score+se),width=.15, position = pd)+
+    scale_color_manual(values=c("#a1d08d","#f8c898"))+
+    coord_cartesian(ylim = c(1.3,1.8))+
+    scale_fill_manual(values = c("#a1d08d","#f8c898")) + 
+    scale_y_continuous(expand = c(0,0),
+                       breaks = seq(from=1.3, to=1.8, by=0.1))+
+    theme(axis.title.x=element_blank())
+}
+
 barplot <- function(data, con, select, test="pre"){
   # select data
   Violin_data <- subset(data,select = c("id",select))
@@ -794,6 +832,24 @@ print(vio)
 ggsave(paste0(data_dir,"vio_2_RT.pdf"), vio, width = 10, height = 4,
        device = cairo_pdf)
 
+# 4.3 lineplots -------------------------------------------------------------------
+line_hf <- lineplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
+  coord_cartesian(ylim = c(1.4,1.8))+
+  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=1.4, to=2, by=0.1)))+
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy","Fearful"))
+# plus and minus
+line_pm <- lineplot(data_exp2,c("H","F"),c("plusF","minusF","plusH","minusH"),test="plus")+
+  coord_cartesian(ylim = c(1.4,1.8))+
+  scale_y_continuous(expand = c(0,0),breaks = c(seq(from=1.4, to=2, by=0.1)))+
+  labs(y="Response time (s)")+
+  scale_x_discrete(labels=c("Happy","Fearful"))
+
+line <- wrap_plots(line_hf,line_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+print(line)
+ggsave(paste0(data_dir,"line_2_RT.pdf"), line, width = 10, height = 4,
+       device = cairo_pdf)
+
 # count subjects
 nochange <- sum(data_exp2$learn.dif==0)
 positive <- sum(data_exp2$learn.dif>0)
@@ -881,4 +937,24 @@ ggsave(paste0(data_dir,"vio_v23_RT.pdf"), viov, width = 10, height = 4)
 # all vio plots
 vio_all <- wrap_plots(vio2,vio3,vio_hf,vio_pm,ncol = 2)+plot_annotation(tag_levels = "A")
 ggsave(paste0(data_dir,"vio_RT.pdf"), vio_all, width = 10, height = 8,
+       device = cairo_pdf)
+
+# 4.4 lineplots -------------------------------------------------------------------
+line2 <- lineplot(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(1.2,1.5))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=1.2, to=1.5, by=0.1)))+
+  scale_x_discrete(labels=exp_con)
+
+line3 <- lineplot(data_expv3,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
+  coord_cartesian(ylim = c(1.2,1.5))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=1.2, to=1.5, by=0.1)))+
+  scale_x_discrete(labels=exp_con)
+# arrange
+linev <- wrap_plots(line2,line3,ncol = 2)+plot_annotation(tag_levels = "A")
+print(linev)
+ggsave(paste0(data_dir,"line_v23_RT.pdf"), linev, width = 10, height = 4)
+
+# all vio plots
+line_all <- wrap_plots(line2,line3,line_hf,line_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"line_RT.pdf"), line_all, width = 8, height = 5,
        device = cairo_pdf)

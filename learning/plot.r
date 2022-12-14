@@ -136,10 +136,23 @@ vioplot <- function(data, con, select, test="pre"){
 
 # boxplot
 ci90 <- function(x){
-  return(qnorm(0.95)*sd(x)/sqrt(length(x)))
+  # return(qnorm(0.95)*sd(x)/sqrt(length(x)))
   # similar to 5% and 90%
-  # return(qnorm(0.95)*sd(x))
+  return(qnorm(0.95)*sd(x))
 }
+
+boxset <- function(data){
+  summarise(data,
+            #y0 = quantile(Score, 0.05), 
+            y0 = mean(Score)-ci90(Score),
+            y25 = quantile(Score, 0.25), 
+            #y50 = median(Score), 
+            y50 = mean(Score), 
+            y75 = quantile(Score, 0.75), 
+            y100 = mean(Score)+ci90(Score))
+            #y100 = quantile(Score, 0.95))
+}
+
 boxplot <- function(data, con, select, test="pre"){
   # select data
   Violin_data <- subset(data,select = c("id",select))
@@ -163,14 +176,7 @@ boxplot <- function(data, con, select, test="pre"){
   Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   # summarise data 5% and 90% quantile
-  df <- Violin_data %>% group_by(condition, test) %>% 
-    summarise(y0 = quantile(Score, 0.05), 
-              #y0 = mean(Score)-ci90(Score),
-              y25 = quantile(Score, 0.25), 
-              y50 = median(Score), 
-              y75 = quantile(Score, 0.75), 
-              #y100 = mean(Score)+ci90(Score))
-              y100 = quantile(Score, 0.95))
+  df <- Violin_data %>% group_by(condition, test) %>% boxset
   
   # boxplot
   ggplot(data=Violin_data, aes(x=condition)) + 
@@ -300,15 +306,7 @@ boxplotv <- function(data, con, select, test="pre"){
   Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   # summarise data 5% and 90% quantile
-  df <- Violin_data %>% group_by(condition, test) %>% 
-    summarise(y0 = quantile(Score, 0.05), 
-              #y0 = mean(Score)-ci90(Score),
-              y25 = quantile(Score, 0.25), 
-              #y50 = median(Score), 
-              y50 = mean(Score), 
-              y75 = quantile(Score, 0.75), 
-              #y100 = mean(Score)+ci90(Score))
-              y100 = quantile(Score, 0.95))
+  df <- Violin_data %>% group_by(condition, test) %>% boxset
   
   # jitter
   set.seed(111)
@@ -420,15 +418,7 @@ pair_sep_plot <- function(data,var,c=0){
   after_box_data$Condition <- factor(after_box_data$Condition, levels = c("Happy","Fearful"),ordered = F)
   
   # summarise data 5% and 90% quantile
-  df <- after_box_data %>% group_by(pair,Odor) %>% 
-    summarise(y0 = quantile(Score, 0.05), 
-              #y0 = mean(Score)-ci90(Score),
-              y25 = quantile(Score, 0.25), 
-              # y50 = median(Score), 
-              y50 = mean(Score), 
-              y75 = quantile(Score, 0.75), 
-              #y100 = mean(Score)+ci90(Score))
-              y100 = quantile(Score, 0.95))
+  df <- after_box_data %>% group_by(pair,Odor) %>% boxset
   df <- mutate(df, Condition=ifelse((Odor=="(+)-pinene" & pair=="(+)-Happy")|(Odor=="(−)-pinene" & pair=="(−)-Happy"),"Happy","Fearful"))
   df$Condition <- factor(df$Condition, levels = c("Happy","Fearful"),ordered = F)
   
@@ -667,16 +657,7 @@ Violin_data <- mutate(Violin_data,
 Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
 
 # summarise data 5% and 90% quantile
-df <- Violin_data %>% group_by(condition) %>% 
-  summarise(y0 = quantile(Score, 0.05), 
-            #y0 = mean(Score)-ci90(Score),
-            y25 = quantile(Score, 0.25), 
-            #y50 = median(Score), 
-            y50 = mean(Score), 
-            y75 = quantile(Score, 0.75), 
-            #y100 = mean(Score)+ci90(Score))
-            y100 = quantile(Score, 0.95))
-
+df <- Violin_data %>% group_by(condition) %>% boxset
 # jitter
 set.seed(111)
 Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), 0.3))
@@ -702,7 +683,7 @@ ggsave(paste0(data_dir,"box_acc.pdf"),acc, width = 5, height = 4, device = cairo
 # exp1_box <- ggarrange(va_before,va_after,va_hf,va_pm,ncol=4)
 exp1_box <- wrap_plots(va_hf,va_pm,va_after,va_before,delta,acc,ncol=2)+plot_annotation(tag_levels = "A")
 
-ggsave(paste0(data_dir,"box_exp1.pdf"),
+ggsave(paste0(data_dir,"box_exp1_sd.pdf"),
        exp1_box,
        width = 10, height = 10.5,
        device = cairo_pdf)

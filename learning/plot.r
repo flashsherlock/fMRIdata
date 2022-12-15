@@ -285,7 +285,7 @@ barplot <- function(data, con, select, test="pre"){
 # box plot for comparision
 boxcp <- function(data, con, select){
   # select data
-  Violin_data <- subset(data_exp1,select = c("id",select))
+  Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
   Violin_data <- mutate(Violin_data,
                         condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
@@ -939,7 +939,15 @@ linev <- wrap_plots(line2,line3,ncol = 2)+plot_annotation(tag_levels = "A")
 print(linev)
 ggsave(paste0(data_dir,"line_v23_RT.pdf"), linev, width = 10, height = 4)
 
-# all vio plots
-line_all <- wrap_plots(line2,line3,line_hf,line_pm,ncol = 2)+plot_annotation(tag_levels = "A")
-ggsave(paste0(data_dir,"line_RT.pdf"), line_all, width = 8, height = 5,
+# all line plots plus con-incon
+con2 <- boxcp(data_expv2,c("incon","con"),c("con","incon"))+
+  coord_cartesian(ylim = c(0,3))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))
+  
+con4 <- boxcp(data_exp2,c("incon","con"),c("con","incon"))+
+  coord_cartesian(ylim = c(0,3))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))
+
+line_all <- wrap_plots(line2,con2,line3,line_hf,con4,line_pm,ncol = 3)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"line_RT.pdf"), line_all, width = 12, height = 5,
        device = cairo_pdf)

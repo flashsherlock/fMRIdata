@@ -282,6 +282,37 @@ barplot <- function(data, con, select, test="pre"){
     theme(axis.title.x=element_blank())
 }
 
+# box plot for comparision
+boxcp <- function(data, con, select){
+  # select data
+  Violin_data <- subset(data_exp1,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  Violin_data <- mutate(Violin_data,
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
+  
+  # summarise data 5% and 90% quantile
+  df <- Violin_data %>% group_by(condition) %>% boxset
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), 0.3))
+  # boxplot
+  ggplot(data=Violin_data, aes(x=condition)) + 
+    # geom_boxplot(aes(y=Score,color=test),
+    #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
+    geom_errorbar(data=df, position = position_dodge(0.6),
+                  aes(ymin=y0,ymax=y100),linetype = 1,width = 0.15)+ # add line to whisker
+    geom_boxplot(data=df,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+                 outlier.shape = NA, fill="white", width=0.25, position = position_dodge(0.6),
+                 stat = "identity") +
+    geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
+    geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8")+
+    coord_cartesian(ylim = c(0,1))+
+    scale_y_continuous(name = "Accuracy",expand = expansion(add = c(0,0)),breaks = c(1,seq(from=0, to=1, by=0.2)))+
+    theme(axis.title.x=element_blank())
+}
+
 # boxplot with horizontal line
 boxplotv <- function(data, con, select, test="pre"){
   # select data
@@ -648,34 +679,7 @@ delta <- boxplotv(data_exp1,c("face","structure"),c("fearfacevadif","happyfaceva
 ggsave(paste0(data_dir,"box_delta.pdf"),delta, width = 5, height = 4, device = cairo_pdf)
 
 # 3.7 discriminate acc -------------------------------------------------------
-# select data
-Violin_data <- subset(data_exp1,select = c("id","pre.acc","after.acc"))
-Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
-con <- c("pre","post")
-Violin_data <- mutate(Violin_data,
-                      condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
-Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
-
-# summarise data 5% and 90% quantile
-df <- Violin_data %>% group_by(condition) %>% boxset
-# jitter
-set.seed(111)
-Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), 0.3))
-# boxplot
-acc <- ggplot(data=Violin_data, aes(x=condition)) + 
-  # geom_boxplot(aes(y=Score,color=test),
-  #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
-  geom_errorbar(data=df, position = position_dodge(0.6),
-                aes(ymin=y0,ymax=y100),linetype = 1,width = 0.15)+ # add line to whisker
-  geom_boxplot(data=df,
-               aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
-               outlier.shape = NA, fill="white", width=0.25, position = position_dodge(0.6),
-               stat = "identity") +
-  geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
-  geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8")+
-  coord_cartesian(ylim = c(0,1))+
-  scale_y_continuous(name = "Accuracy",expand = expansion(add = c(0,0)),breaks = c(1,seq(from=0, to=1, by=0.2)))+
-  theme(axis.title.x=element_blank())
+acc <- boxcp(data_exp1,c("pre","post"),c("pre.acc","after.acc"))
 ggsave(paste0(data_dir,"box_acc.pdf"),acc, width = 5, height = 4, device = cairo_pdf)
 
 # 3.8 arrange plots -------------------------------------------------------

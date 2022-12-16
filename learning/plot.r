@@ -944,10 +944,14 @@ con2 <- boxcp(data_expv2,c("incon","con"),c("con","incon"))+
   coord_cartesian(ylim = c(0,3))+
   scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))
   
+con3 <- boxcp(data_expv3,c("incon","con"),c("con","incon"))+
+  coord_cartesian(ylim = c(0,3))+
+  scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))
+  
 con4 <- boxcp(data_exp2,c("incon","con"),c("con","incon"))+
   coord_cartesian(ylim = c(0,3))+
   scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))
 
-line_all <- wrap_plots(line2,con2,line3,line_hf,con4,line_pm,ncol = 3)+plot_annotation(tag_levels = "A")
-ggsave(paste0(data_dir,"line_RT.pdf"), line_all, width = 12, height = 5,
+line_all <- wrap_plots(line2,con2,line3,con3,line_hf,con4,line_pm,ncol = 4)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"line_RT.pdf"), line_all, width = 16, height = 5,
        device = cairo_pdf)

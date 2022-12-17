@@ -494,6 +494,27 @@ pair_sep_plot <- function(data,var,c=0){
       theme(axis.title.x=element_blank())
   }
 }
+
+pair_sep_line <- function(data,var){
+  after_box_data <- subset(data,select = c("id","pair",var))
+  after_box_data <- reshape2::melt(after_box_data, c("id","pair"),variable.name = "Odor", value.name = "Score")
+  after_box_data <- mutate(after_box_data, Odor=ifelse(str_detect(Odor,"plus"),"(+)-pinene","(−)-pinene"))
+
+  after_box_data$Odor <- factor(after_box_data$Odor, levels = c("(+)-pinene","(−)-pinene"),ordered = F)
+  after_box_data$pair <- factor(after_box_data$pair, levels = c("+","-"),labels = c("(+)-Happy","(−)-Happy"),ordered = F)
+ 
+  # summarise data
+  df <- summarySEwithin(after_box_data,measurevar = "Score",betweenvars = c("pair"), withinvars = c("Odor"),idvar = "id")
+  
+  ggplot(data=df, aes(x=pair,y=Score,color=Odor)) + 
+    geom_point(size = 0.5, show.legend = F)+
+    geom_line(aes(group=Odor),stat = "identity")+
+    geom_errorbar(aes(ymin=Score-se, ymax=Score+se),width=.15)+
+    scale_color_manual(values=c("grey50","black"))+
+    coord_cartesian(ylim = c(30,60))+
+    scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = seq(from=30, to=60, by=5))+
+    theme(axis.title.x=element_blank())
+}
 # 2 EXP1 analysis --------------------------------------------------------------
 
 # Load Data
@@ -682,10 +703,20 @@ ggsave(paste0(data_dir,"box_delta.pdf"),delta, width = 5, height = 4, device = c
 acc <- boxcp(data_exp1,c("pre","post"),c("pre.acc","after.acc"))
 ggsave(paste0(data_dir,"box_acc.pdf"),acc, width = 5, height = 4, device = cairo_pdf)
 
-# 3.8 arrange plots -------------------------------------------------------
+# 3.8 line plot -----------------------------------------------------------
+va_hf <- lineplot(data_exp1,c("pre","post"),c("prehappy.va","prefear.va","afterhappy.va","afterfear.va"),"happy")+
+  coord_cartesian(ylim = c(30,60))+
+  scale_y_continuous(name = "Valence", expand = c(0,0),breaks = c(seq(from=30, to=60, by=5)))
+
+va_pm <- lineplot(data_exp1,c("pre","post"),c("preplus.va","preminus.va","afterplus.va","afterminus.va"),"plus")+
+  coord_cartesian(ylim = c(30,60))+
+  scale_y_continuous(name = "Valence", expand = c(0,0),breaks = c(seq(from=30, to=60, by=5)))
+
+va_after <- pair_sep_line(data_exp1,c("afterplus.va","afterminus.va"))
+# 3.9 arrange plots -------------------------------------------------------
 # box plots
 # exp1_box <- ggarrange(va_before,va_after,va_hf,va_pm,ncol=4)
-exp1_box <- wrap_plots(va_hf,va_pm,va_after,va_before,delta,acc,ncol=2)+plot_annotation(tag_levels = "A")
+exp1_box <- wrap_plots(va_hf,va_pm,va_after,delta,acc,ncol=2)+plot_annotation(tag_levels = "A")
 
 ggsave(paste0(data_dir,"box_exp1_sd.pdf"),
        exp1_box,

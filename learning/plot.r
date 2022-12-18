@@ -143,14 +143,14 @@ ci90 <- function(x){
 
 boxset <- function(data){
   summarise(data,
-            #y0 = quantile(Score, 0.05), 
-            y0 = mean(Score)-ci90(Score),
+            y0 = quantile(Score, 0.05), 
+            #y0 = mean(Score)-ci90(Score),
             y25 = quantile(Score, 0.25), 
-            #y50 = median(Score), 
-            y50 = mean(Score), 
+            y50 = median(Score), 
+            # y50 = mean(Score), 
             y75 = quantile(Score, 0.75), 
-            y100 = mean(Score)+ci90(Score))
-            #y100 = quantile(Score, 0.95))
+            #y100 = mean(Score)+ci90(Score))
+            y100 = quantile(Score, 0.95))
 }
 
 boxplot <- function(data, con, select, test="pre"){
@@ -718,7 +718,7 @@ va_after <- pair_sep_line(data_exp1,c("afterplus.va","afterminus.va"))
 # exp1_box <- ggarrange(va_before,va_after,va_hf,va_pm,ncol=4)
 exp1_box <- wrap_plots(va_hf,va_pm,va_after,delta,acc,ncol=2)+plot_annotation(tag_levels = "A")
 
-ggsave(paste0(data_dir,"box_exp1_sd.pdf"),
+ggsave(paste0(data_dir,"exp1_median_percentile.pdf"),
        exp1_box,
        width = 10, height = 10.5,
        device = cairo_pdf)
@@ -848,7 +848,7 @@ print(vio)
 ggsave(paste0(data_dir,"vio_2_RT.pdf"), vio, width = 10, height = 4,
        device = cairo_pdf)
 
-# 4.3 lineplots -------------------------------------------------------------------
+# 4.4 lineplots -------------------------------------------------------------------
 line_hf <- lineplot(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   coord_cartesian(ylim = c(1.4,1.8))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=1.4, to=2, by=0.1)))+
@@ -984,5 +984,5 @@ con4 <- boxcp(data_exp2,c("incon","con"),c("con","incon"))+
   scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))
 
 line_all <- wrap_plots(line2,con2,line3,con3,line_hf,con4,line_pm,ncol = 4)+plot_annotation(tag_levels = "A")
-ggsave(paste0(data_dir,"line_RT.pdf"), line_all, width = 16, height = 5,
+ggsave(paste0(data_dir,"line_RT_median_percentile.pdf"), line_all, width = 16, height = 5,
        device = cairo_pdf)

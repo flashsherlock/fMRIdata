@@ -506,9 +506,9 @@ pair_sep_line <- function(data,var){
   # summarise data
   df <- summarySEwithin(after_box_data,measurevar = "Score",betweenvars = c("pair"), withinvars = c("Odor"),idvar = "id")
   
-  ggplot(data=df, aes(x=pair,y=Score,color=Odor)) + 
+  ggplot(data=df, aes(x=Odor,y=Score,color=pair)) + 
     geom_point(size = 0.5, show.legend = F)+
-    geom_line(aes(group=Odor),stat = "identity")+
+    geom_line(aes(group=pair),stat = "identity")+
     geom_errorbar(aes(ymin=Score-se, ymax=Score+se),width=.15)+
     scale_color_manual(values=c("grey50","black"))+
     coord_cartesian(ylim = c(30,60))+

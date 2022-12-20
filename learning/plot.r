@@ -537,6 +537,9 @@ data_exp1 <- mutate(data_exp1, preindif_pm=preplus.in-preminus.in, afterindif_pm
 # absolute va.dif after pairing
 data_exp1 <- mutate(data_exp1,absvadif=abs(va.dif))
 data_exp1 <- mutate(data_exp1,abslearndif=abs(learn.dif))
+# improvement of discrimination
+data_exp1 <- mutate(data_exp1,accdif=after.acc-pre.acc)
+# correlations
 cor(data_exp1$va.dif,data_exp1$after.acc)
 cor(data_exp1$prevadif,data_exp1$pre.acc)
 cor(data_exp1$absvadif,data_exp1$after.acc)
@@ -629,6 +632,11 @@ trials <- nrow(data_exp1)-nochange
 dis1 <- binomial_plot(trials,positive)
 dis1 <- binomial_prob(trials,positive)
 ggsave(paste0(data_dir,"distribution.pdf"),dis1, width = 4, height = 3)
+# count for acc diff
+nochange_acc <- sum(data_exp1$accdif==0)
+positive_acc <- sum(data_exp1$accdif>0)
+trials_acc <- nrow(data_exp1)-nochange_acc
+dis2 <- binomial_prob(trials_acc,positive_acc)
 
 # correplot(data_exp1,"absvadif","after.acc")
 # correplot(data_exp1,"learn.dif","after.acc")

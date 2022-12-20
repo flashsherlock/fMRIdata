@@ -708,7 +708,8 @@ delta <- boxplotv(data_exp1,c("face","structure"),c("fearfacevadif","happyfaceva
 ggsave(paste0(data_dir,"box_delta.pdf"),delta, width = 5, height = 4, device = cairo_pdf)
 
 # 3.7 discriminate acc -------------------------------------------------------
-acc <- boxcp(data_exp1,c("pre","post"),c("pre.acc","after.acc"))
+acc <- boxcp(data_exp1, c("pre", "post"), c("pre.acc", "after.acc"))+ 
+  geom_hline(yintercept = 1 / 3, size = 0.5, linetype = "dashed", color = "black")
 ggsave(paste0(data_dir,"box_acc.pdf"),acc, width = 5, height = 4, device = cairo_pdf)
 
 # 3.8 line plot -----------------------------------------------------------

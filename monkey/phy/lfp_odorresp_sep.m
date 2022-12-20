@@ -237,6 +237,12 @@ for m = 1:length(monkeys)
             % scatter plot
             subplot(3,coord,(dis-1)*coord+j);
             scatter(x,y,'.')
+            % add regression line
+            hold on
+            pfit = polyfit(x, y, 1);
+            ycalc = polyval(pfit, x);
+            plot(x,ycalc,'k')
+            % add r and p values
             xlabel(xl(j))
             ylabel(yl(dis))
             set(gca,'ylim',[0 1],'xlim',[min(x)-1 max(x)+1],'FontSize',18);

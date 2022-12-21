@@ -422,18 +422,24 @@ binomial_prob <- function(trials,positive){
   x <- seq(0,trials)
   bi_viz <- data.frame(x,dbinom(x, trials, 0.5), pbinom(x, trials, 0.5))
   names(bi_viz) <- c("number","dbinom","pbinom")
-  bi_viz <- bi_viz[6:24,]
+  limx <- c(0,1)
+  if (trials==28) {
+    bi_viz <- bi_viz[6:24,]
+    limx <- c(5,23)/trials
+  }
+  bi_viz <- mutate(bi_viz,number = number/trials)
   
   cri <- as.numeric(bi_viz[min(which(bi_viz$pbinom>0.95)),1])
-  tru <- as.numeric(bi_viz[bi_viz$number==positive,1])
+  tru <- as.numeric(bi_viz[bi_viz$number==positive/trials,1])
   # plot binomial distribution
   ggplot(bi_viz,aes(number,dbinom)) +
     geom_col(fill="#4d9dd4")+
     # plot p=0.95
     geom_vline(xintercept = cri,size=0.5,linetype = "dashed", color = "black")+
     scale_y_continuous(expand = c(0,0),breaks=seq(0,0.15,0.05))+
-    coord_cartesian(xlim = c(5,23), ylim = c(0,0.16),clip = 'off') +
-    labs(x="Number of subjects",y="Probability")+
+    scale_x_continuous(breaks=c(0.25,0.5,0.75))+
+    coord_cartesian(xlim = limx, ylim = c(0,0.16),clip = 'off') +
+    labs(x="Prop of participants",y="Probability")+
     geom_point(x=tru,y=psize*0.001,size=psize,color="red")
 }
 

@@ -905,6 +905,23 @@ data_expv2 <- spss.get(paste0(data_dir,"result_expv2.sav"))
 data_expv3 <- spss.get(paste0(data_dir,"result_expv3.sav"))
 exp_con <- c("Happy","Fearful")
 # 4.1 boxplots -------------------------------------------------------------------
+
+# valence
+bruceR::TTEST(data_expv2, y=c("valence.Citral", "valence.Indole"), paired=TRUE)
+bruceR::TTEST(data_expv3, y=c("valence.Citral", "valence.Indole"), paired=TRUE)
+# v2
+valence2 <- boxcp(data_expv2,c("Citral","Indole"),c("valence.Citral", "valence.Indole"))+
+  coord_cartesian(ylim = c(0,100))+
+  scale_y_continuous(name = "Valence",expand = c(0,0),breaks = c(1,seq(from=20, to=100, by=20)))
+# v3
+valence3 <- boxcp(data_expv3,c("Citral","Indole"),c("valence.Citral", "valence.Indole"))+
+  coord_cartesian(ylim = c(0,100))+
+  scale_y_continuous(name = "Valence",expand = c(0,0),breaks = c(1,seq(from=20, to=100, by=20)))
+# arrange
+val23 <- wrap_plots(valence2,valence3,ncol = 2)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"valence_median_percentile.pdf"), val23, width = 6, height = 3,
+       device = cairo_pdf)
+# RT
 box2 <- boxplotv(data_expv2,exp_con,c("Indole.Happy","Indole.Fearful","Citral.Happy","Citral.Fearful"),"Citral")+
   coord_cartesian(ylim = c(0,3))+
   scale_y_continuous(name = "Response time (s)",expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+

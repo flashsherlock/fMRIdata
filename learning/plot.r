@@ -1018,3 +1018,20 @@ con4 <- boxcp(data_exp2,c("incon","con"),c("con","incon"))+
 line_all <- wrap_plots(line2,con2,line3,con3,line_hf,con4,line_pm,ncol = 4)+plot_annotation(tag_levels = "A")
 ggsave(paste0(data_dir,"line_RT_median_percentile.pdf"), line_all, width = 16, height = 5,
        device = cairo_pdf)
+
+# add binomial plots
+# exp2&3
+positive_con2 <- sum((data_expv2$con - data_expv2$incon)<0)
+positive_con3 <- sum((data_expv3$con - data_expv3$incon) < 0)
+psize <- 3
+nsub <- nrow(data_exp1)
+con2 <- binomial_prob(nsub, positive_con2)+
+  geom_point(x = positive_con3/nsub, y = psize * 0.001, size = psize, color = "gray")+
+  coord_cartesian(xlim = c(0.2,0.8), ylim = c(0,0.16),clip = 'off')
+# exp4
+positive_con4 <- sum((data_exp2$con - data_exp2$incon) < 0)
+con4 <- binomial_prob(nsub, positive_con4)+
+  coord_cartesian(xlim = c(0.2,0.8), ylim = c(0,0.16),clip = 'off')
+# arrange
+biodis <- wrap_plots(dis1, con2, con4, ncol = 3) + plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir, "biodis.pdf"), biodis, width = 15, height = 4)

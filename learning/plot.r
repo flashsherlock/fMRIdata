@@ -422,10 +422,12 @@ binomial_prob <- function(trials,positive){
   x <- seq(0,trials)
   bi_viz <- data.frame(x,dbinom(x, trials, 0.5), pbinom(x, trials, 0.5))
   names(bi_viz) <- c("number","dbinom","pbinom")
-  limx <- c(0,1)
   if (trials==28) {
     bi_viz <- bi_viz[6:24,]
     limx <- c(5,23)/trials
+  } else {
+    bi_viz <- bi_viz[8:30,]
+    limx <- c(7,29)/trials
   }
   bi_viz <- mutate(bi_viz,number = number/trials)
   
@@ -1026,12 +1028,10 @@ positive_con3 <- sum((data_expv3$con - data_expv3$incon) < 0)
 psize <- 3
 nsub <- nrow(data_exp1)
 con2 <- binomial_prob(nsub, positive_con2)+
-  geom_point(x = positive_con3/nsub, y = psize * 0.001, size = psize, color = "gray")+
-  coord_cartesian(xlim = c(0.2,0.8), ylim = c(0,0.16),clip = 'off')
+  geom_point(x = positive_con3/nsub, y = psize * 0.001, size = psize, color = "gray")
 # exp4
 positive_con4 <- sum((data_exp2$con - data_exp2$incon) < 0)
-con4 <- binomial_prob(nsub, positive_con4)+
-  coord_cartesian(xlim = c(0.2,0.8), ylim = c(0,0.16),clip = 'off')
+con4 <- binomial_prob(nsub, positive_con4)
 # arrange
 biodis <- wrap_plots(dis1, con2, con4, ncol = 3) + plot_annotation(tag_levels = "A")
 ggsave(paste0(data_dir, "biodis.pdf"), biodis, width = 15, height = 4)

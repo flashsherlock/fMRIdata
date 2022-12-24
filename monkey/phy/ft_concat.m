@@ -7,9 +7,15 @@ function eeg = ft_concat(data,condition)
     if condition<=6
         % air
         cfg.trials = find(data.trialinfo==condition);
-    else
+    elseif condition == 7
         % odor
         cfg.trials = find(data.trialinfo~=6);
+    elseif condition == 8
+        % unpleasant odor
+        cfg.trials = find(data.trialinfo <= 3);
+    elseif condition == 9
+        % pleasant odor
+        cfg.trials = find(data.trialinfo == 4 | data.trialinfo == 5);
     end
     eeg = ft_selectdata(cfg, data);    
     % set trialinfo

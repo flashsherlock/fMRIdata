@@ -26,7 +26,7 @@ trl_type = 'odor';
 %% parameters 
 % number of roi
 roi_num=size(cur_level_roi,1);
-odor_num=2;
+odor_num=4;
 % 1-respiration 2-theta
 low={'-respiration','-theta'};
 % odor and air condition
@@ -46,7 +46,7 @@ for roi_i=1:roi_num
     % select 7s
     cfg = [];
     cfg.latency= latency;
-    for con_i = 1:2
+    for con_i = 1:odor_num
         % concatenate trials manually
         lfp = ft_concat(ft_selectdata(cfg,roi_lfp{roi_i}), con_i+5);
         resp = ft_concat(ft_selectdata(cfg,roi_resp{roi_i}), con_i+5);
@@ -159,10 +159,10 @@ for roi_i=1:roi_num
     end
 end
 
-save([pic_dir 'coherence_7s.mat'],'cross_freq_result','cur_level_roi','-v7.3')
+save([pic_dir 'coherence_7s.mat'],'cross_freq_result','cur_level_roi')
 
 %% plot
-label = {'Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor'};
+label = {'Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor','UnPlea','Plea'};
 for roi_i=1:size(cross_freq_result,1)
     % respiration and theta
     for low_i=1:length(low)
@@ -214,12 +214,16 @@ for roi_i=1:size(cross_freq_result,1)
             zmi = (squeeze(plv)-mean_per)./std_per;
             % plot zmi (average low freq)
             plot(freqs,mean(zmi),'Color',hex2rgb(colors{odor_i+5}),'linewidth', line_wid)
+            % add sig line
+            ystart = 2-odor_i*0.5;
+            plotsigx( freqs, p{odor_i}, hex2rgb(colors{odor_i+5}), ystart, line_wid)
+            
         end
         set(gca,'xlim',xl);
         set(gca,'XTick',xt);
         set(gca,'XTickLabel',xt);
         set(gca,'FontSize',18);
-        legend(label(6:7));
+        legend(label(6:6+odor_num-1));
         ylabel('Normalized MI (z score)');
         xlabel('Frequency(Hz)');
         

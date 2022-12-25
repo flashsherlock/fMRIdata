@@ -7,12 +7,12 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/powerspec/' m '_HA_air/'];
+pic_dir=[data_dir 'pic/powerspec/' m '_HA/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % whether zscore to air
-cp_air = 1;
+cp_air = 0;
 %% generate data or load data
 if exist([pic_dir 'powspec_odor_7s_1_80hz.mat'],'file')
     load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
@@ -150,6 +150,12 @@ for roi_i=1:roi_num
 %         shadedEBar(spectr_lfpz{roi_i,odor_i}.freq,squeeze(mean(spectr_lfpz{roi_i,odor_i}.powspctrm,1)),...
 %            1.96*squeeze(std(spectr_lfpz{roi_i,odor_i}.powspctrm,1)/sqrt(size(spectr_lfpz{roi_i,odor_i}.powspctrm,1))),...
 %           'lineProps',{'Color',hex2rgb(colors{odor_i}),'LineWidth',line_wid},'patchSaturation',0.2)
+
+%         if odor_i<=6
+%             % add sig line
+%             ystart = 0-odor_i*0.1;
+%             plotsigx(spectr_lfpz{roi_i,odor_i}.freq, spectr_lfp_p{roi_i,odor_i}.prob, hex2rgb(colors{odor_i}), ystart, line_wid)
+%         end
     end
     set(gca,'xlim',freq_win);
     ylabel('ZPower')
@@ -174,6 +180,15 @@ for roi_i=1:roi_num
     xlabel('Frequency (Hz)')
     ylabel('p')
     set(gca, 'FontSize', 18);
+
+    subplot(3,1,3)
+    % clear subplot cannot use clf()
+    cla()
+    for odor_i=1:odor_num-1
+        % add sig line
+        ystart = 1-odor_i*0.1;
+        plotsigx(spectr_lfpz{roi_i,odor_i}.freq, spectr_lfp_p{roi_i,odor_i}.prob, hex2rgb(colors{odor_i}), ystart, line_wid)
+    end
     % saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.fig'], 'fig')
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.png'], 'png')
     saveas(gcf, [pic_dir cur_level_roi{roi_i,1} '-zpower', '.pdf'], 'pdf')

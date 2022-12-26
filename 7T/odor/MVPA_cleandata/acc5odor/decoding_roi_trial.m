@@ -32,10 +32,8 @@ for i_analysis=1:length(analysis_all)
 for roi_i=1:length(rois)
     roi=rois{roi_i};
     mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
-    % Amy will match too many files
-    if roi_i==1
-        mask=mask(1,:);
-    end
+    % Avoid matching too many files
+    mask=mask(1,:);
 parfor i=1:length(comb)
     odornumber=comb(i,:);
     % Set defaults
@@ -59,7 +57,7 @@ parfor i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelpolva_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelbase_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -81,8 +79,8 @@ parfor i=1:length(comb)
         for subi = 1:numtr
             t=timing(subi,2);
             % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
-            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
-            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
+            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
         end
         cfg.files.name = [cfg.files.name F];
         % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -131,7 +129,15 @@ parfor i=1:length(comb)
        nsample = size(passed_data.data, 1);
        nvoxel = size(passed_data.data, 2);
        passed_data.data = reshape(passed_data.data,[nsample/length(shift),length(shift),nvoxel]);
-       passed_data.data = squeeze(mean(passed_data.data, 2));
+       % subtract baseline trs
+       base = find(shift<0);       
+       if ~isempty(base)
+           % average baseline
+           baseline = squeeze(mean(passed_data.data(:,base,:), 2));
+           passed_data.data = squeeze(mean(passed_data.data(:,shift>=0,:), 2))-baseline;
+       else
+           passed_data.data = squeeze(mean(passed_data.data, 2));       
+       end
        % passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
        % change design
        cfg.files.name = cfg.files.name(1:nsample/length(shift));
@@ -142,6 +148,7 @@ parfor i=1:length(comb)
        % cfg.files.chunk = tr(1:nsample/length(shift),4);
        cfg.files.label = cfg.files.label(1:nsample/length(shift));
        cfg.files.labelname = cfg.files.labelname(1:nsample/length(shift));
+       passed_data.files.name = passed_data.files.name(1:nsample/length(shift));
     else
        passed_data.data = [passed_data.data tr(:,[3 4])];
     end

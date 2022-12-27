@@ -98,6 +98,9 @@
 ### get_sinal_pa
 获取信号的phase和amplitude。
 
+### plotsigx
+用横线标记出显著的区域。
+
 ## Power spectrum
 
 ### roi_powerspec
@@ -140,6 +143,9 @@
 
 ### lfp_odorresp_sep
 每一个记录位点分别做时频分析并计算PCA后的距离。
+
+### find_outlier
+查看原始数据中是否有异常值。
 
 ### generate_AH
 通过图谱生成ROI用于显示单个电极的位置。

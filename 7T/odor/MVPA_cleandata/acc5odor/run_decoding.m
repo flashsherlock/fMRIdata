@@ -1,5 +1,5 @@
 analysis_all={'pabiode'};
-shift=[6];
+shift=[-6 -3 6];
 % rois={'Amy9_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align'};
 % for region=[1 3 5 6 7 8 9 10 15]
 %     rois=[rois {['Amy_align' num2str(region) 'seg']}];
@@ -22,7 +22,7 @@ parfor i=1:size(decode,1)
 %     end
 end
 % S19-S34
-for i=[30:34]
+for i=[4:11,13,14,16:18,19:29 31:34]
     sub=sprintf('S%02d',i);
 %     try
     decoding_roi_5odors_trial(sub,analysis_all,rois,shift);    

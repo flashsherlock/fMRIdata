@@ -153,50 +153,36 @@ boxset <- function(data){
             y100 = quantile(Score, 0.95))
 }
 
-boxplot <- function(data, con, select, test="pre"){
+boxplot <- function(data, con, select){
   # select data
-  Violin_data <- subset(data,select = c("id",select))
-  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
-  if (test=="pre"){
-    tests <- c("Pre-test","Post-test")
-  } else if (test=="happy"){
-    tests <- c("Happy_odor","Fearful_odor")
-  } else if (test=="plus"){
-    tests <- c("Plus","Minus")
-  } else if (test=="Citral"){
-    tests <- c("Citral","Indole")
-  } else {
-    tests <- c("H","F")
-  }
-  
-  Violin_data <- mutate(Violin_data,
-                        test=ifelse(str_detect(Task,test),tests[1],tests[2]),
-                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
-  Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
+  Violin_data <- subset(data, select = c("id", select))
+  Violin_data <- mutate(Violin_data, condition = con)
+  # rename select to Score
+  Violin_data <- dplyr::rename(Violin_data, Score = all_of(select))
   Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   # summarise data 5% and 90% quantile
-  df <- Violin_data %>% group_by(condition, test) %>% boxset
-  
+  df <- Violin_data %>%
+    group_by(condition) %>%
+    boxset()
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), amount = 0.05))
   # boxplot
-  ggplot(data=Violin_data, aes(x=condition)) + 
-    # geom_boxplot(aes(y=Score,color=test),
-    #              outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6))+
-    geom_boxplot(data=df,
-                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=test),
-                 outlier.shape = NA, fill=NA, width=0.5, position = position_dodge(0.6),
-                 stat = "identity") +
-    scale_color_manual(values=c("grey50","black"))+
-    geom_point(aes(group = test, fill=test, y=Score), size = 0.5, color = "gray",show.legend = F,
-               position = position_jitterdodge(
-                 jitter.width = 0.3,
-                 jitter.height = 0,
-                 dodge.width = 0.6,
-                 seed = 1))+
-    coord_cartesian(ylim = c(0,100))+
-    scale_fill_manual(values = c("#233b42","#65adc2")) + 
-    scale_y_continuous(expand = expansion(add = c(0,0)),breaks = c(1,seq(from=20, to=100, by=20)))+
-    theme(axis.title.x=element_blank())
+  ggplot(data = Violin_data, aes(x = condition)) +
+    geom_errorbar(
+      data = df, position = position_dodge(0.6),
+      aes(ymin = y0, ymax = y100), linetype = 1, width = 0.15) + # add line to whisker
+    geom_boxplot(
+      data = df,
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+      outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
+      stat = "identity") +
+    geom_point(aes(x = con, y = Score), size = 0.5, color = "gray", show.legend = F) +
+    geom_hline(yintercept = 0, size = 0.5, linetype = "dashed", color = "black")+
+    coord_cartesian(ylim = c(-0.29,0.15))+
+    scale_y_continuous(name = "Delta RT", expand = expansion(add = c(0, 0)), breaks = seq(from = -0.4, to = 0.4, by = 0.1)) +
+    theme(axis.title.x = element_blank())
 }
 
 lineplot <- function(data, con, select, test="pre"){
@@ -757,7 +743,6 @@ bruceR::TTEST(data_exp2, y=c("con", "incon"), paired=TRUE)
 bruceR::TTEST(data_exp2, y=c("acc.h", "acc.f"), paired=TRUE)
 # 4.1 boxplots -------------------------------------------------------------------
 # H and F represent visual condition
-# boxplot(data_exp2,c("happy","fear"),c("happyF","fearF","happyH","fearH"),test="H")+
 box_hf <- boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   coord_cartesian(ylim = c(0,3.5))+
   scale_y_continuous(expand = c(0,0),breaks = c(seq(from=0, to=3, by=0.5)))+
@@ -1021,7 +1006,7 @@ line_all <- wrap_plots(line2,con2,line3,con3,line_hf,con4,line_pm,ncol = 4)+plot
 ggsave(paste0(data_dir,"line_RT_median_percentile.pdf"), line_all, width = 16, height = 5,
        device = cairo_pdf)
 
-# add binomial plots
+# 4.5 add binomial plots -------------------------------------------------------------------
 # exp2&3
 positive_con2 <- sum((data_expv2$con - data_expv2$incon)<0)
 positive_con3 <- sum((data_expv3$con - data_expv3$incon) < 0)
@@ -1035,3 +1020,14 @@ con4 <- binomial_prob(nsub, positive_con4)
 # arrange
 biodis <- wrap_plots(dis1, con2, con4, ncol = 3) + plot_annotation(tag_levels = "A")
 ggsave(paste0(data_dir, "biodis.pdf"), biodis, width = 15, height = 4)
+
+# 4.6 plot delta RT -------------------------------------------------------------------
+data_expv2 <- mutate(data_expv2, drt = con - incon)
+data_expv3 <- mutate(data_expv3, drt = con - incon)
+data_exp2 <- mutate(data_exp2, drt = con - incon)
+drt2 <- boxplot(data_expv2,"exp2","drt")
+drt3 <- boxplot(data_expv3,"exp3","drt")
+drt4 <- boxplot(data_exp2,"exp4","drt")+coord_cartesian(ylim = c(-0.15,0.15))
+# arrange
+biodis <- wrap_plots(drt2,drt3,drt4, ncol = 3) + plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir, "drt_median.pdf"), biodis, width = 12, height = 4)

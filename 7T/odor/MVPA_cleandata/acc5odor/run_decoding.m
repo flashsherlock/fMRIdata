@@ -17,6 +17,8 @@ parfor i=1:size(decode,1)
 %     try
     sub=sprintf('S%02d',decode(i,1));
     decoding_searchlight_trial(sub,analysis_all,rois,shift,decode(i,2));
+    % close figures
+    close all
 %     catch
 %         disp(decode(i,:))
 %     end
@@ -27,6 +29,8 @@ for i=[4:11,13,14,16:18,19:29 31:34]
 %     try
     decoding_roi_5odors_trial(sub,analysis_all,rois,shift);    
     decoding_roi_trial(sub,analysis_all,rois,shift);
+    % close figures
+    close all
 %     catch
 %     disp(['error in' sub]);
 %     end

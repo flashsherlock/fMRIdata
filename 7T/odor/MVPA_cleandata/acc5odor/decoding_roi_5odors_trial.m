@@ -153,8 +153,9 @@ for i=1:length(rois)
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
     % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');
-    % Run decoding
+    % overwrite existing results
     cfg.results.overwrite = 1;
+    % Run decoding
     decoding(cfg, passed_data);   
     
 end

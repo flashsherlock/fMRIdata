@@ -141,7 +141,7 @@ parfor i=1:length(comb)
        % passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
        % change design
        cfg.files.name = cfg.files.name(1:nsample/length(shift));
-       cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift))
+       cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift));
        % run as chunk
        % cfg.files.chunk = tr(1:nsample/length(shift),3);
        % rept as chunk
@@ -154,8 +154,9 @@ parfor i=1:length(comb)
     end
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg); 
+    % overwrite existing results
+    cfg.results.overwrite = 1;
     % Run decoding
-    cfg.results.overwrite = 1
     decoding(cfg, passed_data);    
 end
 end

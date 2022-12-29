@@ -35,10 +35,8 @@ for i_analysis=1:length(analysis_all)
 for roi_i=1:length(rois)
     roi=rois{roi_i};
     mask=get_filenames_afni([datafolder sub '/mask/' roi '+orig.HEAD']);
-    % Amy will match too many files
-    if roi_i==1
-        mask=mask(1,:);
-    end
+    % avoid matching too many files
+    mask = mask(1, :);
 % parfor i=1:length(comb)
     i=comb_i;
     odornumber=comb(i,:);
@@ -56,36 +54,51 @@ for roi_i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelpolva_' num2str(shift) '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelbase_' num2str(shift) '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
     
-    % all of images
-    timing = findtrs(shift,sub);
-    % images selected by odornumber
-    tr = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), 2);
-    numtr=6*6*2;
-    F=cell(1,numtr);
-    for subi = 1:numtr
-        t=tr(subi);
-        F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
+    cfg.files.name = {};
+    cfg.files.labelname = {};
+    cfg.files.chunk = [];
+    cfg.files.label = [];
+
+    % tr stores all the timing information
+    tr = [];
+
+    for shift_i = 1:length(shift)
+        timing = findtrs(shift(shift_i), sub);
+        % images selected by odornumber
+        timing = timing(timing(:, 1) == odornumber(1) | timing(:, 1) == odornumber(2), :);
+        tr = [tr; timing];
+        numtr = 6 * 6 * 2;
+        F = cell(1, numtr);
+
+        for subi = 1:numtr
+            t = timing(subi, 2);
+            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/' 'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
+        end
+
+        cfg.files.name = [cfg.files.name F];
+        % and the other two fields if you use a make_design function (e.g. make_design_cv)
+        %
+        % (1) a nx1 vector to indicate what data you want to keep together for
+        % cross-validation (typically runs, so enter run numbers)
+        % each run is a chunk
+        % cfg.files.chunk = reshape(repmat(1:6,[8 2]),[numtr 1]);
+        % each trial is a chunk
+        % cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1 + 36 * (shift_i - 1):shift_i * 36, [1 2]), [numtr 1])];
+        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:36, [1 2]), [numtr 1])];
+        %
+        % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
+        % label number (i.e. a nx1 vector)
+        % 1-lim 2-tra 3-car 4-cit 5-ind
+        cfg.files.label = [cfg.files.label; reshape(repmat([odornumber(1) odornumber(2)], [36 1]), [numtr 1])];
+        cfg.files.labelname = [cfg.files.labelname; reshape(repmat({labelname1 labelname2}, [36 1]), [numtr 1])];
     end
-    cfg.files.name =  F;
-    % and the other two fields if you use a make_design function (e.g. make_design_cv)
-    %
-    % (1) a nx1 vector to indicate what data you want to keep together for 
-    % cross-validation (typically runs, so enter run numbers)
-    % each run is a chunk
-    % cfg.files.chunk = reshape(repmat(1:6,[8 2]),[numtr 1]);
-    % each trial is a chunk
-    cfg.files.chunk = reshape(repmat(1:6*6, [1 2]), [numtr 1]);
-    %
-    % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
-    % label number (i.e. a nx1 vector)
-    % 1-lim 2-tra 3-car 4-cit 5-ind
-    cfg.files.label = reshape(repmat([odornumber(1) odornumber(2)],[36 1]),[numtr 1]);
-    cfg.files.labelname = reshape(repmat({labelname1 labelname2},[36 1]),[numtr 1]);
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
 
@@ -108,12 +121,46 @@ for roi_i=1:length(rois)
     % linear svm weights (see Haufe et al, 2015, Neuroimage)
 
     %% Nothing needs to be changed below for a standard leave-one-run out cross
+    % load data the standard way
+    [passed_data, ~, cfg] = decoding_load_data(cfg);
+    % add run number and repeat num as features
+    combine = 1;
+
+    if combine == 1
+        nsample = size(passed_data.data, 1);
+        nvoxel = size(passed_data.data, 2);
+        passed_data.data = reshape(passed_data.data, [nsample / length(shift), length(shift), nvoxel]);
+        % subtract baseline trs
+        base = find(shift < 0);
+
+        if ~isempty(base)
+            % average baseline
+            baseline = squeeze(mean(passed_data.data(:, base, :), 2));
+            passed_data.data = squeeze(mean(passed_data.data(:, shift >= 0, :), 2)) - baseline;
+        else
+            passed_data.data = squeeze(mean(passed_data.data, 2));
+        end
+
+        % passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
+        % change design
+        cfg.files.name = cfg.files.name(1:nsample / length(shift));
+        cfg.files.chunk = cfg.files.chunk(1:nsample / length(shift));
+        % run as chunk
+        % cfg.files.chunk = tr(1:nsample/length(shift),3);
+        % rept as chunk
+        % cfg.files.chunk = tr(1:nsample/length(shift),4);
+        cfg.files.label = cfg.files.label(1:nsample / length(shift));
+        cfg.files.labelname = cfg.files.labelname(1:nsample / length(shift));
+        passed_data.files.name = passed_data.files.name(1:nsample / length(shift));
+    else
+        passed_data.data = [passed_data.data tr(:, [3 4])];
+    end
     % This creates the leave-one-run-out cross validation design:
-    cfg.design = make_design_cv(cfg); 
+    cfg.design = make_design_cv(cfg);
     % overwrite existing results
     cfg.results.overwrite = 1;
     % Run decoding
-    results = decoding(cfg);    
+    decoding(cfg, passed_data);
 % end
 end
 end

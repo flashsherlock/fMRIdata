@@ -153,7 +153,7 @@ boxset <- function(data){
             y100 = quantile(Score, 0.95))
 }
 
-boxplot <- function(data, con, select){
+boxplot <- function(data, con, select, hx=0){
   # select data
   Violin_data <- subset(data, select = c("id", select))
   Violin_data <- mutate(Violin_data, condition = con)
@@ -179,7 +179,7 @@ boxplot <- function(data, con, select){
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity") +
     geom_point(aes(x = con, y = Score), size = 0.5, color = "gray", show.legend = F) +
-    geom_hline(yintercept = 0, size = 0.5, linetype = "dashed", color = "black")+
+    geom_hline(yintercept = hx, size = 0.5, linetype = "dashed", color = "black")+
     coord_cartesian(ylim = c(-0.29,0.15))+
     scale_y_continuous(name = "Delta RT", expand = expansion(add = c(0, 0)), breaks = seq(from = -0.4, to = 0.4, by = 0.1)) +
     theme(axis.title.x = element_blank())
@@ -756,9 +756,15 @@ va2_pm <- boxcp(data_exp2, c("plus", "minus"), c("preplus.va", "preminus.va"))+
   scale_x_discrete(labels = paste(c("(+)","(−)"),"\u03B1","pinene",sep = "-"))+
   coord_cartesian(ylim = c(0,100))+
   scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = c(1,seq(from=20, to=100, by=20)))
+
+# discrimination acc
+dispre <- boxplot(data_exp2,"exp4","rate",1/3)+
+  coord_cartesian(ylim = c(0,1))+
+  scale_y_continuous(name = "Accuracy",expand = expansion(add = c(0,0)),breaks = c(1,seq(from=0, to=1, by=0.2)))
+
 # arrange
-exp2_pre <- wrap_plots(va2_hf,va2_pm,ncol = 2)+plot_annotation(tag_levels = "A")
-ggsave(paste0(data_dir,"exp4pre_median.pdf"), exp2_pre, width = 10, height = 4,
+exp2_pre <- wrap_plots(va2_hf,va2_pm,dispre,ncol = 2)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"exp4pre_median.pdf"), exp2_pre, width = 10, height = 8,
        device = cairo_pdf)
 
 # H and F represent visual condition

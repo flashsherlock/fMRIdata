@@ -741,7 +741,26 @@ data_exp2 <- subset(data_exp2, id!=35)
 bruceR::TTEST(data_exp2, y=c("con", "incon"), paired=TRUE)
 # 1-back acc
 bruceR::TTEST(data_exp2, y=c("acc.h", "acc.f"), paired=TRUE)
+# valence in pretest
+bruceR::TTEST(data_exp2, y=c("prehappy.va", "prefear.va"), paired=TRUE)
+bruceR::TTEST(data_exp2, y=c("preplus.va", "preminus.va"), paired=TRUE)
+bruceR::TTEST(data_exp2, y=c("rate"), test.value = 1/3)
+
 # 4.1 boxplots -------------------------------------------------------------------
+# pretest results
+va2_hf <- boxcp(data_exp2, c("happy", "fear"), c("prehappy.va", "prefear.va"))+
+  coord_cartesian(ylim = c(0,100))+
+  scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = c(1,seq(from=20, to=100, by=20)))
+
+va2_pm <- boxcp(data_exp2, c("plus", "minus"), c("preplus.va", "preminus.va"))+
+  scale_x_discrete(labels = paste(c("(+)","(−)"),"\u03B1","pinene",sep = "-"))+
+  coord_cartesian(ylim = c(0,100))+
+  scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = c(1,seq(from=20, to=100, by=20)))
+# arrange
+exp2_pre <- wrap_plots(va2_hf,va2_pm,ncol = 2)+plot_annotation(tag_levels = "A")
+ggsave(paste0(data_dir,"exp4pre_median.pdf"), exp2_pre, width = 10, height = 4,
+       device = cairo_pdf)
+
 # H and F represent visual condition
 box_hf <- boxplotv(data_exp2,c("H","F"),c("happyF","fearF","happyH","fearH"),test="happy")+
   coord_cartesian(ylim = c(0,3.5))+

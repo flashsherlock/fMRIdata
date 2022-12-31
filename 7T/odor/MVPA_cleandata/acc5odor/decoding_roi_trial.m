@@ -155,7 +155,7 @@ parfor i=1:length(comb)
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg); 
     % overwrite existing results
-    cfg.results.overwrite = 1;
+    cfg.results.overwrite = 0;
     % Run decoding
     decoding(cfg, passed_data);    
 end

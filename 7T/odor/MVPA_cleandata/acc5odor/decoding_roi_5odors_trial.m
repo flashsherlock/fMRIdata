@@ -154,7 +154,7 @@ for i=1:length(rois)
     cfg.design = make_design_cv(cfg);     
     % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');
     % overwrite existing results
-    cfg.results.overwrite = 1;
+    cfg.results.overwrite = 0;
     % Run decoding
     decoding(cfg, passed_data);   
     

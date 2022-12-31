@@ -177,6 +177,18 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   results <- results[, acc := ifelse(true == response, 1, 0)]
   return(list(resp = results, acc = cv_acc, import = importance))
 }
+
+# function to select roi
+select_roi <- function(power_data,roi){
+    if (roi == "HF") {
+        # select rows Hi and S if roi is HF
+        power_data <- power_data[roi %in% c("Hi", "S"), ]
+    } else if (roi == "Amy") {
+        # select rows except Hi and S
+        power_data <- power_data[roi != "Hi" & roi != "S", ]
+    }
+    return(power_data)
+}
 ```
 
 # heatmap of monkey's zpower
@@ -607,8 +619,7 @@ ptm <- proc.time()
 # monkeys  <- c("2monkey")
 results <- list()
 results_per <- list()
-# roiselect <- c("All","Amy","HF")
-roiselect <- c("All")
+roiselect <- c("All","Amy","HF")
 for (roi in roiselect){
     set.seed(823)
     for (m in monkeys) {
@@ -617,7 +628,7 @@ for (roi in roiselect){
         # for each coding methods
         for (tar in tars){
         # true results
-        results[[m]][[tar]] <- class_results(power_data[[m]],tar,av_freq)
+        results[[m]][[tar]] <- class_results(select_roi(power_data[[m]],roi),tar,av_freq)
         # permutation results in parallel
         cluster <- parallel::makeCluster(20, type = "FORK")
         doParallel::registerDoParallel(cl = cluster)
@@ -625,7 +636,7 @@ for (roi in roiselect){
         results_per[[m]][[tar]] <- foreach (per_i = 1:per_num) %dopar% {
             power_per <- power_data_per_m[,.SD,.SDcols=c(1:4,per_i+4)]
             setnames(power_per,paste0("power",per_i),"power")
-            class_results(power_per,tar,av_freq)
+            class_results(select_roi(power_per,roi),tar,av_freq)
         }
         # stop cluster
         parallel::stopCluster(cl = cluster)

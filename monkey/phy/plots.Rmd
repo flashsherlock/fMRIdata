@@ -189,6 +189,11 @@ select_roi <- function(power_data,roi){
     }
     return(power_data)
 }
+
+# funtion to calculate average accuracy
+avgacc <- function(results){
+    return(results[, .(acc = mean(acc)), by = c("target","time","roi")])
+}
 ```
 
 # heatmap of monkey's zpower

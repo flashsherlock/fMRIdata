@@ -715,6 +715,25 @@ for (roi in roiselect){
         target <- rep(tar,times=nrow(cb_impt))
         cb_impt <- cbind(cb_impt[,.SD/rowSums(.SD)],labels,target)
         impt_results[[m]][[tar]] <- cb_impt
+        
+        # collect responses
+        resp_per <- map_depth(results_per[[m]][[tar]], 1, "resp")
+        resp_tru <- results[[m]][[tar]][["resp"]]
+        # mean respnses for each permutation
+        resp_per <- lapply(resp_per,avgacc)
+        # set use.names=TRUE because the order are not the same
+        resp_per <- rbindlist(resp_per,use.names=TRUE,fill = TRUE)
+        # 95% percentile
+        cri <- resp_per[, .(acc = quantile(acc,0.95)), by = c("target","time","roi")]
+        m_resp <- resp_per[, .(acc = mean(acc)), by = c("target","time","roi")]
+        # actual importance
+        tru <- resp_tru[, .(acc = mean(acc)), by = c("target","time","roi")]
+        # combine
+        cb_resp <- rbind(cbind(m_resp,rep("per_mean",times=nrow(m_resp))),
+                         cbind(cri,rep("95%",times=nrow(m_resp))),
+                         cbind(tru,rep("true",times=nrow(m_resp))))
+        setnames(cb_resp,"V2","labels")
+        resp_results[[m]][[tar]] <- cb_resp
         }
         
         # plot importance

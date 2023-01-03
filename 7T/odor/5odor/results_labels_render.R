@@ -24,7 +24,7 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rm
 title <- "Mean6_6ARbase_-6_-3_6"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Mean_6ARbase_2TR_434"),
+                  output_file = paste0("Mean_6ARbase_2TRallvox_434"),
                   params = list(path = path, sub = subs, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))
 

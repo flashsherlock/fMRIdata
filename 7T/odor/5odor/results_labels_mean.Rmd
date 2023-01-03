@@ -27,7 +27,13 @@ library(R.matlab)
 library(dplyr)
 library(tidyr)
 library(ggprism)
-ggthemr('fresh',layout = "clean")
+# ggthemr('fresh',layout = "clean")
+sysfonts::font_add("Helvetica", "Helvetica.ttc")
+theme_set(theme_prism(base_size = 9,
+                      base_family = "Helvetica",
+                      base_fontface = "plain",
+                      base_line_size = 0.5,
+                      base_rect_size = 0.5,))
 google <-  c("#41AB5D","#4292C6","#5380E4","#FFBF03","#00B723","#E12A3C")
 gf_color <- c("#f0803b","#55b96f","#56a2d4","#ECB556")
 gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556","#777DDD")
@@ -229,7 +235,12 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
       scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
       theme_prism(base_line_size = 0.5)
     print(figure)
+    # plot individual data
+    plotly_fig <- ggplotly(ggplot(acc4odor, aes(x = roi, y = acc,color = sub))
+             +geom_point()+color_palette(rainbow(length(sub))),
+             tooltip = c("sub","acc"))
   }
+plotly_fig
 ```
 
 ```{r}
@@ -324,6 +335,8 @@ bruceR::MANOVA(subset(act,roi %in% params$roi[c(nroi-1,nroi)]),
   for (m in mvpa_pattern){
     acc2odor <- subset(acc2odor, beta==m)
     odor2 <- unique(acc2odor$odor)
+    # 建立一个list保存plotyly的结果
+    plotly_plots <- htmltools::tagList()
     # 4 kinds of roi
     for (r in odor2){
       acc2odor_r <- subset(acc2odor,odor==r)
@@ -368,7 +381,13 @@ bruceR::MANOVA(subset(act,roi %in% params$roi[c(nroi-1,nroi)]),
                      scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
                      theme_prism(base_line_size = 0.5)
       print(figure)
+      # plot individual data
+      plotly_plots[[r]] <- ggplotly(ggplot(acc2odor_r, aes(x = roi, y = acc,color = sub))+
+                 labs(title = paste(m,r,sep = "_"))+
+                 geom_point()+color_palette(rainbow(length(sub))),
+               tooltip = c("sub","acc"))
     }
+    
     # interested comparison
     for (ana in analysis) {
       r <- paste0("2odors_",c("lim_tra","lim_car","lim_cit","lim_ind"))
@@ -394,6 +413,7 @@ bruceR::MANOVA(subset(act,roi %in% params$roi[c(nroi-1,nroi)]),
       print(figure)
     }
   }
+plotly_plots
 ```
 
 ### accuracy for each run 2 odors

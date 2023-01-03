@@ -661,6 +661,7 @@ for (roi in roiselect){
     load(file.path(root_dir, "pic/pca_power/noair", paste0("Results_tree_", roi, ".Rdata")))
     # average results
     impt_results <- list()
+    resp_results <- list()
     for (m in monkeys) {
         pic_dir <- file.path(root_dir, 'pic/pca_power/noair',m);
         for (tar in tars){
@@ -744,11 +745,25 @@ for (roi in roiselect){
         data_impt[,labels:=factor(labels,levels = c("true","95%","per_mean","2.5%","97.5%"))]
         data_impt[,target:=factor(target,levels = tars)]
         # line plot
-        ggplot(data_impt[labels%in%c("true","95%"),],aes(x=frequency,y=importance))+
-        geom_line(aes(group=interaction(labels,target),linetype=labels,color=target))+
-        scale_color_manual(values = cmap) +
-        labs(title = paste(m))
+        # ggplot(data_impt[labels%in%c("true","95%"),],aes(x=frequency,y=importance))+
+        # geom_line(aes(group=interaction(labels,target),linetype=labels,color=target))+
+        # scale_color_manual(values = cmap) +
+        # labs(title = paste(m))
+        
+        # matrix plot
+        # dcast data_impt change labels to columns
+        data_impt <- dcast(data_impt, target + frequency ~ labels, value.var = "importance")
+        # if true larger than 95% add a column of *
+        data_impt[,plabels:=ifelse(true>`95%`,"*","")]
+        ggplot(data_impt, aes(x = frequency, y = target, fill = true)) +
+            geom_tile() +
+            scale_fill_gradient(low = "white", high = "red") +
+            labs(title = paste(m)) +
+            guides(size="none") + # removing legend for `fill`  
+            theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+            geom_text(aes(label = plabels, size = 5, vjust = 0.5), color = "black") # printing values
         ggsave(file.path(pic_dir, paste0("Per_impt_", roi, ".pdf")), width = 3.5, height = 2) 
+        
     }
 }
 ```

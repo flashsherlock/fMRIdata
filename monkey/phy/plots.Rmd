@@ -303,6 +303,8 @@ for (m in monkeys) {
     setnames(power_data_per[[m]],names(power_data_per[[m]]),
              c("roi", "odor", "time", "freq", paste0("power",1:per_num)))
 }
+# save power_data and power_data_per to Rdata
+save(power_data, power_data_per, file = file.path(root_dir, "pic/pca_power/noair", paste0("Power_data_per",".Rdata")))
 # settings for decodings
 # use power for each frequency band
 av_freq <- TRUE
@@ -627,6 +629,8 @@ Combine data from monkey RM033 and RM035, tunning parameters and train model, th
 
 ## test cross validation 
 ```{r fig.height=2, fig.width=3}
+# load data
+load(file.path(root_dir, "pic/pca_power/noair", paste0("Power_data_per",".Rdata")))
 # record processing time
 ptm <- proc.time()
 # monkeys  <- c("RM033", "RM035", "2monkey")

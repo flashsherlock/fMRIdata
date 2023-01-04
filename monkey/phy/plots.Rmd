@@ -130,6 +130,8 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   task <- as_task_classif(power_by_time, target = tar)
   # Stratified resampling
   task$col_roles$stratum <- c("odor","roi")
+  # Blocking times cannot combined with stratification
+  # task$col_roles$group <- "time"
   if (av_freq) {
     feature_names <- freqbands_name
   } else {
@@ -141,8 +143,15 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   # learner <- lrn("classif.randomForest", importance = "gini")
   learner <- lrn("classif.rpart")
   measure <- msr("classif.acc")
-  f <- length(unique(power_by_time$time))
-  resampling  <-  rsmp("cv", folds = f)
+  ntime <- length(unique(power_by_time$time))
+  nroi <- length(unique(power_by_time$roi))
+  nodor <- length(unique(power_by_time$odor))
+  # stratified cross validation
+  # resampling  <-  rsmp("cv", folds = ntime)
+  # custom cross validation
+  f <- power_by_time$time
+  resampling  <-  rsmp("custom_cv")
+  resampling$instantiate(task_freq,f = f)
   rr <- resample(task_freq, learner, resampling, store_models = TRUE)
   
   # check resampling
@@ -163,7 +172,7 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   # deal with null (is_empty)
   if (dim(importance)[1]==0){
     importance <- data.table(matrix(data = 1/length(feature_names),
-                                    nrow = f,ncol = length(feature_names)))
+                                    nrow = ntime,ncol = length(feature_names)))
     setnames(importance,new = feature_names)
   }
   # predict labels

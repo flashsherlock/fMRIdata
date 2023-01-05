@@ -772,7 +772,7 @@ for (roi in roiselect){
         ggplot(data_impt, aes(x = frequency, y = target, fill = true)) +
             geom_tile() +
             scale_fill_gradient(low = "white", high = "red") +
-            labs(title = paste(m)) +
+            labs(title = paste(m, roi, sep = "_")) +
             guides(size="none") + # removing legend for `fill`  
             theme(axis.text.x = element_text(angle = 45, hjust = 1))+
             geom_text(aes(label = plabels, size = 5, vjust = 0.5), color = "black") # printing values
@@ -789,7 +789,7 @@ for (roi in roiselect){
         ggplot(mean_acc_time[labels%in%c("true","95%"),],
                aes(x = time, y = acc, group = interaction(labels,target),color = target)) +
             geom_line(aes(linetype = labels)) +
-            labs(title = paste(m, sep = "_")) +
+            labs(title = paste(m, roi, sep = "_")) +
             scale_color_manual(values = cmap) +
             scale_x_discrete(expand = c(0, 0), breaks = seq(0, 3, 0.5)) +
             scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
@@ -800,7 +800,7 @@ for (roi in roiselect){
         ggplot(mean_acc_roi[labels%in%c("true","95%"),],
                aes(x = roi, y = acc, group = interaction(labels,target),color = target)) +
             geom_line(aes(linetype = labels)) +
-            labs(title = paste(m, sep = "_")) +
+            labs(title = paste(m, roi, sep = "_")) +
             scale_color_manual(values = cmap) +
             scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
         ggsave(file.path(pic_dir, paste0("Acc_roi", roi, ".pdf")), width = 4, height = 2.5)

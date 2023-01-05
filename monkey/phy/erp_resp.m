@@ -13,7 +13,7 @@ if ~exist(pic_dir,'dir')
 end
 time_ranges = {[-1 3], [-1 4]};
 %% generate data or load data
-if exist([pic_dir 'correlation.mat'],'file')
+if exist([pic_dir 'correlation4con.mat'],'file')
     load([pic_dir 'correlation.mat']);
 else
     level = 6;
@@ -31,16 +31,22 @@ else
         cur_roi=cur_level_roi{roi_i,1};
         lfp=roi_lfp{roi_i};
         resp=roi_resp{roi_i};
-        % select air/odor condition
-        for condition = 6:7
+        % select 6-air/7-odor condition and 8-Unplea/9-Plea
+        for condition = 6:9
             % condition=7;
             cfg=[];
             if condition<=6
                 % air
                 cfg.trials = find(resp.trialinfo==condition);
-            else
+            elseif condition==7
                 % odor
                 cfg.trials = find(resp.trialinfo~=6);
+            elseif condition==8
+                % first 3 unpleasant odors
+                cfg.trials = find(resp.trialinfo<=3);
+            elseif condition==9
+                % last 2 pleasant odors
+                cfg.trials = find(resp.trialinfo==4 | resp.trialinfo==5);
             end
             resavg=ft_timelockanalysis(cfg, resp);
             %% show low frequency signal
@@ -54,9 +60,15 @@ else
             if condition<=6
                 % air
                 cfg.trials = find(lfp.trialinfo==condition);
-            else
+            elseif condition==7
                 % odor
                 cfg.trials = find(lfp.trialinfo~=6);
+            elseif condition==8
+                % first 3 unpleasant odors
+                cfg.trials = find(lfp.trialinfo<=3);
+            elseif condition==9
+                % last 2 pleasant odors
+                cfg.trials = find(lfp.trialinfo==4 | lfp.trialinfo==5);
             end
             lfp_l = ft_preprocessing(cfg,lfp);
             % cfg          = [];
@@ -119,12 +131,12 @@ else
     % figure
     % scatter(resavg.avg',squeeze(mean(erp_blc.trial,1))')
     end
-    save([pic_dir 'correlation.mat'],'results');
+    save([pic_dir 'correlation4con.mat'],'results');
 end
 %% plot
 roi_num = size(results,1);
 for roi_i=1:roi_num
-    for condition = 1:2
+    for condition = 1:4
         for range_i = 1:length(time_ranges)
             time_range = time_ranges{range_i};
             % load results

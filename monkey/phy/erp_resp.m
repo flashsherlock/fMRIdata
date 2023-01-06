@@ -13,7 +13,7 @@ if ~exist(pic_dir,'dir')
 end
 time_ranges = {[-1 3], [-1 4]};
 %% generate data or load data
-if exist([pic_dir 'correlation4con.mat'],'file')
+if exist([pic_dir 'correlation.mat'],'file')
     load([pic_dir 'correlation.mat']);
 else
     level = 6;
@@ -25,8 +25,8 @@ else
     %% analyze    
     % save to results
     results=cell(roi_num,3+2*length(time_ranges),2);
-    results(:,1,1)=cur_level_roi(:,1);
-    results(:,1,2)=cur_level_roi(:,1);
+    % save roi names
+    results(:,1,1:4)=repmat(cur_level_roi(:,1),[1 1 4]);
     for roi_i=1:roi_num
         cur_roi=cur_level_roi{roi_i,1};
         lfp=roi_lfp{roi_i};
@@ -131,7 +131,7 @@ else
     % figure
     % scatter(resavg.avg',squeeze(mean(erp_blc.trial,1))')
     end
-    save([pic_dir 'correlation4con.mat'],'results');
+    save([pic_dir 'correlation.mat'],'results');
 end
 %% plot
 roi_num = size(results,1);
@@ -193,7 +193,7 @@ end
 % save([pic_dir 'correlation.mat'],'results');
 %% rearrange
 results4s = results(:,6:7,:);
-for con_i=1:2
+for con_i=1:4
     for roi_i = 1:size(results4s,1)
         true = atanh(results4s{roi_i,1,con_i});
         r3_per=results4s{roi_i,2,con_i}(end,:);
@@ -215,7 +215,7 @@ for con_i=1:2
         results4s{roi_i,3,con_i}=sig;
     end
 end
-results4s=cat(2,repmat(results(:,1),1,1,2),results4s);
+results4s=cat(2,repmat(results(:,1),1,1,4),results4s);
 save([pic_dir,'results4s.mat'],'results4s')
 %% write results to xls
 m33=load([data_dir 'pic/erp_resp/RM033/results4s.mat']);

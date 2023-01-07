@@ -1,5 +1,6 @@
 %% parameters
-datadir=['C:\Users/GuFei/zhuom/monkey/rating/'];
+% datadir=['C:\Users/GuFei/zhuom/monkey/rating/'];
+datadir=['/Volumes/WD_D/gufei/monkey_data/human_rating/inva/'];
 filesi=dir([datadir '*similarity*.mat']);
 filevi=dir([datadir '*inva*.mat']);
 sub_num=size(filesi,1);
@@ -73,16 +74,24 @@ figure;
 hold on
 alpha = 0.2;
 colors = { '#7E2F8E', '#0072BD', '#D95319', '#EDB120'};
+rnames = {'valence','intensity','familarity','edibility'};
 for i=1:4
     stdshade(means_vi(i,:),sems_vi(i,:),alpha,hex2rgb(colors{i}));    
 end
 set(gca,'xtick',1:odor_num,'XTickLabel',odor_names,'FontSize',12)
+legend(rnames,'Location','eastoutside')
+% save figure
+saveas(gcf, [datadir '../rating_4dim' '.svg'], 'svg')
+saveas(gcf, [datadir '../rating_4dim' '.png'], 'png')
 % si
 figure;
 stdshade(means_si,sems_si,alpha,hex2rgb(colors{1}));    
 odor_pairs = odor_names(nchoosek(1:odor_num,2));
 set(gca,'xtick',1:nchoosek(odor_num,2),'XTickLabel',strcat(odor_pairs(:,1),{'-'},odor_pairs(:,2)),...
     'xlim',[1 nchoosek(odor_num, 2)],'FontSize',12)
+% save figure
+saveas(gcf, [datadir '../rating_sim' '.svg'], 'svg')
+saveas(gcf, [datadir '../rating_sim' '.png'], 'png')
 % correlation
 figure;
 x = reshape(rating.edibility, [],1);
@@ -105,3 +114,5 @@ rating.valRDM=pdist2(rating.valence',rating.valence',dis);
 rating.intRDM=pdist2(rating.intensity',rating.intensity',dis);
 rating.famRDM=pdist2(rating.familarity',rating.familarity',dis);
 rating.ediRDM=pdist2(rating.edibility',rating.edibility',dis);
+% save rating to mat file
+save([datadir '../rating_inva.mat'],'rating')

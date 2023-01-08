@@ -37,6 +37,7 @@ if exist('alpha','var')==0 || isempty(alpha)
 else
     fillOut = fill([F fliplr(F)],[amean+astd fliplr(amean-astd)],acolor, 'FaceAlpha', alpha,'linestyle','none');
 end
+fillOut.Annotation.LegendInformation.IconDisplayStyle = 'off';
 
 if ishold==0
     check=true; else check=false;

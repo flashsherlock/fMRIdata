@@ -100,3 +100,24 @@ else
     end
     save([pic_dir 'dis_sep_rsa.mat'],'dis_mean','cur_level_roi')
 end
+%% correlation with ratings
+% load human rating
+load('/Volumes/WD_D/gufei/monkey_data/human_rating/rating_inva.mat')
+% get field names from stuct rating
+fn = fieldnames(rating);
+nrate = 5;
+fn = fn(1+nrate:end);
+% extract rdm data to a matrix
+rate = zeros(nrate,10);
+for i = 1:nrate
+    cur_dis = rating.(fn{i});
+    rate(i,:) = cur_dis(triu(true(size(cur_dis)), 1));
+end
+% rsa
+rsa_r = zeros(roi_num,nrate,3);
+% 1-no pca, 2 and 3 pca dimension
+for dim_i=1:3
+    for roi_i=1:roi_num
+        rsa_r(roi_i,:,dim_i) = corr(dis_mean(roi_i,:,dim_i)',rate', 'type', 'Spearman');
+    end
+end

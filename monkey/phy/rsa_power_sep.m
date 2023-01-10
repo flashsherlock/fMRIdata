@@ -6,7 +6,7 @@ else
     m = monkeys{1};
 end
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/ras_power/'];
+pic_dir=[data_dir 'pic/rsa_power/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
@@ -121,3 +121,9 @@ for dim_i=1:3
         rsa_r(roi_i,:,dim_i) = corr(dis_mean(roi_i,:,dim_i)',rate', 'type', 'Spearman');
     end
 end
+%% output data
+outfile = [data_dir '../IMG/'];
+% load coordinates from 5odor distance
+dis_data = dlmread([outfile  '2m_odor5.csv']);
+dis_data = [dis_data(:,1:3) reshape(rsa_r,size(rsa_r,1),[])];
+dlmwrite([outfile  '2m_rsa.csv'],dis_data,'delimiter',',');

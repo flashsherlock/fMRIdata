@@ -127,3 +127,51 @@ outfile = [data_dir '../IMG/'];
 dis_data = dlmread([outfile  '2m_odor5.csv']);
 dis_data = [dis_data(:,1:3) reshape(rsa_r,size(rsa_r,1),[])];
 dlmwrite([outfile  '2m_rsa.csv'],dis_data,'delimiter',',');
+%% correlation between x,y,z and distances
+xl = {'x','y','z'};
+yl = strrep(fn,'RDM','');
+monkeys = {'RM033','RM035','2m'};
+for dim_i=1:3
+    for m = 1:length(monkeys)
+        figure('position',[20,450,900,1400],'Renderer','Painters');
+        % change x to abs(x)
+        dis_data_select = dis_data(:,[1:3 4+5*(dim_i-1):8+5*(dim_i-1)]);
+        % select roi
+    %     index = ~ismember(cur_level_roi(:,2),{'Hi','S'});
+    %     dis_data_select = dis_data_select(index,:);
+        switch monkeys{m}
+            case 'RM033'
+                dis_data_select = dis_data_select(dis_data_select(:,1)<0,:);
+            case 'RM035'
+                dis_data_select = dis_data_select(dis_data_select(:,1)>0,:);
+        end
+        dis_data_select(:,1) = abs(dis_data_select(:,1));
+        % plot 3 coords
+        coord = 3;
+        for dis=1:nrate
+            for j=1:coord
+                % get data
+                x = dis_data_select(:,j);
+                y = dis_data_select(:,3+dis);
+                % correlation
+                [r,p]=corr(x,y);
+                % scatter plot
+                subplot(nrate,coord,(dis-1)*coord+j,'align');
+                scatter(x,y,'.')
+                % add regression line
+                hold on
+                pfit = polyfit(x, y, 1);
+                ycalc = polyval(pfit, x);
+                plot(x,ycalc,'k')
+                % add r and p values
+                xlabel(xl(j))
+                ylabel(yl(dis))
+                set(gca,'ylim',[-1 1],'xlim',[min(x)-1 max(x)+1],'FontSize',18);
+                text(min(x),0.9,[sprintf('r=%0.2f, p=%0.3f',round(r,2),round(p,3))],'Fontsize',18)                
+            end
+        end
+        suptitle([monkeys{m} '-' num2str(dim_i)])
+        saveas(gcf, [pic_dir 'corr_' [monkeys{m} '_' num2str(dim_i)] '.svg'],'svg')
+        close all
+    end
+end

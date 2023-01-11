@@ -100,6 +100,14 @@ recode_odor <- function(power, tar) {
         # select iso_l and iso_h
         power_by_time <- power_by_time[odor %in% c("Iso_l", "Iso_h"), ]
         power_by_time[, (tar) := factor(odor, levels = c("Iso_l", "Iso_h"), labels = c("Low", "High"))]
+    } else if (tar == "indiso") {
+        # select iso_l and iso_h
+        power_by_time <- power_by_time[odor %in% c("Iso_l", "Iso_h","Ind"), ]
+        power_by_time[, (tar) := car::recode(odor, 'c("Iso_l", "Iso_h") = "Iso"')]
+    } else if (tar == "peaban") {
+        # select iso_l and iso_h
+        power_by_time <- power_by_time[odor %in% c("Peach", "Banana"), ]
+        power_by_time[, (tar) := factor(odor, levels = c("Peach", "Banana"), labels = c("Pea", "Ban"))]
     }
     return(power_by_time)
 }
@@ -311,7 +319,7 @@ av_freq <- TRUE
 # split test data set
 test <- FALSE
 # targets
-tars <- c("odor5", "odor4", "valence", "intensity")
+tars <- c("odor5", "odor4", "valence", "intensity","indiso","peaban")
 ```
 
 # decision tree based on time-frequency analysis

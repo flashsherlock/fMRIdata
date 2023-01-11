@@ -641,10 +641,10 @@ Combine data from monkey RM033 and RM035, tunning parameters and train model, th
 load(file.path(root_dir, "pic/pca_power/noair", paste0("Power_data_per",".Rdata")))
 # record processing time
 ptm <- proc.time()
-# monkeys  <- c("RM033", "RM035", "2monkey")
-# monkeys  <- c("2monkey")
+monkeys  <- c("RM033", "RM035", "2monkey")
 results <- list()
 results_per <- list()
+# tars <- c("indiso","peaban")
 roiselect <- c("All","Amy","HF")
 for (roi in roiselect){
     set.seed(823)

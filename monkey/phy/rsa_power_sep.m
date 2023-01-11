@@ -113,6 +113,9 @@ for i = 1:nrate
     cur_dis = rating.(fn{i});
     rate(i,:) = cur_dis(triu(true(size(cur_dis)), 1));
 end
+% correlation between ratings
+disp(fn')
+disp(corr(rate'))
 % rsa
 rsa_r = zeros(roi_num,nrate,3);
 % 1-no pca, 2 and 3 pca dimension
@@ -122,11 +125,11 @@ for dim_i=1:3
     end
 end
 %% output data
-outfile = [data_dir '../IMG/'];
+file_dir = [data_dir '../IMG/'];
 % load coordinates from 5odor distance
-dis_data = dlmread([outfile  '2m_odor5.csv']);
+dis_data = dlmread([file_dir  '2m_odor5.csv']);
 dis_data = [dis_data(:,1:3) reshape(rsa_r,size(rsa_r,1),[])];
-dlmwrite([outfile  '2m_rsa.csv'],dis_data,'delimiter',',');
+dlmwrite([file_dir  '2m_rsa.csv'],dis_data,'delimiter',',');
 %% correlation between x,y,z and distances
 xl = {'x','y','z'};
 yl = strrep(fn,'RDM','');

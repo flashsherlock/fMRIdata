@@ -648,6 +648,7 @@ results_per <- list()
 roiselect <- c("All","Amy","HF")
 for (roi in roiselect){
     set.seed(823)
+    # load(file.path(root_dir, "pic/pca_power/noair", paste0("Results_tree_", roi, ".Rdata")))
     for (m in monkeys) {
         # permutation data for current monkey
         power_data_per_m <- power_data_per[[m]]
@@ -790,6 +791,7 @@ for (roi in roiselect){
         data_acc <- rbindlist(resp_results[[m]],use.names=TRUE)
         # convert target to factor
         data_acc[, target := factor(data_acc$target, levels = tars)]
+        data_acc <- data_acc[target %in% tars[1:4], ]
         # plot averaged results
         # average by time
         mean_acc_time <- data_acc[, .(acc = mean(acc)), by = c("target","time","labels")]

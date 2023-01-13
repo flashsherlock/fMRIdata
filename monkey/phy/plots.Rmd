@@ -45,6 +45,8 @@ colors <- c(
     "#777DDD", "#69b4d9", "#149ade", "#41AB5D", "#ECB556",
     "#000000", "#E12A3C", "#777DDD", "#41AB5D", "#DE7B14"
 )
+# roi levels
+roi_level <- c("BA","BM","La","CoA","CeMe","Hi","S")
 cmap <- c("#D95319", "#EDB120", "#7E2F8E", "#0072BD")
 odors <- c("Ind", "Iso_l", "Iso_h", "Peach", "Banana", "Air", "Odor")
 monkeys <- c("RM033", "RM035", "2monkey")
@@ -319,7 +321,7 @@ av_freq <- TRUE
 # split test data set
 test <- FALSE
 # targets
-tars <- c("odor5", "odor4", "valence", "intensity","indiso","peaban")
+tars <- c("odor5", "odor4", "valence", "intensity")
 ```
 
 # decision tree based on time-frequency analysis
@@ -477,14 +479,24 @@ for (m in monkeys) {
     ggsave(file.path(pic_dir, paste0("Dis_time", ".pdf")), width = 4, height = 2.5)
     # average by roi
     mean_dis_roi <- distance[, .(dis = mean(dis)), by = c("target", "roi")]
+    # change roi levels
+    mean_dis_roi <- mean_dis_roi[, roi := factor(roi, levels = roi_level)]
     # line plot
-    ggplot(mean_dis_roi, aes(x = roi, y = dis, group = target, color = target)) +
-        geom_line() +
-        labs(title = paste(m, sep = "_")) +
-        scale_color_manual(values = cmap) +
-        scale_x_discrete(expand = c(0, 0)) +
-        scale_y_continuous(expand = c(0, 0))
-    ggsave(file.path(pic_dir, paste0("Dis_roi", ".pdf")), width = 5, height = 2.5)
+    # ggplot(mean_dis_roi, aes(x = roi, y = dis, group = target, color = target)) +
+    #     geom_line() +
+    #     labs(title = paste(m, sep = "_")) +
+    #     scale_color_manual(values = cmap) +
+    #     scale_x_discrete(expand = c(0, 0)) +
+    #     scale_y_continuous(expand = c(0, 0))
+    # ggsave(file.path(pic_dir, paste0("Dis_roi", ".pdf")), width = 5, height = 2.5)
+    # heatmap
+    ggplot(mean_dis_roi, aes(x = roi, y = target, fill = dis)) +
+        geom_tile() +
+        scale_fill_gradient(low = "white", high = "red") +
+        labs(title = paste(m,sep = "_")) +
+        guides(size="none")#+ removing legend for `fill`
+        # geom_text(aes(label = round(dis,2), size = 5, vjust = 0.5), color = "black") 
+    ggsave(file.path(pic_dir, paste0("Dis_roi_heat", ".pdf")), width = 5, height = 3)
 }
 ```
 
@@ -644,6 +656,7 @@ ptm <- proc.time()
 monkeys  <- c("RM033", "RM035", "2monkey")
 results <- list()
 results_per <- list()
+tars <- c("odor5", "odor4", "valence", "intensity","indiso","peaban")
 # tars <- c("indiso","peaban")
 roiselect <- c("All","Amy","HF")
 for (roi in roiselect){

@@ -5,8 +5,10 @@ folder=fileparts(readPath);
 % sub number
 subn=userOptions.subn{subject};
 % find TRs
-timing=findtrs(userOptions.shift,subn);
-
+timing = [];
+for shift_i = 1:length(userOptions.shift)
+    timing=[timing;findtrs(userOptions.shift(shift_i),subn)];
+end
 tr=timing(:,2);
 % generate image name
 % only remove pol (default)

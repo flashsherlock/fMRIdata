@@ -112,6 +112,21 @@ if overwriteFlag
             userOptions.afni.files.name=get_name_afni(userOptions,readPath,subject);
             userOptions.afni.files.mask='all voxels';
             brainMatrix = decoding_load_data(userOptions.afni);
+            % deal with multiple shift
+            if isfield(userOptions,'combine') && userOptions.combine == 1
+               nsample = size(brainMatrix.data, 1);
+               nvoxel = size(brainMatrix.data, 2);
+               brainMatrix.data = reshape(brainMatrix.data,[nsample/length(userOptions.shift),length(userOptions.shift),nvoxel]);
+               % subtract baseline trs
+               base = find(userOptions.shift<0);       
+               if ~isempty(base)
+                   % average baseline
+                   baseline = squeeze(mean(brainMatrix.data(:,base,:), 2));
+                   brainMatrix.data = squeeze(mean(brainMatrix.data(:,userOptions.shift>=0,:), 2))-baseline;
+               else
+                   brainMatrix.data = squeeze(mean(brainMatrix.data, 2));       
+               end
+            end
             % reshape to （voxel,session,condition）, because files are
             % organized by odors
             fullBrainVols.(thisSubject) = reshape(brainMatrix.data',[],nSessions,nConditions);
@@ -153,12 +168,12 @@ if overwriteFlag
 % 	fprintf(['Saving image data to ' fullfile(userOptions.rootPath, 'ImageData', ImageDataFilename) '\n']);
     disp(['Saving image data to ' fullfile(userOptions.rootPath, 'ImageData', ImageDataFilename)]);
 	gotoDir(userOptions.rootPath, 'ImageData');
-	save(ImageDataFilename, 'fullBrainVols', '-v7.3');
+	% save(ImageDataFilename, 'fullBrainVols', '-v7.3');
 
 % 	fprintf(['Saving Details to ' fullfile(userOptions.rootPath, 'Details', DetailsFilename) '\n']);
     disp(['Saving Details to ' fullfile(userOptions.rootPath, 'Details', DetailsFilename)]);
 	gotoDir(userOptions.rootPath, 'Details');
-	save(DetailsFilename, 'timeStamp', 'userOptions');
+	% save(DetailsFilename, 'timeStamp', 'userOptions');
 	
 else
 	disp(['Loading previously saved volumes from ' fullfile(userOptions.rootPath, 'ImageData', ImageDataFilename) '...']);

@@ -123,11 +123,11 @@ if overwriteFlag
 
 	fprintf(['Saving masks to ' fullfile(userOptions.rootPath, 'ImageData', MasksFilename) '\n']);
 	gotoDir(userOptions.rootPath, 'ImageData');
-	save(MasksFilename, 'binaryMasks_nS','-v7.3');
+	% save(MasksFilename, 'binaryMasks_nS','-v7.3');
 	
 	fprintf(['Saving Details to ' fullfile(userOptions.rootPath, 'Details', DetailsFilename) '\n']);
 	gotoDir(userOptions.rootPath, 'Details');
-	save(DetailsFilename, 'timeStamp', 'userOptions');
+	% save(DetailsFilename, 'timeStamp', 'userOptions');
 	
 else
 	fprintf(['Loading previously saved masks from ' fullfile(userOptions.rootPath, 'ImageData', MasksFilename) '...\n']);

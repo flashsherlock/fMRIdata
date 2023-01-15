@@ -1,7 +1,11 @@
 % load response patterns
-datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
+modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
+datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
+if ~exist([datafolder 'Figures'],'dir')
+    mkdir([datafolder 'Figures'])
+end
 load([datafolder 'ImageData/Cleandata_responsePatterns.mat']);
-load([datafolder 'RDMs/Cleandata_Models.mat']);
+load([modelfolder 'RDMs/Cleandata_Models.mat']);
 % fields and subs
 fields = fieldnames(responsePatterns);
 subn = [4:11 13 14 16:18 19:29 31:34];

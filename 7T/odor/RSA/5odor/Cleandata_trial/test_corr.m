@@ -59,11 +59,15 @@ for sub_i = 1:length(subn)
     cormat(:, :, sub_i) = corr(colms, 'type', 'Spearman');
 end
 
-% extract the correlation between rois and strut & val
+% extract the correlation between rois and strut & sim
 represent = zeros(2,length(fields),length(subn));
 for sub_i = 1:length(subn)
+    % 1-7 APairs Haddad Odorspace mrvalence mrintensity mrsimilarity random
     represent(:, :, sub_i) = cormat([length(fields) + 1 length(fields) + 6], 1:length(fields), sub_i);
 end
+% correlation between struct and sim
+strsimr = cormat(length(fields) + 1,length(fields) + 6,:);
+% split subs
 s={[1:size(represent,3)],[1:size(represent,3)/2],[size(represent,3)/2+1:size(represent,3)]};
 for sub_i=1:3
     % average across subs
@@ -89,4 +93,4 @@ close all
 % export for ANOVA
 repwide = permute(represent,[3 1 2]);
 repwide = reshape(repwide,length(subn),[]);
-names = reshape([strcat(fields,'_str') strcat(fields,'_val')]',[],1);
+names = reshape([strcat(fields,'_str') strcat(fields,'_sim')]',[],1);

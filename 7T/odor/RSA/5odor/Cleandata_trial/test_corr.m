@@ -1,10 +1,11 @@
 % load response patterns
+mask = 'align';
 modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
 datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
 if ~exist([datafolder 'Figures'],'dir')
     mkdir([datafolder 'Figures'])
 end
-load([datafolder 'ImageData/Cleandata_responsePatterns.mat']);
+load([datafolder 'ImageData/Cleandata_responsePatterns_' mask '.mat']);
 load([modelfolder 'RDMs/Cleandata_Models.mat']);
 % fields and subs
 fields = fieldnames(responsePatterns);
@@ -41,13 +42,15 @@ for sub_i = 1:length(subn)
         cur_res = squeeze(mean(cur_res,2));
         % RDM
         cur_res = 1-corr(cur_res);
+        % imagesc(cur_res)
+        % colormap jet
         colms(:, field_i) = cur_res(triu(true(size(cur_res)), 1));
     end
 
     for m_i = 1:size(Models,1)
         cur_res = Models(m_i, sub_i).RDM;
         % select according to the size of response        
-        index = zeros(ncon);
+        index = zeros(180/ncon);
         index(1) = 1;
         index = kron(ones(ncon),index);
         cur_res = reshape(cur_res(index==1),ncon,ncon);
@@ -72,13 +75,15 @@ for sub_i=1:3
     h(1).FaceColor = hex2rgb('#f0803b');
     h(2).FaceColor = hex2rgb('#56a2d4');
     set(gca,'TicklabelInterpreter','none')
-    set(gca, 'XTickLabel', strrep(fields,'Amy_align',''));
+    xl = strrep(strrep(fields,['_' mask],''),'Amy','');
+    xl = strrep(xl,'8','Amy');
+    set(gca, 'XTickLabel', xl);
     set(gca, 'FontSize',18)
     ylabel('Spearman correlation');
     legend({'Struture', 'Similarity'});
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
     % save svg figure to data folder
-    saveas(gcf, [datafolder 'Figures/strut&val_' num2str(ncon) '_' num2str(sub_i) '.svg']);
+    saveas(gcf, [datafolder 'Figures/' mask '_strut&val_' num2str(ncon) '_' num2str(sub_i) '.svg']);
 end
 close all
 % export for ANOVA

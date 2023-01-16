@@ -820,13 +820,27 @@ for (roi in roiselect){
         # average by roi
         mean_acc_roi <- data_acc[, .(acc = mean(acc)), by = c("target","roi","labels")]
         mean_acc_roi[,labels:=factor(labels,levels = c("true","95%","per_mean"))]
-        ggplot(mean_acc_roi[labels%in%c("true","95%"),],
-               aes(x = roi, y = acc, group = interaction(labels,target),color = target)) +
-            geom_line(aes(linetype = labels)) +
+        # line plot
+        # ggplot(mean_acc_roi[labels%in%c("true","95%"),],
+        #        aes(x = roi, y = acc, group = interaction(labels,target),color = target)) +
+        #     geom_line(aes(linetype = labels)) +
+        #     labs(title = paste(m, roi, sep = "_")) +
+        #     scale_color_manual(values = cmap) +
+        #     scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
+        # matrix plot
+        # dcast data_impt change labels to columns
+        data_acc_roi <- dcast(mean_acc_roi[labels%in%c("true","95%"),], 
+                              target + roi ~ labels, value.var = "acc")
+        # if true larger than 95% add a column of *
+        data_acc_roi[,plabels:=ifelse(true>`95%`,"*","")]
+        ggplot(data_acc_roi, aes(x = roi, y = target, fill = true)) +
+            geom_tile() +
+            scale_fill_gradient(low = "white", high = "red",limits = c(0,1)) +
             labs(title = paste(m, roi, sep = "_")) +
-            scale_color_manual(values = cmap) +
-            scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
-        ggsave(file.path(pic_dir, paste0("Acc_roi", roi, ".pdf")), width = 4, height = 2.5)
+            guides(size="none") + # removing legend for `fill`
+            geom_text(aes(label = round(true,2), size = 5, vjust = 0.5), color = "black")+
+            geom_text(aes(label = plabels, size = 5, vjust = -0.5), color = "black") # printing values
+        ggsave(file.path(pic_dir, paste0("Acc_roi", roi, ".pdf")), width = 5, height = 3)
         
     }
 }

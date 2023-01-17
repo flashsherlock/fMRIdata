@@ -6,13 +6,17 @@ if length(monkeys) > 1
 else
     m = monkeys{1};
 end
+% whether zscore to air
+cp_air = 0;
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/powerspec/' m '_HA/'];
+if cp_air == 1
+    pic_dir = [data_dir 'pic/powerspec/' m '_HA_air/'];
+else
+    pic_dir = [data_dir 'pic/powerspec/' m '_HA/'];
+end
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-% whether zscore to air
-cp_air = 0;
 %% generate data or load data
 if exist([pic_dir 'powspec_odor_7s_1_80hz.mat'],'file')
     load([pic_dir 'powspec_odor_7s_1_80hz.mat']);

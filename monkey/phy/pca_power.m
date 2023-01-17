@@ -2,19 +2,24 @@
 % m = '2monkey';
 m = 'RM033';
 % whether zscore to air
-cp_air = 1;
+cp_air = 0;
 % data directories
 data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-pic_dir=[data_dir 'pic/pca_power/noair/' m '_air/'];
+if cp_air == 1
+    pic_dir=[data_dir 'pic/pca_power/noair/' m '_air/'];
+else
+    pic_dir=[data_dir 'pic/pca_power/noair/' m '/'];
+end
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
 % time range
-time_range = [0 3];
+time = '-33';
+time_range = [-3 3];
 t_range = [num2str(time_range(1)) '-' num2str(time_range(2)) 's'];
 % load data or analyze data
-if exist([pic_dir 'data_pca.mat'],'file')
-    load([pic_dir 'data_pca.mat']);
+if exist([pic_dir 'data_pca' time '.mat'],'file')
+    load([pic_dir 'data_pca' time '.mat']);
 else
     load([data_dir 'tf_level5_' m '.mat'])
     load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'])
@@ -53,7 +58,7 @@ else
         % store data
         data_pca(roi_i,2:end)={mean_data,mean_label};
     end
-save([pic_dir 'data_pca.mat'],'data_pca');
+save([pic_dir 'data_pca' time '.mat'],'data_pca');
 end
 %% plot
 % parameters

@@ -26,3 +26,6 @@ Main workflow for ROI analysis. Correlation matrice for model and neuro RDMs are
 
 ## test_corr.m
 Try to compute correlation between model and neuro RDMs without functions from rsatoolbox.
+
+## rsa_base.m
+Use data the same as MVPA (remove 2 TRs before onset).

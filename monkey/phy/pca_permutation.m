@@ -6,15 +6,20 @@ if nargin<2
 end
 rng(seed);
 % whether zscore to air
-cp_air = 1;
+cp_air = 0;
 % monkeys = {'RM033','RM035','2monkey'};
 for m_i = 1:length(monkeys)
     % load and reorganize data
     m = monkeys{m_i};
     data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
-    pic_dir=[data_dir 'pic/pca_power/noair/' m '_air/'];
+    if cp_air == 1
+        pic_dir=[data_dir 'pic/pca_power/noair/' m '_air/'];
+    else
+        pic_dir=[data_dir 'pic/pca_power/noair/' m '/'];
+    end
     % time range
-    time_range = [0 3];
+    time_range = [-3 3];
+    time = '-33';
     % load data or analyze data
     load([data_dir 'tf_level5_' m '.mat'],'freq_sep_all')
     load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'],'cur_level_roi')
@@ -62,5 +67,5 @@ for m_i = 1:length(monkeys)
             data_pca_per{per_i}{roi_i,3} = mean_label;
         end        
     end
-    save([pic_dir 'data_pca_per.mat'],'data_pca_per');
+    save([pic_dir 'data_pca_per' time '.mat'],'data_pca_per');
 end

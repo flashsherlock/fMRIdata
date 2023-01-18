@@ -92,6 +92,9 @@
 ### roi_coherence
 计算呼吸和LFP之间的相幅锁定关系。
 
+### sep_coherence
+计算每个位点呼吸和LFP之间的相幅锁定关系。
+
 ### ft_concat
 将trial的LFP合并。
 
@@ -176,6 +179,9 @@
 ## Decoding
 ### roi_decoding
 读取LFP并选取时间窗进行分类。
+
+### roi_decoding_tf
+采用经过PCA降维之后的时频数据选取时间窗进行分类。
 
 ### sample_lfp_decoding
 随机抽取样本并调用`odor_decoding_function`做分类。

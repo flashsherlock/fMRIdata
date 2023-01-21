@@ -15,11 +15,13 @@ end
 % load([data_dir 'tf_level5_' m '.mat'],'freq_sep_all')
 % load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'],'cur_level_roi')
 % load pca data
-load([data_dir 'pic/pca_power/noair/' m '/data_pca-33.mat'])
-load([data_dir 'pic/pca_power/noair/' m '/data_pca_per-33.mat'])
+% load([data_dir 'pic/pca_power/noair/' m '/data_pca-33.mat'])
+% load([data_dir 'pic/pca_power/noair/' m '/data_pca_per-33.mat'])
+% load pca sep data
+load([pic_dir '/data_pca-33.mat'])
 %% analysis
 % get number of roi
-roi_con = {'All','each'};
+roi_con = {'roi7'};
 roi_connum=length(roi_con);
 data_time=[-3:0.05:3];
 % time before -1s (41) may contain nan
@@ -54,7 +56,13 @@ for condition_i = 1:length(conditions)
                 roisdata{2,1} = 'Amy';
                 roisdata{1,2} = cat(1,data_pca{~ismember(data_pca(:,1),{'Hi','S'}),2});
             otherwise
-                roisdata = data_pca(:,1:2);
+                % combine to 7 rois
+                roi_focus = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'};...
+                    {'BM'},{'BM'};{'BL'},{'BL'};{'Hi'},{'Hi'};{'S'},{'S'}};
+                roisdata(:,1) = roi_focus(:,1);
+                for roi_i=1:size(roisdata,1)
+                    roisdata{roi_i,2} = cat(1,data_pca{ismember(data_pca(:,1),roi_focus{roi_i,2}),2});
+                end
         end
         roi_num = size(roisdata,1);
         results_odor = cell(roi_num,2+length(time));
@@ -62,12 +70,13 @@ for condition_i = 1:length(conditions)
         % each roi
         for roi_i=1:roi_num
             results_odor{roi_i,1} = condition;
-            for time_i = 1:length(time)
+            tmp = roisdata{roi_i,2};                
+            parfor time_i = 1:length(time)
+                passed_data = [];
                 % select time
                 time_range = [time(time_i)-time_win/2 time(time_i)+time_win/2];
-                time_idx = dsearchn(data_time',time_range');
-                tmpdata = roisdata{roi_i,2};
-                tmpdata = tmpdata(:,time_idx(1):time_idx(2),:);   
+                time_idx = dsearchn(data_time',time_range');                
+                tmpdata = tmp(:,time_idx(1):time_idx(2),:);   
                 % data labels
                 odors = kron(ones(size(tmpdata,1)/nlabel,size(tmpdata,2)),(1:nlabel)');
                 tlabel = kron(ones(size(tmpdata,1),1),1:size(tmpdata,2));
@@ -78,10 +87,10 @@ for condition_i = 1:length(conditions)
                 tmpdata = reshape(tmpdata,[],size(tmpdata,3));
                 % sort data
                 labels = reshape(permute(labels,[2,1,3]),[],size(labels,3));
-                [labels,I] = sortrows(labels,1);                
+                [labels,I] = sortrows(labels,1);
                 passed_data.data = tmpdata(I,:);
                 % run decoding
-                [results_odor{roi_i,time_i+2},~]=odor_decoding_function(passed_data,nlabel);
+                [results_odor{roi_i,time_i+2},~]=odor_decoding_function(passed_data,nlabel,labels(:,2));
             end
             % save results for this condition
             results{roi_coni,condition_i}=results_odor;

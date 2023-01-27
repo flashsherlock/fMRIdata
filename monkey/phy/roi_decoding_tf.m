@@ -59,8 +59,8 @@ for condition_i = 1:length(conditions)
                 % combine to 7 rois
                 roi_focus = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'};...
                     {'BM'},{'BM'};{'BL'},{'BL'};{'Hi'},{'Hi'};{'S'},{'S'}};
-                roisdata(:,1) = roi_focus(:,1);
                 for roi_i=1:size(roisdata,1)
+                    roisdata(roi_i,1) = roi_focus{roi_i,1};
                     roisdata{roi_i,2} = cat(1,data_pca{ismember(data_pca(:,1),roi_focus{roi_i,2}),2});
                 end
         end
@@ -104,11 +104,13 @@ for condition_i = 1:length(conditions)
     for roi_coni=1:roi_connum
         roic = roi_con{roi_coni};
         results_odor = results{roi_coni,condition_i};
-        % get acc minus chance
-        acc = cellfun(@(x) x.accuracy_minus_chance.output,results_odor(:,3:end));
+        % get acc
+        acc = cellfun(@(x) x.accuracy_minus_chance.output+x.accuracy_minus_chance.chancelevel,results_odor(:,3:end));
         figure
         plot(time,acc')
+        set(gca,'xlim',[time(1),time(end)],'ylim',[0,100])
         legend(results_odor(:,2))
+        ylabel('Accuracy')
         title([roic '-' condition])
     end
 end

@@ -22,7 +22,7 @@ odor_num=4;
 % 1-respiration 2-theta
 low={'-respiration','-theta'};
 % odor and air condition
-cross_freq_result=cell(roi_num,length(low),2);
+cross_freq_result=cell(roi_num,length(low),odor_num);
 % time and method
 latency = [0 7];
 freqhigh = 80;
@@ -33,6 +33,10 @@ colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E1
 line_wid = 1.5;
 %% cross frequency analysis
 for roi_i=1:roi_num
+    % display progress
+    len = 50;
+    fin = floor(len*roi_i/roi_num);
+    disp([num2str(roi_i) repmat('=',1,fin) '>' repmat('_',1,len-fin) num2str(roi_num)])
     % must have the same label
     roi_resp{roi_i}.label = roi_lfp{roi_i}.label;
     % select 7s
@@ -120,4 +124,4 @@ for roi_i=1:roi_num
         cross_freq_result{roi_i,2,con_i}.permute = cross_theta_per;
     end
 end
-save([pic_dir 'coherence_sep_7s.mat'],'cross_freq_result','cur_level_roi')
+save([pic_dir 'coherence_sep_7s.mat'],'cross_freq_result','cur_level_roi','-v7.3')

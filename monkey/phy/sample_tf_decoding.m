@@ -3,12 +3,15 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
     % select condition
     switch condition
         case 'intensity'
-            nlabel = 2;
+            % odor_num is the odor condition number
+            odor_num = 2;
             data_pca(:,2) = cellfun(@(x) x(2:3,:,:),data_pca(:,2),'UniformOutput',false);
         otherwise
-            nlabel = 5;
+            odor_num = 5;
             data_pca(:,2) = cellfun(@(x) x(1:5,:,:),data_pca(:,2),'UniformOutput',false);
     end
+    % number of odor labels
+    nlabel = size(data_pca{1,2},1);
     % combine rois    
     switch roi_con
         case 'All'
@@ -23,7 +26,7 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             % combine to 7 rois
             roi_focus = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'};...
                 {'BM'},{'BM'};{'BL'},{'BL'};{'Hi'},{'Hi'};{'S'},{'S'}};
-            roisdata = cell(size(roisdata,1),2);
+            roisdata = cell(size(roi_focus,1),2);
             for roi_i=1:size(roisdata,1)
                 roisdata(roi_i,1) = roi_focus{roi_i,1};
                 roisdata{roi_i,2} = cat(1,data_pca{ismember(data_pca(:,1),roi_focus{roi_i,2}),2});
@@ -36,7 +39,7 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
     for roi_i=1:roi_num
         results_odor{roi_i,1} = condition;
         tmp = roisdata{roi_i,2};                
-        for time_i = 1:length(time)
+        parfor time_i = 1:length(time)
             passed_data = [];
             % select time
             time_range = [time(time_i)-time_win/2 time(time_i)+time_win/2];
@@ -55,7 +58,7 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             [labels,I] = sortrows(labels,1);
             passed_data.data = tmpdata(I,:);
             % run decoding
-            [results_odor{roi_i,time_i+2},~]=odor_decoding_function(passed_data,nlabel,labels(:,2));
+            [results_odor{roi_i,time_i+2},~]=odor_decoding_function(passed_data,odor_num,labels(:,2));
         end
     end
 end

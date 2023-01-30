@@ -121,6 +121,12 @@
 ### pca_permutation
 生成1000个标签打乱之后平均的结果。
 
+### pca_permutation_sep
+返回每个记录位点标签打乱之后平均的结果。
+
+### pca_data_sep
+得到用于分类的每个记录位点PCA之后的时频数据。
+
 ## Time-frequency analysis
 
 ### lfp_odortry
@@ -185,6 +191,9 @@
 
 ### sample_lfp_decoding
 随机抽取样本并调用`odor_decoding_function`做分类。
+
+### sample_tf_decoding
+根据条件对经过PCA后的时频数据调用`odor_decoding_function`做分类。
 
 ### odor_decoding_function
 从decoding toolbox改造得到的decoding主要函数。

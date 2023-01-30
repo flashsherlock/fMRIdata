@@ -94,7 +94,7 @@ else
     end
 save([pic_dir 'data_pca' time '.mat'],'data_pca','cur_level_roi');
 end
-%% permutated data
+%% permutated data is too large
 % number of permutation
 per_num = 1000;
 data_pca_per = cell(per_num,1);

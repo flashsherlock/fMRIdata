@@ -19,6 +19,7 @@ end
 % load([data_dir 'pic/pca_power/noair/' m '/data_pca_per-33.mat'])
 % load pca sep data
 load([pic_dir '/data_pca-33.mat'])
+load([data_dir 'tf_sep_' m '.mat'])
 %% analysis
 % get number of roi
 roi_con = {'roi7'};
@@ -30,6 +31,9 @@ time=[-0.25:0.05:2.5];
 time_win=0.5;
 conditions = {'5odor'};
 results = cell(roi_connum,length(conditions));
+% permutated results
+per_num = 1000;
+results_per = cell(roi_connum,length(conditions),per_num);
 % run decoding for each condition
 for condition_i = 1:length(conditions)
     condition = conditions{condition_i};        
@@ -38,8 +42,14 @@ for condition_i = 1:length(conditions)
         % save results for this condition
         results{roi_coni,condition_i} = sample_tf_decoding(data_pca, condition, roi_con{roi_coni},time,time_win,data_time );
         % save permutated results
+        for per_i=1:per_num
+            time_range = [data_time(1) data_time(end)];
+            data_pca_per = pca_permutation_sep( freq_sep_all, cur_level_roi, time_range, per_i );
+            results_per{roi_coni,condition_i,per_i} = sample_tf_decoding(data_pca_per, condition, roi_con{roi_coni},time,time_win,data_time );
+        end
     end
 end
+save([pic_dir 'results_sep-33_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
 %% plot
 for condition_i = 1:length(conditions)
     condition = conditions{condition_i};        
@@ -48,7 +58,7 @@ for condition_i = 1:length(conditions)
         roic = roi_con{roi_coni};
         results_odor = results{roi_coni,condition_i};
         % get acc
-        acc = cellfun(@(x) x.accuracy_minus_chance.output+x.accuracy_minus_chance.chancelevel,results_odor(:,3:end));
+        acc = cellfun(@(x) x.output+x.chancelevel,results_odor(:,3:end));
         figure
         plot(time,acc')
         set(gca,'xlim',[time(1),time(end)],'ylim',[0,100])

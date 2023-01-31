@@ -58,7 +58,8 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             [labels,I] = sortrows(labels,1);
             passed_data.data = tmpdata(I,:);
             % run decoding
-            [results_odor{roi_i,time_i+2},~]=odor_decoding_function(passed_data,odor_num,labels(:,2));
+            [result,~]=odor_decoding_function(passed_data,odor_num,labels(:,2));
+            results_odor{roi_i,time_i+2} = result.accuracy_minus_chance;
         end
     end
 end

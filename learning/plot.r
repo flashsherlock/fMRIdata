@@ -548,12 +548,14 @@ summary(data_exp1)
 bruceR::TTEST(data_exp1, y=c("pre.acc", "after.acc"), paired=TRUE)
 # 1-back acc
 bruceR::TTEST(data_exp1, y=c("acc.h", "acc.f"), paired=TRUE)
+# remove attributes to avoid errors
+data_exp1rmatt <- lapply(data_exp1, function(x) {attributes(x) <- NULL;x})
 # ANOVA
-bruceR::MANOVA(data_exp1, dvs=c("prehappy.va","prefear.va", "afterhappy.va", "afterfear.va"), dvs.pattern="(pre|after)(happy|fear).va",
+bruceR::MANOVA(data_exp1rmatt, dvs=c("prehappy.va","prefear.va", "afterhappy.va", "afterfear.va"), dvs.pattern="(pre|after)(happy|fear).va",
                within=c("learn", "emotion"))%>%
   bruceR::EMMEANS("learn", by="emotion")
 
-bruceR::MANOVA(data_exp1, dvs=c("afterplus.va","afterminus.va"), dvs.pattern="after(plus|minus).va",
+bruceR::MANOVA(data_exp1rmatt, dvs=c("afterplus.va","afterminus.va"), dvs.pattern="after(plus|minus).va",
                within="pm",between = "pair")%>%
   bruceR::EMMEANS("pm", by="pair")
 # 3.1 diag plots -----------------------------------------------------------------
@@ -745,7 +747,14 @@ bruceR::TTEST(data_exp2, y=c("acc.h", "acc.f"), paired=TRUE)
 bruceR::TTEST(data_exp2, y=c("prehappy.va", "prefear.va"), paired=TRUE)
 bruceR::TTEST(data_exp2, y=c("preplus.va", "preminus.va"), paired=TRUE)
 bruceR::TTEST(data_exp2, y=c("rate"), test.value = 1/3)
-
+# remove attributes to avoid errors
+data_exp2rmatt <- lapply(data_exp2, function(x) {attributes(x) <- NULL;x})
+# ANOVA
+bruceR::MANOVA(data_exp2rmatt, dvs=c("acc.Fear.F","acc.Fear.H", "acc.Happy.F", "acc.Happy.H"), dvs.pattern="acc.(Happy|Fear).(F|H)",
+               within=c("odor", "face"))
+bruceR::MANOVA(data_exp2rmatt, dvs=c("fearF","fearH", "happyF", "happyH"), dvs.pattern="(happy|fear)(F|H)",
+               within=c("odor", "face"))%>%
+  bruceR::EMMEANS("odor", by="face")
 # 4.1 boxplots -------------------------------------------------------------------
 # pretest results
 va2_hf <- boxcp(data_exp2, c("happy", "fear"), c("prehappy.va", "prefear.va"))+

@@ -43,6 +43,11 @@ for condition_i = 1:length(conditions)
         results{roi_coni,condition_i} = sample_tf_decoding(data_pca, condition, roi_con{roi_coni},time,time_win,data_time );
         % save permutated results
         for per_i=1:per_num
+            % display progress
+            len = 50;
+            fin = floor(len*per_i/per_num);
+            disp([num2str([condition_i roi_coni per_i]) repmat('=',1,fin) '>' repmat('_',1,len-fin)])
+            % time range for selecting tf data
             time_range = [data_time(1) data_time(end)];
             data_pca_per = pca_permutation_sep( freq_sep_all, cur_level_roi, time_range, per_i );
             results_per{roi_coni,condition_i,per_i} = sample_tf_decoding(data_pca_per, condition, roi_con{roi_coni},time,time_win,data_time );

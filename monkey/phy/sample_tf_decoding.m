@@ -21,7 +21,7 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             roisdata{1,1} = 'HF';
             roisdata{1,2} = cat(1,data_pca{ismember(data_pca(:,1),{'Hi','S'}),2});
             roisdata{2,1} = 'Amy';
-            roisdata{1,2} = cat(1,data_pca{~ismember(data_pca(:,1),{'Hi','S'}),2});
+            roisdata{2,2} = cat(1,data_pca{~ismember(data_pca(:,1),{'Hi','S'}),2});
         otherwise
             % combine to 7 rois
             roi_focus = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'};...

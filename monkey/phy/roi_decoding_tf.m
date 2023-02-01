@@ -22,7 +22,7 @@ load([pic_dir '/data_pca-33.mat'])
 load([data_dir 'tf_sep_' m '.mat'])
 %% analysis
 % get number of roi
-roi_con = {'roi7'};
+roi_con = {'HA'};
 roi_connum=length(roi_con);
 data_time=[-3:0.05:3];
 % time before -1s (41) may contain nan
@@ -54,7 +54,7 @@ for condition_i = 1:length(conditions)
         end
     end
 end
-save([pic_dir 'results_sep-33_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
+save([pic_dir 'results_HA_sep-33_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
 %% plot
 for condition_i = 1:length(conditions)
     condition = conditions{condition_i};        

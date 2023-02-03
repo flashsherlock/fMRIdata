@@ -220,3 +220,46 @@ for low_i=1:length(low)
         end
     end
 end
+%% plot each distance
+right_AH = ft_read_headshape([file_dir 'right_AH_level5.stl'],'format','stl');
+right_AH.coordsys = 'acpc';
+left_AH = ft_read_headshape([file_dir 'left_AH_level5.stl'],'format','stl');
+left_AH.coordsys = 'acpc';
+meshcolor = 0.75*[1 1 1];
+meshalpha = 0.2; 
+for dim_i=1:length(low)
+    for freq_i=1:length(freq)
+        for dis=1:5
+            % data to be ploted
+            color_data = plot_data{dim_i,freq_i};
+            color_data = color_data(:,3+dis);
+            for plot_i = 1:2
+                % scatter3 plot plot_data and use color_data to color
+                figure
+                hold on    
+                ft_plot_mesh(right_AH,'facecolor',meshcolor,'facealpha',meshalpha);
+                if plot_i == 2
+                    % separate left and right
+                    ft_plot_mesh(left_AH,'facecolor',meshcolor,'facealpha',meshalpha);
+                    scatter3(dis_data(:,1),dis_data(:,2),dis_data(:,3),25,color_data,'filled')
+                else
+                    % flip RM033 to right side
+                    scatter3(abs(dis_data(:,1)),dis_data(:,2),dis_data(:,3),25,color_data,'filled')
+                end
+                % set colorscale
+                set(gca,'clim',[-1 1],'FontSize',18)
+        %         set(gca,'xlim',[-15 15],'ylim',[10 25],'zlim',[0 10])
+                colormap(bluered(1000))
+                ylabel(colorbar,[yl{dis} '-' num2str(dim_i)])
+                xlabel('x')
+                ylabel('y')
+                zlabel('z')
+                view(125,30)%37.5,30
+                title([yl{dis} '-' num2str(dim_i)])
+                saveas(gcf, [pic_dir num2str(plot_i) 'side_'  yl{dis} '_' num2str(dim_i) '.png'],'png')
+                saveas(gcf, [pic_dir num2str(plot_i) 'side_'  yl{dis} '_' num2str(dim_i) '.fig'],'fig')
+                close all
+            end
+        end
+    end
+end

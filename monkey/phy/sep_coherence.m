@@ -154,3 +154,69 @@ for low_i=1:length(low)
     dis_data = [dis_data(:,1:3) reshape(cell2mat(zmi(:,low_i,:)),roi_num,[])];
     dlmwrite([file_dir  '2m_coherence_' low{low_i} '.csv'],dis_data,'delimiter',',');
 end
+%% correlation between x,y,z and distances
+xl = {'x','y','z'};
+yl = {'Air','Odor','UnPlea','Plea','Odor-Air'};
+freq = {[13:80]};
+monkeys = {'RM033','RM035','2m'};
+plot_data = cell(length(low),length(freq));
+for low_i=1:length(low)
+    % select data
+    dis_data_select = cell2mat(zmi(:,low_i,:));
+    for freq_i=1:length(freq)
+        % select frequency
+        if size(dis_data_select,2)==68
+            freqs = 13:80;
+        else
+            freqs = 1:80;
+        end
+        dis_data_select = [dis_data(:,1:3) squeeze(mean(dis_data_select(:,ismember(freqs,freq{freq_i}),:),2))];        
+        % condition 5:odor-air
+        dis_data_select(:,3+odor_num+1) = dis_data_select(:,3+2)-dis_data_select(:,3+1);
+        plot_data{low_i,freq_i}=dis_data_select;
+        % monkey
+        for m = 1:length(monkeys)
+            figure('position',[20,450,900,1400],'Renderer','Painters');
+            % select roi
+        %     index = ~ismember(cur_level_roi(:,2),{'Hi','S'});
+        %     dis_data_select = dis_data_select(index,:);
+            switch monkeys{m}
+                case 'RM033'
+                    dis_data_select = dis_data_select(dis_data_select(:,1)<0,:);
+                case 'RM035'
+                    dis_data_select = dis_data_select(dis_data_select(:,1)>0,:);
+            end
+            % odor condition
+            for odor_i=1:odor_num+1                
+                % change x to abs(x)
+                dis_data_select(:,1) = abs(dis_data_select(:,1));
+                % plot 3 coords
+                coord = 3;                         
+                for j=1:coord
+                    % get data
+                    x = dis_data_select(:,j);
+                    y = dis_data_select(:,3+odor_i);
+                    % correlation
+                    [r,p]=corr(x,y);
+                    % scatter plot
+                    subplot(odor_num+1,coord,(odor_i-1)*coord+j,'align');
+                    scatter(x,y,'.')
+                    % add regression line
+                    hold on
+                    pfit = polyfit(x, y, 1);
+                    ycalc = polyval(pfit, x);
+                    plot(x,ycalc,'k')
+                    % add r and p values
+                    xlabel(xl(j))
+                    ylabel(yl(odor_i))
+                    set(gca,'xlim',[min(x)-1 max(x)+1],'FontSize',18);
+                    position = get(gca,'ylim');
+                    text(min(x),max(max(y)+1,position(2)-1),[sprintf('r=%0.2f, p=%0.3f',round(r,2),round(p,3))],'Fontsize',18)                
+                end
+            end
+            suptitle([monkeys{m} '-' low{low_i}])
+            saveas(gcf, [pic_dir 'corr_' [monkeys{m} '-' low{low_i}] '.svg'],'svg')
+            close all
+        end
+    end
+end

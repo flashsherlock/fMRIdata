@@ -1,4 +1,4 @@
-% load response patterns
+%% load response patterns
 mask = 'align';
 modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
 datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
@@ -15,7 +15,7 @@ for sub_i = 1:length(subn)
     subs{sub_i} = sprintf('S%02d', subn(sub_i));
 end
 
-% plot the response pattern
+%% plot the response pattern
 % for field_i = 1:length(fields)    
 %     % for each sub
 %     for sub_i = 1:length(subn)
@@ -27,26 +27,34 @@ end
 %     end 
 % end
 
-% pariwise correlation for all subjects
+%% pariwise correlation for all subjects
 colms = [];
 cormat = [];
 % reshape to ncon, if not 180
-ncon = 5;
+ncon = 180;
 for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
+        % select voxels
+        cur_res = select_voxel(cur_res,100,0);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average
         cur_res = reshape(cur_res,size(cur_res,1),[],ncon);
-        cur_res = squeeze(mean(cur_res,2));
+        cur_res = squeeze(mean(cur_res,2));        
         % RDM
         cur_res = 1-corr(cur_res);
-        % imagesc(cur_res)
-        % colormap jet
+        % plot
+        if field_i==1
+            figure
+            imagesc(cur_res)
+            colormap jet
+            title([num2str(subn(sub_i)) '-' fields{field_i}])   
+        end
+        % select upper triangle
         colms(:, field_i) = cur_res(triu(true(size(cur_res)), 1));
-    end
-
+    end    
+    
     for m_i = 1:size(Models,1)
         cur_res = Models(m_i, sub_i).RDM;
         % select according to the size of response        
@@ -59,7 +67,7 @@ for sub_i = 1:length(subn)
     cormat(:, :, sub_i) = corr(colms, 'type', 'Spearman');
 end
 
-% extract the correlation between rois and strut & sim
+%% extract the correlation between rois and strut & sim
 represent = zeros(2,length(fields),length(subn));
 for sub_i = 1:length(subn)
     % 1-7 APairs Haddad Odorspace mrvalence mrintensity mrsimilarity random

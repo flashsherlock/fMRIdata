@@ -26,7 +26,11 @@ end
 %         close all
 %     end 
 % end
-
+%% use averaged sim RDM
+simavg = mean(cat(3,Models(6, :).RDM),3);
+for sub_i = 1:length(subn)
+    Models(6, sub_i).RDM = simavg;
+end
 %% pariwise correlation for all subjects
 colms = [];
 cormat = [];
@@ -36,7 +40,7 @@ for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
         % select voxels
-        cur_res = select_voxel(cur_res,100,0);
+        cur_res = select_voxel(cur_res,100);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average

@@ -1,5 +1,8 @@
-function res_select = select_voxel( cur_res, voxel_num, run )
+function res_select = select_voxel( cur_res, voxel_num, run, zrun )
 % select voxels that has minimum within condition variance
+    if nargin<4
+        zrun = 0;
+    end
     if nargin<3
         run = 0;
     end
@@ -8,10 +11,21 @@ function res_select = select_voxel( cur_res, voxel_num, run )
     end
     voxn = size(cur_res,1);
     conn = size(cur_res,2);
+    runn = 6;
     if run == 1
-        odorn = 5*6;
+        odorn = 5*runn;
     else
         odorn = 5;
+    end
+    % zscore witin runs
+    if zrun == 1
+        cur_res = reshape(cur_res',[],runn,odorn,voxn);
+        cur_res = permute(cur_res,[1 3 2 4]);
+        cur_res = reshape(cur_res,[],runn,voxn);
+        cur_res = zscore(cur_res,0,1);
+        cur_res = reshape(cur_res,[],odorn,runn,voxn);
+        cur_res = permute(cur_res,[1 3 2 4]);
+        cur_res = reshape(cur_res,[],voxn)';
     end
     % all variance
     ssa=var(cur_res,0,2)*(conn-1);

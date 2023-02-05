@@ -19,12 +19,16 @@ function res_select = select_voxel( cur_res, voxel_num, run, zrun )
     end
     % zscore witin runs
     if zrun == 1
-        cur_res = reshape(cur_res',[],runn,odorn,voxn);
+        cur_res = reshape(cur_res',[],runn,5,voxn);
         cur_res = permute(cur_res,[1 3 2 4]);
         cur_res = reshape(cur_res,[],runn,voxn);
         cur_res = zscore(cur_res,0,1);
-        cur_res = reshape(cur_res,[],odorn,runn,voxn);
+        cur_res = reshape(cur_res,[],5,runn,voxn);
         cur_res = permute(cur_res,[1 3 2 4]);
+        cur_res = reshape(cur_res,[],voxn)';
+    elseif zrun == 2
+        cur_res = reshape(cur_res',[],5,voxn);
+        cur_res = zscore(cur_res,0,2);
         cur_res = reshape(cur_res,[],voxn)';
     end
     % all variance

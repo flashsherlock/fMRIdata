@@ -9,7 +9,11 @@ function res_select = select_voxel( cur_res, voxel_num, run, zrun )
     if nargin<2
         voxel_num = 100;
     end
+    % if voxel_num<=1, treat it as percentage
     voxn = size(cur_res,1);
+    if voxel_num<=1
+        voxel_num = ceil(voxel_num*voxn);
+    end
     conn = size(cur_res,2);
     runn = 6;
     if run == 1

@@ -13,15 +13,21 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
     % number of odor labels
     nlabel = size(data_pca{1,2},1);
     % combine rois    
+    dimension = 1;
     switch roi_con
         case 'All'
             roisdata{1,1} = 'All';
-            roisdata{1,2} = cat(1,data_pca{:,2});
+            roisdata{1,2} = cat(dimension,data_pca{:,2});
+            roisdata{1,2} = mean(roisdata{1,2},4);
+        case 'each'
+            roisdata = data_pca(:,1:2);
         case 'HA'
             roisdata{1,1} = 'HF';
-            roisdata{1,2} = cat(1,data_pca{ismember(data_pca(:,1),{'Hi','S'}),2});
+            roisdata{1,2} = cat(dimension,data_pca{ismember(data_pca(:,1),{'Hi','S'}),2});
+            roisdata{1,2} = mean(roisdata{1,2},4);
             roisdata{2,1} = 'Amy';
-            roisdata{2,2} = cat(1,data_pca{~ismember(data_pca(:,1),{'Hi','S'}),2});
+            roisdata{2,2} = cat(dimension,data_pca{~ismember(data_pca(:,1),{'Hi','S'}),2});
+            roisdata{2,2} = mean(roisdata{2,2},4);
         otherwise
             % combine to 7 rois
             roi_focus = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'};...
@@ -29,7 +35,8 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             roisdata = cell(size(roi_focus,1),2);
             for roi_i=1:size(roisdata,1)
                 roisdata(roi_i,1) = roi_focus{roi_i,1};
-                roisdata{roi_i,2} = cat(1,data_pca{ismember(data_pca(:,1),roi_focus{roi_i,2}),2});
+                roisdata{roi_i,2} = cat(dimension,data_pca{ismember(data_pca(:,1),roi_focus{roi_i,2}),2});
+                roisdata{roi_i,2} = mean(roisdata{roi_i,2},4);
             end
     end
     roi_num = size(roisdata,1);

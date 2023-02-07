@@ -34,20 +34,28 @@ end
 passed_data.mask_index = 1:size(passed_data.data, 2);
 passed_data.mask_index_each = 1;
 passed_data.dim = [1 1 size(passed_data.data, 2)];
-repeat = numtr / odornum;
+% odor labels
+if length(odornum)==1
+    odor_num = odornum;
+    repeat = numtr / odor_num;
+    cfg.files.label = [cfg.files.label; reshape(repmat(1:odor_num, [repeat 1]), [numtr 1])];
+else
+    % array of odor labels
+    odor_num = length(unique(odornum));
+    cfg.files.label = [cfg.files.label; odornum];
+end
+% chunks
 if nargin < 3
-    cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:repeat, [1 odornum]), [numtr 1])];
+    cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:(numtr / odor_num), [1 odor_num]), [numtr 1])];
 else
     cfg.files.chunk = chunk;
 end
-%
-% (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
-% label number (i.e. a nx1 vector)
-cfg.files.label = [cfg.files.label; reshape(repmat(1:odornum, [repeat 1]), [numtr 1])];
 
 cfg.results.output = {'accuracy_minus_chance', 'confusion_matrix','predicted_labels','true_labels'};
 
 cfg.design = make_design_cv(cfg);
+% allow unbalanced data
+cfg.design.unbalanced_data = 'ok';
 
 % Run decoding
 [results, cfg] = decoding_odor(cfg, passed_data);

@@ -22,7 +22,7 @@ load([pic_dir '/data_pca-33.mat'])
 load([data_dir 'tf_sep_' m '.mat'])
 %% analysis
 % get number of roi
-roi_con = {'HA'};
+roi_con = {'roi7'};
 roi_connum=length(roi_con);
 data_time=[-3:0.05:3];
 % time before -1s (41) may contain nan
@@ -54,21 +54,47 @@ for condition_i = 1:length(conditions)
         end
     end
 end
-save([pic_dir 'results_HA_sep-33_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
+save([pic_dir 'results_sep-33_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
 %% plot
+load([pic_dir 'results_sep-33_' num2str(time_win) '.mat'])
 for condition_i = 1:length(conditions)
     condition = conditions{condition_i};        
     % each roi_condition
-    for roi_coni=1:roi_connum
+    for roi_coni=1:roi_connum        
         roic = roi_con{roi_coni};
         results_odor = results{roi_coni,condition_i};
         % get acc
         acc = cellfun(@(x) x.output+x.chancelevel,results_odor(:,3:end));
+        % peprmutated acc
+        acc_per = zeros(size(acc,1),size(acc,2),per_num);
+        for per_i=1:per_num
+            results_odor_per = results_per{roi_coni,condition_i,per_i};
+            % get acc
+            acc_per(:,:,per_i) = cellfun(@(x) x.output+x.chancelevel,results_odor_per(:,3:end));
+        end
+        per_mean = mean(acc_per,3);
+        per_std = std(acc_per,0,3);
+        p = (sum(bsxfun(@gt, acc_per, acc),3)+1 )./(size(acc_per,3)+1);
+        % zacc = (acc-per_mean)./per_std;
         figure
+        subplot(2,2,1)
         plot(time,acc')
-        set(gca,'xlim',[time(1),time(end)],'ylim',[0,100])
-        legend(results_odor(:,2))
-        ylabel('Accuracy')
-        title([roic '-' condition])
+        set(gca,'xlim',[time(1),time(end)])
+        ylabel('Accuracy') 
+        subplot(2,2,2)
+        plot(time,(acc-per_mean)')
+        set(gca,'xlim',[time(1),time(end)])
+        ylabel('Acc-Per') 
+        subplot(2,2,3)
+        plot(time,per_mean')
+        set(gca,'xlim',[time(1),time(end)])
+        ylabel('Permutated Acc')
+        subplot(2,2,4)
+        plot(time,p')
+        set(gca,'xlim',[time(1),time(end)])
+        ylabel('p') 
+        legend(results_odor(:,2))               
+        suptitle([roic '-' condition])
+        saveas(gcf,[pic_dir roic '-' condition '.svg'],'svg')
     end
 end

@@ -104,3 +104,20 @@ for condition_i = 1:length(conditions)
         saveas(gcf,[pic_dir roic '-' condition '.svg'],'svg')
     end
 end
+%% plot results when roi_con=='each'
+% % combine to 7 rois
+% roi_focus = {{'CoA'},{'APir','VCo'}; {'BA'}, {'BL','PaL'};{'CeMe'},{'Ce','Me'};...
+%     {'BM'},{'BM'};{'BL'},{'BL'};{'Hi'},{'Hi'};{'S'},{'S'}};
+% roisdata = cell(size(roi_focus,1),2);
+% % get acc
+% results_odor = results{roi_coni,condition_i};
+% acc = cellfun(@(x) x.output+x.chancelevel,results_odor(:,3:end));
+% for roi_i=1:size(roisdata,1)
+%     roisdata(roi_i,1) = roi_focus{roi_i,1};    
+%     roisdata{roi_i,2} = mean(acc(ismember(results_odor(:,2),roi_focus{roi_i,2}),:),1);
+% end
+% figure
+% plot(time,cell2mat(roisdata(:,2))')
+% set(gca,'xlim',[time(1),time(end)])
+% ylabel('Accuracy') 
+% legend(roisdata(:,1))

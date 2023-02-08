@@ -6,6 +6,13 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             % odor_num is the odor condition number
             odor_num = 2;
             data_pca(:,2) = cellfun(@(x) x(2:3,:,:),data_pca(:,2),'UniformOutput',false);
+        case 'valence'
+            odor_num = 0;
+            data_pca(:,2) = cellfun(@(x) x(1:5,:,:),data_pca(:,2),'UniformOutput',false);
+        case 'valence2'
+            odor_num = 0;
+            % only use iso_h
+            data_pca(:,2) = cellfun(@(x) x([1 3:5],:,:),data_pca(:,2),'UniformOutput',false);
         otherwise
             odor_num = 5;
             data_pca(:,2) = cellfun(@(x) x(1:5,:,:),data_pca(:,2),'UniformOutput',false);
@@ -65,7 +72,12 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             [labels,I] = sortrows(labels,1);
             passed_data.data = tmpdata(I,:);
             % run decoding
-            [result,~]=odor_decoding_function(passed_data,odor_num,labels(:,2));
+            odorlabel = labels(:,1);
+            if odor_num==0                
+                odorlabel(odorlabel<=3) = 1;
+                odorlabel(odorlabel>=4) = 2;
+            end
+            [result,~]=odor_decoding_function(passed_data,odorlabel,labels(:,2));
             results_odor{roi_i,time_i+2} = result.accuracy_minus_chance;
         end
     end

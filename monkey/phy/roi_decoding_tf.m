@@ -29,7 +29,13 @@ data_time=[-3:0.05:3];
 time=[-0.25:0.05:2.5];
 % each tf data point represent 0.05s
 time_win=0.5;
+% select freqency
+data_freq = logspace(log10(1),log10(200),51);
+data_freq = data_freq(1:42);% below 80
+freq = data_freq>=13;
 conditions = {'5odor'};
+% conditions = {'intensity'};
+% conditions = {'valence'};
 results = cell(roi_connum,length(conditions));
 % permutated results
 per_num = 1000;
@@ -40,7 +46,7 @@ for condition_i = 1:length(conditions)
     % each roi_condition
     for roi_coni=1:roi_connum
         % save results for this condition
-        results{roi_coni,condition_i} = sample_tf_decoding(data_pca, condition, roi_con{roi_coni},time,time_win,data_time );
+        results{roi_coni,condition_i} = sample_tf_decoding(data_pca, condition, roi_con{roi_coni},time,time_win,data_time,freq );
         % save permutated results
         for per_i=1:per_num
             % display progress
@@ -50,11 +56,11 @@ for condition_i = 1:length(conditions)
             % time range for selecting tf data
             time_range = [data_time(1) data_time(end)];
             data_pca_per = pca_permutation_sep( freq_sep_all, cur_level_roi, time_range, per_i );
-            results_per{roi_coni,condition_i,per_i} = sample_tf_decoding(data_pca_per, condition, roi_con{roi_coni},time,time_win,data_time );
+            results_per{roi_coni,condition_i,per_i} = sample_tf_decoding(data_pca_per, condition, roi_con{roi_coni},time,time_win,data_time,freq );
         end
     end
 end
-save([pic_dir 'results_sep-33_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
+save([pic_dir 'results_sep-33_freq13_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
 %% plot
 load([pic_dir 'results_sep-33_' num2str(time_win) '.mat'])
 for condition_i = 1:length(conditions)

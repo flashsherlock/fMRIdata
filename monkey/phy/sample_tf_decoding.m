@@ -1,4 +1,4 @@
-function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, time_win, data_time )
+function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, time_win, data_time, freq)
 % decode data_pca_tf
     % select condition
     switch condition
@@ -17,6 +17,11 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             odor_num = 5;
             data_pca(:,2) = cellfun(@(x) x(1:5,:,:),data_pca(:,2),'UniformOutput',false);
     end
+    % select frequency
+    if nargin < 7
+        freq = 1:size(data_pca{1,2},3);
+    end
+    data_pca(:,2) = cellfun(@(x) x(:,:,freq),data_pca(:,2),'UniformOutput',false);
     % number of odor labels
     nlabel = size(data_pca{1,2},1);
     % combine rois    

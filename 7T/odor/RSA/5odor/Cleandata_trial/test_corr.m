@@ -6,6 +6,7 @@ if ~exist([datafolder 'Figures'],'dir')
     mkdir([datafolder 'Figures'])
 end
 load([datafolder 'ImageData/Cleandata_responsePatterns_' mask '.mat']);
+% load([modelfolder 'ImageData/Cleandata_responsePatterns.mat']);
 load([modelfolder 'RDMs/Cleandata_Models.mat']);
 % fields and subs
 fields = fieldnames(responsePatterns);
@@ -39,17 +40,29 @@ colms = [];
 cormat = [];
 betas = [];
 % reshape to ncon, if not 180
-ncon = 180;
+ncon = 30;
 for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
         % select voxels
-        cur_res = select_voxel(cur_res,100,0,2);
+        cur_res = select_voxel(cur_res,50,0,0);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average
-        cur_res = reshape(cur_res,size(cur_res,1),[],ncon);
-        cur_res = squeeze(mean(cur_res,2));        
+        if ncon==30
+            % average repeats
+            cur_res = reshape(cur_res',6,ncon,[]);
+            cur_res = squeeze(mean(cur_res,1))';
+%             % average runs            
+%             cur_res = reshape(cur_res',6,6,5,[]);
+%             % repeat odor run
+%             cur_res = permute(cur_res,[1 3 2 4]);
+%             cur_res = reshape(cur_res,ncon,6,[]);
+%             cur_res = squeeze(mean(cur_res,2))';
+        else
+            cur_res = reshape(cur_res,size(cur_res,1),[],ncon);
+            cur_res = squeeze(mean(cur_res,2)); 
+        end               
         % RDM
         cur_res = 1-corr(cur_res);
         % plot        
@@ -90,7 +103,9 @@ end
 % correlation between struct and sim
 strsimr = cormat(length(fields) + 1,length(fields) + 6,:);
 % split subs
-s={[1:size(represent,3)],[1:size(represent,3)/2],[size(represent,3)/2+1:size(represent,3)]};
+% s={[1:size(represent,3)],[1:size(represent,3)/2],[size(represent,3)/2+1:size(represent,3)]};
+% split odd and even
+s={[1:size(represent,3)],1:2:size(represent,3),2:2:size(represent,3)};
 for sub_i=1:3
     % average across subs
     repm = squeeze(mean(represent(:,:,s{sub_i}), 3));    

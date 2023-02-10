@@ -1,4 +1,4 @@
-function res_select = select_voxel( cur_res, voxel_num, run, zrun )
+function [res_select,perw] = select_voxel( cur_res, voxel_num, run, zrun )
 % select voxels that has minimum within condition variance
     if nargin<4
         zrun = 0;

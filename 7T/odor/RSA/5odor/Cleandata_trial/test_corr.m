@@ -41,11 +41,12 @@ cormat = [];
 betas = [];
 % reshape to ncon, if not 180
 ncon = 30;
+perw = cell(length(subn),length(fields));
 for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
         % select voxels
-        cur_res = select_voxel(cur_res,50,0,0);
+        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,50,0,0);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average
@@ -144,7 +145,13 @@ for sub_i=1:3
     legend({'Struture', 'Similarity'});
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])    
 end
+%% plot perw
+perw = cellfun(@sort,perw,'UniformOutput',false);
+perw_mean = cellfun(@(x) mean(x(1:min(50,length(x)))),perw);
+[~,idx]=sort(mean(perw_mean,2));
+disp(subn(idx))
 %% export for ANOVA
 repwide = permute(represent,[3 1 2]);
 repwide = reshape(repwide,length(subn),[]);
 names = reshape([strcat(fields,'_str') strcat(fields,'_sim')]',[],1);
+repwide = repwide(idx,:);

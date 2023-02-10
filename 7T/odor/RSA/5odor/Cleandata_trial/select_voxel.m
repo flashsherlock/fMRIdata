@@ -16,10 +16,11 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, run, zrun )
     end
     conn = size(cur_res,2);
     runn = 6;
+    repeat = 6;
     if run == 1
-        odorn = 5*runn;
+        odorn = conn/runn;
     else
-        odorn = 5;
+        odorn = conn/runn/repeat;
     end
     % zscore witin runs
     if zrun == 1

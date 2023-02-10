@@ -546,8 +546,9 @@ summary(data_exp1)
 
 # paired t test with cohen's d
 bruceR::TTEST(data_exp1, y=c("pre.acc", "after.acc"), paired=TRUE)
-# 1-back acc
+# 1-back acc and hitrate
 bruceR::TTEST(data_exp1, y=c("acc.h", "acc.f"), paired=TRUE)
+bruceR::TTEST(data_exp1, y=c("hitrate.h", "hitrate.f"), paired=TRUE)
 # remove attributes to avoid errors
 data_exp1rmatt <- lapply(data_exp1, function(x) {attributes(x) <- NULL;x})
 # ANOVA
@@ -743,6 +744,7 @@ data_exp2 <- subset(data_exp2, id!=35)
 bruceR::TTEST(data_exp2, y=c("con", "incon"), paired=TRUE)
 # 1-back acc
 bruceR::TTEST(data_exp2, y=c("acc.h", "acc.f"), paired=TRUE)
+bruceR::TTEST(data_exp2, y=c("hitrate.h", "hitrate.f"), paired=TRUE)
 # valence in pretest
 bruceR::TTEST(data_exp2, y=c("prehappy.va", "prefear.va"), paired=TRUE)
 bruceR::TTEST(data_exp2, y=c("preplus.va", "preminus.va"), paired=TRUE)

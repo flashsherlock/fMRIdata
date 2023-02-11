@@ -53,7 +53,7 @@ for i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_labelbase_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_select50base_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -150,6 +150,13 @@ for i=1:length(rois)
     else
        passed_data.data = [passed_data.data tr(:,[3 4])];
     end
+    % select voxels
+    voxel_num=50;
+    [passed_data.data, perw] = select_voxel(passed_data.data',voxel_num);
+    passed_data.data = passed_data.data';
+    [~,index]=sort(perw,'ascend');
+    passed_data.mask_index = passed_data.mask_index(index(1:min(voxel_num,length(passed_data.mask_index))));
+    passed_data.mask_each = {passed_data.mask_index};
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
     % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');

@@ -11,16 +11,6 @@ pic_dir=[data_dir 'pic/decoding/tf/' m '/'];
 if ~exist(pic_dir,'dir')
     mkdir(pic_dir);
 end
-% load time-frequency data
-% load([data_dir 'tf_level5_' m '.mat'],'freq_sep_all')
-% load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'],'cur_level_roi')
-% load pca data
-% load([data_dir 'pic/pca_power/noair/' m '/data_pca-33.mat'])
-% load([data_dir 'pic/pca_power/noair/' m '/data_pca_per-33.mat'])
-% load pca sep data
-load([pic_dir '/data_pca-33.mat'])
-load([data_dir 'tf_sep_' m '.mat'])
-%% analysis
 % get number of roi
 roi_con = {'roi7'};
 roi_connum=length(roi_con);
@@ -33,12 +23,23 @@ time_win=0.5;
 data_freq = logspace(log10(1),log10(200),51);
 data_freq = data_freq(1:42);% below 80
 freq = data_freq>=13;
+per_num = 1000;
 conditions = {'5odor'};
 % conditions = {'intensity'};
 % conditions = {'valence'};
+
+%% analysis
+% load time-frequency data
+% load([data_dir 'tf_level5_' m '.mat'],'freq_sep_all')
+% load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'],'cur_level_roi')
+% load pca data
+% load([data_dir 'pic/pca_power/noair/' m '/data_pca-33.mat'])
+% load([data_dir 'pic/pca_power/noair/' m '/data_pca_per-33.mat'])
+% load pca sep data
+load([pic_dir '/data_pca-33.mat'])
+load([data_dir 'tf_sep_' m '.mat'])
 results = cell(roi_connum,length(conditions));
 % permutated results
-per_num = 1000;
 results_per = cell(roi_connum,length(conditions),per_num);
 % run decoding for each condition
 for condition_i = 1:length(conditions)
@@ -62,7 +63,7 @@ for condition_i = 1:length(conditions)
 end
 save([pic_dir 'results_sep-33_freq13_' num2str(time_win) '.mat'],'results','results_per','-v7.3')
 %% plot
-load([pic_dir 'results_sep-33_' num2str(time_win) '.mat'])
+load([pic_dir 'results_sep-33_freq13_' num2str(time_win) '.mat'])
 for condition_i = 1:length(conditions)
     condition = conditions{condition_i};        
     % each roi_condition

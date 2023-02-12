@@ -1,5 +1,11 @@
-function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, time_win, data_time, freq)
+function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, time_win, data_time, freq, seed)
 % decode data_pca_tf
+    % set seed if needed
+    if nargin < 8
+        seed = 0;
+    else
+        rng(seed);
+    end
     % select condition
     switch condition
         case 'intensity'
@@ -74,8 +80,15 @@ function results_odor = sample_tf_decoding(data_pca, condition, roi_con, time, t
             tmpdata = reshape(tmpdata,[],size(tmpdata,3));
             % sort data
             labels = reshape(permute(labels,[2,1,3]),[],size(labels,3));
-            [labels,I] = sortrows(labels,1);
-            passed_data.data = tmpdata(I,:);
+            % use random labels if seed>0
+            if seed>0
+                I = randperm(size(labels,1));
+                labels = labels(I,:);
+                passed_data.data = tmpdata;
+            else
+                [labels, I] = sortrows(labels, 1);
+                passed_data.data = tmpdata(I, :);
+            end                        
             % run decoding
             odorlabel = labels(:,1);
             if odor_num==0                

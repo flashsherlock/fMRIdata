@@ -71,3 +71,12 @@ do
     -com "QUIT"                                                                                     \
     ./ ../S${sub}/${subj}.results/
 done
+
+# make folders like orig_coronal and move png files to folder according to suffix
+for suffix in orig_coronal orig_axial orig_sagittal orig_norm_coronal orig_norm_axial orig_norm_sagittal tlrc_coronal tlrc_axial tlrc_sagittal tlrc_norm_coronal tlrc_norm_axial tlrc_norm_sagittal
+do
+    if [ ! -d image/individual/${suffix} ]; then
+        mkdir image/individual/${suffix}
+    fi
+    mv image/individual/*${suffix}.png image/individual/${suffix}
+done

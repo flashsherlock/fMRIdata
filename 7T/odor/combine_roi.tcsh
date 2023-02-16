@@ -1,6 +1,6 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 19 34`)
+foreach ub (`count -dig 2 4 11` 13 14 `count -dig 2 16 34`)
 # set sub=S01_yyt
 set sub=S${ub}
 set analysis=pabiode
@@ -23,6 +23,12 @@ set ijk=(`3dAutobox -extent_ijk -noclust allROI+orig`)
 # generate box ROI
 3dcalc -a allROI+orig \
 -prefix BoxROI \
+-expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+
+# generate extended box ROI
+set ijk=(`3dAutobox -npad 3 -extent_ijk -noclust allROI+orig`)
+3dcalc -a allROI+orig \
+-prefix BoxROIext \
 -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
 
 # generate box labels

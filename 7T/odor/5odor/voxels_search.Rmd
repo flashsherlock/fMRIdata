@@ -5,8 +5,9 @@ date: "`r Sys.time()`"
 output: html_document
 params:
     path: "/Volumes/WD_F/gufei/7T_odor"
-    sub: "search_polandva"
+    sub: "search_rmbase"
     thr: 2.051831
+    percent: 1
 ---
 
 ```{r, setup, include=FALSE}
@@ -238,7 +239,13 @@ for (roi in c("Pir","Amy","All")) {
     p <- paste(xlab,odor,sep = "_")
     # activated only
     indx <- results_select[[paste0("t_","lim-",odor)]]>params$thr
-    plots[[p]] <- ggscatter(results_select[indx,],color = "#4c95c8",
+    data_corr <- subset(results_select[indx,],select = c(xlab,paste0("m_","lim-",odor))) 
+    # select data above 60% percentile of each group by xlab
+    data_corr[, c := quantile(get(paste0("m_","lim-",odor)),1-params$percent), by = c(xlab)]
+    # group_by function may encounter issues when plyr loaded
+    # data_corr %>% group_by(!!sym(xlab))%>% summarize(quant50 = quantile(get(paste0("m_","lim-",odor)),0.5))
+    # https://stackoverflow.com/questions/21653295/dplyr-issues-when-using-group-bymultiple-variables
+    plots[[p]] <- ggscatter(data_corr[get(paste0("m_","lim-",odor))>=c,],color = "#4c95c8",
                    x = xlab, y = paste0("m_","lim-",odor),alpha = 0.8,
               conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
               position=position_jitter(h=0.02,w=0.02, seed = 5)) +
@@ -249,6 +256,28 @@ for (roi in c("Pir","Amy","All")) {
     }
   }
   print(wrap_plots(plots,ncol = 3,nrow = length(odors)))
+  
+  method = "all "
+  if (method=="any"){
+    # rows numbers that started with t_lim
+    col <- grep("t_lim",colnames(results_select))
+    # select rows that any columns are above threshold in data.table
+    results_select <- results_select[,t:=any(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
+  } else{
+    # lim-cit and lim-car
+    col <- grep("t_lim-(car|cit)",colnames(results_select))
+    # select rows that all columns are above threshold in data.table
+    results_select <- results_select[,t:=all(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
+  }
+  print(ggscatter(results_select[t==TRUE,],color = "#4c95c8",
+                   x = paste0("m_","lim-cit"), y = paste0("m_","lim-car"),alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+              position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+          labs(title = paste(roi,method,sep = "_"))+
+        stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                 show.legend=F)+
+        # labs(title = ro i)+
+        theme_prism(base_line_size = 0.5))
 }
 ```
 

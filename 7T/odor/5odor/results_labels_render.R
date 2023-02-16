@@ -36,16 +36,16 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/roistatas.
                   params = list(path = path, sub = subs, roi = roi, suffix = suffix))
 
 # render voxel search
-threshold <- 2.051831 # DOF = 27
+threshold <- 2.051831 # DOF = 27 ccalc -expr "cdf2stat(0.975,3,27,0,0)"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_search.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0("searchlight_group_rmbase"),
-                  params = list(path = path, sub = "search_rmbase", thr = threshold))
+                  params = list(path = path, sub = "search_rmbase", thr = threshold, percent = 1))
 # render voxel group
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("WARP_group"),
-                  params = list(path = path, sub = "WARP_results", thr = threshold))
+                  output_file = paste0("group"),
+                  params = list(path = path, sub = "results", thr = threshold))
 threshold <- 2.160369 # DOF = 13
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),

@@ -25,6 +25,7 @@ library(tidyr)
 library(ggprism)
 library(patchwork)
 library(gridExtra)
+library(plotly)
 ggthemr('fresh',layout = "clean")
 ```
 
@@ -117,6 +118,8 @@ An <- c(21,29)
 Ao <- 21
 PPC <- 22
 roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+roimarker <- c(1,3,5,6,7,8,9,15,21,22,29)
+roilabels <- c("La","Ba","Ce","Me","Co","BM","CoT","Para","APc","PPc","APn")
 # colors
 gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 ```
@@ -227,26 +230,50 @@ bruceR::MANOVA(subset(act,roi != 29),between = "roinew", within = "pairs",
 ```
 
 ```{r fig.height=9, fig.width=9}
+# add labels to roi
+results[,roi:=factor(roi,levels = sort(unique(results$roi)),labels=roilabels)]
 # absolute difference and x
-results_abs<- abs(results[,2:13])
+results_abs<- cbind(abs(results[,2:4]),results[,5],abs(results[,6:13]))
 # reverse y
 results_abs$y <- -results$y
+results_abs$z <- results$z
+# 3d scatter plot
+# lim-cit
+p1 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~abs(`m_cit-lim`),size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+# lim-car
+p2 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~abs(`m_car-lim`),size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+# activated only average voxels in the same coordinate
+# cit-lim
+p3 <- plot_ly(results_abs[`t_cit-lim`>params$thr,lapply(.SD, mean),.SDcol=5:9,by=c("x","y","z","roi")],
+              x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~`m_cit-lim`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+# car-lim
+p4 <-plot_ly(results_abs[`t_car-lim`>params$thr,lapply(.SD, mean),.SDcol=5:9,by=c("x","y","z","roi")],
+             x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~`m_car-lim`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+htmltools::tagList(list(p1, p2, p3, p4))
+```
+
+```{r fig.height=9, fig.width=9}
 # Pir and Amy
 for (roi in c("Pir","Amy","All")) {
   # pir
   if (roi == "Pir")
-    results_select <- subset(results_abs,roi>20)
+    results_select <- subset(results_abs,roi %in% c("APc","PPc","APn"))
   else if (roi == "Amy")
-    results_select <- subset(results_abs,roi<20)
+    results_select <- subset(results_abs,roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"))
   else if (roi == "APC")
-    results_select <- subset(results_abs,roi %in% c(21,29))
+    results_select <- subset(results_abs,roi %in% c("APc","APn"))
   else if (roi == "PPC")
-    results_select <- subset(results_abs,roi==22)
+    results_select <- subset(results_abs,roi=="PPc")
   else
     results_select <- results_abs
   
   # plot
   plots <- list()
+  plots_avg <- list()
   odors <- c("car","cit","tra","ind")
   for (odor in odors) {
     for (xlab in c("x","y","z")) {
@@ -261,9 +288,35 @@ for (roi in c("Pir","Amy","All")) {
                  show.legend=F)+
         # labs(title = roi)+
         theme_prism(base_line_size = 0.5)
+    # averaged
+    plots_avg[[p]] <- ggscatter(results_select[indx,lapply(.SD, mean),.SDcol=paste0("m_",odor,"-lim"),by=xlab],color = "#4c95c8",
+                   x = xlab, y = paste0("m_",odor,"-lim"),alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+              position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+        stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                 show.legend=F)+
+        # labs(title = roi)+
+        theme_prism(base_line_size = 0.5)
     }
   }
   print(wrap_plots(plots,ncol = 3,nrow = length(odors)))
+  print(wrap_plots(plots_avg,ncol = 3,nrow = length(odors)))
+  
+
+  # lim-cit and lim-car
+  col <- grep("t_(car|cit)-lim",colnames(results_select))
+  # select rows that all columns are above threshold in data.table
+  results_select <- results_select[,t:=all(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
+  # print(ggscatter(results_select[t==TRUE,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z")],color = "#4c95c8",
+  print(ggscatter(results_select[t==TRUE,],color = "#4c95c8",
+                   x = paste0("m_","cit-lim"), y = paste0("m_","car-lim"),alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+              position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+          labs(title = paste(roi,"all",sep = "_"))+
+        stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                 show.legend=F)+
+        # labs(title = ro i)+
+        theme_prism(base_line_size = 0.5))
 }
 ```
 

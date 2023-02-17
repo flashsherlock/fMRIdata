@@ -253,7 +253,14 @@ p3 <- plot_ly(results_abs[`t_cit-lim`>params$thr,lapply(.SD, mean),.SDcol=5:9,by
 p4 <-plot_ly(results_abs[`t_car-lim`>params$thr,lapply(.SD, mean),.SDcol=5:9,by=c("x","y","z","roi")],
              x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
         color=~`m_car-lim`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
-htmltools::tagList(list(p1, p2, p3, p4))
+# cit-lim-car-lim
+p5 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~(abs(`m_cit-lim`)-abs(`m_car-lim`)),
+        size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))%>%colorbar(title = "struc-quality")
+# normalized
+p6 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~(abs(`m_cit-lim`)-abs(`m_car-lim`))/(abs(`m_cit-lim`)+abs(`m_car-lim`)),size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
+htmltools::tagList(list(p1, p2, p3, p4, p5, p6))
 ```
 
 ```{r fig.height=9, fig.width=9}
@@ -319,4 +326,61 @@ for (roi in c("Pir","Amy","All")) {
         theme_prism(base_line_size = 0.5))
 }
 ```
+
+```{r fig.height=9, fig.width=9}
+# Pir and Amy
+for (roi in c("Pir","Amy","All")) {
+  # pir
+  if (roi == "Pir")
+    results_select <- subset(results_abs,roi %in% c("APc","PPc","APn"))
+  else if (roi == "Amy")
+    results_select <- subset(results_abs,roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"))
+  else if (roi == "APC")
+    results_select <- subset(results_abs,roi %in% c("APc","APn"))
+  else if (roi == "PPC")
+    results_select <- subset(results_abs,roi=="PPc")
+  else
+    results_select <- results_abs
+  
+  # plot
+  plots <- list()
+  plots_avg <- list()
+  odors <- c("car|cit","ind|tra","car|citn","ind|tran")
+  results_select[,carcit:=(`m_cit-lim`)-(`m_car-lim`)]
+  results_select[,indtra:=(`m_tra-lim`)-(`m_ind-lim`)]
+  results_select[,carcitn:=((`m_cit-lim`)-(`m_car-lim`))/((`m_cit-lim`)+(`m_car-lim`))]
+  results_select[,indtran:=((`m_tra-lim`)-(`m_ind-lim`))/((`m_tra-lim`)+(`m_ind-lim`))]
+  for (odor in odors) {
+    # lim-cit and lim-car
+    col <- grep(paste0("t_(", substr(odor,1,7), ")-lim"),colnames(results_select))
+    # select rows that all columns are above threshold in data.table
+    results_select <- results_select[,t:=any(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
+    
+    for (xlab in c("x","y","z")) {
+    p <- paste(xlab,odor,sep = "_")
+    # activated only
+    plots[[p]] <- ggscatter(results_select[t==TRUE,],color = "#4c95c8",
+                   x = xlab, y = str_replace(odor,"\\|",""),alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+              position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+        stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                 show.legend=F)+
+        # labs(title = roi)+
+        theme_prism(base_line_size = 0.5)
+    # averaged
+    plots_avg[[p]] <- ggscatter(results_select[t==TRUE,lapply(.SD, mean),.SDcol=str_replace(odor,"\\|",""),by=xlab],
+                                color = "#4c95c8", x = xlab, y = str_replace(odor,"\\|",""),alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+              position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+        stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                 show.legend=F)+
+        # labs(title = roi)+
+        theme_prism(base_line_size = 0.5)
+    }
+  }
+  print(wrap_plots(plots,ncol = 3,nrow = length(odors)))
+  print(wrap_plots(plots_avg,ncol = 3,nrow = length(odors)))
+}
+```
+
 

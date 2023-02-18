@@ -41,6 +41,11 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_sea
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0("searchlight_group_rmbase"),
                   params = list(path = path, sub = "search_rmbase", thr = threshold, percent = 1))
+# render voxel search demo
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_search_demo.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("demo"),
+                  params = list(path = path, sub = "search_rmbase", thr = threshold))
 # render voxel group
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/voxels_group.Rmd",
                   output_dir = paste0(path,"results_labels_r"),

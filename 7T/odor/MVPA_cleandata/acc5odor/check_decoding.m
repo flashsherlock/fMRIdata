@@ -7,11 +7,12 @@ odors={'lim','tra','car','cit','ind'};
 comb=nchoosek(1:length(odors), 2);
 combn=size(comb,1);
 decode=[reshape(repmat(subs,combn,1),[],1) repmat([1:combn]',subnum,1)];
-rois={'BoxROI'};
+rois={'BoxROIext'};
 shift=[-6 -3 6];
 % check = '_VIvaodor_l1_label_';
 % check = '_ARodor_l1_labelpolandva_';
-check = '_ARodor_l1_labelpolva_';
+% check = '_ARodor_l1_labelpolva_';
+check = '_ARodor_l1_labelbase_';
 decode_need = zeros(size(decode,1),1);
 for i=1:size(decode,1)
     sub=sprintf('S%02d',decode(i,1));
@@ -19,7 +20,7 @@ for i=1:size(decode,1)
     labelname1 = odors{odornumber(1)};
     labelname2 = odors{odornumber(2)};
     test=[rois{1} '/' '2odors_' labelname1 '_' labelname2];
-    result = [datafolder sub '/' sub '.pabiode.results/mvpa/searchlight' check num2str(shift) '/' test];
+    result = [datafolder sub '/' sub '.pabiode.results/mvpa/searchlight' check strrep(num2str(shift),' ','') '/' test];
     if ~exist([result '/res_accuracy_minus_chance+orig.BRIK'],'file')
         decode_need(i)=1;
         disp([num2str(i) ' ' sub ' ' test]);
@@ -32,12 +33,12 @@ for i=1:size(decode,1)
     end
 end
 % rename folders to remove space
-for subi=1:subnum
-    sub=sprintf('S%02d',subs(subi));
-    new = [datafolder sub '/' sub '.pabiode.results/mvpa/searchlight' check strrep(num2str(shift),' ','')];
-    old = [datafolder sub '/' sub '.pabiode.results/mvpa/searchlight' check num2str(shift)];
-    unix(['mv "' old '" "' new '"'])
-end
+% for subi=1:subnum
+%     sub=sprintf('S%02d',subs(subi));
+%     new = [datafolder sub '/' sub '.pabiode.results/mvpa/searchlight' check strrep(num2str(shift),' ','')];
+%     old = [datafolder sub '/' sub '.pabiode.results/mvpa/searchlight' check num2str(shift)];
+%     unix(['mv "' old '" "' new '"'])
+% end
 % generate commands
 CWPath = fileparts(mfilename('fullpath'));
 cd(CWPath);

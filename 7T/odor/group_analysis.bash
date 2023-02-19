@@ -733,9 +733,9 @@ stats=ARodor_l1_extbase
 -noijk -xyz                                     \
 -mask group/mask/all.seg+tlrc                   \
 group/mask/all.seg+tlrc                         \
+group/mvpa/${stats}_lim-tra+tlrc"[0]"           \
 group/mvpa/${stats}_lim-car+tlrc"[0]"           \
 group/mvpa/${stats}_lim-cit+tlrc"[0]"           \
-group/mvpa/${stats}_lim-tra+tlrc"[0]"           \
 group/mvpa/${stats}_lim-ind+tlrc"[0]"           \
 group/mvpa/${stats}_tra-car+tlrc"[0]"           \
 group/mvpa/${stats}_tra-cit+tlrc"[0]"           \
@@ -743,9 +743,9 @@ group/mvpa/${stats}_tra-ind+tlrc"[0]"           \
 group/mvpa/${stats}_car-cit+tlrc"[0]"           \
 group/mvpa/${stats}_car-ind+tlrc"[0]"           \
 group/mvpa/${stats}_cit-ind+tlrc"[0]"           \
+group/mvpa/${stats}_lim-tra+tlrc"[1]"           \
 group/mvpa/${stats}_lim-car+tlrc"[1]"           \
 group/mvpa/${stats}_lim-cit+tlrc"[1]"           \
-group/mvpa/${stats}_lim-tra+tlrc"[1]"           \
 group/mvpa/${stats}_lim-ind+tlrc"[1]"           \
 group/mvpa/${stats}_tra-car+tlrc"[1]"           \
 group/mvpa/${stats}_tra-cit+tlrc"[1]"           \

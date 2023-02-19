@@ -227,26 +227,33 @@ results_abs<- cbind(abs(results[,2]),results[,3:25])
 # 3d scatter plot
 # lim-cit
 p1 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-cit`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # lim-car
 p2 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-car`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+        color=~`m_lim-car`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # activated only average voxels in the same coordinate
 # lim-cit
 p3 <- plot_ly(results_abs[`t_lim-cit`>params$thr,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z","roi")],
               x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-cit`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # lim-car
 p4 <-plot_ly(results_abs[`t_lim-car`>params$thr,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z","roi")],
              x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-car`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+        color=~`m_lim-car`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # cit-lim-car-lim
 p5 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
         color=~(`m_lim-cit`-`m_lim-car`),
-        size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))%>%colorbar(title = "struc-quality")
+        size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality")
 # normalized
 p6 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`),size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
+        color=~(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`),
+        colors=colorRampPalette(c("blue", "white", "red"))(20),size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
 htmltools::tagList(list(p1, p2, p3, p4, p5, p6))
 ```
 

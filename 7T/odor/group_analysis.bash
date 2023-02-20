@@ -443,6 +443,10 @@ group/${stats}_car-lim+tlrc"[1]"                \
 group/${stats}_cit-lim+tlrc"[1]"                \
 group/${stats}_lim-tra+tlrc"[1]"                \
 group/${stats}_lim-ind+tlrc"[1]"                \
+group/${stats}_cit-car_abs+tlrc"[0]"            \
+group/${stats}_cit-car_abs+tlrc"[1]"            \
+group/${stats}_cit-car_norm+tlrc"[0]"           \
+group/${stats}_cit-car_norm+tlrc"[1]"           \
 > group/${stats}_results.txt
 
 # 3dttest for subs 4-19 and 20-34
@@ -636,6 +640,10 @@ group/${stats}_car-lim_half1+tlrc"[1]"                \
 group/${stats}_cit-lim_half1+tlrc"[1]"                \
 group/${stats}_lim-tra_half1+tlrc"[1]"                \
 group/${stats}_lim-ind_half1+tlrc"[1]"                \
+group/${stats}_cit-car_abs_half1+tlrc"[0]"            \
+group/${stats}_cit-car_abs_half1+tlrc"[1]"            \
+group/${stats}_cit-car_norm_half1+tlrc"[0]"           \
+group/${stats}_cit-car_norm_half1+tlrc"[1]"           \
 > group/${stats}_results_half1.txt
 
 3dmaskdump                                      \
@@ -650,6 +658,10 @@ group/${stats}_car-lim_half2+tlrc"[1]"                \
 group/${stats}_cit-lim_half2+tlrc"[1]"                \
 group/${stats}_lim-tra_half2+tlrc"[1]"                \
 group/${stats}_lim-ind_half2+tlrc"[1]"                \
+group/${stats}_cit-car_abs_half2+tlrc"[0]"            \
+group/${stats}_cit-car_abs_half2+tlrc"[1]"            \
+group/${stats}_cit-car_norm_half2+tlrc"[0]"           \
+group/${stats}_cit-car_norm_half2+tlrc"[1]"           \
 > group/${stats}_results_half2.txt
 
 #################### half results for absolute diff ##########################
@@ -753,4 +765,8 @@ group/mvpa/${stats}_tra-ind+tlrc"[1]"           \
 group/mvpa/${stats}_car-cit+tlrc"[1]"           \
 group/mvpa/${stats}_car-ind+tlrc"[1]"           \
 group/mvpa/${stats}_cit-ind+tlrc"[1]"           \
+group/mvpa/${stats}_citcar+tlrc"[0]"            \
+group/mvpa/${stats}_citcar+tlrc"[1]"            \
+group/mvpa/${stats}_citcar_norm+tlrc"[0]"       \
+group/mvpa/${stats}_citcar_norm+tlrc"[1]"       \
 > group/stats_search_extrmbase.txt

@@ -1,8 +1,10 @@
 library(plotly)
 library(stringr)
 library(data.table)
+
 names <- list.files(pattern = "\\.RData$")
-name <- "search_rmbase"
+
+# name <- "search_rmbase"
 # load(paste0(name,".RData"))
 # results_abs<- cbind(abs(results[,2]),results[,3:25])
 # 3d scatter plot
@@ -14,6 +16,7 @@ ui <- fluidPage(
     numericInput("t1", "t threshold", round(2.051831,6), min = 0, max = NA, step = 0.1),
     # numericInput("t2", "t_lim-car", params$thr, min = 0, max = NA, step = 0.001),
     numericInput("p1", "p value", signif(2*(1-pt(q=2.051831, df=27)),2), min = 0.00001, max = 1, step = 0.05),
+    numericInput("df", "df", 27, min = 1, max = 100, step = 1),
     radioButtons("method","Select sig:",c("All" = "all","Any" = "any")),
     radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")),
     width = 2
@@ -45,16 +48,17 @@ server <- function(input, output, ...) {
     return(get("results"))
     })
   
-  observe({
-    updateNumericInput(
-      inputId = "p1",
-      value = signif(2*(1-pt(q=input$t1, df=27)),2)
-    )
-  })
+  # observe({
+  #   updateNumericInput(
+  #     inputId = "p1",
+  #     value = signif(2*(1-pt(q=input$t1, df=input$df)),2)
+  #   )
+  # })
+  # updata tvalue according to p
   observe({
     updateNumericInput(
       inputId = "t1",
-      value = round(qt(1-(input$p1/2),27),6)
+      value = round(qt(1-(input$p1/2),input$df),6)
     )
   })
   output$p1 <- renderPlotly({
@@ -88,15 +92,20 @@ server <- function(input, output, ...) {
   
   output$p5<- renderPlotly({
     
-    # select cit-lim-car-lim
-    col <- grep(paste0("t_lim-(car|cit)"),colnames(results()))
-    results_select <- results()[,c(2,3,4,5,col-10,col)]
-    results_select <- results()[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
+    # # select cit-lim-car-lim
+    # colm <- grep(paste0("m_lim-(car|cit)"),colnames(results()))
+    # colt <- grep(paste0("t_lim-(car|cit)"),colnames(results()))
+    # results_select <- results()[,c(2,3,4,5,colm,colt)]
+    if (ncol(results())<20){
+      results_select <- results()[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
+    } else{
+      results_select <- results()[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
+    }
     # select rows that all columns are above threshold in data.table
     if (input$method == 'any') {
-      results_select[,t:=any(.SD>input$t1),.SDcols = c("t_lim-car","t_lim-cit"), by = seq_len(nrow(results_select))]
+      results_select[,t:=any(abs(.SD)>=input$t1),.SDcols = c("t_lim-car","t_lim-cit"), by = seq_len(nrow(results_select))]
     } else{
-      results_select[,t:=all(.SD>input$t1),.SDcols = c("t_lim-car","t_lim-cit"), by = seq_len(nrow(results_select))]
+      results_select[,t:=all(abs(.SD)>=input$t1),.SDcols = c("t_lim-car","t_lim-cit"), by = seq_len(nrow(results_select))]
     }
     if (input$select == 'str') {
       results_select <- results_select[strnorm>0,]

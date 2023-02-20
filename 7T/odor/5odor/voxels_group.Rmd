@@ -105,7 +105,8 @@ calmean <- function(results,roilist, threshold = 0){
   return(data)
 }
 # odor pairs
-opair <- c("car-lim","cit-lim","tra-lim","ind-lim")
+opair <- c("lim-car","lim-cit","lim-tra","lim-ind")
+diff <- c("m_cit-car","t_cit-car","m_ncit-ncar","t_ncit-ncar")
 # roi labels
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
 A <- c(1,3,5,6,7,8,9,15)
@@ -131,7 +132,7 @@ cat(params$sub)
 results <- data.frame(matrix(ncol = 1+12, nrow = 0))
 # extract group results
 results <- rbind(results,extractdata(params$path,"group",paste0("stats_",params$sub,".txt")))
-names(results) <- c("sub","x","y","z","roi",paste("m",opair,sep = "_"),paste("t",opair,sep = "_"))
+names(results) <- c("sub","x","y","z","roi",paste("m",opair,sep = "_"),paste("t",opair,sep = "_"),diff)
 results <- as.data.table(results)
 ```
 
@@ -178,7 +179,7 @@ data_mean <- calmean(results,roilist)
 s <- c(paste0("m_",opair))
 datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = opair))
 datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
-datachosen <- subset(datachosen,voxels%in%c("car-lim","cit-lim"))
+datachosen <- subset(datachosen,voxels%in%c("lim-car","lim-cit"))
 # plot
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
   labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
@@ -195,7 +196,7 @@ data_mean <- calmean(results,roilist,params$thr)
 s <- c(paste0("m_",opair))
 datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = opair))
 datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
-datachosen <- subset(datachosen,voxels%in%c("car-lim","cit-lim"))
+datachosen <- subset(datachosen,voxels%in%c("lim-car","lim-cit"))
 # plot
 figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
   labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
@@ -221,11 +222,11 @@ act <- results_r[index,1:3]
 act <- mutate(abs(act),roinew = if_else(roi == 22, "PPC","APC"))
 # APC_new
 bruceR::MANOVA(act,between = "roinew", within = "pairs",
-               dvs = c("m_car-lim","m_cit-lim"),dvs.pattern = "m_(.*)")%>%
+               dvs = c("m_lim-car","m_lim-cit"),dvs.pattern = "m_(.*)")%>%
   EMMEANS("pairs",by = "roinew")
 # APC_old
 bruceR::MANOVA(subset(act,roi != 29),between = "roinew", within = "pairs",
-               dvs = c("m_car-lim","m_cit-lim"),dvs.pattern = "m_(.*)")%>%
+               dvs = c("m_lim-car","m_lim-cit"),dvs.pattern = "m_(.*)")%>%
   EMMEANS("pairs",by = "roinew")
 ```
 
@@ -235,39 +236,46 @@ results[,roi:=factor(roi,levels = sort(unique(results$roi)),labels=roilabels)]
 # reverse xy
 results$x <- -results$x
 results$y <- -results$y
+# save results
+save(results,file = paste0("/Volumes/WD_D/gufei/shiny/apps/7T/", params$sub, ".RData"))
 # absolute difference and x
-results_abs<- cbind(abs(results[,2]),results[,3:5],abs(results[,6:13]))
+results_abs<- cbind(abs(results[,2]),results[,3:5],abs(results[,6:13]),results[,14:17])
 # 3d scatter plot
 # lim-cit
 p1 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~abs(`m_cit-lim`),size = I(30),symbol = I("square"), 
+        color=~abs(`m_lim-cit`),size = I(30),symbol = I("square"), 
         hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # lim-car
 p2 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~abs(`m_car-lim`),size = I(30),symbol = I("square"), 
+        color=~abs(`m_lim-car`),size = I(30),symbol = I("square"), 
         hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # activated only average voxels in the same coordinate
-# cit-lim
-p3 <- plot_ly(results_abs[`t_cit-lim`>params$thr,lapply(.SD, mean),.SDcol=5:9,by=c("x","y","z","roi")],
+# lim-cit
+p3 <- plot_ly(results_abs[`t_lim-cit`>params$thr,lapply(.SD, mean),.SDcol=5:9,by=c("x","y","z","roi")],
               x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_cit-lim`,size = I(30),symbol = I("square"), 
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), 
         hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
-# car-lim
-p4 <-plot_ly(results_abs[`t_car-lim`>params$thr,lapply(.SD, mean),.SDcol=5:9,by=c("x","y","z","roi")],
+# lim-car
+p4 <-plot_ly(results_abs[`t_lim-car`>params$thr,lapply(.SD, mean),.SDcol=5:9,by=c("x","y","z","roi")],
              x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_car-lim`,size = I(30),symbol = I("square"), 
+        color=~`m_lim-car`,size = I(30),symbol = I("square"), 
         hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
-# cit-lim-car-lim
+# lim-cit-lim-car
 p5 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~(abs(`m_cit-lim`)-abs(`m_car-lim`)),
+        color=~(abs(`m_lim-cit`)-abs(`m_lim-car`)),
         size = I(30),symbol = I("square"), 
         hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality")
 # normalized
 p6 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~(abs(`m_cit-lim`)-abs(`m_car-lim`))/(abs(`m_cit-lim`)+abs(`m_car-lim`)),
+        color=~(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`)),
         colors=colorRampPalette(c("blue", "white", "red"))(20),size = I(30),symbol = I("square"), 
         hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
-htmltools::tagList(list(p1, p2, p3, p4, p5, p6))
+# normalized
+p7 <- plot_ly(results[abs(`t_ncit-ncar`)>params$thr,],x=~x, y=~y, z=~z, 
+              split=~roi,type="scatter3d", mode="markers", color=~`m_ncit-ncar`,
+        colors=colorRampPalette(c("blue", "white", "red"))(20),size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
+htmltools::tagList(list(p1, p2, p3, p4, p5, p6, p7))
 ```
 
 ```{r fig.height=9, fig.width=9}
@@ -293,9 +301,9 @@ for (roi in c("Pir","Amy","All")) {
     for (xlab in c("x","y","z")) {
     p <- paste(xlab,odor,sep = "_")
     # activated only
-    indx <- results_select[[paste0("t_",odor,"-lim")]]>params$thr
+    indx <- results_select[[paste0("t_", "lim-", odor)]] > params$thr
     plots[[p]] <- ggscatter(results_select[indx,],color = "#4c95c8",
-                   x = xlab, y = paste0("m_",odor,"-lim"),alpha = 0.8,
+                   x = xlab, y = paste0("m_","lim-",odor),alpha = 0.8,
               conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
               position=position_jitter(h=0.02,w=0.02, seed = 5)) +
         stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
@@ -303,8 +311,8 @@ for (roi in c("Pir","Amy","All")) {
         # labs(title = roi)+
         theme_prism(base_line_size = 0.5)
     # averaged
-    plots_avg[[p]] <- ggscatter(results_select[indx,lapply(.SD, mean),.SDcol=paste0("m_",odor,"-lim"),by=xlab],color = "#4c95c8",
-                   x = xlab, y = paste0("m_",odor,"-lim"),alpha = 0.8,
+    plots_avg[[p]] <- ggscatter(results_select[indx,lapply(.SD, mean),.SDcol=paste0("m_","lim-",odor),by=xlab],color = "#4c95c8",
+                   x = xlab, y = paste0("m_","lim-",odor),alpha = 0.8,
               conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
               position=position_jitter(h=0.02,w=0.02, seed = 5)) +
         stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
@@ -318,12 +326,12 @@ for (roi in c("Pir","Amy","All")) {
   
 
   # lim-cit and lim-car
-  col <- grep("t_(car|cit)-lim",colnames(results_select))
+  col <- grep("t_lim-(car|cit)", colnames(results_select))
   # select rows that all columns are above threshold in data.table
   results_select <- results_select[,t:=all(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
   # print(ggscatter(results_select[t==TRUE,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z")],color = "#4c95c8",
   print(ggscatter(results_select[t==TRUE,],color = "#4c95c8",
-                   x = paste0("m_","cit-lim"), y = paste0("m_","car-lim"),alpha = 0.8,
+                   x = paste0("m_","lim-cit"), y = paste0("m_","lim-car"),alpha = 0.8,
               conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
               position=position_jitter(h=0.02,w=0.02, seed = 5)) +
           labs(title = paste(roi,"all",sep = "_"))+
@@ -353,13 +361,13 @@ for (roi in c("Pir","Amy","All")) {
   plots <- list()
   plots_avg <- list()
   odors <- c("car|cit","ind|tra","car|citn","ind|tran")
-  results_select[,carcit:=(`m_cit-lim`)-(`m_car-lim`)]
-  results_select[,indtra:=(`m_tra-lim`)-(`m_ind-lim`)]
-  results_select[,carcitn:=((`m_cit-lim`)-(`m_car-lim`))/((`m_cit-lim`)+(`m_car-lim`))]
-  results_select[,indtran:=((`m_tra-lim`)-(`m_ind-lim`))/((`m_tra-lim`)+(`m_ind-lim`))]
+  results_select[,carcit:=(`m_lim-cit`)-(`m_lim-car`)]
+  results_select[,indtra:=(`m_lim-tra`)-(`m_lim-ind`)]
+  results_select[,carcitn:=((`m_lim-cit`)-(`m_lim-car`))/((`m_lim-cit`)+(`m_lim-car`))]
+  results_select[,indtran:=((`m_lim-tra`)-(`m_lim-ind`))/((`m_lim-tra`)+(`m_lim-ind`))]
   for (odor in odors) {
     # lim-cit and lim-car
-    col <- grep(paste0("t_(", substr(odor,1,7), ")-lim"),colnames(results_select))
+    col <- grep(paste0("t_lim-(", substr(odor,1,7), ")"),colnames(results_select))
     # select rows that all columns are above threshold in data.table
     results_select <- results_select[,t:=any(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
     

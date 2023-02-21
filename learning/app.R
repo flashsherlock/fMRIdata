@@ -3,6 +3,7 @@ library(stringr)
 library(data.table)
 library(ggpubr)
 library(DT)
+library(shiny)
 # name <- "search_rmbase"
 # load(paste0(name,".RData"))
 # results_abs<- cbind(abs(results[,2]),results[,3:25])
@@ -14,33 +15,54 @@ tract <- as.data.table(tract)
 
 # 3d scatter plot
 ui <- fluidPage(
-  selectInput("data", "Pick a dataset", 
-              choices = as.list(str_replace(list.files(pattern = "\\.RData$"),"\\.RData$","")),
-              selected = "results"),
-  # textOutput("result"),
-  sidebarLayout(
-  sidebarPanel(
+  tags$head(tags$script('
+                        var dimension = [0, 0];
+                        $(document).on("shiny:connected", function(e) {
+                        dimension[0] = window.innerWidth;
+                        dimension[1] = window.innerHeight;
+                        Shiny.onInputChange("dimension", dimension);
+                        });
+                        $(window).resize(function(e) {
+                        dimension[0] = window.innerWidth;
+                        dimension[1] = window.innerHeight;
+                        Shiny.onInputChange("dimension", dimension);
+                        });
+                        ')),
+  verticalLayout(
+  sidebarPanel(class="panel",
+    fluidRow(
+    column(2,
+    selectInput("data", "Pick a dataset", 
+                choices = as.list(str_replace(list.files(pattern = "\\.RData$"),"\\.RData$","")),
+                selected = "results"),
+    radioButtons("roi","Select ROI:",c("All" = "all","Pir" = "pir","Amy" = "amy"),inline = TRUE), 
+    numericInput("prob", "tract prob", 0, min = -1, max = 1, step = 0.001)
+    ),
+    column(2,
     numericInput("t1", "t threshold", round(2.051831,6), min = 0, max = NA, step = 0.1),
     # numericInput("t2", "t_lim-car", params$thr, min = 0, max = NA, step = 0.001),
     numericInput("p1", "p value", signif(2*(1-pt(q=2.051831, df=27)),2), min = 0.00001, max = 1, step = 0.05),
-    numericInput("df", "df", 27, min = 1, max = 100, step = 1),
-    radioButtons("method","Select sig:",c("Any" = "any","All" = "all","Individual" = "ind")),
-    radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")), 
-    numericInput("prob", "tract prob", 0, min = -1, max = 1, step = 0.01), 
-    width = 2
+    numericInput("df", "df", 27, min = 1, max = 100, step = 1)
     ),
+    column(2,
+    radioButtons("method","Select sig:",c("Any" = "any","All" = "all","Individual" = "ind")),
+    radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")),
+    )
+  ),
+  width = 12
+  ),
     # Main panel for displaying outputs ----
     mainPanel(
       # plotlyOutput(outputId = "p5"),
       tabsetPanel(type = "tabs",
-                  tabPanel("StrQua", plotlyOutput(outputId = "p5")),
+                  tabPanel("StrQua", plotlyOutput(outputId = "p5", width = "auto")),
                   tabPanel("Table", DTOutput("table"))
       #             tabPanel("lim-cit",plotlyOutput(outputId = "p1")),
       #             tabPanel("lim-car",plotlyOutput(outputId = "p2")),
       #             tabPanel("absx_lim-cit",plotlyOutput(outputId = "p3")),
       #             tabPanel("absx_lim-cit",plotlyOutput(outputId = "p4"))
       ),
-      width = 10
+      width = 12
     )
   )
 )
@@ -52,8 +74,10 @@ server <- function(input, output, ...) {
   # })
   
   # https://community.rstudio.com/t/choose-a-rdata-dataset-before-launching-rest-of-shiny-app/49533/6
-  observeEvent(input$data,{
-    req(input$data)
+  observeEvent({
+    input$data
+    input$roi
+    },{
     load(paste0(input$data,".RData"))
     results <- cbind(results,tract[,5])
     # compute strnorm
@@ -61,6 +85,11 @@ server <- function(input, output, ...) {
       results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
     } else{
       results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
+    }
+    if (input$roi == "amy"){
+      results <- results[roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"),]
+    } else if (input$roi == "pir"){
+      results <- results[roi %in% c("APc","PPc","APn"),]
     }
     # return results
     data$results <- (get("results"))
@@ -143,25 +172,25 @@ server <- function(input, output, ...) {
       results_select <- results_select[prob<abs(input$prob),]
     }
     # plot
+    wid <- 0.95*as.numeric(input$dimension[1])
+    hei <- 0.95*as.numeric(input$dimension[2])
     p5 <- plot_ly(results_select,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
                   color=~strnorm,colors=colorp,size = I(30),symbol = I("square"),
-                  hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
-    # data$results <- results_select
+                  hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'),
+                  width = max(wid,hei), height = min(wid,hei))%>%
+      colorbar(title = "struc-quality_n")%>%
+      layout(scene = list(aspectmode = "data",
+                          camera = list(eye = list(x = 0, y = -2, z = 2))
+                          ))
+      # layout(scene = list(aspectmode = "manual", aspectratio = list(x=2, y=1, z=1)))
   })
   
   output$table <- renderDT({
-    datatable(data$results[,-1], filter = 'top',rownames = FALSE,
+    out <- data$results[,lapply(.SD, function(x) if (is.numeric(x)) round(x, 2) else x)]
+    datatable(out[,-1], filter = 'top',rownames = FALSE,
               caption = htmltools::tags$caption(
-                style = 'caption-side: top; text-align: center;')
-              )
+                style = 'caption-side: top; text-align: center;'))
   })
   
-  # output$p6<- renderPlot({
-  #   ggscatter(results_select[t==TRUE&x>-2&roi%in%c("La","Ba","Ce","Me","Co","BM","CoT","Para"),],
-  #             color = "#4c95c8", x = "prob", y = "strnorm", alpha = 0.8,
-  #             conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
-  #             position=position_jitter(h=0.02,w=0.02, seed = 5)) +
-  #     stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),show.legend=F)
-  # })
 }
 shinyApp(ui,server)

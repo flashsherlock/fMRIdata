@@ -110,6 +110,7 @@ calmean <- function(results,roilist, threshold = 0){
 odors <- c("lim", "tra", "car", "cit", "ind")
 pairs <- apply(combn(odors, 2), 2, function(x) paste(x[1], x[2], sep = "-"))
 opair <- pairs[1:4]
+diff <- c("m_cit-car","t_cit-car","m_ncit-ncar","t_ncit-ncar")
 # roi labels
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
 A <- c(1,3,5,6,7,8,9,15)
@@ -135,12 +136,12 @@ cat(params$sub)
 results <- data.frame(matrix(ncol = 1+12, nrow = 0))
 # extract group results
 results <- rbind(results,extractdata(params$path,"group",paste0("stats_",params$sub,".txt")))
-names(results) <- c("sub","x","y","z","roi",paste("m",pairs,sep = "_"),paste("t",pairs,sep = "_"))
+names(results) <- c("sub","x","y","z","roi",paste("m",pairs,sep = "_"),paste("t",pairs,sep = "_"),diff)
 results <- as.data.table(results)
 # acc = 0 if below chance
-temp <- results[,6:dim(results)[2]]
+temp <- results[,6:(dim(results)[2]-4)]
 temp[temp<0] <- 0
-results[,6:dim(results)[2]] <- temp
+results[,6:(dim(results)[2]-4)] <- temp
 ```
 
 # Activated voxels
@@ -256,7 +257,12 @@ p6 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="marke
         color=~(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`),
         colors=colorRampPalette(c("blue", "white", "red"))(20),size = I(30),symbol = I("square"), 
         hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
-htmltools::tagList(list(p1, p2, p3, p4, p5, p6))
+# normalize
+p7 <- plot_ly(results[abs(`t_ncit-ncar`)>params$thr,],x=~x, y=~y, z=~z, 
+              split=~roi,type="scatter3d", mode="markers", color=~`m_ncit-ncar`,
+        colors=colorRampPalette(c("blue", "white", "red"))(20),size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
+htmltools::tagList(list(p1, p2, p3, p4, p5, p6, p7))
 ```
 
 ```{r}

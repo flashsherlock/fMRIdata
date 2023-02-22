@@ -20,37 +20,8 @@ gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 tract <- read.table("tract.txt")
 names(tract) <- c("y","x","z","roi","prob")
 tract <- as.data.table(tract)
-# roi list
-A <- c("La","Ba","Ce","Me","Co","BM","CoT","Para")
-B <- c("La","Ba","BM","Para")
-Ce <- c("Ce","Me")
-Co <- c("Co","CoT")
-Pn <- c("APc","PPc","APn")
-Po <- c("APc","PPc")
-An <- c("APc","APn")
-Ao <- "APc"
-PPC <- "PPc"
-roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+# roi name
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
-# calculate roi mean
-calmean <- function(results,roilist){
-  avg <- data.frame(matrix(ncol = 3, nrow = 0))
-  for (roi_i in names(roilist)) {
-    # results[.(roi = roilist[[roi_i]], to = roi_i), on = "roi", roi_n := i.to]
-    act <- results[roi %in% roilist[[roi_i]],c("sub","m_lim-cit","m_lim-car")]
-    # act <- subset(results,roi %in% roilist[[roi_i]],select = c("sub","m_lim-cit","m_lim-car"))
-    m <- describeBy(act[,-1],list(act$sub),mat=T)
-    m <- subset(m,select = c("group1","mean","se"))
-    m <- cbind(str_remove(rownames(m),"1"),m)
-    # add roi name
-    act <- cbind(rep(roi_i,times=nrow(m)),m)
-    avg <- rbind(avg,act)
-    # avg <- rbind(avg,results[roi_n==roi_i, lapply(.SD, mean), .SDcols = c("m_lim-cit","m_lim-car"),by = "roi_n"])
-  }
-  # change column names
-  names(avg)[1:3] <- c("roi","voxels","sub")
-  return(avg)
-}
 
 # 3d scatter plot
 ui <- fluidPage(
@@ -120,6 +91,46 @@ server <- function(input, output, ...) {
   #     value = signif(2*(1-pt(q=input$t1, df=input$df)),2)
   #   )
   # })
+  # calculate roi mean
+  calmean <- reactive({
+    A <- c("La","Ba","Ce","Me","Co","BM","CoT","Para")
+    B <- c("La","Ba","BM","Para")
+    Ce <- c("Ce","Me")
+    Co <- c("Co","CoT")
+    Pn <- c("APc","PPc","APn")
+    Po <- c("APc","PPc")
+    An <- c("APc","APn")
+    Ao <- "APc"
+    PPC <- "PPc"
+    if (input$roi=="amy"){
+      roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co)
+    } else if (input$roi=="pir"){
+      roilist <- list(Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+    } else{
+      roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+    }
+    if (input$method=="ind"){
+      idx <- "m_ncit-ncar"
+    } else {
+      idx <- "strnorm"
+    }
+    avg <- data.frame(matrix(ncol = 3, nrow = 0))
+    for (roi_i in names(roilist)) {
+      # results[.(roi = roilist[[roi_i]], to = roi_i), on = "roi", roi_n := i.to]
+      act <- data$results[roi %in% roilist[[roi_i]],.SD,.SDcols = c("sub","m_lim-cit","m_lim-car",idx)]
+      # act <- subset(results,roi %in% roilist[[roi_i]],select = c("sub","m_lim-cit","m_lim-car"))
+      m <- describeBy(cbind(abs(act[,2:3]),act[,4]),list(act$sub),mat=T)
+      m <- subset(m,select = c("group1","mean","se"))
+      m <- cbind(str_remove(rownames(m),"1"),m)
+      # add roi name
+      act <- cbind(rep(roi_i,times=nrow(m)),m)
+      avg <- rbind(avg,act)
+      # avg <- rbind(avg,results[roi_n==roi_i, lapply(.SD, mean), .SDcols = c("m_lim-cit","m_lim-car"),by = "roi_n"])
+    }
+    # change column names
+    names(avg)[1:3] <- c("roi","voxels","sub")
+    return(avg)
+  })
   
   # updata tvalue according to p and df
   observeEvent({
@@ -228,18 +239,7 @@ server <- function(input, output, ...) {
   })
   
   output$mean <- renderPlot({
-    # datachosen <- calmean(data$reults,roilist)
-    avg <- data.frame(matrix(ncol = 3, nrow = 0))
-    for (roi_i in names(roilist)) {
-      act <- data$results[roi %in% roilist[[roi_i]],c("sub","m_lim-cit","m_lim-car")]
-      m <- describeBy(abs(act[,-1]),list(act$sub),mat=T)
-      m <- subset(m,select = c("group1","mean","se"))
-      m <- cbind(str_remove(rownames(m),"1"),m)
-      # add roi name
-      act <- cbind(rep(roi_i,times=nrow(m)),m)
-      avg <- rbind(avg,act)
-      # avg <- rbind(avg,results[roi_n==roi_i, lapply(.SD, mean), .SDcols = c("m_lim-cit","m_lim-car"),by = "roi_n"])
-    }
+    avg <- calmean()
     # change column names
     names(avg)[1:3] <- c("roi","voxels","sub")
     datachosen <- mutate(avg,roi = factor(roi,levels=roi_name))

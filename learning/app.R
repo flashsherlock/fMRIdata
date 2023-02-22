@@ -6,6 +6,7 @@ library(ggpubr)
 library(ggprism)
 library(DT)
 library(shiny)
+library(patchwork)
 theme_set(theme_prism(base_size = 20,
                       base_fontface = "plain",
                       base_line_size = 0.5,
@@ -45,8 +46,9 @@ ui <- fluidPage(
     selectInput("data", "Pick a dataset", 
                 choices = as.list(str_replace(list.files(pattern = "\\.RData$"),"\\.RData$","")),
                 selected = "results"),
+    numericInput("prob", "tract prob", 0, min = -1, max = 1, step = 0.001),
     radioButtons("roi","Select ROI:",c("All" = "all","Pir" = "pir","Amy" = "amy"),inline = TRUE), 
-    numericInput("prob", "tract prob", 0, min = -1, max = 1, step = 0.001)
+    checkboxInput("ylim", "y >= -2")
     ),
     column(2,
     numericInput("t1", "t threshold", round(2.051831,6), min = 0, max = 100, step = 0.1),
@@ -102,13 +104,8 @@ server <- function(input, output, ...) {
     An <- c("APc","APn")
     Ao <- "APc"
     PPC <- "PPc"
-    if (input$roi=="amy"){
-      roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co)
-    } else if (input$roi=="pir"){
-      roilist <- list(Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
-    } else{
-      roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
-    }
+    roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+    
     if (input$method=="ind"){
       idx <- "m_ncit-ncar"
     } else {
@@ -119,6 +116,7 @@ server <- function(input, output, ...) {
       # results[.(roi = roilist[[roi_i]], to = roi_i), on = "roi", roi_n := i.to]
       act <- data$results[roi %in% roilist[[roi_i]],.SD,.SDcols = c("sub","m_lim-cit","m_lim-car",idx)]
       # act <- subset(results,roi %in% roilist[[roi_i]],select = c("sub","m_lim-cit","m_lim-car"))
+      if (nrow(act)>0){
       m <- describeBy(cbind(abs(act[,2:3]),act[,4]),list(act$sub),mat=T)
       m <- subset(m,select = c("group1","mean","se"))
       m <- cbind(str_remove(rownames(m),"1"),m)
@@ -126,6 +124,7 @@ server <- function(input, output, ...) {
       act <- cbind(rep(roi_i,times=nrow(m)),m)
       avg <- rbind(avg,act)
       # avg <- rbind(avg,results[roi_n==roi_i, lapply(.SD, mean), .SDcols = c("m_lim-cit","m_lim-car"),by = "roi_n"])
+      }
     }
     # change column names
     names(avg)[1:3] <- c("roi","voxels","sub")
@@ -185,6 +184,11 @@ server <- function(input, output, ...) {
       results_select <- results_select[prob>=input$prob,]
     } else{
       results_select <- results_select[prob<abs(input$prob),]
+    }
+    
+    # select y
+    if (input$ylim==TRUE){
+      results_select <- results_select[y>=-2,]
     }
     # return results
     # data$results <- (get("results"))
@@ -255,7 +259,9 @@ server <- function(input, output, ...) {
   
   output$table <- renderDT({
     out <- data$results[,lapply(.SD, function(x) if (is.numeric(x)) round(x, 2) else x)]
-    datatable(out[,-1], filter = 'top',rownames = FALSE,
+    # select columns
+    out <- out[,.SD,.SDcol=c(2:5,(ncol(out)-5):ncol(out))]
+    datatable(out, filter = 'top',rownames = FALSE,
               caption = htmltools::tags$caption(
                 style = 'caption-side: top; text-align: center;'))
   })

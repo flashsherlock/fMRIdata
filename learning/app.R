@@ -1,9 +1,17 @@
 library(plotly)
 library(stringr)
 library(data.table)
+library(psych)
 library(ggpubr)
+library(ggprism)
 library(DT)
 library(shiny)
+theme_set(theme_prism(base_size = 20,
+                      base_fontface = "plain",
+                      base_line_size = 0.5,
+                      base_rect_size = 0.5,))
+# colors
+gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 # name <- "search_rmbase"
 # load(paste0(name,".RData"))
 # results_abs<- cbind(abs(results[,2]),results[,3:25])
@@ -12,6 +20,37 @@ library(shiny)
 tract <- read.table("tract.txt")
 names(tract) <- c("y","x","z","roi","prob")
 tract <- as.data.table(tract)
+# roi list
+A <- c("La","Ba","Ce","Me","Co","BM","CoT","Para")
+B <- c("La","Ba","BM","Para")
+Ce <- c("Ce","Me")
+Co <- c("Co","CoT")
+Pn <- c("APc","PPc","APn")
+Po <- c("APc","PPc")
+An <- c("APc","APn")
+Ao <- "APc"
+PPC <- "PPc"
+roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
+# calculate roi mean
+calmean <- function(results,roilist){
+  avg <- data.frame(matrix(ncol = 3, nrow = 0))
+  for (roi_i in names(roilist)) {
+    # results[.(roi = roilist[[roi_i]], to = roi_i), on = "roi", roi_n := i.to]
+    act <- results[roi %in% roilist[[roi_i]],c("sub","m_lim-cit","m_lim-car")]
+    # act <- subset(results,roi %in% roilist[[roi_i]],select = c("sub","m_lim-cit","m_lim-car"))
+    m <- describeBy(act[,-1],list(act$sub),mat=T)
+    m <- subset(m,select = c("group1","mean","se"))
+    m <- cbind(str_remove(rownames(m),"1"),m)
+    # add roi name
+    act <- cbind(rep(roi_i,times=nrow(m)),m)
+    avg <- rbind(avg,act)
+    # avg <- rbind(avg,results[roi_n==roi_i, lapply(.SD, mean), .SDcols = c("m_lim-cit","m_lim-car"),by = "roi_n"])
+  }
+  # change column names
+  names(avg)[1:3] <- c("roi","voxels","sub")
+  return(avg)
+}
 
 # 3d scatter plot
 ui <- fluidPage(
@@ -39,9 +78,9 @@ ui <- fluidPage(
     numericInput("prob", "tract prob", 0, min = -1, max = 1, step = 0.001)
     ),
     column(2,
-    numericInput("t1", "t threshold", round(2.051831,6), min = 0, max = NA, step = 0.1),
+    numericInput("t1", "t threshold", round(2.051831,6), min = 0, max = 100, step = 0.1),
     # numericInput("t2", "t_lim-car", params$thr, min = 0, max = NA, step = 0.001),
-    numericInput("p1", "p value", signif(2*(1-pt(q=2.051831, df=27)),2), min = 0.00001, max = 1, step = 0.05),
+    numericInput("p1", "p value", signif(2*(1-pt(q=2.051831, df=27)),2), min = 0, max = 1, step = 0.005),
     numericInput("df", "df", 27, min = 1, max = 100, step = 1)
     ),
     column(2,
@@ -56,6 +95,7 @@ ui <- fluidPage(
       # plotlyOutput(outputId = "p5"),
       tabsetPanel(type = "tabs",
                   tabPanel("StrQua", plotlyOutput(outputId = "p5", width = "auto")),
+                  tabPanel("ROI", plotOutput(outputId = "mean")),
                   tabPanel("Table", DTOutput("table"))
       #             tabPanel("lim-cit",plotlyOutput(outputId = "p1")),
       #             tabPanel("lim-car",plotlyOutput(outputId = "p2")),
@@ -73,28 +113,6 @@ server <- function(input, output, ...) {
   #   paste("You chose", list.files(pattern = input$data))
   # })
   
-  # https://community.rstudio.com/t/choose-a-rdata-dataset-before-launching-rest-of-shiny-app/49533/6
-  observeEvent({
-    input$data
-    input$roi
-    },{
-    load(paste0(input$data,".RData"))
-    results <- cbind(results,tract[,5])
-    # compute strnorm
-    if (ncol(results)<20){
-      results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
-    } else{
-      results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
-    }
-    if (input$roi == "amy"){
-      results <- results[roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"),]
-    } else if (input$roi == "pir"){
-      results <- results[roi %in% c("APc","PPc","APn"),]
-    }
-    # return results
-    data$results <- (get("results"))
-    })
-  
   # updata pvalue
   # observe({
   #   updateNumericInput(
@@ -109,8 +127,62 @@ server <- function(input, output, ...) {
     input$df},{
     updateNumericInput(
       inputId = "t1",
-      value = round(qt(1-(input$p1/2),input$df),6)
+      value = min(round(qt(1-(input$p1/2),input$df),6),100)
     )
+  })
+  
+  # https://community.rstudio.com/t/choose-a-rdata-dataset-before-launching-rest-of-shiny-app/49533/6
+  observe({
+    load(paste0(input$data,".RData"))
+    results <- cbind(results,tract[,5])
+    # compute strnorm
+    if (ncol(results)<20){
+      results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
+    } else{
+      results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
+    }
+    if (input$roi == "amy"){
+      results <- results[roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"),]
+    } else if (input$roi == "pir"){
+      results <- results[roi %in% c("APc","PPc","APn"),]
+    }
+    
+    # str or qua
+    if (input$select == 'str') {
+      results_select <- results[strnorm>0,]
+      data$colorp <- colorRampPalette(c("white", "red"))(10)
+    } else if (input$select == 'qua'){
+      results_select <- results[strnorm<0,]
+      data$colorp <- colorRampPalette(c("blue", "white"))(10)
+    }
+    else{
+      results_select <- results
+      data$colorp <- colorRampPalette(c("blue", "white", "red"))(21)
+    }
+    # select rows that all columns are above threshold in data.table
+    
+    if (input$method == 'ind') {
+      results_select <- results_select[abs(`t_ncit-ncar`)>input$t1,]
+    } else if (input$method == 'all'){
+      results_select <- results_select[abs(`t_lim-car`)>input$t1 & abs(`t_lim-cit`)>input$t1,]
+    } else {
+      results_select <- results_select[abs(`t_lim-car`)>input$t1 | abs(`t_lim-cit`)>input$t1,]
+    }
+    
+    # select prob
+    if (input$prob>=0){
+      results_select <- results_select[prob>=input$prob,]
+    } else{
+      results_select <- results_select[prob<abs(input$prob),]
+    }
+    # return results
+    # data$results <- (get("results"))
+    data$results <- results_select
+    })
+  
+  observeEvent(input$dimension,{
+    data$wid <- 0.95*as.numeric(input$dimension[1])
+    data$hei <- 0.95*as.numeric(input$dimension[2])
   })
   
   output$p1 <- renderPlotly({
@@ -143,46 +215,42 @@ server <- function(input, output, ...) {
   })
   
   output$p5<- renderPlotly({
-    # str or qua
-    if (input$select == 'str') {
-      results_select <- data$results[strnorm>0,]
-      colorp <- colorRampPalette(c("white", "red"))(10)
-    } else if (input$select == 'qua'){
-      results_select <- data$results[strnorm<0,]
-      colorp <- colorRampPalette(c("blue", "white"))(10)
-    }
-    else{
-      results_select <- data$results
-      colorp <- colorRampPalette(c("blue", "white", "red"))(21)
-    }
-    # select rows that all columns are above threshold in data.table
-    
-    if (input$method == 'ind') {
-      results_select <- results_select[abs(`t_ncit-ncar`)>=input$t1,]
-    } else if (input$method == 'all'){
-      results_select <- results_select[abs(`t_lim-car`)>input$t1 & abs(`t_lim-cit`)>input$t1,]
-    } else {
-      results_select <- results_select[abs(`t_lim-car`)>input$t1 | abs(`t_lim-cit`)>input$t1,]
-    }
-    
-    # select prob
-    if (input$prob>=0){
-      results_select <- results_select[prob>=input$prob,]
-    } else{
-      results_select <- results_select[prob<abs(input$prob),]
-    }
     # plot
-    wid <- 0.95*as.numeric(input$dimension[1])
-    hei <- 0.95*as.numeric(input$dimension[2])
-    p5 <- plot_ly(results_select,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-                  color=~strnorm,colors=colorp,size = I(30),symbol = I("square"),
+    p5 <- plot_ly(data$results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+                  color=~strnorm,colors=data$colorp,size = I(30),symbol = I("square"),
                   hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'),
-                  width = max(wid,hei), height = min(wid,hei))%>%
+                  width = max(1,data$wid,data$hei), height = min(1,data$wid,data$hei))%>%
       colorbar(title = "struc-quality_n")%>%
       layout(scene = list(aspectmode = "data",
                           camera = list(eye = list(x = 0, y = -2, z = 2))
                           ))
       # layout(scene = list(aspectmode = "manual", aspectratio = list(x=2, y=1, z=1)))
+  })
+  
+  output$mean <- renderPlot({
+    # datachosen <- calmean(data$reults,roilist)
+    avg <- data.frame(matrix(ncol = 3, nrow = 0))
+    for (roi_i in names(roilist)) {
+      act <- data$results[roi %in% roilist[[roi_i]],c("sub","m_lim-cit","m_lim-car")]
+      m <- describeBy(abs(act[,-1]),list(act$sub),mat=T)
+      m <- subset(m,select = c("group1","mean","se"))
+      m <- cbind(str_remove(rownames(m),"1"),m)
+      # add roi name
+      act <- cbind(rep(roi_i,times=nrow(m)),m)
+      avg <- rbind(avg,act)
+      # avg <- rbind(avg,results[roi_n==roi_i, lapply(.SD, mean), .SDcols = c("m_lim-cit","m_lim-car"),by = "roi_n"])
+    }
+    # change column names
+    names(avg)[1:3] <- c("roi","voxels","sub")
+    datachosen <- mutate(avg,roi = factor(roi,levels=roi_name))
+    # plot
+    ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) +
+      labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
+      geom_bar(position="dodge", stat="identity") +
+      scale_y_continuous(expand = c(0,0))+
+      scale_fill_manual(values=gf_color[2:5])+ #颜色
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                    position=position_dodge(.9))
   })
   
   output$table <- renderDT({

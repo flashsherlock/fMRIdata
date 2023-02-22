@@ -69,6 +69,8 @@ ui <- fluidPage(
       tabsetPanel(type = "tabs",
                   tabPanel("StrQua", plotlyOutput(outputId = "p5", width = "auto")),
                   tabPanel("ROI", plotOutput(outputId = "mean")),
+                  tabPanel("XYZ", plotOutput(outputId = "xyz")),
+                  tabPanel("XYZ_m", plotOutput(outputId = "xyz_mean")),
                   tabPanel("Table", DTOutput("table"))
       #             tabPanel("lim-cit",plotlyOutput(outputId = "p1")),
       #             tabPanel("lim-car",plotlyOutput(outputId = "p2")),
@@ -256,6 +258,57 @@ server <- function(input, output, ...) {
       geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                     position=position_dodge(.9))
   })
+  
+  corr_xyz <- reactive({
+    # plot
+    plots <- list()
+    plotdata <- data$results[,c("x","y","z","m_lim-cit","m_lim-car","strnorm")]
+    plotdata$x <- abs(plotdata$x)
+    setnames(plotdata,c("m_lim-cit","m_lim-car"),c("lim_cit","lim_car"))
+    odors <- c("lim_cit","lim_car","strnorm")
+    for (odor in odors) {
+      for (xlab in c("x","y","z")) {
+        p <- paste(xlab,odor,sep = "_")
+        plots[[p]] <- ggscatter(plotdata,color = "#4c95c8",
+                                x = xlab, y = odor,alpha = 0.8,
+                                conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+                                position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+          stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
+                   show.legend=F)
+      }
+    }
+    return(wrap_plots(c(plots),ncol = 3,nrow = length(odors)))
+  })
+  
+  corr_xyz_mean <- reactive({
+    # plot
+    plots_avg <- list()
+    plotdata <- data$results[,c("x","y","z","m_lim-cit","m_lim-car","strnorm")]
+    plotdata$x <- abs(plotdata$x)
+    setnames(plotdata,c("m_lim-cit","m_lim-car"),c("lim_cit","lim_car"))
+    odors <- c("lim_cit","lim_car","strnorm")
+    for (odor in odors) {
+      for (xlab in c("x","y","z")) {
+        p <- paste(xlab,odor,sep = "_")
+        # averaged
+        plots_avg[[p]] <- ggscatter(plotdata[,lapply(.SD, mean),.SDcol=odor,by=xlab],
+                                    color = "#4c95c8", x = xlab, y = odor,alpha = 0.8,
+                                    conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+                                    position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+          stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
+                   show.legend=F)
+      }
+    }
+    return(wrap_plots(c(plots_avg),ncol = 3,nrow = length(odors)))
+  })
+  
+  output$xyz <- renderPlot({
+    corr_xyz()
+  },height = function(){data$wid*1})
+  
+  output$xyz_mean <- renderPlot({
+    corr_xyz_mean()
+  },height = function(){data$wid*1})
   
   output$table <- renderDT({
     out <- data$results[,lapply(.SD, function(x) if (is.numeric(x)) round(x, 2) else x)]

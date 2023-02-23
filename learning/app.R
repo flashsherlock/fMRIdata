@@ -65,7 +65,7 @@ ui <- fluidPage(
                           actionButton("reset", "Reset xyz range",width = "100%")
                           # submitButton("Update",width = "100%")
                    ),
-                   column(1,
+                   column(2,
                           radioButtons("method","Select sig:",c("Any" = "any","All" = "all","Individual" = "ind")),
                           radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")),
                           checkboxInput("ylim", "y >= -2")
@@ -81,6 +81,7 @@ ui <- fluidPage(
                   tabPanel("ROI", plotOutput(outputId = "mean")),
                   tabPanel("XYZ", plotOutput(outputId = "xyz")),
                   tabPanel("XYZ_m", plotOutput(outputId = "xyz_mean")),
+                  tabPanel("Prob", plotOutput(outputId = "prob")),
                   tabPanel("Table", DTOutput("table"))
       #             tabPanel("lim-cit",plotlyOutput(outputId = "p1")),
       #             tabPanel("lim-car",plotlyOutput(outputId = "p2")),
@@ -268,7 +269,7 @@ server <- function(input, output, ...) {
                   hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'),
                   width = max(1,data$wid,data$hei), height = min(1,data$wid,data$hei),
                   source = "p5")%>%
-      colorbar(title = "struc-quality_n")%>%
+      # colorbar(title = "struc-quality_n")%>%
       layout(scene = list(aspectmode = "data",
                           camera = list(eye = list(x = data$cam$x, y = data$cam$y, z = data$cam$z))
                           ))
@@ -302,8 +303,8 @@ server <- function(input, output, ...) {
         p <- paste(xlab,odor,sep = "_")
         plots[[p]] <- ggscatter(plotdata,color = "#4c95c8",
                                 x = xlab, y = odor,alpha = 0.8,
-                                conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
-                                position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+                                conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+                                ,fullrange = F)+
           stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
                    show.legend=F)
       }
@@ -322,10 +323,11 @@ server <- function(input, output, ...) {
       for (xlab in c("x","y","z")) {
         p <- paste(xlab,odor,sep = "_")
         # averaged
+        # position=position_jitter(h=0.02,w=0.02, seed = 5)) +
         plots_avg[[p]] <- ggscatter(plotdata[,lapply(.SD, mean),.SDcol=odor,by=xlab],
                                     color = "#4c95c8", x = xlab, y = odor,alpha = 0.8,
-                                    conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
-                                    position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+                                    conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+                                    ,fullrange = F)+
           stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
                    show.legend=F)
       }
@@ -340,6 +342,14 @@ server <- function(input, output, ...) {
   output$xyz_mean <- renderPlot({
     corr_xyz_mean()
   },height = function(){data$wid*1})
+  
+  output$prob <- renderPlot({
+    ggscatter(data$results,
+              color = "#4c95c8", x = "prob", y = "strnorm", alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+              ,fullrange = F)+
+      stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),show.legend=F)
+  })
   
   output$table <- renderDT({
     out <- data$results[,lapply(.SD, function(x) if (is.numeric(x)) round(x, 2) else x)]

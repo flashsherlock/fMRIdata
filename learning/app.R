@@ -40,29 +40,39 @@ ui <- fluidPage(
                         });
                         ')),
   verticalLayout(
-  sidebarPanel(class="panel",
-    fluidRow(
-    column(2,
-    selectInput("data", "Pick a dataset", 
-                choices = as.list(str_replace(list.files(pattern = "\\.RData$"),"\\.RData$","")),
-                selected = "results"),
-    numericInput("prob", "tract prob", 0, min = -1, max = 1, step = 0.001),
-    radioButtons("roi","Select ROI:",c("All" = "all","Pir" = "pir","Amy" = "amy"),inline = TRUE), 
-    checkboxInput("ylim", "y >= -2")
+    sidebarPanel(class="panel",
+                 fluidRow(
+                   column(2,
+                          selectInput("data", "Pick a dataset", 
+                                      choices = as.list(str_replace(list.files(pattern = "\\.RData$"),"\\.RData$","")),
+                                      selected = "results"),
+                          numericInput("prob", "tract prob", 0, min = -1, max = 1, step = 0.001),
+                          radioButtons("roi","Select ROI:",
+                                       c("All" = "all","Pir" = "pir","Pir_old" = "piro","Amy" = "amy"),inline = TRUE),
+                          actionButton("cam", "Set camera",width = "100%"),
+                          textOutput("camera")
+                   ),
+                   column(3,
+                          sliderInput("xrange","x range:",min = -46, max = 44,value = c(-46,44),step = 1,round = TRUE),
+                          sliderInput("yrange","y range:",min = -14, max = 13,value = c(-14,13),step = 1,round = TRUE),
+                          sliderInput("zrange","z range:",min = -33, max = -6,value = c(-33,-6),step = 1,round = TRUE),
+                   ),
+                   column(2,
+                          numericInput("t1", "t threshold", round(2.051831,6), min = 0, max = 100, step = 0.1),
+                          # numericInput("t2", "t_lim-car", params$thr, min = 0, max = NA, step = 0.001),
+                          numericInput("p1", "p value", signif(2*(1-pt(q=2.051831, df=27)),2), min = 0, max = 1, step = 0.005),
+                          numericInput("df", "df", 27, min = 1, max = 100, step = 1),
+                          actionButton("reset", "Reset xyz range",width = "100%")
+                          # submitButton("Update",width = "100%")
+                   ),
+                   column(1,
+                          radioButtons("method","Select sig:",c("Any" = "any","All" = "all","Individual" = "ind")),
+                          radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")),
+                          checkboxInput("ylim", "y >= -2")
+                   )
+                 ),
+                 width = 12
     ),
-    column(2,
-    numericInput("t1", "t threshold", round(2.051831,6), min = 0, max = 100, step = 0.1),
-    # numericInput("t2", "t_lim-car", params$thr, min = 0, max = NA, step = 0.001),
-    numericInput("p1", "p value", signif(2*(1-pt(q=2.051831, df=27)),2), min = 0, max = 1, step = 0.005),
-    numericInput("df", "df", 27, min = 1, max = 100, step = 1)
-    ),
-    column(2,
-    radioButtons("method","Select sig:",c("Any" = "any","All" = "all","Individual" = "ind")),
-    radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")),
-    )
-  ),
-  width = 12
-  ),
     # Main panel for displaying outputs ----
     mainPanel(
       # plotlyOutput(outputId = "p5"),
@@ -83,11 +93,12 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, ...) {
-  data <- reactiveValues(results = NULL)
-  # output$result <- renderText({
-  #   paste("You chose", list.files(pattern = input$data))
-  # })
-  
+  data <- reactiveValues(cam = list(x=0,y=-2,z=2))
+  # camera position info
+  output$camera <- renderText({
+    paste("Camera:", round(data$cam$x,2), round(data$cam$y,2), round(data$cam$z,2))
+  })
+
   # updata pvalue
   # observe({
   #   updateNumericInput(
@@ -143,6 +154,19 @@ server <- function(input, output, ...) {
     )
   })
   
+  observeEvent(input$reset,{
+    updateSliderInput(inputId = "xrange",value = c(-46,44))
+    updateSliderInput(inputId = "yrange",value = c(-14,13))
+    updateSliderInput(inputId = "zrange",value = c(-33,-6))
+  })
+  
+  observeEvent(input$cam,{
+    position <- event_data("plotly_relayout",source = "p5")$scene.camera$eye
+    if (length(position)>0){
+      data$cam <- position
+    }
+  })
+  
   # https://community.rstudio.com/t/choose-a-rdata-dataset-before-launching-rest-of-shiny-app/49533/6
   observe({
     load(paste0(input$data,".RData"))
@@ -157,6 +181,8 @@ server <- function(input, output, ...) {
       results <- results[roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"),]
     } else if (input$roi == "pir"){
       results <- results[roi %in% c("APc","PPc","APn"),]
+    } else if (input$roi == "piro"){
+      results <- results[roi %in% c("APc","PPc"),]
     }
     
     # str or qua
@@ -192,6 +218,10 @@ server <- function(input, output, ...) {
     if (input$ylim==TRUE){
       results_select <- results_select[y>=-2,]
     }
+    # select datarange
+    results_select <- results_select[(x %between% input$xrange) &
+                                     (y %between% input$yrange)&
+                                     (z %between% input$zrange),]
     # return results
     # data$results <- (get("results"))
     data$results <- results_select
@@ -236,10 +266,11 @@ server <- function(input, output, ...) {
     p5 <- plot_ly(data$results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
                   color=~strnorm,colors=data$colorp,size = I(30),symbol = I("square"),
                   hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'),
-                  width = max(1,data$wid,data$hei), height = min(1,data$wid,data$hei))%>%
+                  width = max(1,data$wid,data$hei), height = min(1,data$wid,data$hei),
+                  source = "p5")%>%
       colorbar(title = "struc-quality_n")%>%
       layout(scene = list(aspectmode = "data",
-                          camera = list(eye = list(x = 0, y = -2, z = 2))
+                          camera = list(eye = list(x = data$cam$x, y = data$cam$y, z = data$cam$z))
                           ))
       # layout(scene = list(aspectmode = "manual", aspectratio = list(x=2, y=1, z=1)))
   })

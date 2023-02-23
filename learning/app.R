@@ -8,6 +8,7 @@ library(DT)
 library(shiny)
 library(patchwork)
 theme_set(theme_prism(base_size = 20,
+                      base_family = "Helvetica",
                       base_fontface = "plain",
                       base_line_size = 0.5,
                       base_rect_size = 0.5,))
@@ -52,7 +53,7 @@ ui <- fluidPage(
                           actionButton("cam", "Set camera",width = "100%"),
                           textOutput("camera")
                    ),
-                   column(3,
+                   column(6,
                           sliderInput("xrange","x range:",min = -46, max = 44,value = c(-46,44),step = 1,round = TRUE),
                           sliderInput("yrange","y range:",min = -14, max = 13,value = c(-14,13),step = 1,round = TRUE),
                           sliderInput("zrange","z range:",min = -33, max = -6,value = c(-33,-6),step = 1,round = TRUE),
@@ -66,7 +67,8 @@ ui <- fluidPage(
                           # submitButton("Update",width = "100%")
                    ),
                    column(2,
-                          radioButtons("method","Select sig:",c("Any" = "any","All" = "all","Individual" = "ind")),
+                          # radioButtons("method","Select sig:",c("Any" = "any","All" = "all","Individual" = "ind")),
+                          radioButtons("method","Select sig:",c("Any" = "any","All" = "all")),
                           radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")),
                           checkboxInput("ylim", "y >= -2")
                    )
@@ -152,6 +154,15 @@ server <- function(input, output, ...) {
     updateNumericInput(
       inputId = "t1",
       value = min(round(qt(1-(input$p1/2),input$df),6),100)
+    )
+  })
+  
+  # update df
+  observeEvent({
+    input$data},{
+    updateNumericInput(
+      inputId = "df",
+      value = ifelse(str_detect(input$data,"half"),13,27)
     )
   })
   
@@ -280,59 +291,66 @@ server <- function(input, output, ...) {
     avg <- calmean()
     # change column names
     names(avg)[1:3] <- c("roi","voxels","sub")
-    datachosen <- mutate(avg,roi = factor(roi,levels=roi_name))
+    avg <- as.data.table(avg)
+    avg <- avg[,roi := factor(roi,levels=roi_name)]
     # plot
-    ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) +
+    p1 <- ggplot(avg[voxels %in% c("m_lim-cit","m_lim-car"),], aes(x=roi, y=mean, fill=voxels)) +
       labs(x='ROI',y='Mean difference',fill='voxels')+#设置坐标轴
       geom_bar(position="dodge", stat="identity") +
       scale_y_continuous(expand = c(0,0))+
       scale_fill_manual(values=gf_color[2:5])+ #颜色
       geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
                     position=position_dodge(.9))
-  })
+    # plot
+    p2 <- ggplot(avg[voxels %in% c("strnorm","m_ncit-ncar"),], aes(x=roi, y=mean, fill=voxels)) +
+      labs(x='ROI',y='Mean',fill='voxels')+#设置坐标轴
+      geom_bar(position="dodge", stat="identity")+
+      scale_fill_manual(values=gf_color[4:5])+ #颜色
+      geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                    position=position_dodge(.9))
+    return(wrap_plots(p1,p2,nrow = 2))
+  },height = 800)
   
-  corr_xyz <- reactive({
+  plot_scatter <- function(plotdata,xlab,ylab){
+    ggscatter(plotdata,color = "#4c95c8",
+              x = xlab, y = ylab,alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+              ,fullrange = F)+
+      stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
+               show.legend=F,size=7)+theme_prism(base_size = 20,
+                                          base_family = "Helvetica",
+                                          base_fontface = "plain",
+                                          base_line_size = 0.5,
+                                          base_rect_size = 0.5,)
+  }
+  
+  plot_corr <- function(results,ifavg = 0){
     # plot
     plots <- list()
-    plotdata <- data$results[,c("x","y","z","m_lim-cit","m_lim-car","strnorm")]
-    plotdata$x <- abs(plotdata$x)
-    setnames(plotdata,c("m_lim-cit","m_lim-car"),c("lim_cit","lim_car"))
+    results <- results[,c("x","y","z","m_lim-cit","m_lim-car","strnorm")]
+    results$x <- abs(results$x)
+    setnames(results,c("m_lim-cit","m_lim-car"),c("lim_cit","lim_car"))
     odors <- c("lim_cit","lim_car","strnorm")
     for (odor in odors) {
       for (xlab in c("x","y","z")) {
         p <- paste(xlab,odor,sep = "_")
-        plots[[p]] <- ggscatter(plotdata,color = "#4c95c8",
-                                x = xlab, y = odor,alpha = 0.8,
-                                conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
-                                ,fullrange = F)+
-          stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
-                   show.legend=F)
+        if (ifavg==1){
+          plotdata <- results[,lapply(.SD, mean),.SDcol=odor,by=xlab]
+        } else {
+          plotdata <- results
+        }
+        plots[[p]] <- plot_scatter(plotdata,xlab,odor)
       }
     }
     return(wrap_plots(c(plots),ncol = 3,nrow = length(odors)))
+  }
+  
+  corr_xyz <- reactive({
+    plot_corr(data$results)
   })
   
   corr_xyz_mean <- reactive({
-    # plot
-    plots_avg <- list()
-    plotdata <- data$results[,c("x","y","z","m_lim-cit","m_lim-car","strnorm")]
-    plotdata$x <- abs(plotdata$x)
-    setnames(plotdata,c("m_lim-cit","m_lim-car"),c("lim_cit","lim_car"))
-    odors <- c("lim_cit","lim_car","strnorm")
-    for (odor in odors) {
-      for (xlab in c("x","y","z")) {
-        p <- paste(xlab,odor,sep = "_")
-        # averaged
-        # position=position_jitter(h=0.02,w=0.02, seed = 5)) +
-        plots_avg[[p]] <- ggscatter(plotdata[,lapply(.SD, mean),.SDcol=odor,by=xlab],
-                                    color = "#4c95c8", x = xlab, y = odor,alpha = 0.8,
-                                    conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
-                                    ,fullrange = F)+
-          stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
-                   show.legend=F)
-      }
-    }
-    return(wrap_plots(c(plots_avg),ncol = 3,nrow = length(odors)))
+    plot_corr(data$results, ifavg = 1)
   })
   
   output$xyz <- renderPlot({
@@ -344,11 +362,7 @@ server <- function(input, output, ...) {
   },height = function(){data$wid*1})
   
   output$prob <- renderPlot({
-    ggscatter(data$results,
-              color = "#4c95c8", x = "prob", y = "strnorm", alpha = 0.8,
-              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
-              ,fullrange = F)+
-      stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),show.legend=F)
+    plot_scatter(data$results,"prob","strnorm")
   })
   
   output$table <- renderDT({

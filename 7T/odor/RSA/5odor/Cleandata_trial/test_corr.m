@@ -90,23 +90,27 @@ for sub_i = 1:length(subn)
     % glmfit
     for field_i = 1:length(fields)
         % the first bet is constant term if not set 'constant','off'
-        models = [6,1];
+        models = [5,4,1,6];
+        labels = {'APairs' 'Haddad' 'Odorspace' 'valence' 'intensity' 'similarity' 'random'};
         betas(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';        
     end
 end
 
 %% extract the correlation between rois and strut & sim
 represent = zeros(2,length(fields),length(subn));
+chosen = [1 6];
 for sub_i = 1:length(subn)
     % 1-7 APairs Haddad Odorspace mrvalence mrintensity mrsimilarity random
-    represent(:, :, sub_i) = cormat([length(fields) + 1 length(fields) + 6], 1:length(fields), sub_i);
+    represent(:, :, sub_i) = cormat([length(fields) + chosen(1) length(fields) + chosen(2)], 1:length(fields), sub_i);
+    % fisher-z
+    represent(:, :, sub_i)=atanh(represent(:, :, sub_i));
 end
 % correlation between struct and sim
-strsimr = cormat(length(fields) + 1,length(fields) + 6,:);
+strsimr = cormat(length(fields) + chosen(1),length(fields) + chosen(2),:);
 % split subs
-% s={[1:size(represent,3)],[1:size(represent,3)/2],[size(represent,3)/2+1:size(represent,3)]};
+s={[1:size(represent,3)],[1:size(represent,3)/2],[size(represent,3)/2+1:size(represent,3)]};
 % split odd and even
-s={[1:size(represent,3)],1:2:size(represent,3),2:2:size(represent,3)};
+% s={[1:size(represent,3)],1:2:size(represent,3),2:2:size(represent,3)};
 for sub_i=1:3
     % average across subs
     repm = squeeze(mean(represent(:,:,s{sub_i}), 3));    
@@ -121,11 +125,11 @@ for sub_i=1:3
     xl = strrep(xl,'8','Amy');
     set(gca, 'XTickLabel', xl);
     set(gca, 'FontSize',18)
-    ylabel('Spearman correlation');
+    ylabel('fisher-z r');
     legend({'Struture', 'Similarity'});
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
     % save svg figure to data folder
-    %saveas(gcf, [datafolder 'Figures/' mask '_strut&val_' num2str(ncon) '_' num2str(sub_i) '.svg']);
+    saveas(gcf, [datafolder 'Figures/' mask '_' num2str(chosen(1)) '&' num2str(chosen(2)) '_' num2str(ncon) '_' num2str(sub_i) '.svg']);
 end
 %close all
 %% betas
@@ -136,13 +140,13 @@ for sub_i=1:3
     figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
     h = bar(b);
     % set face colors to red and blue
-    h(1).FaceColor = hex2rgb('#f0803b');
-    h(2).FaceColor = hex2rgb('#56a2d4');
+%     h(1).FaceColor = hex2rgb('#f0803b');
+%     h(2).FaceColor = hex2rgb('#56a2d4');
     set(gca,'TicklabelInterpreter','none')
     set(gca, 'XTickLabel', xl);
     set(gca, 'FontSize',18)
     ylabel('Beta');
-    legend({'Struture', 'Similarity'});
+    legend(labels(models));
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])    
 end
 %% plot perw

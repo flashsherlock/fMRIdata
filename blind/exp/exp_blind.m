@@ -5,13 +5,13 @@ function [result, response]=exp_blind
 times=4;
 % times
 waittime=6;
-cuetime=4;
+cuetime=3;
 odortime=2;
-beep_du = 0.2;
+beep_du = odortime;
 jmean=12-odortime-cuetime;
 % jitter
-range = 2;
-if ~mod(times,2)
+range = 1;
+if mod(times,2)
     jitter=linspace(jmean-range,jmean+range,times);   
 else
     jitter=repmat([jmean-range jmean+range jmean jmean],1,times/4);
@@ -54,15 +54,15 @@ seq=randseq(seq);
 seq=seq(:,1:3);
 
 % record
-result=zeros(length(seq),12);
+result=zeros(length(seq),10);
 result(:,1:3)=seq;
 % record all keystrokes
 response=cell(length(seq),2);
 
 % load odors
-wavedata = cell(1,length(odors)+4);
-soundtime = zeros(1,length(odors)+4);
-for odor_i = 1: length(odors)+4
+wavedata = cell(1,length(odors));
+soundtime = zeros(1,length(odors));
+for odor_i = 1: length(odors)
     wavfilename = sprintf('./odor/odor %02d.wav', odor_i);
     [y, freq] = psychwavread(wavfilename);
     wavedata{odor_i} = y';
@@ -158,17 +158,9 @@ for cyc=1:size(seq,1)
     result(cyc,8)=estStopTime-zerotime;     
     
     % orange fixation
-    Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
-    Screen('FillRect',windowPtr,fixcolor_cue,fixationp2);    
-    Screen('Flip', windowPtr);
-    % odor beep
-    PsychPortAudio('FillBuffer', pahandle, beep);
-    PsychPortAudio('Start', pahandle, 1, (starttime + cuetime - beep_du), 1);
-%     PsychPortAudio('FillBuffer', pahandle, wavedata{11});
-%     PsychPortAudio('Start', pahandle, 1, (starttime + cuetime - soundtime(11)), 1);
-    [startbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
-    result(cyc,9)=startbeep-zerotime;
-    result(cyc,10)=estStopTime-zerotime;
+%     Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
+%     Screen('FillRect',windowPtr,fixcolor_cue,fixationp2);    
+%     Screen('Flip', windowPtr);
     
     % trial start marker
     
@@ -177,13 +169,22 @@ for cyc=1:size(seq,1)
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
     trialtime = Screen('Flip', windowPtr,estStopTime);
     result(cyc,5)=trialtime-zerotime;
+
+        % odor beep
+    PsychPortAudio('FillBuffer', pahandle, beep);
+    PsychPortAudio('Start', pahandle, 1, (starttime + cuetime), 1);
+%     PsychPortAudio('FillBuffer', pahandle, wavedata{11});
+%     PsychPortAudio('Start', pahandle, 1, (starttime + cuetime - soundtime(11)), 1);
+%     [startbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
+%     result(cyc,9)=startbeep-zerotime;
+%     result(cyc,10)=estStopTime-zerotime;
     
     % stop and rating
 %     PsychPortAudio('FillBuffer', pahandle, wavedata{12});
-    PsychPortAudio('Start', pahandle, 1, (trialtime + odortime  ), 1);
+%     PsychPortAudio('Start', pahandle, 1, (trialtime + odortime  ), 1);
     [stopbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
-    result(cyc,11)=stopbeep-zerotime;
-    result(cyc,12)=estStopTime-zerotime;
+    result(cyc,9)=stopbeep-zerotime;
+    result(cyc,10)=estStopTime-zerotime;
     
     % trial stop marker
     

@@ -1,0 +1,18 @@
+
+version: '3'
+services:
+  shiny:
+   image: rocker/shiny
+   container_name: shiny_1
+   #  restart: always
+   ports:
+     - "3838:3838"
+   # Setting this to something other than 'root' will cause shiny apps not to
+   # run on the localhost:80 "Welcome to Shiny" diagnostics page
+   # user: 'root'
+   volumes:
+     - "/Volumes/WD_D/gufei/shiny/apps:/srv/shiny-server"
+     - "/Volumes/WD_D/gufei/shiny/log:/var/log/shiny-server/"
+   #  When you specify the command in docker-compose.yml 
+   #  it overrides the default command, which was supposed to start the container.
+   # install2.r -d TRUE -e -- bruceR plotly ggpubr ggprism psych shinydashboard

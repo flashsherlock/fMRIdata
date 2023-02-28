@@ -31,20 +31,20 @@ Use the time interval without any odor or visual stimulus as baseline.
 ## Invisible
 Define ROI by the activation difference of invisible faces.
 
+# Others
 ## 7T
 Use afni_proc.py to analyze 7T data.
 
-# Others
 ## learning
-Stores some of the files and notes during learning.
+Files and notes during learning.
 
 ## monkey
-Some files for olfaction experitments on monkeys.
+Files for experitments on monkeys.
 
 ## consciousness
-Analysis and experiment programms for iEEG study.
+Files for iEEG study.
 
-## bind
+## blind
 Experiment on blind people.
 
 2020.1.15

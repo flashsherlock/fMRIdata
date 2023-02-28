@@ -1,0 +1,212 @@
+---
+title: "Demo"
+author: "Fei"
+date: "`r Sys.time()`"
+output: html_document
+params:
+    path: "/Volumes/WD_F/gufei/7T_odor"
+    sub: "search_rmbase"
+    thr: 2.051831
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(R.matlab)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggprism)
+library(patchwork)
+library(gridExtra)
+library(plotly)
+ggthemr('fresh',layout = "clean")
+```
+
+
+```{r include=FALSE}
+####################################################
+# function to load txt file
+####################################################
+extractdata <- function(path,sub,txtname){
+  data <- read.table(file.path(path,sub,txtname))
+  # add subject name to the first column
+  data <- cbind(rep(sub,times=nrow(data)),data)
+  return(data)
+}
+####################################################
+# function to calculate activated voxels
+####################################################
+calcact <- function(results,roilist,threshold){
+  c <- 10
+  data <- data.frame(matrix(ncol = 3+c*2, nrow = 0))
+  
+  for (roi_i in names(roilist)) {
+  # select ROI
+  roi_label <- roilist[[roi_i]]
+  results_r <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
+  subs <- subset(results,roi %in% roi_label,select = 1)
+  # check if activated
+  results_r <- ifelse(abs(results_r)>threshold,1,0)
+  act <- cbind(subs,rep(1,times=nrow(subs)),results_r)
+  # calculate number and ratio
+  number <- aggregate(.~sub, act, sum)
+  ratio <- aggregate(.~sub, act, mean)
+  # add roi name
+  act <- cbind(rep(roi_i,times=nrow(number)),number,ratio[c(3:(2+c))])
+  data <- rbind(data,act)
+  }
+  # change column names
+  names(data)[1:3] <- c("roi","sub","all")
+  names(data)[c(4:(3+c))] <- str_replace(names(data)[c(4:(3+c))],"t_","c_")
+  names(data)[c((4+c):(3+c+c))] <- str_replace(names(data)[c((4+c):(3+c+c))],"t_","r_")
+  # change to percentage
+  data[c((4+c):(3+c+c))] <- data[c((4+c):(3+c+c))]*100
+  data <- reshape2::melt(data,c("sub","roi"))
+  return(data)
+}
+####################################################
+# function to calculate mean values
+####################################################
+calmean <- function(results,roilist, threshold = 0){
+  c <- 10
+  data <- data.frame(matrix(ncol = 3+c, nrow = 0))
+  
+  for (roi_i in names(roilist)) {
+  # select ROI
+  roi_label <- roilist[[roi_i]]
+  results_r <- subset(results,roi %in% roi_label,select = c(6:(5+c)))
+  subs <- subset(results,roi %in% roi_label,select = 1)
+  act <- cbind(subs,results_r)
+  # threshold t value
+  results_t <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
+  # # remove any acc below chance
+  index <- apply(results_t,1,function(x) any(x>threshold) & all(x>0))
+  # index <- apply(results_t,1,function(x) any(x>threshold))
+  # significant voxels only
+  act <- act[index]
+  # calculate mean value
+  # m <- aggregate(.~sub, act, mean)
+  m <- describeBy(act[,-1],list(act$sub),mat=T)
+  m <- subset(m,select = c("group1","mean","se"))
+  m <- cbind(str_remove(rownames(m),"1"),m)
+  # add roi name
+  act <- cbind(rep(roi_i,times=nrow(m)),m)
+  data <- rbind(data,act)
+  }
+  # change column names
+  names(data)[1:3] <- c("roi","voxels","sub")
+  return(data)
+}
+# odor pairs
+odors <- c("lim", "tra", "car", "cit", "ind")
+pairs <- apply(combn(odors, 2), 2, function(x) paste(x[1], x[2], sep = "-"))
+opair <- pairs[1:4]
+# roi labels
+roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
+A <- c(1,3,5,6,7,8,9,15)
+B <- c(1,3,8,15)
+Ce <- c(5,6)
+Co <- c(7,9)
+Pn <- c(21,22,29)
+Po <- c(21,22)
+An <- c(21,29)
+Ao <- 21
+PPC <- 22
+roilist <- list(Amy=A,BaLa=B,CeMe=Ce,Cortical=Co,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC)
+roimarker <- c(1,3,5,6,7,8,9,15,21,22,29)
+roilabels <- c("La","Ba","Ce","Me","Co","BM","CoT","Para","APc","PPc","APn")
+# colors
+gf_color <- c("#f0803b", "#55b96f", "#56a2d4", "#ECB556","#777DDD")
+```
+
+
+```{r include=FALSE}
+cat(params$sub)
+# sub x y z roi 4mean 4t-value
+results <- data.frame(matrix(ncol = 1+12, nrow = 0))
+# extract group results
+results <- rbind(results,extractdata(params$path,"group",paste0("stats_",params$sub,".txt")))
+names(results) <- c("sub","x","y","z","roi",paste("m",pairs,sep = "_"),paste("t",pairs,sep = "_"))
+results <- as.data.table(results)
+# acc = 0 if below chance
+temp <- results[,6:dim(results)[2]]
+temp[temp<0] <- 0
+results[,6:dim(results)[2]] <- temp
+# add labels to roi
+results[,roi:=factor(roi,levels = sort(unique(results$roi)),labels=roilabels)]
+results <- cbind(results[,c(2:5)],results[,c(8,18)])
+# reverse x and y
+results$y <- -results$y
+results$x <- -results$x
+# write.csv(results,paste0(params$path,"/data.csv"),row.names = F)
+```
+
+```{r fig.height=9, fig.width=9}
+# head(results)
+# 3d scatter plot
+p1 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+# 3d scatter plot
+p2 <- plot_ly(results[`t_lim-cit`>params$thr,],x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+# 3d scatter plot
+p3 <- plot_ly(results[`m_lim-cit`>0,],x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+htmltools::tagList(list(p1,p2,p3))
+```
+
+```{r fig.height=9, fig.width=9}
+# absolute x
+results_abs <- cbind(abs(results[,1]),results[,2:6])
+# plot
+plots <- list()
+plots_avg <- list()
+odors <- c("cit")
+# Pir and Amy
+for (roi in c("Pir","Amy","All")) {
+  # pir
+  if (roi == "Pir")
+    results_select <- subset(results_abs,roi %in% c("APc","PPc","APn"))
+  else if (roi == "Amy")
+    results_select <- subset(results_abs,roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"))
+  else
+    results_select <- results_abs
+  
+  
+  for (odor in odors) {
+    for (xlab in c("x","y","z")) {
+    p <- paste(roi,xlab,sep = "_")
+    # activated only
+    indx <- results_select[[paste0("t_","lim-",odor)]]>params$thr
+    data_corr <- subset(results_select[indx,],select = c(xlab,paste0("m_","lim-",odor)))
+    # plot correlation
+    plots[[p]] <- ggscatter(data_corr,color = "#4c95c8",
+                            x = xlab, y = paste0("m_","lim-",odor),alpha = 0.8,
+                            conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+                            position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+                            ylab(label = roi)+
+                            stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                                     show.legend=F)+
+                            theme_prism(base_line_size = 0.5)
+    # averaged
+    plots_avg[[p]] <- ggscatter(data_corr[,lapply(.SD, mean),.SDcol=2,by=xlab],color = "#4c95c8",
+                                x = xlab, y = paste0("m_","lim-",odor),alpha = 0.8,
+                                conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20"),fullrange = F,
+                                position=position_jitter(h=0.02,w=0.02, seed = 5)) +
+                                ylab(label = roi)+
+                                stat_cor(aes(label = paste(..r.label.., ..p.label.., sep = "~`,`~")),
+                                         show.legend=F)+
+                                theme_prism(base_line_size = 0.5)
+    }
+  }
+}
+print(wrap_plots(plots,ncol = 3,nrow = 3))
+print(wrap_plots(plots_avg,ncol = 3,nrow = 3))
+```

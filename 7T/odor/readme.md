@@ -105,6 +105,9 @@ Save respiration from Biopac to 1d file that used in physiology correction.
 
 # group level analysis
 
+## group_check_align.tcsh
+Check alignment.
+
 ## group_level.tcsh
 Genereate group level rois.
 
@@ -119,6 +122,12 @@ Get coordinates of peak cluster.
 
 * center of mass
 * peak
+
+## group_searchpeak.bash
+Get coordinates of peak cluster in searchlight results.
+
+## group_tract.bash
+Dump olfactory tract atlas into txt.
 
 ## ind_saveimg.bash
 Drive AFNI to save individual citcar results. 

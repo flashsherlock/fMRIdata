@@ -27,6 +27,7 @@ library(ggprism)
 library(patchwork)
 library(gridExtra)
 library(plotly)
+library(shiny)
 ggthemr('fresh',layout = "clean")
 ```
 
@@ -109,6 +110,7 @@ calmean <- function(results,roilist, threshold = 0){
 odors <- c("lim", "tra", "car", "cit", "ind")
 pairs <- apply(combn(odors, 2), 2, function(x) paste(x[1], x[2], sep = "-"))
 opair <- pairs[1:4]
+diff <- c("m_cit-car","t_cit-car","m_ncit-ncar","t_ncit-ncar")
 # roi labels
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
 A <- c(1,3,5,6,7,8,9,15)
@@ -134,12 +136,12 @@ cat(params$sub)
 results <- data.frame(matrix(ncol = 1+12, nrow = 0))
 # extract group results
 results <- rbind(results,extractdata(params$path,"group",paste0("stats_",params$sub,".txt")))
-names(results) <- c("sub","x","y","z","roi",paste("m",pairs,sep = "_"),paste("t",pairs,sep = "_"))
+names(results) <- c("sub","x","y","z","roi",paste("m",pairs,sep = "_"),paste("t",pairs,sep = "_"),diff)
 results <- as.data.table(results)
 # acc = 0 if below chance
-temp <- results[,6:dim(results)[2]]
+temp <- results[,6:(dim(results)[2]-4)]
 temp[temp<0] <- 0
-results[,6:dim(results)[2]] <- temp
+results[,6:(dim(results)[2]-4)] <- temp
 ```
 
 # Activated voxels
@@ -218,35 +220,134 @@ print(figure)
 ```{r fig.height=9, fig.width=9}
 # add labels to roi
 results[,roi:=factor(roi,levels = sort(unique(results$roi)),labels=roilabels)]
+# reverse xy
+results$x <- -results$x
+results$y <- -results$y
+# save results
+save(results,file = paste0("/Volumes/WD_D/gufei/shiny/apps/7T/", params$sub, ".RData"))
 # absolute difference and x
-results_abs<- cbind(abs(results[,2:4]),results[,5:25])
-# reverse y
-results_abs$y <- -results$y
-results_abs$z <- results$z
+results_abs<- cbind(abs(results[,2]),results[,3:25])
 # 3d scatter plot
 # lim-cit
-p1 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-cit`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+p1 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # lim-car
-p2 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-car`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+p2 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~`m_lim-car`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # activated only average voxels in the same coordinate
 # lim-cit
 p3 <- plot_ly(results_abs[`t_lim-cit`>params$thr,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z","roi")],
               x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-cit`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+        color=~`m_lim-cit`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # lim-car
 p4 <-plot_ly(results_abs[`t_lim-car`>params$thr,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z","roi")],
              x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~`m_lim-car`,size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))
+        color=~`m_lim-car`,size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
 # cit-lim-car-lim
-p5 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
+p5 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
         color=~(`m_lim-cit`-`m_lim-car`),
-        size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))%>%colorbar(title = "struc-quality")
+        size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality")
 # normalized
-p6 <- plot_ly(results,x=~(-x), y=~(-y), z=~z, split=~roi,type="scatter3d", mode="markers", 
-        color=~(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`),size = I(30),symbol = I("square"), hovertemplate = paste('%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
-htmltools::tagList(list(p1, p2, p3, p4, p5, p6))
+p6 <- plot_ly(results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+        color=~(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`),
+        colors=colorRampPalette(c("blue", "white", "red"))(20),size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
+# normalize
+p7 <- plot_ly(results[abs(`t_ncit-ncar`)>params$thr,],x=~x, y=~y, z=~z, 
+              split=~roi,type="scatter3d", mode="markers", color=~`m_ncit-ncar`,
+        colors=colorRampPalette(c("blue", "white", "red"))(20),size = I(30),symbol = I("square"), 
+        hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
+htmltools::tagList(list(p1, p2, p3, p4, p5, p6, p7))
+```
+
+```{r}
+# 3d scatter plot
+ui <- fluidPage(
+  plotlyOutput(outputId = "p1"),
+  plotlyOutput(outputId = "p2"),
+  plotlyOutput(outputId = "p3"),
+  plotlyOutput(outputId = "p4"),
+  numericInput("t1", "t threshold", round(params$thr,6), min = 0, max = NA, step = 0.1),
+  # numericInput("t2", "t_lim-car", params$thr, min = 0, max = NA, step = 0.001),
+  numericInput("p1", "p value", signif(2*(1-pt(q=params$thr, df=27)),2), min = 0.00001, max = 1, step = 0.05),
+  radioButtons("method","Select sig:",c("All" = "all","Any" = "any")),
+  radioButtons("select","Select:",c("All" = "all","Structure" = "str","Quality" = "qua")),
+  plotlyOutput(outputId = "p5")
+)
+server <- function(input, output, ...) {
+  observe({
+    updateNumericInput(
+      inputId = "p1",
+      value = signif(2*(1-pt(q=input$t1, df=27)),2)
+    )
+  })
+  observe({
+    updateNumericInput(
+      inputId = "t1",
+      value = round(qt(1-(input$p1/2),27),6)
+    )
+  })
+  output$p1 <- renderPlotly({
+  p1 <- plot_ly(results[`t_lim-cit`>input$t1,],x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+                color=~`m_lim-cit`,size = I(30),symbol = I("square"), 
+                hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
+  })
+  output$p2 <- renderPlotly({
+  # lim-car
+  p2 <- plot_ly(results[`t_lim-cit`>input$t1,],x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+                color=~`m_lim-car`,size = I(30),symbol = I("square"), 
+                hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
+  })
+  output$p3 <- renderPlotly({
+  # activated only average voxels in the same coordinate
+  # lim-cit
+  p3 <- plot_ly(results_abs[`t_lim-cit`>input$t1,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z","roi")],
+                x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+                color=~`m_lim-cit`,size = I(30),symbol = I("square"), 
+                hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
+  })
+  output$p4<- renderPlotly({
+  # lim-car
+  p4 <-plot_ly(results_abs[`t_lim-car`>input$t1,lapply(.SD, mean),.SDcol=5:14,by=c("x","y","z","roi")],
+               x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+               color=~`m_lim-car`,size = I(30),symbol = I("square"), 
+               hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))
+  })
+  
+  output$p5<- renderPlotly({
+  # select cit-lim-car-lim
+  col <- grep(paste0("t_lim-(car|cit)"),colnames(results))
+  results_select <- results[,c(2,3,4,5,col-10,col)]
+  results_select <- results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
+  # select rows that all columns are above threshold in data.table
+  if (input$method == 'any') {
+    results_select[,t:=any(.SD>input$t1),.SDcols = c("t_lim-car","t_lim-cit"), by = seq_len(nrow(results_select))]
+  } else{
+    results_select[,t:=all(.SD>input$t1),.SDcols = c("t_lim-car","t_lim-cit"), by = seq_len(nrow(results_select))]
+  }
+  if (input$select == 'str') {
+    results_select <- results_select[strnorm>0,]
+    colorp <- colorRampPalette(c("white", "red"))(10)
+  } else if (input$select == 'qua'){
+    results_select <- results_select[strnorm<0,]
+    colorp <- colorRampPalette(c("blue", "white"))(10)
+  }
+  else{
+    colorp <- colorRampPalette(c("blue", "white", "red"))(20)
+  }
+  # normalized
+  p5 <- plot_ly(results_select[t==TRUE,],x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+                color=~strnorm,colors=colorp,size = I(30),symbol = I("square"),
+                hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'))%>%colorbar(title = "struc-quality-norm")
+  })
+}
+shinyApp(ui,server)
+#htmltools::tagList(list(p1, p2, p3, p4, p5, p6))
 ```
 
 ```{r fig.height=9, fig.width=9}
@@ -353,7 +454,7 @@ for (roi in c("Pir","Amy","All")) {
     # lim-cit and lim-car
     col <- grep(paste0("t_lim-(", substr(odor,1,7), ")"),colnames(results_select))
     # select rows that all columns are above threshold in data.table
-    results_select <- results_select[,t:=all(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
+    results_select <- results_select[,t:=any(.SD>params$thr),.SDcols = col, by = seq_len(nrow(results_select))]
     
     for (xlab in c("x","y","z")) {
     p <- paste(xlab,odor,sep = "_")

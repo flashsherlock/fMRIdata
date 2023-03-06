@@ -180,22 +180,23 @@ for low_i=1:length(low)
             % select roi
         %     index = ~ismember(cur_level_roi(:,2),{'Hi','S'});
         %     dis_data_select = dis_data_select(index,:);
+            dis_data_selectm = dis_data_select;
             switch monkeys{m}
                 case 'RM033'
-                    dis_data_select = dis_data_select(dis_data_select(:,1)<0,:);
+                    dis_data_selectm = dis_data_selectm(dis_data_select(:,1)<0,:);
                 case 'RM035'
-                    dis_data_select = dis_data_select(dis_data_select(:,1)>0,:);
+                    dis_data_selectm = dis_data_selectm(dis_data_select(:,1)>0,:);
             end
             % odor condition
             for odor_i=1:odor_num+1                
                 % change x to abs(x)
-                dis_data_select(:,1) = abs(dis_data_select(:,1));
+                dis_data_selectm(:,1) = abs(dis_data_selectm(:,1));
                 % plot 3 coords
                 coord = 3;                         
                 for j=1:coord
                     % get data
-                    x = dis_data_select(:,j);
-                    y = dis_data_select(:,3+odor_i);
+                    x = dis_data_selectm(:,j);
+                    y = dis_data_selectm(:,3+odor_i);
                     % correlation
                     [r,p]=corr(x,y);
                     % scatter plot

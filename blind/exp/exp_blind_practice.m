@@ -1,5 +1,5 @@
 function [result, response]=exp_blind_practice
-% 1*8*12s + 2s = 98s = 49 TRs
+% 1*4*12s + 2s = 50s = 25 TRs
 % parallel
 port = '3EFC';
 ioObject = io64;
@@ -145,7 +145,7 @@ Screen('Flip',windowPtr,zerotime+waittime);
 io64(ioObject,address,0);
 
 % start
-for cyc=1:size(seq,1)
+for cyc=1:size(seq,1)/2
     
     odor=seq(cyc,1);
     

@@ -1,11 +1,19 @@
 function [result, response]=exp_blind
-% 3*8*16s + 6s = 390s = 195 TRs
-% 4*8*12s + 6s = 390s = 195 TRs
+% 4*8*12s + 6s + 4s = 394s = 197 TRs
+% parallel
+port = '3EFC';
+ioObject = io64;
+status = io64(ioObject);
+disp(status);
+address = hex2dec(port);
+io64(ioObject,address,0);
+% beep freq
+f=400;
 % repeat
 times=4;
 % times
 waittime=6;
-cuetime=3;
+cuetime=2;
 odortime=2;
 beep_du = odortime;
 jmean=12-odortime-cuetime;
@@ -87,9 +95,9 @@ device = [];
 pahandle = PsychPortAudio('Open', device, [], 0, freq, 2);
 PsychPortAudio('Volume', pahandle, 1);
 % beep
-beep = MakeBeep(500, beep_du,freq);
+beep = MakeBeep(f, beep_du,freq);
 beep = [beep; beep];
-beep = beep/5;
+beep = beep/2;
 
 % colors
 black=BlackIndex(whichscreen);
@@ -97,7 +105,7 @@ white=WhiteIndex(whichscreen);
 gray=round((white+black)*4/5);
 backcolor=gray;
 % data file
-datafile=sprintf('Data%s%s_run%d%s.mat',filesep,subject{1},runnum,ctime);
+datafile=sprintf('Data%s%s_run%d_%s.mat',filesep,subject{1},runnum,ctime);
 
 % open window
 [windowPtr,rect]=Screen('OpenWindow',whichscreen,backcolor);
@@ -124,7 +132,8 @@ end
 % record start time
 tic;
 zerotime=GetSecs;
-
+% start marker
+io64(ioObject,address,15);
 % start marker
 
 % wait time
@@ -137,6 +146,7 @@ Screen('Flip',windowPtr);
 Screen('Flip',windowPtr,zerotime+waittime);
 
 % after wait marker
+io64(ioObject,address,0);
 
 % start
 for cyc=1:size(seq,1)
@@ -160,19 +170,18 @@ for cyc=1:size(seq,1)
     % orange fixation
 %     Screen('FillRect',windowPtr,fixcolor_cue,fixationp1);
 %     Screen('FillRect',windowPtr,fixcolor_cue,fixationp2);    
-%     Screen('Flip', windowPtr);
+%     Screen('Flip', windowPtr); 
     
-    % trial start marker
-    
+    % odor beep
+    PsychPortAudio('FillBuffer', pahandle, beep);
+    PsychPortAudio('Start', pahandle, 1, (starttime + cuetime), 1);
+    % trial start marker    
+    io64(ioObject,address,odor);
     % green fixation
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp1);
     Screen('FillRect',windowPtr,fixcolor_inhale,fixationp2);
     trialtime = Screen('Flip', windowPtr,estStopTime);
     result(cyc,5)=trialtime-zerotime;
-
-        % odor beep
-    PsychPortAudio('FillBuffer', pahandle, beep);
-    PsychPortAudio('Start', pahandle, 1, (starttime + cuetime), 1);
 %     PsychPortAudio('FillBuffer', pahandle, wavedata{11});
 %     PsychPortAudio('Start', pahandle, 1, (starttime + cuetime - soundtime(11)), 1);
 %     [startbeep, ~, ~, estStopTime] = PsychPortAudio('Stop', pahandle, 1);    
@@ -187,6 +196,7 @@ for cyc=1:size(seq,1)
     result(cyc,10)=estStopTime-zerotime;
     
     % trial stop marker
+    io64(ioObject,address,0);
     
     % black fix
     Screen('FillRect',windowPtr,fixcolor_black,fixationp1);
@@ -220,7 +230,8 @@ for cyc=1:size(seq,1)
     end
     
 end
-
+% add 4s
+WaitSecs(4)
 toc;
 %save
 save(datafile,'result','response');
@@ -240,13 +251,13 @@ end
 
 % function to imput exp information
 function [subject,runnum] = inputsubinfo
-prompt={'Subject No.','Gender (1-Male, 2-Female)','Age','Run No.'};
+prompt={'Subject No.','Run No.'};
 name='Experimental Information';
 numlines=1;
-defaultanswer={'s99','1','99','1'};
+defaultanswer={'s99','1'};
 answer=inputdlg(prompt,name,numlines,defaultanswer);
-subject=answer(1:3);
-runnum=str2double(answer{4});
+subject=answer(1);
+runnum=str2double(answer{2});
 end
 
 function rseq = randseq( seq )

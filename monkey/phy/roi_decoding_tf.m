@@ -94,6 +94,7 @@ for condition_i = 1:length(conditions)
         subplot(2,2,1)
         plot(time,acc','LineWidth',linew)
         set(gca,'xlim',[time(1),time(end)])
+        set(gca,'ylim',[-15 15]);
         ylabel('Accuracy') 
         legend(results_odor(:,2)) 
         set(gca, 'FontSize',fontsize)
@@ -101,12 +102,14 @@ for condition_i = 1:length(conditions)
         subplot(2,2,2)
         plot(time,(acc-per_mean)','LineWidth',linew)
         set(gca,'xlim',[time(1),time(end)])
+        set(gca,'ylim',[-15 15]);
         ylabel('Acc-Per') 
         set(gca, 'FontSize',fontsize)
         
         subplot(2,2,3)
         plot(time,per_mean','LineWidth',linew)
         set(gca,'xlim',[time(1),time(end)])
+        set(gca,'ylim',[-15 15]);
         ylabel('Permutated Acc')
         set(gca, 'FontSize',fontsize)
         

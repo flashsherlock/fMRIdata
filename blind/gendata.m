@@ -30,4 +30,8 @@ for subi=1:length(subs)
     else
         disp(['Images of ' sub ' has already been generated!'])
     end
+    % generate time files
+    blind_timing(sub,length(runs));
+    blind_timing_rating(sub,length(runs));
+    
 end

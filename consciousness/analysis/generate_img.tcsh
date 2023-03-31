@@ -28,6 +28,11 @@ Dimon -infile_pattern 'I*' \
 cd ..
 
 # MRI
+# use dcm2nii_afni to convert dicom to nifti
+# dcm2niix_afni MRI
+# mv MRI/*.nii ./${sub}_mri.nii
+
+# use Dimon to convert dicom to nifti
 cd MRI
 # mkdir 001
 # mv I* 001/

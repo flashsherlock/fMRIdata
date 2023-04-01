@@ -25,7 +25,7 @@ for subi=1:length(subs)
     % generate images if they are not exist
     if ~exist([datafolder filesep sub '.str.nii'],'file') 
         strimg=sprintf('%02d',str);
-        genimage=['tcsh generate_img.tcsh ' sub ' "' num2str(runs) '" ' num2str(pa) strimg];
+        genimage=['tcsh generate_img.tcsh ' sub ' "' num2str(runs) '" ' num2str(pa) ' ' strimg];
         unix(genimage)
     else
         disp(['Images of ' sub ' has already been generated!'])

@@ -25,6 +25,7 @@ set analysis=pade
                 ${sub}_anat_warped/anatQQ.${sub}.aff12.1D                                       \
                 ${sub}_anat_warped/anatQQ.${sub}_WARP.nii                                       \
         -volreg_align_to MIN_OUTLIER                                                            \
+        # -volreg_method 3dAllineate                                                              \
         # -volreg_align_e2a                                                                       \
         # -volreg_tlrc_warp                                                                       \
         -blur_size 3                                                                          \

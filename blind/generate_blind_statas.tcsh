@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 # for subs from 01 to 04
-foreach ub (`count -dig 2 1 4`)
+foreach ub (`count -dig 2 3 3`)
 set sub=S${ub}
 set datafolder=/Volumes/WD_F/gufei/blind/${sub}
 cd "${datafolder}"
@@ -18,6 +18,7 @@ cd ${subj}.results
 
 # extract tent and beta values
 set filedec = odor_12
+set maskdec = align
 set maskdec_t2 = at165
 set maskdec_t = ${maskdec_t2}_p # positive only for tent
 set data_tent=tent.${subj}.${filedec}+orig
@@ -32,6 +33,10 @@ if (! -e ../../stats/${sub}) then
 endif
 
 foreach region (Pir_new Pir_old APC_new APC_old PPC)
+
+    # rm ../mask/${region}_${maskdec_t2}.draw*
+    # rm ../mask/${region}_${maskdec_t}.draw*
+
     # generate t threshold masks
     # different regions of amygdala
     3dcalc  -a ${data_beta}'[2]' \
@@ -63,6 +68,10 @@ foreach region (Pir_new Pir_old APC_new APC_old PPC)
 end
 
 foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
+
+    # rm ../mask/${region}_${maskdec_t2}.freesurfer*
+    # rm ../mask/${region}_${maskdec_t}.freesurfer*
+
     3dcalc  -a ${data_beta}'[2]' \
             -b ${data_beta}'[5]' \
             -c ${data_beta}'[8]' \

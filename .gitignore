@@ -18,6 +18,9 @@
 /7T/odor/*_cache
 /7T/odor/*_files
 /7T/odor/*.html
+/blind/*_cache
+/blind/*_files
+/blind/*.html
 /7T/odor/*/*_cache
 /7T/odor/*/*_files
 /7T/odor/*/*.html

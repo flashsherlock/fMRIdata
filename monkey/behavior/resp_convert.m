@@ -26,8 +26,8 @@ data(marker,data(marker,:)>3.3)=1;
 mar = [0 diff(data(marker,:))];
 start = find(mar == 1);
 stop = find(mar == -1);
-if length(start)~=18 || length(stop)~=18    
-    error('The number of markers is not 18!')
+if length(start) ~= length(stop)
+    error('Numbers of start and stop markers are not equal!')
 else
     mar = [start; stop];
     % 0.5s hint is 1s before odor onset
@@ -40,7 +40,11 @@ for i = 1:size(odor1,2)
         error('Markers may not consistent with hints!')
     end
 end
-mar = [trials(test,:);hint(1,:);hint(1,:)+7*srate]';
+mar = [trials(test,1:size(hint,2));hint(1,:);hint(1,:)+7*srate]';
+% if interupted, remove the last one
+if hint(1,end)+7*srate>size(data,2)
+    mar = mar(1:end-1,:);
+end
 % 10Hz lowpass filter
 data(aflow,:)=ft_preproc_lowpassfilter(data(aflow,:),srate,10);
 % convert temperature

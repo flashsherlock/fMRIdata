@@ -14,7 +14,11 @@ marker = 3;
 % convert data to matrix (channel by point)
 data = [];
 for i = 1:channels
-    data(i,:) = resp.data(resp.datastart(i,end):resp.dataend(i,end));
+    datarange = [];
+    for j = 1:size(resp.datastart,2)
+        datarange = [datarange,resp.datastart(i,j):resp.dataend(i,j)];
+    end
+    data(i,:) = resp.data(datarange);
 end
 % convert markers
 data(marker,data(marker,:)<=3.3)=0;

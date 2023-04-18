@@ -13,10 +13,20 @@ for d = 1:length(dates)
             disp(['Processing... ' adname(i).name]);
             resp = load([data_dir adname(i).name]);
             % convert data
-            results{d,t}{i}=resp_convert(resp,t);
+            results{d,t}{i}=resp_convert(resp,t);            
         end       
     end
 end
 save([data_dir 'results.mat'],'results')
-%% load and analyze
+%% load and separate trials
 load([data_dir 'results.mat'])
+trials = [];
+for  d = 1:size(results,1)
+    for t = 1:4
+        for i = 1:length(results{d,t})
+            trials = [trials;resp_separate(results{d,t}{i})];
+        end
+    end    
+end
+save([data_dir 'trials.mat'],'trials')
+%%  analyze

@@ -28,5 +28,6 @@ for  d = 1:size(results,1)
         end
     end    
 end
-save([data_dir 'trials.mat'],'trials')
+trials_find = resp_find(trials);
+save([data_dir 'trials.mat'],'trials','trials_find')
 %%  analyze

@@ -19,6 +19,7 @@ for chan_i=1:size(trials_find,3)
             data{4}=resp(air_range(air_i,1)+1:air_range(air_i,2)+1);
             data{5}=chan_i;
             data{6}=resp(air_range(air_i,1)+1:air_range(air_i,1)+1+win*srate);
+            data{12}=trial_i;
             separated = [separated;data];
         end
         % odor
@@ -31,6 +32,7 @@ for chan_i=1:size(trials_find,3)
             data{4}=resp(odor_range(air_i,1)+1:odor_range(air_i,2)+1);
             data{5}=chan_i;
             data{6}=resp(odor_range(air_i,1)+1:odor_range(air_i,1)+1+win*srate);
+            data{12}=trial_i;
             separated = [separated;data];
         end
     end
@@ -48,7 +50,7 @@ for resp_i = 1:size(separated,1)
     separated{resp_i,9} = max(resp);
     % speed
     separated{resp_i,10} = sum(resp)/length(resp);
-    % resample to 100
+    % resample to 500
     separated{resp_i,11} = resample(resp,500,length(resp));
 end
 end

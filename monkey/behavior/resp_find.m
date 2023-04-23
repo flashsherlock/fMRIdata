@@ -4,6 +4,7 @@ nchan = size(trials,3);
 separated = cell(ntrial,4,nchan);
 separated(:,1,:) = trials(:,1,:);
 separated(:,4,:) = trials(:,4,:);
+separated(:,5,:) = trials(:,5,:);
 mid = 7000;
 for channel_i = 1:nchan
     for trial_i=1:ntrial    

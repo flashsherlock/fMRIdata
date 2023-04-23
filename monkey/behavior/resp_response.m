@@ -1,7 +1,8 @@
 %% store results (dates by test)
 data_dir = '/Volumes/WD_D/gufei/monkey_data/respiratory/adinstrument/';
-dates = {'0301','0316'};
-if ~exist([data_dir 'results.mat'],'file')
+dates = {'0301','0316','0412','0414'};
+datafile = 'results4day.mat';
+if ~exist([data_dir datafile],'file')
     results=cell(length(dates),4);
     for d = 1:length(dates)
         % data filename
@@ -18,10 +19,10 @@ if ~exist([data_dir 'results.mat'],'file')
             end       
         end
     end
-    save([data_dir 'results.mat'],'results')
+    save([data_dir datafile],'results')
 else
     % load
-    load([data_dir 'results.mat'])
+    load([data_dir datafile])
 end
 %% separate trials
 trials = [];
@@ -30,11 +31,12 @@ for  d = 1:size(results,1)
         for i = 1:length(results{d,t})            
             if d==1
                 % remove banana
-                trials = [trials;resp_separate(results{d,t}{i},5)];
-                % trials = [trials;resp_separate(results{d,t}{i})];
+                trialadd = resp_separate(results{d,t}{i},5);
+                % trialadd = resp_separate(results{d,t}{i});                               
             else
-                trials = [trials;resp_separate(results{d,t}{i})];
+                trialadd = resp_separate(results{d,t}{i});
             end
+            trials = [trials;[trialadd repmat(dates(d),size(trialadd,1),1,size(trialadd,3))]]; 
         end
     end    
     

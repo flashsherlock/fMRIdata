@@ -30,6 +30,8 @@ if length(start) ~= length(stop)
     error('Numbers of start and stop markers are not equal!')
 else
     mar = [start; stop];
+    % remove fake markers by time interval
+    mar(:,mar(2,:)-mar(1,:)<400)=[];
     % 0.5s hint is 1s before odor onset
     hint = srate+mar(:,mar(2,:)-mar(1,:)<srate);
     odor1 = mar(:,mar(2,:)-mar(1,:)>6*srate);

@@ -87,7 +87,7 @@ switch eventdata.Key
         handles.plotnum=handles.plotnum-1;
         set(handles.currentnum,'String',num2str(handles.plotnum));
         set(handles.position,'Value',handles.plotnum);
-        plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
+        handles=updatepoint(handles);
         end
     end
     % press f or rightarrow to move right
@@ -97,7 +97,7 @@ switch eventdata.Key
         handles.plotnum=handles.plotnum+1;
         set(handles.currentnum,'String',num2str(handles.plotnum));
         set(handles.position,'Value',handles.plotnum);
-        plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
+        handles=updatepoint(handles);
         end
     end
     % press v or downarrow to choose point
@@ -105,15 +105,34 @@ switch eventdata.Key
     if strcmp(get(handles.choose,'Enable'),'on')
         handles=choosepoint(handles);
     end
+    % press x to add
+    case 'x'
+        set(handles.add,'Value',1-get(handles.add,'Value'))
+        if get(handles.add,'Value')
+            set(handles.clear,'Value',0);
+            handles.ptype='add';
+            set(handles.clear,'BackgroundColor',[0.94,0.94,0.94]);
+            set(handles.add,'BackgroundColor','green');    
+        else
+            handles.ptype='change';
+            set(handles.add,'BackgroundColor',[0.94,0.94,0.94]);
+        end
+    % press c to clear
+    case 'c'
+        set(handles.clear,'Value',1-get(handles.clear,'Value'))
+        if get(handles.clear,'Value')
+            set(handles.add,'Value',0);
+            handles.ptype='clear';
+            set(handles.add,'BackgroundColor',[0.94,0.94,0.94]);
+            set(handles.clear,'BackgroundColor','green');    
+        else
+            handles.ptype='change';
+            set(handles.clear,'BackgroundColor',[0.94,0.94,0.94]);
+        end        
     % press s to save the data
     case 's'
-    guisave=handles.guisave;
-    data=handles.tempdata;
-    % save the data without smooth
-    data(:,1)=handles.nosmooth;
-    % save parameters used to find points
-    parameters=handles.usepara;
-    save([handles.workingpath '/' handles.savename '.mat'],'data','guisave','parameters');
+    trials=handles.tempdata;
+    save(handles.savename,'trials');
 end
 guidata(hObject, handles);
 
@@ -492,9 +511,9 @@ else
         plot(p_time,p_data(channel_resp,:),'Color',color,'LineWidth',lw);
         hold on;
         onpoint = nan(size(p_data,2),1);
-        onpoint(separated{trial_i,2,channel_resp})=p_data(channel_resp,separated{trial_i,2,channel_resp});    
+        onpoint(1+separated{trial_i,2,channel_resp})=p_data(channel_resp,1+separated{trial_i,2,channel_resp});    
         offpoint = nan(size(p_data,2),1);
-        offpoint(separated{trial_i,3,channel_resp})=p_data(channel_resp,separated{trial_i,3,channel_resp});
+        offpoint(1+separated{trial_i,3,channel_resp})=p_data(channel_resp,1+separated{trial_i,3,channel_resp});
         plot(onpoint,'>','MarkerFaceColor','g','MarkerSize',psize);
         plot(offpoint,'^','MarkerFaceColor','k','MarkerSize',psize);
     end

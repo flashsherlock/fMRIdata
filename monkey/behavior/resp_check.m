@@ -273,6 +273,7 @@ if ~isempty(handles.filename)
     set(handles.currentnum,'String','1');
     handles.curchan=get(handles.channel,'Value');    
     handles.curp='';
+    handles.ptype='change';
     % plot
     plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
 end
@@ -369,42 +370,17 @@ function clear_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %
-% clear the current respiration
-% delete temporarily by changing the forth column
-handles.points(handles.plotnum,4)=0;
-temp=handles.tempdata;
-temp(:,3)=transmat(handles.points,length(handles.tempdata(:,3)));
-% deal with the end
-if handles.plotnum==handles.resnum
-   currentnum=handles.plotnum-1;
+% clear chosen point
+if get(hObject,'Value')
+    set(handles.add,'Value',0);
+    handles.ptype='clear';
+    set(handles.add,'BackgroundColor',[0.94,0.94,0.94]);
+    set(handles.clear,'BackgroundColor','green');    
 else
-   currentnum=handles.plotnum;
+    handles.ptype='change';
+    set(hObject,'BackgroundColor',[0.94,0.94,0.94]);
 end
-% plot
-plotcurrentnum(temp,currentnum,handles.filename);
 
-% confirmation
-answer=questdlg('Do you confirm？','Clear','Yes','No','No');
-if strcmp(answer,'Yes')
-    % delete the current respiration and update resnum
-    handles.points(handles.plotnum,:)=[];
-    handles.tempdata=temp;
-    handles.resnum=handles.resnum-1;
-    % set resnum
-    set(handles.allnum,'String',handles.resnum);
-    set(handles.position,'Max',handles.resnum);
-    % set currentnum
-    handles.plotnum=currentnum;
-    set(handles.position,'Value',handles.plotnum);
-    set(handles.currentnum,'String',handles.plotnum);
-    % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
-else
-    % restore the respiration
-    handles.points(handles.plotnum,4)=1;
-    % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
-end
 guidata(hObject, handles);
 
 
@@ -415,54 +391,16 @@ function add_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %
 % add a respiration
-% choose the axes
-axes(handles.plot);
-% select three points
-[x,~]=ginput(3);
-x=sort(floor(x));
-points=handles.points(handles.points(:,4)~=0,:);
-% the range of the x axis
-% 考虑第一个和最后一个是不同的
-% deal with the beginning and the end
-if handles.plotnum==1
-    xmin=1;
-    xmax=points(handles.plotnum+1,2);
-elseif handles.plotnum==handles.resnum
-    xmin=points(handles.plotnum-1,2);
-    xmax=length(handles.tempdata(:,1));
+if get(hObject,'Value')
+    set(handles.clear,'Value',0);
+    handles.ptype='add';
+    set(handles.clear,'BackgroundColor',[0.94,0.94,0.94]);
+    set(handles.add,'BackgroundColor','green');    
 else
-    xmin=points(handles.plotnum-1,2);
-    xmax=points(handles.plotnum+1,2);
+    handles.ptype='change';
+    set(hObject,'BackgroundColor',[0.94,0.94,0.94]);
 end
 
-% if the point is in the range
-if all(x>=1) && all(x<=xmax-xmin+1)
-    % calculate the position in the whole data
-    x=xmin+x-1;
-    % transform to a row
-    x=x';
-    % campare the old and the new to set plotnum
-    oldx=points(handles.plotnum,2);
-    % add the points to the end and sortrows by the peaks
-    points(end+1,:)=[x 1];
-    points=sortrows(points,2);
-    handles.points=points;
-    % change matrix to a column
-    handles.tempdata(:,3)=transmat(handles.points,length(handles.tempdata(:,3)));
-    % change resnum, the count of respirations
-    handles.resnum=handles.resnum+1;
-    % ensure to plot the respiration added
-    if x(2)>=oldx
-        handles.plotnum=handles.plotnum+1;
-    end
-    % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
-    % set display
-    set(handles.allnum,'String',handles.resnum);
-    set(handles.position,'Max',handles.resnum);
-    set(handles.position,'Value',handles.plotnum);
-    set(handles.currentnum,'String',handles.plotnum);
-end
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -545,11 +483,13 @@ else
         if channel_resp == c
             color=[0 0.74902 1];
             psize=10;
+            lw=2;
         else
             color=[0.5 0.5 0.5];
             psize=5;
+            lw=1;
         end
-        plot(p_time,p_data(channel_resp,:),'Color',color,'LineWidth',1.5);
+        plot(p_time,p_data(channel_resp,:),'Color',color,'LineWidth',lw);
         hold on;
         onpoint = nan(size(p_data,2),1);
         onpoint(separated{trial_i,2,channel_resp})=p_data(channel_resp,separated{trial_i,2,channel_resp});    
@@ -558,8 +498,10 @@ else
         plot(onpoint,'>','MarkerFaceColor','g','MarkerSize',psize);
         plot(offpoint,'^','MarkerFaceColor','k','MarkerSize',psize);
     end
-    if ~isempty(str2num(p))
-        hh=axis;
+    % plot 0
+    hh=axis;
+    plot([hh(1) hh(2)],[0 0],'k--','LineWidth',1)
+    if ~isempty(str2num(p))        
         plot([str2num(p) str2num(p)],[hh(3) hh(4)],'r--','LineWidth',1)
     end
     xlim([p_time(1) p_time(end)]);
@@ -574,53 +516,63 @@ end
 
 % choose respiration point
 function newhandle=choosepoint(handles)
-% choose axes
-axes(handles.plot);
-% select point
-[x,~]=ginput(1);
-% use integer
-x=floor(x);
-% display(x);
-% temporarily store respiration ponts
-points=handles.points(handles.points(:,4)~=0,:);
 
-% if the point is in the range
-if x>=1 && x<=xmax-xmin+1
-    newx=xmin+x-1;
-    % set a range to find min and max
-    range=15;
-    % get the range, min and max
-    left=max(1,newx-range);
-    right=min(length(handles.tempdata(:,3)),newx+range);
-    mindata=min(handles.tempdata(left:right,1));
-    maxdata=max(handles.tempdata(left:right,1));
-    % change one of the three points
-    switch handles.choosetype
-        case 'start'
-            % find last min in the range
-            newx=find(handles.tempdata(left:right,1)==mindata,1,'last');
-            % calculate position in the whole data
-            newx=newx+left-1;
-            % ensure the position is on the left of the peak
-            if newx>=points(handles.plotnum,2)
-                newx=handles.points(handles.plotnum,1);
-            end
-            points(handles.plotnum,1)=newx;
-        case 'stop'
-            % find last min in the range
-            newx=find(handles.tempdata(left:right,1)==mindata,1,'first');
-            % calculate position in the whole data
-            newx=newx+left-1;
-            % ensure the position is on the right of the peak
-            if newx<=points(handles.plotnum,2)
-                newx=handles.points(handles.plotnum,3);
-            end
-            points(handles.plotnum,3)=newx;
+if get(handles.start,'Value')
+    time = 2;
+elseif get(handles.stop,'Value')
+    time = 3;
+else
+    time = 0;
+end
+
+if time~=0
+    points = handles.tempdata{handles.plotnum,time,handles.curchan};
+    data = handles.tempdata{handles.plotnum,1,handles.curchan};
+    % choose axes
+    axes(handles.plot);
+    % select point
+    [x,~]=ginput(1);
+    % use integer
+    x=floor(x);
+    % display(x);
+    xmax = 14000;
+    xmin = 0;
+    % if the point is in the range
+    if x>=1 && x<=xmax-xmin+1
+        newx=xmin+x-1;
+        % set a range to find min and max
+        range=75;
+        % get the range, min and max
+        left=max(1,newx-range);
+        right=min(1+xmax,newx+range);
+        % find zero point
+        if time == 2
+            zero=left-1+find(data(left:right)>0,1,'first')-1;
+        else
+            zero=left-1+find(data(left:right)>0,1,'last')-1;
+        end
+        if ~isempty(zero)
+            newx = zero;
+        end
+        % change points
+        switch handles.ptype
+            case 'change'
+                % delete current point
+                points(points==str2num(handles.curp))=[];
+                % add new
+                points=sort([points newx]);
+            case 'add'
+                if ~ismember(newx,points)
+                    points=sort([points newx]);
+                end
+            case 'clear'
+                points(abs(points-newx)==min(abs(points-newx)))=[];
+        end
+        % change matix to a column
+        handles.tempdata{handles.plotnum,time,handles.curchan}=points;
+        % plot
+        handles=updatepoint(handles);        
     end
-    % change matix to a column
-    handles.tempdata(:,3)=transmat(points,length(handles.tempdata(:,3)));
-    % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
     newhandle=handles;
 end
 
@@ -643,7 +595,7 @@ s = get(handles.data,'String');
 if isempty(s)
     handles.curp = '';
 else
-    set(handles.data,'Value',min([handles.curp,length(s)]));
+    set(handles.data,'Value',min([get(handles.data,'Value'),length(s)]));
     handles.curp = s{get(handles.data,'Value')};
 end
 plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);

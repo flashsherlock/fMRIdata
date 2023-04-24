@@ -87,7 +87,7 @@ switch eventdata.Key
         handles.plotnum=handles.plotnum-1;
         set(handles.currentnum,'String',num2str(handles.plotnum));
         set(handles.position,'Value',handles.plotnum);
-        plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+        plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
         end
     end
     % press f or rightarrow to move right
@@ -97,7 +97,7 @@ switch eventdata.Key
         handles.plotnum=handles.plotnum+1;
         set(handles.currentnum,'String',num2str(handles.plotnum));
         set(handles.position,'Value',handles.plotnum);
-        plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+        plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
         end
     end
     % press v or downarrow to choose point
@@ -144,12 +144,14 @@ if get(hObject,'Value')
     handles.choosetype='start';
     set(handles.choose,'Enable','on');
     set(handles.stop,'BackgroundColor',[0.94,0.94,0.94]);
-    set(handles.start,'BackgroundColor','green');
+    set(handles.start,'BackgroundColor','green');    
 else
     handles.choosetype='';
     set(handles.choose,'Enable','off');
     set(hObject,'BackgroundColor',[0.94,0.94,0.94]);
 end
+handles=updatepoint(handles);
+
 guidata(hObject, handles);
 
 % --- Executes on button press in stop.
@@ -170,8 +172,8 @@ else
     set(handles.choose,'Enable','off');
     set(hObject,'BackgroundColor',[0.94,0.94,0.94]);
 end
+handles=updatepoint(handles);
 guidata(hObject, handles);
-
 
 
 % --- Executes on button press in save.
@@ -181,15 +183,8 @@ function save_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %
 % save data to mat
-% guisave stores unedited respiration points
-guisave=handles.guisave;
-data=handles.tempdata;
-% save the data without smooth
-data(:,1)=handles.nosmooth;
-% save parameters used to find points
-parameters=handles.usepara;
-save([handles.workingpath '/' handles.savename '.mat'],'data','guisave','parameters');
-
+trials=handles.tempdata;
+save(handles.savename,'trials');
 
 
 % --- Executes during object creation, after setting all properties.
@@ -266,19 +261,20 @@ if ~isempty(handles.filename)
     handles.resnum=size(trials,1);
     handles.channum=size(trials,3);
     % channels to be ploted
-    handles.chanplot=1:2;
+    handles.chanplot=1:2;    
     % set the scollbar and textbox
     set(handles.allnum,'String',num2str(handles.resnum));
-    set(handles.channel,'String',num2cell(1:handles.channum));
+    set(handles.channel,'String',num2cell(1:handles.channum));    
     set(handles.position,'Max',handles.resnum);
     set(handles.position,'Value',1);
     set(handles.position,'SliderStep',[1/(handles.resnum-1),1]);
     % plotnum is the position to be ploted
     handles.plotnum=1;
     set(handles.currentnum,'String','1');
+    handles.curchan=get(handles.channel,'Value');    
+    handles.curp='';
     % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
-    
+    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
 end
 guidata(hObject, handles);
 
@@ -293,7 +289,7 @@ if handles.plotnum>1
     handles.plotnum=handles.plotnum-1;
     set(handles.currentnum,'String',num2str(handles.plotnum));
     set(handles.position,'Value',handles.plotnum);
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+    handles=updatepoint(handles);
 end
 guidata(hObject, handles);
 
@@ -308,7 +304,7 @@ if handles.plotnum<handles.resnum
     handles.plotnum=handles.plotnum+1;
     set(handles.currentnum,'String',num2str(handles.plotnum));
     set(handles.position,'Value',handles.plotnum);
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+    handles=updatepoint(handles);
 end
 guidata(hObject, handles);
 
@@ -334,7 +330,7 @@ num=str2num(get(hObject,'String'));
 if num>=1 && num <=handles.resnum
     handles.plotnum=num;
     set(handles.position,'Value',handles.plotnum);
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+    handles=updatepoint(handles);
 else
     set(handles.currentnum,'String',num2str(handles.plotnum));
 end
@@ -350,7 +346,7 @@ function position_Callback(hObject, eventdata, handles)
 handles.plotnum=ceil(get(hObject,'Value'));
 set(handles.position,'Value',handles.plotnum);
 set(handles.currentnum,'String',handles.plotnum);
-plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+handles=updatepoint(handles);
 guidata(hObject, handles);
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
@@ -402,12 +398,12 @@ if strcmp(answer,'Yes')
     set(handles.position,'Value',handles.plotnum);
     set(handles.currentnum,'String',handles.plotnum);
     % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
 else
     % restore the respiration
     handles.points(handles.plotnum,4)=1;
     % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
 end
 guidata(hObject, handles);
 
@@ -460,7 +456,7 @@ if all(x>=1) && all(x<=xmax-xmin+1)
         handles.plotnum=handles.plotnum+1;
     end
     % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
     % set display
     set(handles.allnum,'String',handles.resnum);
     set(handles.position,'Max',handles.resnum);
@@ -484,27 +480,14 @@ function data_Callback(hObject, eventdata, handles)
 %
 % set the listbox
 % if click a file in the listbox enable the load button
-set(handles.load,'Enable','on');
-handles.filename=get(hObject,'String');
-if ~isempty(handles.filename)
-    handles.filename=handles.filename{get(hObject,'Value')};
-    % find file numbers
-    fnum=length(dir([handles.workingpath,'/',handles.filename(1:end-3) '*']));
-    % if exist two files(acq and mat), set color of the load button to red
-    switch fnum
-        case 1
-            set(handles.load,'BackgroundColor','green');
-        case 2
-            set(handles.load,'BackgroundColor','red');
-    end
-    % check if the mat file was saved by the gui by guisave
-    if strcmp(handles.datatype,'mat')
-        load([handles.workingpath,'/',handles.filename]);
-        if ~exist('guisave','var')
-            set(handles.load,'Enable','off');
-        end
-    end
+s = get(hObject,'String');
+if isempty(s)
+    handles.curp = '';
+else
+    handles.curp = s{get(hObject,'Value')};
 end
+plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
+
 guidata(hObject, handles);
 % Hints: contents = cellstr(get(hObject,'String')) returns data contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from data
@@ -527,7 +510,9 @@ function channel_Callback(hObject, eventdata, handles)
 % hObject    handle to channel (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+handles=updatepoint(handles);
 
+guidata(hObject, handles);
 % Hints: contents = cellstr(get(hObject,'String')) returns channel contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from channel
 
@@ -547,24 +532,35 @@ end
 
 %% other functions
 % plot current data
-function plotcurrentnum(separated,chan)
+function plotcurrentnum(separated,chan,c,p)
+% c and p are channel and point that currently edit
 trial_i = 1;
 p_data = cat(1,separated{trial_i,1,chan});
 p_time = (1:size(p_data,2))-1;
 if size(p_data,1)<length(chan)
     plot([1,-1;-1,1],'Color','k')
 else
-    % plot inhalation
-    color=[0.5 0.5 0.5;0 0.74902 1];
+    % plot inhalation    
     for channel_resp = chan
-        plot(p_time,p_data(channel_resp,:),'Color',color(channel_resp,:),'LineWidth',1.5);
+        if channel_resp == c
+            color=[0 0.74902 1];
+            psize=10;
+        else
+            color=[0.5 0.5 0.5];
+            psize=5;
+        end
+        plot(p_time,p_data(channel_resp,:),'Color',color,'LineWidth',1.5);
         hold on;
         onpoint = nan(size(p_data,2),1);
         onpoint(separated{trial_i,2,channel_resp})=p_data(channel_resp,separated{trial_i,2,channel_resp});    
         offpoint = nan(size(p_data,2),1);
         offpoint(separated{trial_i,3,channel_resp})=p_data(channel_resp,separated{trial_i,3,channel_resp});
-        plot(onpoint,'>','MarkerFaceColor','g','MarkerSize',5*channel_resp);
-        plot(offpoint,'^','MarkerFaceColor','k','MarkerSize',5*channel_resp);
+        plot(onpoint,'>','MarkerFaceColor','g','MarkerSize',psize);
+        plot(offpoint,'^','MarkerFaceColor','k','MarkerSize',psize);
+    end
+    if ~isempty(str2num(p))
+        hh=axis;
+        plot([str2num(p) str2num(p)],[hh(3) hh(4)],'r--','LineWidth',1)
     end
     xlim([p_time(1) p_time(end)]);
     % set major tick
@@ -624,9 +620,36 @@ if x>=1 && x<=xmax-xmin+1
     % change matix to a column
     handles.tempdata(:,3)=transmat(points,length(handles.tempdata(:,3)));
     % plot
-    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot);
+    plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
     newhandle=handles;
 end
+
+% update points
+function newhandle=updatepoint(handles)
+if get(handles.start,'Value')
+    time = 2;
+elseif get(handles.stop,'Value')
+    time = 3;
+else
+    time = 0;
+end
+handles.curchan = get(handles.channel,'Value');
+if time~=0
+    set(handles.data,'String',num2cell(handles.tempdata{handles.plotnum,time,handles.curchan}));
+else
+    set(handles.data,'String','');
+end
+s = get(handles.data,'String');
+if isempty(s)
+    handles.curp = '';
+else
+    set(handles.data,'Value',min([handles.curp,length(s)]));
+    handles.curp = s{get(handles.data,'Value')};
+end
+plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
+newhandle = handles;
+
+
 
 % set button status
 function newhandle=setbuttons(handles,status)

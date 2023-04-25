@@ -41,18 +41,21 @@ for  d = 1:size(results,1)
     end    
     
 end
+save([data_dir 'trials.mat'],'trials')
+%% check resp manually
+resp_check()
+load([data_dir 'trials_edited.mat'])
+%%  analyze average
 trials_find = resp_find(trials);
 separated = resp_analyze(trials_find);
-save([data_dir 'trials.mat'],'trials','separated')
-%%  analyze average
 nchan = length(unique(cell2mat(separated(:,5))));
 avg = cell(nchan,2);
 for chan_i = 1:nchan    
-    trials = unique(cell2mat(separated(cell2mat(separated(:,5))==chan_i,12)))';
-    ntrial = length(trials);    
+    trial = unique(cell2mat(separated(cell2mat(separated(:,5))==chan_i,12)))';
+    ntrial = length(trial);    
     trials_air = cell(ntrial,7);
     trials_odor = cell(ntrial,7);
-    for trial_i = trials
+    for trial_i = trial
         % select data
         idx = cell2mat(separated(:,5))==chan_i & cell2mat(separated(:,12))==trial_i; %& cell2mat(separated(:,3))<=2;
         data = separated(idx,:);
@@ -71,7 +74,12 @@ for chan_i = 1:nchan
                 trials_odor{trial_i, col} = mean(cell2mat(data(cell2mat(data(:,2))==2,col+4)),1);
                 % normalize by air
                 if ismember(col,[2])
+                    % max-min
                     trials_odor{trial_i, col} = trials_odor{trial_i, col} / (max(trials_air{trial_i, col})-min(trials_air{trial_i, col}));
+                    % max
+                    % trials_odor{trial_i, col} = trials_odor{trial_i, col} / (max(trials_air{trial_i, col}));
+                    % sum
+                    % trials_odor{trial_i, col} = trials_odor{trial_i, col} / (sum(trials_air{trial_i, col}));
                 else
                     trials_odor{trial_i, col} = (trials_odor{trial_i, col} - trials_air{trial_i, col})./trials_air{trial_i, col};
                 end

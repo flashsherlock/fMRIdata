@@ -34,9 +34,9 @@ workingpath='/Volumes/WD_D/gufei/monkey_data/respiratory/adinstrument';
 % set workingpath
 set(handles.path,'String',workingpath);
 handles.workingpath=workingpath;
-if exist([handles.workingpath filesep 'trials.mat'],'file')
-    % the first file is default file
-    handles.filename=[handles.workingpath filesep 'trials.mat'];
+% the first file is default file
+handles.filename=[handles.workingpath filesep get(handles.matname,'String') '.mat'];
+if exist(handles.filename,'file')    
     set(handles.load,'Enable','on');
 else
     set(handles.load,'Enable','off');
@@ -211,8 +211,6 @@ function path_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to path (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -224,9 +222,9 @@ function path_Callback(hObject, eventdata, handles)
 %
 % set path by txt
 handles.workingpath=get(hObject,'String');
-if exist([handles.workingpath filesep 'trials.mat'],'file')
-    % the first file is default file
-    handles.filename=[handles.workingpath filesep 'trials.mat'];
+% the first file is default file
+handles.filename=[handles.workingpath filesep get(handles.matname,'String') '.mat'];
+if exist(handles.filename,'file')    
     set(handles.load,'Enable','on');
 else
     set(handles.load,'Enable','off');
@@ -248,10 +246,9 @@ if temp~=0
     % set path
     handles.workingpath=temp;
     set(handles.path,'String',handles.workingpath);
-    % filename
-    if exist([handles.workingpath filesep 'trials.mat'],'file')
-        % the first file is default file
-        handles.filename=[handles.workingpath filesep 'trials.mat'];
+    % the first file is default file
+    handles.filename=[handles.workingpath filesep get(handles.matname,'String') '.mat'];
+    if exist(handles.filename,'file')    
         set(handles.load,'Enable','on');
     else
         set(handles.load,'Enable','off');
@@ -275,7 +272,13 @@ if ~isempty(handles.filename)
     % enable buttons
     handles=setbuttons(handles,'on');
     % set name of the file to be saved
-    handles.savename=[handles.filename(1:end-4) '_edited.mat'];
+    handles.savename=strrep(handles.filename,get(handles.matname,'String'),get(handles.sname,'String'));
+    % check if the file already exist
+    if exist(handles.savename,'file')
+        set(handles.save,'BackgroundColor','red');
+    else
+        set(handles.save,'BackgroundColor','green');
+    end
     % find the number of trials
     handles.resnum=size(trials,1);
     handles.channum=size(trials,3);
@@ -334,8 +337,8 @@ function currentnum_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 %
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
+
+
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -456,8 +459,6 @@ function data_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -486,6 +487,60 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+
+function sname_Callback(hObject, eventdata, handles)
+% hObject    handle to sname (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% deal with empty input
+if isempty(get(hObject,'String'))
+    set(handles.sname,'String','trials_edited');
+end
+% set name of the file to be saved
+handles.savename=strrep(handles.filename,get(handles.matname,'String'),get(handles.sname,'String'));
+% check if the file already exist
+if exist(handles.savename,'file')
+    set(handles.save,'BackgroundColor','red');
+else
+    set(handles.save,'BackgroundColor','green');
+end
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function sname_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sname (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function matname_Callback(hObject, eventdata, handles)
+% hObject    handle to matname (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if isempty(get(hObject,'String'))
+    set(handles.matname,'String','trials');
+end
+handles.filename=[handles.workingpath filesep get(hObject,'String') '.mat'];
+if exist(handles.filename,'file')    
+    set(handles.load,'Enable','on');
+else
+    set(handles.load,'Enable','off');
+end
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function matname_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to matname (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 %% other functions
 % plot current data
@@ -620,8 +675,6 @@ end
 plotcurrentnum(handles.tempdata(handles.plotnum,:,:),handles.chanplot,handles.curchan,handles.curp);
 newhandle = handles;
 
-
-
 % set button status
 function newhandle=setbuttons(handles,status)
 set(handles.clear,'Enable',status);
@@ -634,4 +687,5 @@ set(handles.left,'Enable',status);
 set(handles.right,'Enable',status);
 set(handles.currentnum,'Enable',status);
 set(handles.allnum,'Enable',status);
+set(handles.sname,'Enable',status);
 newhandle=handles;

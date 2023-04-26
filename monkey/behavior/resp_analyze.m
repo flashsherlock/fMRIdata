@@ -42,6 +42,9 @@ for resp_i = 1:size(separated,1)
     % set min resp to 0
     resp = separated{resp_i,4};
     resp = resp-min(resp);
+    % resp = resp-min(resp(1),resp(end)]);
+    % resp(resp<0)=0;
+    separated{resp_i,4} = resp;    
     % AUC
     separated{resp_i,7} = sum(resp)/srate;
     % duration

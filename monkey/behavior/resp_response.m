@@ -47,6 +47,8 @@ resp_check()
 load([data_dir 'trials_edited.mat'])
 %%  analyze average
 trials_find = resp_find(trials);
+% trials_find = trials_find(cellfun(@(x) ismember(x,{'0316','0412'}),trials_find(:,end)),:);
+trials_find = trials_find(cellfun(@(x) ismember(x,{'0414'}),trials_find(:,end)),:,:);
 separated = resp_analyze(trials_find);
 nchan = length(unique(cell2mat(separated(:,5))));
 avg = cell(nchan,2);
@@ -94,9 +96,9 @@ colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E1
 for chan_i = 1%1:nchan 
     data = avg{chan_i,2};
     for con_i=1:5
-        resp4s(con_i,:) = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,2)),1,1.65);
-        inhale(con_i,:) = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,7)),1,1.65);
-        param(con_i,:) = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,3:6)),1,1.65);
+        [resp4s(con_i,:), datresp{con_i}] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,2)),1,1.65);
+        [inhale(con_i,:), datin{con_i}] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,7)),1,1.65);
+        [param(con_i,:), datpm{con_i}] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,3:6)),1,1.65);
     end
     figure('position',[40,40,600,300]);
     r4 = plot(resp4s(1:5,:)','LineWidth',2);
@@ -114,9 +116,9 @@ for chan_i = 1%1:nchan
         else
             odors = [4 5];
         end
-        [resp4s(con_i,:), datresp{con_i-5}]= outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),2)),1,1.65);
-        [inhale(con_i,:), datin{con_i-5}]= outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),7)),1,1.65);
-        [param(con_i,:), datpm{con_i-5}]= outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),3:6)),1,1.65);
+        [resp4s(con_i,:), datresp{con_i}] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),2)),1,1.65);
+        [inhale(con_i,:), datin{con_i}] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),7)),1,1.65);
+        [param(con_i,:), datpm{con_i}] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),3:6)),1,1.65);
     end
     figure('position',[40,40,600,300]);
     r4 = plot(resp4s(6:7,:)','LineWidth',2);
@@ -129,8 +131,13 @@ for chan_i = 1%1:nchan
     end
     % ttest
     for i = 1:4
-        [h,p,ci,stats]=ttest2(datpm{1}(:,i),datpm{2}(:,i));
-        disp(p)
+            [~,p,~,~]=ttest2(datpm{6}(:,i),datpm{7}(:,i));
+            disp(p)
     end
-    
+    for con_i=1:7
+        for i = 1:4
+            [~,ps(con_i,i),~,~]=ttest(datpm{con_i}(:,i));        
+        end
+    end
+    disp([param,ps])
 end

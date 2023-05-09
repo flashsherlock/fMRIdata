@@ -47,8 +47,9 @@ resp_check()
 load([data_dir 'trials_edited.mat'])
 %%  analyze average
 trials_find = resp_find(trials);
+% select monkey by date
 % trials_find = trials_find(cellfun(@(x) ismember(x,{'0316','0412'}),trials_find(:,end)),:);
-trials_find = trials_find(cellfun(@(x) ismember(x,{'0414'}),trials_find(:,end)),:,:);
+% trials_find = trials_find(cellfun(@(x) ismember(x,{'0414'}),trials_find(:,end)),:,:);
 separated = resp_analyze(trials_find);
 nchan = length(unique(cell2mat(separated(:,5))));
 avg = cell(nchan,2);
@@ -65,24 +66,29 @@ for chan_i = 1:nchan
         trials_air{trial_i, 1} = data{1,1};
         trials_odor{trial_i, 1} = data{1,1};
         for col = 2:7
+            % air
             if isempty(cell2mat(data(cell2mat(data(:,2))==1,col+4)))
+                % deal with empty cells
                 trials_air{trial_i, col} = [];
             else
                 trials_air{trial_i, col} = mean(cell2mat(data(cell2mat(data(:,2))==1,col+4)),1);
             end
+            % odor
             if isempty(cell2mat(data(cell2mat(data(:,2))==2,col+4))) || isempty(trials_air{trial_i, col})
+                % deal with empty cells
                 trials_odor{trial_i, col} = [];
             else
                 trials_odor{trial_i, col} = mean(cell2mat(data(cell2mat(data(:,2))==2,col+4)),1);
                 % normalize by air
                 if ismember(col,[2])
-                    % max-min
+                    % normalization for 4s resp
                     trials_odor{trial_i, col} = trials_odor{trial_i, col} / (max(trials_air{trial_i, col})-min(trials_air{trial_i, col}));
                     % max
                     % trials_odor{trial_i, col} = trials_odor{trial_i, col} / (max(trials_air{trial_i, col}));
                     % sum
                     % trials_odor{trial_i, col} = trials_odor{trial_i, col} / (sum(trials_air{trial_i, col}));
                 else
+                    % normalization for other parameters
                     trials_odor{trial_i, col} = (trials_odor{trial_i, col} - trials_air{trial_i, col})./trials_air{trial_i, col};
                 end
             end
@@ -93,7 +99,8 @@ for chan_i = 1:nchan
 end
 %% average by condition
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D','#B2B2B2'};
-for chan_i = 1%1:nchan 
+% channel 1-temperature 2-airflow
+for chan_i = 1:nchan 
     data = avg{chan_i,2};
     for con_i=1:5
         [resp4s(con_i,:), datresp{con_i}] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,2)),1,1.65);
@@ -131,11 +138,13 @@ for chan_i = 1%1:nchan
     end
     % ttest
     for i = 1:4
+            % compare pleasant and unpleasant
             [~,p,~,~]=ttest2(datpm{6}(:,i),datpm{7}(:,i));
             disp(p)
     end
     for con_i=1:7
         for i = 1:4
+            % compare with 0
             [~,ps(con_i,i),~,~]=ttest(datpm{con_i}(:,i));        
         end
     end

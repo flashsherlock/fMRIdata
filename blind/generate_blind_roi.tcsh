@@ -1,6 +1,6 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 1 4`)
+foreach ub (`count -dig 2 5 7`)
 set sub=S${ub}
 set analysis=pade
 

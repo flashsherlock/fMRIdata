@@ -17,7 +17,7 @@ age = cellfun(@(x,y) calyears(between(x,y,'years')),t2,t1);
 sex = num(select_sub,9);
 nsub = length(select_sub);
 subinfo = [select_sub' sex age];
-% ratings for 6 odors
+% ratings for 6 odors 48-65
 ratings = reshape(num(select_sub,48:65),nsub,3,[]);
 % intensity
 intensity = squeeze(ratings(:,2,:));
@@ -25,3 +25,9 @@ intensity = squeeze(ratings(:,2,:));
 odors = {'pin', 'app', 'ros', 'min', 'ind', 'gas'};
 avg = squeeze(mean(ratings,1));
 disp([{'';'valence';'intensity';'familiarity'},[odors;num2cell(avg)]])
+% odor awareness 14-43 46
+num(8:10,44:47) = 6-num(8:10,44:47);% fix mistakes
+% recode importance
+num(:,44:47) = 6-num(:,44:47);
+aware = sum(num(select_sub,[14:43 46]),2);
+results = [subinfo aware num(select_sub,48:65)];

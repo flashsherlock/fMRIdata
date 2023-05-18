@@ -33,3 +33,6 @@ Plot time course.
 
 ## results_blind_render.R
 Render results.
+
+## questionnaires.m
+Analyze odor awareness and ratings.

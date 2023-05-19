@@ -100,10 +100,4 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
     -nzmean ${data_tent}"[`seq -s , 1 103`104]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
 end
 
-# normalize Anatomical img to mni space (linear warp)
-@auto_tlrc -no_ss -init_xform AUTO_CENTER -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${subj}+orig
-
-# align to nomalized Anatomical img
-@auto_tlrc -apar anat_final.${subj}+tlrc -input stats.${subj}+orig
-
 end

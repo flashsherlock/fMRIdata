@@ -34,11 +34,26 @@ cd ${sub}.${analysis}.results
 
 # transform occipital mask
 set mask=/Volumes/WD_F/gufei/blind/ProbAtlas_v4/subj_vol_all/maxprob_vol.nii
+# affine warp
+# rm visual_area+*
 cat_matvec ./anat_final.${sub}.${analysis}.Xaff12.1D -I > ./anat_final.${sub}.${analysis}.inv.1D
 3dAllineate -input ${mask}                                                  \
             -master ./pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD          \
             -final NN                                                       \
             -prefix ./visual_area                                           \
             -1Dmatrix_apply ./anat_final.${sub}.${analysis}.inv.1D
+# nonlinear warp
+# rm visual_area_nl+*
+3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+             -source ${mask}                                                                      \
+             -interp NN                                                               \
+             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+             -prefix visual_area_nl
+# the -iwarp option is slower and may fail to converge
+# 3dNwarpApply -iwarp -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
+#              -source ${mask}                                                                      \
+#              -interp NN                                                               \
+#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+#              -prefix visual_area_nl
 
 end

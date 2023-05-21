@@ -1,6 +1,6 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 1 1`)
+foreach ub (`count -dig 2 2 10`)
 set sub=S${ub}
 set analysis=pade
 
@@ -55,5 +55,10 @@ cat_matvec ./anat_final.${sub}.${analysis}.Xaff12.1D -I > ./anat_final.${sub}.${
 #              -interp NN                                                               \
 #              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
 #              -prefix visual_area_nl
+# creat V1-V3
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2)' -prefix ../mask/V1+orig
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,3,4)' -prefix ../mask/V2+orig
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,5,6)' -prefix ../mask/V3+orig
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2,3,4,5,6)' -prefix ../mask/EarlyV+orig
 
 end

@@ -2,8 +2,8 @@
 output: html_document
 params:
     path: "/Volumes/WD_F/gufei/blind/"
-    roi: !r c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
-    roiname: !r c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
+    roi: !r c('Amy8_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165','EarlyV_at165','V1_at165','V2_at165','V3_at165')
+    roiname: !r c("Amy","Pir_new","Pir_old","APC_new","APC_old","PPC","EarlyV","V1","V2","V3")
     sub: !r c(sprintf('S%02d',c(1:4)))
     suffix: "_tent_12.txt"
 title: "ROIs"
@@ -18,7 +18,7 @@ date: "`r Sys.time()`"
 </style>
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(warning = T, message = F, cache = TRUE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+knitr::opts_chunk$set(warning = T, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
 library(bruceR)
 library(psych)
 library(ggplot2)
@@ -39,7 +39,7 @@ ggthemr('fresh',layout = "clean")
 # array of odors
 odors <- c("gas","ind","ros","pin","app","min","fru","flo")
 pd <- position_dodge(0)
-roi_color <- c("#4884b5","#cf3f4f","#c53cf8","#159515","#ddf9a6","#e89223","#143c78","#fafa30","#2dcda5")
+roi_color <- c("#1F78B4", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6", "#00441B", "#A1D99B", "#41AB5D", "#006D2C")
 gf_color <- c("#412d21", "#777DDD", "#cf7ced", "#ECB556", "#dc0922", "#4292C6", "#e45869", "#41AB5D")
 pd <- position_dodge(0.1)
 ##################################################
@@ -249,8 +249,8 @@ figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) +
   scale_y_continuous(expand = c(0,0))+
   coord_cartesian(ylim=c(min(roi_tent$mean)-0.1,max(roi_tent$mean+0.1)),
                   clip = 'off') + 
-  scale_color_brewer(palette = "Paired")+ #自选颜色
-  scale_fill_brewer(palette = "Paired")+ #自选颜色
+  scale_color_manual(values = roi_color)+ #自选颜色
+  scale_fill_manual(values = roi_color)+ #自选颜色
   scale_x_discrete(expand = c(0,0))+
   geom_line(position = pd) +
   geom_hline(yintercept=0, linetype="dotted")+

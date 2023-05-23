@@ -2,7 +2,7 @@
 path <- "/Volumes/WD_F/gufei/blind/"
 analysis <- c("pade")
 # subs
-subs <- c(sprintf('S%02d',c(2:4,6:10)))
+subs <- c(sprintf('S%02d',c(2:4,6:13)))
 # rois
 # roi <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
 # roiname <- c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")

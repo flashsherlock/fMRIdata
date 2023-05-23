@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 # for subs from 01 to 04
-foreach ub (`count -dig 2 1 10`)
+foreach ub (`count -dig 2 11 13`)
 set sub=S${ub}
 set datafolder=/Volumes/WD_F/gufei/blind/${sub}
 cd "${datafolder}"

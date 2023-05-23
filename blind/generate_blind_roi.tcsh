@@ -1,6 +1,6 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 2 10`)
+foreach ub (`count -dig 2 11 13`)
 set sub=S${ub}
 set analysis=pade
 
@@ -10,27 +10,27 @@ cd "${datafolder}"
 cd ${sub}.${analysis}.results
 
 # resample Piriform mask
-# 3dresample  -input COPY_anat_final.${sub}.${analysis}+orig      \
-#             -master vr_base_min_outlier+orig               \
-#             -rmode NN                                           \
-#             -prefix Piriform.seg
-# # creat piriform mask and remove voxels in Amy
-# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22,29)*iszero(b)' -prefix ../mask/Pir_new.draw+orig
-# # creat old piriform mask
-# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22)*iszero(b)' -prefix ../mask/Pir_old.draw+orig
-# # create APC_new
-# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,29)*iszero(b)' -prefix ../mask/APC_new.draw+orig
-# # create APC_old
-# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21)*iszero(b)' -prefix ../mask/APC_old.draw+orig
-# # creat PPC
-# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,22)*iszero(b)' -prefix ../mask/PPC.draw+orig
-# # move Piriform.seg to mask folder
-# mv Piriform.seg* ../mask
+3dresample  -input COPY_anat_final.${sub}.${analysis}+orig      \
+            -master vr_base_min_outlier+orig               \
+            -rmode NN                                           \
+            -prefix Piriform.seg
+# creat piriform mask and remove voxels in Amy
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22,29)*iszero(b)' -prefix ../mask/Pir_new.draw+orig
+# creat old piriform mask
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22)*iszero(b)' -prefix ../mask/Pir_old.draw+orig
+# create APC_new
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,29)*iszero(b)' -prefix ../mask/APC_new.draw+orig
+# create APC_old
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21)*iszero(b)' -prefix ../mask/APC_old.draw+orig
+# creat PPC
+3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,22)*iszero(b)' -prefix ../mask/PPC.draw+orig
+# move Piriform.seg to mask folder
+mv Piriform.seg* ../mask
 
-# # normalize Anatomical img to mni space (linear warp)
-# @auto_tlrc -no_ss -init_xform AUTO_CENTER -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${subj}+orig
-# # align to nomalized Anatomical img
-# @auto_tlrc -apar anat_final.${subj}+tlrc -input stats.${subj}+orig
+# normalize Anatomical img to mni space (linear warp)
+@auto_tlrc -no_ss -init_xform AUTO_CENTER -maxite 500 -base ~/abin/MNI152_T1_2009c+tlrc. -input anat_final.${sub}.${analysis}+orig
+# align to nomalized Anatomical img
+@auto_tlrc -apar anat_final.${sub}.${analysis}+tlrc -input stats.${sub}.${analysis}+orig
 
 # transform occipital mask
 set mask=/Volumes/WD_F/gufei/blind/ProbAtlas_v4/subj_vol_all/maxprob_vol.nii

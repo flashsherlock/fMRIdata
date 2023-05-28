@@ -11,14 +11,11 @@ function decoding_roi_8odors(sub,analysis_all,rois,shift)
 % addpath('$ADD FULL PATH TO TOOLBOX AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 % addpath('$ADD FULL PATH TO AFNI_MATLAB AS STRING OR MAKE THIS LINE A COMMENT IF IT IS ALREADY$')
 
-datafolder='/Volumes/WD_F/gufei/7T_odor/';
-% analysis_all={'pabiode','paphde','pade'};
+datafolder='/Volumes/WD_F/gufei/blind/';
 % time shift for peak response
 % shift=6;
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
-    % Amy_seg starts from 7
-    % Amy_align stars from 16
 for i=1:length(rois)
     roi=rois{i};
     mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
@@ -33,9 +30,9 @@ for i=1:length(rois)
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
     test=['8odors_' roi];
-
+    
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_select50base_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_odor_shift' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -48,36 +45,28 @@ for i=1:length(rois)
     % tr stores all the timing information
     tr = [];
     for shift_i=1:length(shift)
-        timing=findtrs(shift(shift_i),sub);
-        % Full path to file names (1xn cell array) (e.g.
-        % {'c:\exp\glm\model_button\im1.nii', 'c:\exp\glm\model_button\im2.nii', ... }
+        timing=blind_findtrs(shift(shift_i),sub);
         % lim tra car cit
         tr = [tr;timing];
-        numtr=6*6*5;
+        numtr=4*6*8;
         F=cell(1,numtr);
         for subi = 1:numtr
             t=timing(subi,2);
-            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
-            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
-            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odor_noblur+orig.BRIK,' num2str(t)];
         end
         cfg.files.name = [cfg.files.name F];
         % and the other two fields if you use a make_design function (e.g. make_design_cv)
         %
         % (1) a nx1 vector to indicate what data you want to keep together for 
         % cross-validation (typically runs, so enter run numbers)
-        % each run is a chunk
-        % cfg.files.chunk = reshape(repmat(1:6,[8 4]),[numtr 1]);
         % each trial is a chunk
-%         cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1 + 36 * (shift_i - 1):shift_i * 36, [1 5]), [numtr 1])];
-        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:36, [1 5]), [numtr 1])];
+        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:24, [1 8]), [numtr 1])];
         %
         % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
         % label number (i.e. a nx1 vector)
-        % 1-lim 2-tra 3-car 4-cit
-        cfg.files.label = [cfg.files.label;reshape(repmat([1 2 3 4 5], [36 1]), [numtr 1])];
+        cfg.files.label = [cfg.files.label;reshape(repmat(1:8, [24 1]), [numtr 1])];
         % cfg.files.label = timing(:, 1);
-        cfg.files.labelname = [cfg.files.labelname;reshape(repmat({'lim' 'tra' 'car' 'cit' 'ind'}, [36 1]), [numtr 1])];
+        cfg.files.labelname = [cfg.files.labelname;reshape(repmat({'gas','ind','ros','pin','app','min','fru','flo'}, [24 1]), [numtr 1])];
     end
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
@@ -93,7 +82,7 @@ for i=1:length(rois)
     % detailed version of it). Then you set:
 
     % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
-    cfg.results.output = {'confusion_matrix','predicted_labels','true_labels','model_parameters'};
+    cfg.results.output = {'confusion_matrix','predicted_labels','true_labels'};
 
     % You can also use all methods that start with "transres_", e.g. use
     %   cfg.results.output = {'SVM_pattern'};
@@ -118,7 +107,6 @@ for i=1:length(rois)
        else
            passed_data.data = squeeze(mean(passed_data.data, 2));       
        end
-       % passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
        % change design
        cfg.files.name = cfg.files.name(1:nsample/length(shift));
        cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift));
@@ -129,16 +117,7 @@ for i=1:length(rois)
        cfg.files.label = cfg.files.label(1:nsample/length(shift));
        cfg.files.labelname = cfg.files.labelname(1:nsample/length(shift));
        passed_data.files.name = passed_data.files.name(1:nsample/length(shift));
-    else
-       passed_data.data = [passed_data.data tr(:,[3 4])];
     end
-    % select voxels
-    voxel_num=50;
-    [passed_data.data, perw] = select_voxel(passed_data.data',voxel_num);
-    passed_data.data = passed_data.data';
-    [~,index]=sort(perw,'ascend');
-    passed_data.mask_index = passed_data.mask_index(index(1:min(voxel_num,length(passed_data.mask_index))));
-    passed_data.mask_each = {passed_data.mask_index};
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
     % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');

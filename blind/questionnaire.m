@@ -1,5 +1,5 @@
 data_dir = '/Volumes/WD_F/gufei/blind/';
-[num,txt,raw]=xlsread([data_dir 'question_10.xlsx'],'Sheet1');
+[num,txt,raw]=xlsread([data_dir 'question.xlsx'],'Sheet1');
 % sort by id
 [subs, idx]= sort(txt(2:end,7));
 num = num(idx,:);
@@ -21,10 +21,16 @@ subinfo = [select_sub' sex age];
 ratings = reshape(num(select_sub,48:65),nsub,3,[]);
 % intensity
 intensity = squeeze(ratings(:,2,:));
+% repeated measures anova for odors 1-6
+t = table(select_sub',intensity(:,1),intensity(:,2),intensity(:,3),intensity(:,4),intensity(:,5),intensity(:,6),...
+    'VariableNames',{'sub','pin','app','ros','min','ind','gas'});
+rm = fitrm(t,'pin-gas~1','WithinDesign',table([1:6]','VariableNames',{'odorIntensity'}));
+ranovatbl = ranova(rm);
 % (val int fam) x (pin app ros min ind gas)
 odors = {'pin', 'app', 'ros', 'min', 'ind', 'gas'};
 avg = squeeze(mean(ratings,1));
 disp([{'';'valence';'intensity';'familiarity'},[odors;num2cell(avg)]])
+disp(ranovatbl)
 % odor awareness 14-43 46
 num(8:10,44:47) = 6-num(8:10,44:47);% fix mistakes
 % recode importance

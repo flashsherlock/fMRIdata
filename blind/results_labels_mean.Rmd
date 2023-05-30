@@ -346,6 +346,52 @@ for (ana in analysis) {
                       position=position_dodge(.9))+
         theme_prism(base_line_size = 0.5)
       print(figure)
+      
+      # average odor conditions for each subject
+      acc2odor_r <- subset(acc2odor,phy == ana)
+      # a list for new variable name and conditions to be averaged
+      newvar <- list("fruflo_val"=c("gas_fru","gas_flo","gas_ros","gas_pin","gas_app","gas_min",
+                                    "ind_ros","ind_pin","ind_app","ind_min","ind_fru","ind_flo"),
+                     "valence"=c("gas_ros","gas_pin","gas_app","gas_min","ind_ros","ind_pin","ind_app","ind_min"),
+                     "fruflo_b"=c("fru_flo","ros_fru","min_fru","pin_flo","app_flo",
+                                  "ros_pin","ros_app","pin_min","app_min"),
+                     "between"=c("ros_pin","ros_app","pin_min","app_min"),
+                     "fruflo_w"=c("pin_fru","app_fru","ros_flo","min_flo","pin_app","pros_min"),
+                     "within"=c("pin_app","ros_min"),"fruflo"=c("fru_flo"),"all"=pairs)
+      # subset newvar valence between within
+      newvar <- newvar[c("valence","between","within")]
+      concolor <- brewer.pal(10, "Paired")
+      # agerage conditoins to new dataframe datachosen
+      datachosen <- data.frame(matrix(ncol = 4, nrow = 0))
+      for (v in names(newvar)){
+        # average acc in conditions according to newvar for each subject
+        datachosen <- rbind(datachosen,acc2odor_r %>%
+            filter(odor %in% paste0("2odors_",newvar[[v]])) %>%
+            group_by(sub,roi) %>% 
+            dplyr::summarise(acc = mean(acc), .groups = "drop") %>%
+            mutate(odor = v))
+      }
+      # describe
+      datachosen <- describeBy(datachosen$acc,list(datachosen$odor,datachosen$roi),mat=T)
+      datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+      names(datachosen) <- c("odor","roi","mean","se")
+      datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi))
+      datachosen <- mutate(datachosen,odor = factor(odor,levels=names(newvar),
+                                                    labels = names(newvar)))
+      # plot
+      figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=odor)) + 
+        labs(title = paste(m,ana,sep = "_") ,x='ROI',y='ACC',fill='Odor')+#设置坐标轴
+        geom_bar(position="dodge", stat="identity") +
+        coord_cartesian(ylim=c(0,100)) +
+        scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
+        scale_x_discrete(labels=roiname)+
+        geom_hline(yintercept=c(50), linetype="dotted")+
+        # scale_fill_brewer(palette = "Paired")+ #颜色
+        scale_fill_manual(values = concolor[c(2,4,8)])+
+        geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                      position=position_dodge(.9))+
+        theme_prism(base_line_size = 0.5)
+      print(figure)
     }
   }
 # plotly_plots

@@ -5,7 +5,7 @@ params:
     sub: !r c(sprintf('S%02d', c(2:4,6:13)))
     analysis: "pade"
     mvpa_pattern: "roi_odor_shift6"
-    roi: !r c('Amy8_align','Pir_new','Pir_old','APC_new','APC_old','PPC','EarlyV','V1','V2','V3')
+    roi: !r c('Amy8_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165','EarlyV_at165','V1_at165','V2_at165','V3_at165')
     roiname: !r c("Amy","Pir_new","Pir_old","APC_new","APC_old","PPC","EarlyV","V1","V2","V3")
     set_title: "Decoding_mean"
 title: "`r params$set_title`"
@@ -362,17 +362,17 @@ for (ana in analysis) {
       newvar <- newvar[c("valence","between","within")]
       concolor <- brewer.pal(10, "Paired")
       # agerage conditoins to new dataframe datachosen
-      datachosen <- data.frame(matrix(ncol = 4, nrow = 0))
+      datasub <- data.frame(matrix(ncol = 4, nrow = 0))
       for (v in names(newvar)){
         # average acc in conditions according to newvar for each subject
-        datachosen <- rbind(datachosen,acc2odor_r %>%
+        datasub <- rbind(datasub,acc2odor_r %>%
             filter(odor %in% paste0("2odors_",newvar[[v]])) %>%
             group_by(sub,roi) %>% 
             dplyr::summarise(acc = mean(acc), .groups = "drop") %>%
             mutate(odor = v))
       }
       # describe
-      datachosen <- describeBy(datachosen$acc,list(datachosen$odor,datachosen$roi),mat=T)
+      datachosen <- describeBy(datasub$acc,list(datasub$odor,datasub$roi),mat=T)
       datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
       names(datachosen) <- c("odor","roi","mean","se")
       datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi))
@@ -395,6 +395,14 @@ for (ana in analysis) {
     }
   }
 # plotly_plots
+```
+
+### test within and between
+```{r}
+# anova for within and between
+roiselect <- params$roi[c(1,2,4,6,7)]
+bruceR::MANOVA(subset(datasub,odor%in%c("within","between")&roi%in%roiselect),subID = "sub",dv="acc",within = c("odor","roi")) %>%
+  EMMEANS("odor",by = "roi", p.adjust = "fdr")
 ```
 
 ### accuracy for each run 2 odors

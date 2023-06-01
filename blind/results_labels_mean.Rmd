@@ -81,8 +81,19 @@ readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
   }
   return(data)
 }
-
-
+# function for scatter plot
+plot_scatter <- function(plotdata,xlab,ylab){
+    ggscatter(plotdata,color = "#4c95c8",
+              x = xlab, y = ylab,alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+              ,fullrange = F)+
+      stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
+               show.legend=F,size=7)+theme_prism(base_size = 20,
+                                          base_family = "Helvetica",
+                                          base_fontface = "plain",
+                                          base_line_size = 0.5,
+                                          base_rect_size = 0.5,)
+}
 ```
 
 # Accuracy_align
@@ -358,8 +369,6 @@ for (ana in analysis) {
                      "between"=c("ros_pin","ros_app","pin_min","app_min"),
                      "fruflo_w"=c("pin_fru","app_fru","ros_flo","min_flo","pin_app","pros_min"),
                      "within"=c("pin_app","ros_min"),"fruflo"=c("fru_flo"),"all"=pairs)
-      # subset newvar valence between within
-      newvar <- newvar[c("valence","between","within")]
       concolor <- brewer.pal(10, "Paired")
       # agerage conditoins to new dataframe datachosen
       datasub <- data.frame(matrix(ncol = 4, nrow = 0))
@@ -378,6 +387,9 @@ for (ana in analysis) {
       datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi))
       datachosen <- mutate(datachosen,odor = factor(odor,levels=names(newvar),
                                                     labels = names(newvar)))
+      # subset newvar valence between within
+      datachosen <- subset(datachosen,odor%in%c("valence","between","within"))
+      # datachosen <- subset(datachosen,odor%in%c("valence","fruflo_b","fruflo_w"))
       # plot
       figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=odor)) + 
         labs(title = paste(m,ana,sep = "_") ,x='ROI',y='ACC',fill='Odor')+#设置坐标轴
@@ -403,6 +415,18 @@ for (ana in analysis) {
 roiselect <- params$roi[c(1,2,4,6,7)]
 bruceR::MANOVA(subset(datasub,odor%in%c("within","between")&roi%in%roiselect),subID = "sub",dv="acc",within = c("odor","roi")) %>%
   EMMEANS("odor",by = "roi", p.adjust = "fdr")
+# gather odor in datasub to wide format
+datasub_wide <- datasub %>%
+  pivot_wider(names_from = odor,values_from = acc)
+# column 3-10 subtract column 10
+# datasub_wide <- datasub_wide[,3:10]-datasub_wide[[10]]
+# correlations
+plot_scatter(subset(datasub_wide,roi%in%roiselect),"between","valence")
+plot_scatter(subset(datasub_wide,roi%in%roiselect),"within","valence")
+plot_scatter(subset(datasub_wide,roi%in%roiselect),"within","between")
+plot_scatter(subset(datasub_wide,roi%in%roiselect),"fruflo","valence")
+plot_scatter(subset(datasub_wide,roi%in%roiselect),"fruflo","between")
+plot_scatter(subset(datasub_wide,roi%in%roiselect),"fruflo","within")
 ```
 
 ### accuracy for each run 2 odors

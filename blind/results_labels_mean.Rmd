@@ -27,6 +27,8 @@ library(R.matlab)
 library(dplyr)
 library(tidyr)
 library(ggprism)
+library(ggdendro)
+library(patchwork)
 # ggthemr('fresh',layout = "clean")
 sysfonts::font_add("Helvetica", "Helvetica.ttc")
 theme_set(theme_prism(base_size = 9,
@@ -291,6 +293,54 @@ for (ana in analysis) {
 }
 ```
 
+### clusterize
+```{r fig.height=4, fig.width=7}
+# for each unique roi in cmatrix
+for (r in unique(cmatrix$roi)){
+  # subset cmatrix
+  cmatrix_r <- subset(cmatrix,roi==r)
+  # create a distance matrix according to column odor which is a pair of odors
+  nodor <- length(odors)
+  distance <- matrix(NA, nrow = nodor, ncol = nodor)
+  # get distance
+  for (i in 1:nodor) {
+    for (j in 1:nodor) {
+      if (i == j) {
+        distance[i, j] <- 50
+      } else if (i < j) {
+        combination <- paste(odors[i], odors[j], sep = "_")
+        distance[i, j] <- cmatrix_r$acc[cmatrix_r$odor == combination]
+        distance[j, i] <- distance[i, j]
+      }
+    }
+  }
+  # set colnames and rownames
+  colnames(distance) <- odors
+  rownames(distance) <- odors
+  # multidimension scale
+  mds.coor <- cmdscale(as.dist(distance))
+  # clusterize
+  met <- "ward.D2"
+  cmatrix_r1 <- hclust(as.dist(distance[c(1,2,7,8),c(1,2,7,8)]),method = met)
+  cmatrix_r2 <- hclust(as.dist(distance[-c(1,2),-c(1,2)]),method = met)
+  cmatrix_r3 <- hclust(as.dist(distance[3:6,3:6]),method = met)
+  cmatrix_r4 <- hclust(as.dist(distance[1:6,1:6]),method = met)
+  # plot mds results
+  figure <- ggplot(as.data.frame(mds.coor)) +
+    geom_hline(yintercept = 0, color = "gray75") +
+    geom_vline(xintercept = 0, color = "gray75")+
+    geom_point(aes(x = V1, y = V2), color = "transparent") +
+    geom_text(aes(x = jitter(V1), y = jitter(V2),label = rownames(mds.coor), size = 3)) +
+    labs(x = "", y = "", title = r) +
+    theme(legend.position = "none")
+  den <- wrap_plots(list(
+                    ggdendrogram(cmatrix_r1),
+                    ggdendrogram(cmatrix_r2),
+                    ggdendrogram(cmatrix_r3),
+                    ggdendrogram(cmatrix_r4)), ncol = 2)
+  print(wrap_plots(figure,den,ncol = 2))
+}
+```
 
 ```{r echo=FALSE, fig.height=5, fig.width=12}
 # plot each odor pair

@@ -2,10 +2,10 @@
 output: html_document
 params:
     path: "/Volumes/WD_F/gufei/blind/"
-    sub: !r c(sprintf('S%02d', c(2:4,6:13)))
+    sub: !r c(sprintf('S%02d', c(2:4,6:14,16)))
     analysis: "pade"
     mvpa_pattern: "roi_odor_shift6"
-    roi: !r c('Amy8_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165','EarlyV_at165','V1_at165','V2_at165','V3_at165')
+    roi: !r c('Amy8_align','Pir_new','Pir_old','APC_new','APC_old','PPC','EarlyV','V1','V2','V3')
     roiname: !r c("Amy","Pir_new","Pir_old","APC_new","APC_old","PPC","EarlyV","V1","V2","V3")
     set_title: "Decoding_mean"
 title: "`r params$set_title`"

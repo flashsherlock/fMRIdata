@@ -22,6 +22,12 @@ Parcellate anataomy data using `recon-all` and `segmentHA_T1.sh` in freesurfer.
 ## deconvolve_censor_TENT.tcsh
 Deconvolve data using `3dDeconvolve` and TENT function.
 
+## deconvolve_REML.tcsh
+Deconvolve data using REML.
+
+## parallelproc.tcsh
+Parallel processing.
+
 ## generate_blind_roi.tcsh
 Generate ROI for each subject after drawing piriform.
 
@@ -31,8 +37,20 @@ Generate statistics for each roi.
 ## roistatas.Rmd
 Plot time course.
 
+## mvpa
+MVPA analysis.
+
+## results_labels_mean.Rmd
+Plot averaged decoding results.
+
+## blind_group_anlysis.bash
+Group level anova.
+
 ## results_blind_render.R
 Render results.
 
 ## questionnaires.m
 Analyze odor awareness and ratings.
+
+## clear_disk.tcsh
+Remove useless files.

@@ -1,5 +1,5 @@
 #! /bin/csh
-foreach ub (`count -dig 2 1 13`)
+foreach ub (`count -dig 2 14 16`)
 
 set sub = S${ub}
 set datafolder=/Volumes/WD_F/gufei/blind/${sub}/

@@ -1,10 +1,16 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 14 16`)
+foreach ub (`count -dig 2 2 16`)
 set sub=S${ub}
 set analysis=pade
 
 set datafolder=/Volumes/WD_F/gufei/blind/${sub}/
+# sub folder not exsist then continue
+if (! -e ${datafolder}) then
+    echo S${ub} not exsist
+    continue
+endif
+
 cd "${datafolder}"
 
 cd ${sub}.${analysis}.results
@@ -60,5 +66,13 @@ cat_matvec ./anat_final.${sub}.${analysis}.Xaff12.1D -I > ./anat_final.${sub}.${
 3dcalc -a visual_area_nl+orig -expr 'amongst(a,3,4)' -prefix ../mask/V2+orig
 3dcalc -a visual_area_nl+orig -expr 'amongst(a,5,6)' -prefix ../mask/V3+orig
 3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2,3,4,5,6)' -prefix ../mask/EarlyV+orig
+
+# all roi with labels (exclude AA)
+3dcalc -a ../mask/Piriform.seg+orig \
+-b Amy.seg.freesurfer+orig \
+-c ../mask/Amy8_align.freesurfer+orig \
+-d visual_area_nl+orig \
+-expr 'a*iszero(b)+b*c+amongst(d,1,2,3,4,5,6)*(d+30)' \
+-prefix ../mask/all.seg
 
 end

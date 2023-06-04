@@ -22,3 +22,10 @@ for sub in S{01..16}; do
       cd ..
       fi
 done
+
+# cd S14/mask
+# # resample visual_area
+# 3dresample -master all.seg+orig -prefix EarlyV_resample -input EarlyV+orig
+# # refit orient
+# 3dcopy EarlyV+orig EarlyV_refit+orig
+# 3drefit -duporigin all.seg+orig EarlyV_refit+orig

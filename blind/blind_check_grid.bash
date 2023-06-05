@@ -4,7 +4,7 @@ datafolder=/Volumes/WD_F/gufei/blind
 cd "${datafolder}" || exit
 
 # for each sub
-for sub in S{01..16}; do
+for sub in S{01..19}; do
     # if sub folder not exsist then continue
       if [[ ! -e "${sub}" ]]; then
             echo "${sub} not exsist"
@@ -29,3 +29,15 @@ done
 # # refit orient
 # 3dcopy EarlyV+orig EarlyV_refit+orig
 # 3drefit -duporigin all.seg+orig EarlyV_refit+orig
+# transform piriform mask
+# calculate matrix
+# 3dAllineate \
+# -source ${datafolder}/Subs_remove/S14/S14.pade.results/anat_final.S14.pade+orig \
+# -base ${datafolder}/S14/S14.pade.results/anat_final.S14.pade+orig \
+# -1Dmatrix_save ${datafolder}/Subs_remove/S14/S14.pade.results/new.1D
+# apply matrix
+# 3dAllineate -input ${datafolder}/Subs_remove/S14/S14.pade.results/COPY_anat_final.S14.pade+orig \
+#                 -master ${datafolder}/S14/S14.pade.results/anat_final.S14.pade+orig      \
+#                 -final NN                                \
+#                 -prefix ${datafolder}/S14/S14.pade.results/COPY_anat_final.S14.pade+orig \
+#                 -1Dmatrix_apply ${datafolder}/Subs_remove/S14/S14.pade.results/new.1D

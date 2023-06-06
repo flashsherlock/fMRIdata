@@ -2,7 +2,7 @@
 path <- "/Volumes/WD_F/gufei/blind/"
 analysis <- c("pade")
 # subs
-subs <- c(sprintf('S%02d',c(2:4,6:14,16)))
+subs <- c(sprintf('S%02d',c(2:4,6:14,16,17,19)))
 # rois
 # roi <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
 # roiname <- c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
@@ -14,7 +14,7 @@ roiname <- c("Amy","Pir_new","Pir_old","APC_new","APC_old","PPC","EarlyV","V1","
 suffix <- "_tent_12.txt"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/blind/roistatas.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("ROIstatas_16sub_12"),
+                  output_file = paste0("ROIstatas_19sub_12"),
                   params = list(path = path, sub = subs, roi = roi, suffix = suffix))
 
 # render mean mvpa results
@@ -22,6 +22,6 @@ title <- "Mean_shift6_at165"
 mp <- "roi_odor_shift6"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/blind/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste0("Mean_shift6_16sub_at165"),
+                  output_file = paste0("Mean_shift6_19sub_at165"),
                   params = list(path = path, sub = subs, set_title = title, analysis = analysis, 
                                 roi = roi, roiname = roiname, mvpa_pattern = mp))

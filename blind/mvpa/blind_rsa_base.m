@@ -31,3 +31,14 @@ userOptions.filename={'NIerrts.','.odor_noblur+orig.BRIK,'};
 fullBrainVols = fMRIDataPreparation_blind(betaCorrespondence, userOptions);
 binaryMasks_nS = fMRIMaskPreparation_blind(userOptions);
 responsePatterns = rsa.fmri.fMRIDataMasking(fullBrainVols, binaryMasks_nS, betaCorrespondence, userOptions);
+%% Model RDMs
+Models = [];
+for i=subs
+    Models = [Models;rsa.constructModelRDMs(modelRDMs_blind(i,userOptions.sessions), userOptions)];
+end
+Models =Models';
+% make a directory to save RDMs if not exist
+if ~exist([userOptions.rootPath '/RDMs'],'dir')
+    mkdir([userOptions.rootPath '/RDMs'])
+end
+save([userOptions.rootPath '/RDMs/Cleandata_Models.mat'],'Models');

@@ -1,0 +1,30 @@
+function Models = modelRDMs_blind(subjID,session,subjname)
+if nargin < 3
+    subjname = sprintf('S%02d',subjID);
+end
+% kron with k
+k=192/session/8;
+% odors={'gas','ind','ros','pin','app','min','fru','flo'};
+% valence categories
+Vacat = [0 0 1 1 1 1 1 1
+         0 0 1 1 1 1 1 1
+         0 0 0 0 0 0 0 0
+         0 0 0 0 0 0 0 0
+         0 0 0 0 0 0 0 0
+         0 0 0 0 0 0 0 0
+         0 0 0 0 0 0 0 0
+         0 0 0 0 0 0 0 0];
+Vacat = Vacat'+Vacat;
+Models.VAcat = kron(Vacat, ones(k, k));
+% Fruit Flower
+FF = [0 1 1 1 1 1 1 1
+      0 0 1 1 1 1 1 1
+      0 0 0 1 1 0 1 0
+      0 0 0 0 0 1 0 1
+      0 0 0 0 0 0 1 1
+      0 0 0 0 0 0 1 0
+      0 0 0 0 0 0 0 1
+      0 0 0 0 0 0 0 0];
+FF = FF'+FF;
+Models.FFcat = kron(FF, ones(k,k));
+end%function

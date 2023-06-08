@@ -38,6 +38,7 @@ plotrdm = 0;
 colms = [];
 cormat = [];
 betas = [];
+catavg = [];
 % reshape to ncon, if not 192
 ncon = 48;
 perw = cell(length(subn),length(fields));
@@ -45,7 +46,7 @@ for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
         % select voxels
-        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,50,0,0);
+        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,1,0,0);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average
@@ -86,6 +87,16 @@ for sub_i = 1:length(subn)
         colms(:, length(fields)+m_i) = cur_res(triu(true(size(cur_res)), 1));
     end
     cormat(:, :, sub_i) = corr(colms, 'type', 'Spearman');
+    % average each category
+    for field_i = 1:length(fields)
+        for model_i = 1:2
+            b_indx = colms(:,length(fields)+model_i)==1;
+            w_indx = colms(:,length(fields)+model_i)==0;
+            catavg(model_i,field_i,sub_i) = mean(colms(b_indx,field_i))-mean(colms(w_indx,field_i));
+            % normalize
+            catavg(model_i,field_i,sub_i) = catavg(model_i,field_i,sub_i)/mean(colms(:,field_i));
+        end
+    end
     % glmfit
     for field_i = 1:length(fields)
         % the first bet is constant term if not set 'constant','off'
@@ -94,7 +105,6 @@ for sub_i = 1:length(subn)
         betas(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';        
     end
 end
-
 %% extract the correlation between rois and strut & sim
 represent = zeros(2,length(fields),length(subn));
 chosen = [1 2];
@@ -129,6 +139,31 @@ for sub_i=1:3
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
     % save svg figure to data folder
     saveas(gcf, [datafolder 'Figures/' mask '_' num2str(chosen(1)) '&' num2str(chosen(2)) '_' num2str(ncon) '_' num2str(sub_i) '.svg']);
+end
+%% plot catavg
+ps=[];
+for sub_i=1:3
+    % ttest
+    [~,ps(1,:,sub_i),~,~]=ttest(squeeze(catavg(1,:,s{sub_i}))');
+    [~,ps(2,:,sub_i),~,~]=ttest(squeeze(catavg(2,:,s{sub_i}))');
+    % average across subs
+    repm = squeeze(mean(catavg(:,:,s{sub_i}), 3));    
+    % plot mean and stand error
+    figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
+    h = bar(repm');
+    % set face colors to red and blue
+    h(1).FaceColor = hex2rgb('#f0803b');
+    h(2).FaceColor = hex2rgb('#56a2d4');
+    set(gca,'TicklabelInterpreter','none')
+    xl = strrep(strrep(fields,['_' mask],''),'Amy','');
+    xl = strrep(xl,'8','Amy');
+    set(gca, 'XTickLabel', xl);
+    set(gca, 'FontSize',18)
+    ylabel('between-within');
+    legend({'VAcat' 'FruFlo'});
+    title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
+    % save svg figure to data folder
+    % saveas(gcf, [datafolder 'Figures/' mask '_cat_' num2str(ncon) '_' num2str(sub_i) '.svg']);
 end
 %close all
 %% betas

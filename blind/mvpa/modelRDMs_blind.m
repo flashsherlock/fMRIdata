@@ -16,8 +16,8 @@ Vacat = [0 0 1 1 1 1 1 1
          0 0 0 0 0 0 0 0];
 Vacat = Vacat'+Vacat;
 Models.VAcat = kron(Vacat, ones(k, k));
-% Fruit Flower
-FF = [0 1 1 1 1 1 1 1
+% Fruit or Flower or neither
+FF = [0 0 1 1 1 1 1 1
       0 0 1 1 1 1 1 1
       0 0 0 1 1 0 1 0
       0 0 0 0 0 1 0 1
@@ -27,4 +27,6 @@ FF = [0 1 1 1 1 1 1 1
       0 0 0 0 0 0 0 0];
 FF = FF'+FF;
 Models.FFcat = kron(FF, ones(k,k));
+% random
+Models.random = kron(squareform(pdist(rand(8, 8))), ones(k, k));
 end%function

@@ -37,3 +37,12 @@ num(8:10,44:47) = 6-num(8:10,44:47);% fix mistakes
 num(:,44:47) = 6-num(:,44:47);
 aware = sum(num(select_sub,[14:43 46]),2);
 results = [subinfo aware num(select_sub,48:65)];
+% add vividness in mri (another selection for subs)
+mrisub = [2:4,6:14,16];
+for sub_i = mrisub
+    rate = blind_rate(sub_i);
+    results(results(:,1)==sub_i,23:30)=rate.vivid;
+    results(results(:,1)==sub_i,31:78)=reshape(rate.vividrun,1,[]);
+end
+mriresults=results(mrisub,:);
+save([data_dir,'rating_mri.mat'],'mriresults');

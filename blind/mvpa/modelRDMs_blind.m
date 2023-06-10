@@ -27,6 +27,11 @@ FF = [0 0 1 1 1 1 1 1
       0 0 0 0 0 0 0 0];
 FF = FF'+FF;
 Models.FFcat = kron(FF, ones(k,k));
+% RDMs based on mri ratings
+mrirating = blind_rate(subjname);
+% valence
+Models.vivid = kron(mrirating.vividRDM, ones(k,k));
 % random
-Models.random = kron(squareform(pdist(rand(8, 8))), ones(k, k));
+% Models.random = kron(squareform(pdist(rand(8, 8))), ones(k, k));
+Models.random = squareform(pdist(rand(8*k, 8*k)));
 end%function

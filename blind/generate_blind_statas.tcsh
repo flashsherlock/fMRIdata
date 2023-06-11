@@ -1,9 +1,14 @@
 #!/bin/tcsh
 
 # for subs from 01 to 04
-foreach ub (`count -dig 2 17 19`)
+foreach ub (`count -dig 2 2 19`)
 set sub=S${ub}
 set datafolder=/Volumes/WD_F/gufei/blind/${sub}
+# if sub folder not exsist then continue
+if (! -e ${datafolder}) then
+    echo ${datafolder} not exsist
+    continue
+endif
 cd "${datafolder}"
 set analysis=pade
 
@@ -132,5 +137,27 @@ foreach region (V1 V2 V3 EarlyV)
     3dROIstats -mask ../mask/${region}_${maskdec_t}+orig \
     -nzmean ${data_tent}"[`seq -s , 1 103`104]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
 end
+
+# dump betas in all roi
+3dmaskdump \
+-noijk -xyz -mask ../mask/all.seg+orig \
+../mask/all.seg+orig \
+${data_beta}'[1]' \
+${data_beta}'[4]' \
+${data_beta}'[7]' \
+${data_beta}'[10]' \
+${data_beta}'[13]' \
+${data_beta}'[16]' \
+${data_beta}'[19]' \
+${data_beta}'[22]' \
+${data_beta}'[2]' \
+${data_beta}'[5]' \
+${data_beta}'[8]' \
+${data_beta}'[11]' \
+${data_beta}'[14]' \
+${data_beta}'[17]' \
+${data_beta}'[20]' \
+${data_beta}'[23]' \
+>! ../../stats/${sub}/beta.allseg.txt
 
 end

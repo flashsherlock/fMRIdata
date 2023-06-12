@@ -4,7 +4,7 @@ params:
     path: "/Volumes/WD_F/gufei/blind/"
     roi: !r c('Amy8_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165','EarlyV_at165','V1_at165','V2_at165','V3_at165')
     roiname: !r c("Amy","Pir_new","Pir_old","APC_new","APC_old","PPC","EarlyV","V1","V2","V3")
-    sub: !r c(sprintf('S%02d',c(1:4)))
+    sub: !r c(sprintf('S%02d',c(2:4,6:14,16)))
     suffix: "_tent_12.txt"
 title: "ROIs"
 author: "Fei"
@@ -115,6 +115,111 @@ tc_smooth <- function(data_tent){
   # change column name
   tc_smooth <- dplyr::rename(tc_smooth,time = variable)
 }
+```
+# Ratings
+
+```{r fig.height=4, fig.width=7}
+# WORD_SIZE <- 14
+pd <- position_dodge(0)
+# read mat file
+data <- readMat(file.path(params$path,'rating_mri.mat'))
+# avgdata is a dataframe
+avgdata <- as.data.frame(data$mriresults)
+# add subject name as row.names
+row.names(avgdata) <- sprintf("S%02d", avgdata[,1])
+# select subject in params$sub
+avgdata <- avgdata[rownames(avgdata) %in% params$sub,]
+names(avgdata) <- c("sub","sex","age","aware",
+                    paste(rep(c("va","in","fa"),times = 6),rep(odors[1:6],each = 3),sep = "_"),
+                    paste("vivid",odors,sep = "_"),
+                    paste(paste0(rep("run",48),rep(1:6,each = 8)),odors,sep = "_"))
+avgdata <- as.data.table(avgdata)
+# export to spss
+bruceR::export(avgdata, file = paste0(path,"ratings.sav"))
+# melt to long format
+rundata <- separate(melt(id.vars="sub",avgdata[,c(1,31:78)]),variable,c("run","odor"),sep = "_")
+avgdata <- separate(melt(id.vars="sub",avgdata[,c(1,5:30)]),variable,c("dimension","odor"),sep = "_")
+# 建立一个list保存plotyly的结果
+plotly_plots <- htmltools::tagList()
+i <- 1
+for (dim in unique(avgdata$dimension)) {
+  if (dim=="vivid")
+    ymax <- 4
+  else
+    ymax <- 7
+  current <- subset(avgdata,dimension==dim)
+  analyze_current <- describeBy(current$value,list(current$odor),mat = TRUE)
+  datachosen <- subset(analyze_current,select = c(group1,mean,se))
+  names(datachosen) <- c("odor","mean","se")
+  datachosen <- mutate(datachosen,odor = factor(odor,odors))
+    figure <- ggplot(datachosen,aes(x=odor,y=mean,group=odor)) + 
+    labs(title = str_to_title(dim) ,x='Odor',y=dim)+#设置坐标轴
+    scale_y_continuous(expand = c(0,0))+
+    coord_cartesian(ylim=c(1,ymax)) + 
+    scale_fill_manual(values = gf_color)+ #自选颜色
+    geom_bar(position="dodge", stat="identity")+
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                  position=position_dodge(.9))
+    pfigure <- figure + theme_prism(base_line_size = 0.5)
+    print(pfigure)
+    
+    # boxplot
+    current <- mutate(current,odor = factor(odor,odors))
+    figure <- ggplot(current,aes(x=odor,y=value,label=sub,
+                                    group=odor)) + 
+    labs(title = str_to_title(dim) ,x='Odor',y=dim)+#设置坐标轴
+    scale_y_continuous(expand = c(0,0))+
+    coord_cartesian(ylim=c(1,ymax)) + 
+    geom_boxplot() +
+    scale_fill_manual(values = gf_color)+ #自选颜色
+    geom_point(col=2,pch=16,cex=1)+
+    theme_prism(base_line_size = 0.5)
+
+    print(figure)
+    # interactive plots
+    plotly_plots[[dim]][[i]] <- ggplotly(figure,tooltip = c("label","y"))%>%layout(boxmode="group")
+    i <- i+1
+    
+    # ANOVA
+    cat(paste0("\n\n",dim,"\n\n"))
+    bruceR::MANOVA(current,subID = "sub",dv = "value", within = "odor")%>%
+      EMMEANS("odor", p.adjust="fdr")
+}
+#输出交互式绘图的结果
+plotly_plots
+```
+
+```{r fig.height=3, fig.width=5}
+# vividness per run
+analyze_vivid <- describeBy(rundata$value,list(rundata$run,rundata$odor),mat = TRUE)
+
+# Intensity
+datachosen <- subset(analyze_vivid,select = c(group1,group2,mean,se))
+names(datachosen) <- c("run","odor","mean","se")
+datachosen <- mutate(datachosen,odor = factor(odor,odors))
+title <- "Vividness"
+figure_int <- ggplot(datachosen, aes(x=run, y=mean,color=odor,group=odor)) + 
+  labs(title = title ,x='Run',y='Vividness',color='Odor')+#设置坐标轴
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values = gf_color)+ #颜色
+  scale_color_manual(values = gf_color)+ #自选颜色
+  scale_x_discrete(labels=as.character(1:6),expand = c(0,0))+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_line(position = pd) +
+  # use linetype=0 or color=NA to remove border
+  geom_ribbon(aes(ymin = mean - se,
+                  ymax = mean + se,fill = odor), alpha = 0.1,linetype=0)+
+  guides(fill = "none",color = guide_legend(
+    order = 1,# set legend order
+    override.aes = list(fill = gf_color)))+
+  coord_cartesian(ylim=c(1,4),clip = 'off')+
+  geom_point(position = pd)
+# print(figure_int)
+pfigure <- figure_int + theme_prism(base_line_size = 0.5)
+print(pfigure)
+# ANOVA
+bruceR::MANOVA(rundata,subID = "sub",dv = "value", within = c("odor","run"))%>%
+  EMMEANS("run", by = "odor", p.adjust="fdr")
 ```
 
 # Time course

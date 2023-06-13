@@ -115,6 +115,19 @@ tc_smooth <- function(data_tent){
   # change column name
   tc_smooth <- dplyr::rename(tc_smooth,time = variable)
 }
+# function for scatter plot
+plot_scatter <- function(plotdata,xlab,ylab){
+    ggscatter(plotdata,color = "#4c95c8",
+              x = xlab, y = ylab,alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+              ,fullrange = F)+
+      stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
+               show.legend=F,size=7)+theme_prism(base_size = 20,
+                                          base_family = "Helvetica",
+                                          base_fontface = "plain",
+                                          base_line_size = 0.5,
+                                          base_rect_size = 0.5,)
+}
 ```
 # Ratings
 
@@ -123,22 +136,22 @@ tc_smooth <- function(data_tent){
 pd <- position_dodge(0)
 # read mat file
 data <- readMat(file.path(params$path,'rating_mri.mat'))
-# avgdata is a dataframe
-avgdata <- as.data.frame(data$mriresults)
+# ratedata is a dataframe
+ratedata <- as.data.frame(data$mriresults)
 # add subject name as row.names
-row.names(avgdata) <- sprintf("S%02d", avgdata[,1])
+row.names(ratedata) <- sprintf("S%02d", ratedata[,1])
 # select subject in params$sub
-avgdata <- avgdata[rownames(avgdata) %in% params$sub,]
-names(avgdata) <- c("sub","sex","age","aware",
-                    paste(rep(c("va","in","fa"),times = 6),rep(odors[1:6],each = 3),sep = "_"),
+ratedata <- ratedata[rownames(ratedata) %in% params$sub,]
+names(ratedata) <- c("sub","sex","age","aware",
+                    paste(rep(c("va","in","fa"),times = 6),
+                          rep(c('pin', 'app', 'ros', 'min', 'ind', 'gas'),each = 3),sep = "_"),
                     paste("vivid",odors,sep = "_"),
                     paste(paste0(rep("run",48),rep(1:6,each = 8)),odors,sep = "_"))
-avgdata <- as.data.table(avgdata)
+ratedata <- as.data.table(ratedata)
 # export to spss
-bruceR::export(avgdata, file = paste0(path,"ratings.sav"))
+bruceR::export(ratedata, file = paste0(path,"ratings.sav"))
 # melt to long format
-rundata <- separate(melt(id.vars="sub",avgdata[,c(1,31:78)]),variable,c("run","odor"),sep = "_")
-avgdata <- separate(melt(id.vars="sub",avgdata[,c(1,5:30)]),variable,c("dimension","odor"),sep = "_")
+avgdata <- separate(melt(id.vars="sub",ratedata[,c(1,5:30)]),variable,c("dimension","odor"),sep = "_")
 # 建立一个list保存plotyly的结果
 plotly_plots <- htmltools::tagList()
 i <- 1
@@ -191,8 +204,8 @@ plotly_plots
 
 ```{r fig.height=3, fig.width=5}
 # vividness per run
+rundata <- separate(melt(id.vars="sub",ratedata[,c(1,31:78)]),variable,c("run","odor"),sep = "_")
 analyze_vivid <- describeBy(rundata$value,list(rundata$run,rundata$odor),mat = TRUE)
-
 # Intensity
 datachosen <- subset(analyze_vivid,select = c(group1,group2,mean,se))
 names(datachosen) <- c("run","odor","mean","se")
@@ -220,6 +233,16 @@ print(pfigure)
 # ANOVA
 bruceR::MANOVA(rundata,subID = "sub",dv = "value", within = c("odor","run"))%>%
   EMMEANS("run", by = "odor", p.adjust="fdr")
+```
+# Correlations
+```{r}
+ratedata$sex <- factor(ratedata$sex,levels = c(1,2),labels = c("female","male"))
+table(ratedata$sex)
+describe(ratedata$age)
+# average vividness
+ratedata[,vividavg:=rowMeans(.SD),.SDcols=c(23:30)]
+plot_scatter(ratedata,"aware","vividavg")+
+  labs(x="Odor awareness",y="Vividness ratings")
 ```
 
 # Time course

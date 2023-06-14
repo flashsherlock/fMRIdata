@@ -40,6 +40,8 @@ ggthemr('fresh',layout = "clean")
 odors <- c("gas","ind","ros","pin","app","min","fru","flo")
 pd <- position_dodge(0)
 roi_color <- c("#1F78B4", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6", "#00441B", "#A1D99B", "#41AB5D", "#006D2C")
+if (length(params$roi)==3)
+roi_color <- c("#1F78B4", "#FF7F00","#41AB5D")
 gf_color <- c("#412d21", "#777DDD", "#cf7ced", "#ECB556", "#dc0922", "#4292C6", "#e45869", "#41AB5D")
 pd <- position_dodge(0.1)
 ##################################################
@@ -140,8 +142,9 @@ data <- readMat(file.path(params$path,'rating_mri.mat'))
 ratedata <- as.data.frame(data$mriresults)
 # add subject name as row.names
 row.names(ratedata) <- sprintf("S%02d", ratedata[,1])
+ratedata[,1] <- row.names(ratedata)
 # select subject in params$sub
-ratedata <- ratedata[rownames(ratedata) %in% params$sub,]
+# ratedata <- ratedata[rownames(ratedata) %in% params$sub,]
 names(ratedata) <- c("sub","sex","age","aware",
                     paste(rep(c("va","in","fa"),times = 6),
                           rep(c('pin', 'app', 'ros', 'min', 'ind', 'gas'),each = 3),sep = "_"),
@@ -161,6 +164,8 @@ for (dim in unique(avgdata$dimension)) {
   else
     ymax <- 7
   current <- subset(avgdata,dimension==dim)
+  # remove zeros
+  current <- current[current$value!=0,]
   analyze_current <- describeBy(current$value,list(current$odor),mat = TRUE)
   datachosen <- subset(analyze_current,select = c(group1,mean,se))
   names(datachosen) <- c("odor","mean","se")
@@ -204,6 +209,7 @@ plotly_plots
 
 ```{r fig.height=3, fig.width=5}
 # vividness per run
+ratedata <- ratedata[ratedata$sub %in% params$sub,]
 rundata <- separate(melt(id.vars="sub",ratedata[,c(1,31:78)]),variable,c("run","odor"),sep = "_")
 analyze_vivid <- describeBy(rundata$value,list(rundata$run,rundata$odor),mat = TRUE)
 # Intensity

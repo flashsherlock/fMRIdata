@@ -44,5 +44,6 @@ for sub_i = mrisub
     results(results(:,1)==sub_i,23:30)=rate.vivid;
     results(results(:,1)==sub_i,31:78)=reshape(rate.vividrun,1,[]);
 end
-mriresults=results(mrisub,:);
+% mriresults=results(mrisub,:);
+mriresults = results(1:16,:);
 save([data_dir,'rating_mri.mat'],'mriresults');

@@ -1,0 +1,289 @@
+---
+title: "Voxel_beta"
+author: "Fei"
+date: "`r Sys.time()`"
+output: html_document
+params:
+    path: "/Volumes/WD_F/gufei/blind/stats"
+    sub: !r c(sprintf('S%02d',c(2:4,6:14,16)))
+    thr: 1.65
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(R.matlab)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggprism)
+library(patchwork)
+library(gridExtra)
+library(plotly)
+ggthemr('fresh',layout = "clean")
+```
+
+# Functions and parameters
+```{r}
+####################################################
+# function to load txt file
+####################################################
+extractdata <- function(path,sub,txtname){
+  data <- read.table(file.path(path,sub,txtname))
+  # add subject name to the first column
+  data <- cbind(rep(sub,times=nrow(data)),data)
+  return(data)
+}
+####################################################
+# function to calculate activated voxels
+####################################################
+calcact <- function(results,roilist,threshold){
+  c <- 8
+  data <- data.frame(matrix(ncol = 3+c*2, nrow = 0))
+  
+  for (roi_i in names(roilist)) {
+  # select ROI
+  roi_label <- roilist[[roi_i]]
+  results_r <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
+  subs <- subset(results,roi %in% roi_label,select = 1)
+  # check if activated
+  results_r <- ifelse(abs(results_r)>threshold,1,0)
+  act <- cbind(subs,rep(1,times=nrow(subs)),results_r)
+  # calculate number and ratio
+  number <- aggregate(.~sub, act, sum)
+  ratio <- aggregate(.~sub, act, mean)
+  # add roi name
+  act <- cbind(rep(roi_i,times=nrow(number)),number,ratio[c(3:(2+c))])
+  data <- rbind(data,act)
+  }
+  # change column names
+  names(data)[1:3] <- c("roi","sub","all")
+  names(data)[c(4:(3+c))] <- str_replace(names(data)[c(4:(3+c))],"t_","c_")
+  names(data)[c((4+c):(3+c+c))] <- str_replace(names(data)[c((4+c):(3+c+c))],"t_","r_")
+  # change to percentage
+  data[c((4+c):(3+c+c))] <- data[c((4+c):(3+c+c))]*100
+  data <- reshape2::melt(data,c("sub","roi"))
+  return(data)
+}
+####################################################
+# function to calculate mean values
+####################################################
+calmean <- function(results,roilist, threshold = 0){
+  c <- 8
+  data <- data.frame(matrix(ncol = 3+c, nrow = 0))
+  
+  for (roi_i in names(roilist)) {
+  # select ROI
+  roi_label <- roilist[[roi_i]]
+  results_r <- subset(results,roi %in% roi_label,select = c(6:(5+c)))
+  subs <- subset(results,roi %in% roi_label,select = 1)
+  # absolute value
+  results_r <- abs(results_r)
+  act <- cbind(subs,results_r)
+  # threshold t value
+  results_t <- subset(results,roi %in% roi_label,select = c((6+c):(5+c+c)))
+  index <- apply(abs(results_t),1,function(x) any(x>threshold))
+  # significant voxels only
+  act <- act[index]
+  # calculate mean value
+  # m <- aggregate(.~sub, act, mean)
+  m <- describeBy(act[,-1],list(act$sub),mat=T)
+  m <- subset(m,select = c("group1","mean","se"))
+  m <- cbind(str_remove_all(rownames(m),"[0-9]"),m)
+  # add roi name
+  act <- cbind(rep(roi_i,times=nrow(m)),m)
+  data <- rbind(data,act)
+  }
+  # change column names
+  names(data)[1:3] <- c("roi","voxels","sub")
+  return(data)
+}
+# array of odors
+odors <- c("gas","ind","ros","pin","app","min","fru","flo")
+# roi labels
+roi_name <- c("Amy",'Pir_new','Pir_old','APC_new','APC_old','PPC',"EarlyV","V1","V2","V3")
+A <- c(1,3,5,6,7,8,9,15)
+Pn <- c(21,22,29)
+Po <- c(21,22)
+An <- c(21,29)
+Ao <- 21
+PPC <- 22
+Ev <- c(31:36)
+v1 <- c(31,32)
+v2 <- c(33,34)
+v3 <- c(35,36)
+roilist <- list(Amy=A,Pir_new=Pn,Pir_old=Po,APC_new=An,APC_old=Ao,PPC=PPC,EarlyV=Ev,V1=v1,V2=v2,V3=v3)
+roimarker <- c(1,3,5,6,7,8,9,15,21,22,29,31:36)
+roilabels <- c("La","Ba","Ce","Me","Co","BM","CoT","Para","APc","PPc","APn",
+               "V1v","V1d","V2v","V2d","V3v","V3d")
+# colors
+roi_color <- c("#1F78B4", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6", "#00441B", "#A1D99B", "#41AB5D", "#006D2C")
+gf_color <- c("#412d21", "#777DDD", "#cf7ced", "#ECB556", "#dc0922", "#4292C6", "#e45869", "#41AB5D")
+```
+
+
+```{r}
+cat(params$sub)
+# sub x y z roi 8mean 8t-value
+results <- data.frame(matrix(ncol = 1+20, nrow = 0))
+# extract results for each subject
+for (sub in params$sub) {
+  results <- rbind(results,extractdata(params$path,sub,"beta.allseg.txt"))
+}
+names(results) <- c("sub","x","y","z","roi",paste("m",odors,sep = "_"),paste("t",odors,sep = "_"))
+results <- as.data.table(results)
+```
+
+# Activated voxels
+```{r fig.height=5, fig.width=12}
+data_act <- calcact(results,roilist,params$thr)
+s <- c("all",paste0("c_",odors))
+data_act_mean <- describeBy(data_act$value,list(data_act$variable,data_act$roi),mat=T)
+data_act_mean <- subset(data_act_mean,select = c(group1,group2,mean,se))
+names(data_act_mean) <- c("voxels","roi","mean","se")
+data_act_mean <- mutate(data_act_mean,roi = factor(roi,levels=roi_name))
+datachosen <- subset(data_act_mean,voxels %in% s)
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = c("all",odors)))
+# plot
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Count',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=c(roi_color[1],gf_color))+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# ratio
+s <- c(paste0("r_",odors))
+datachosen <- subset(data_act_mean,voxels %in% s)
+datachosen <- mutate(datachosen,voxels = factor(voxels,levels=s,labels = odors))
+# plot
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Percentage',fill='voxels')+#设置坐标轴
+  geom_bar(position="dodge", stat="identity") +
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color)+ #颜色
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                position=position_dodge(.9))+
+  theme_prism(base_line_size = 0.5)
+print(figure)
+```
+
+# Mean value
+```{r fig.height=5, fig.width=12}
+data_mean <- calmean(results,roilist)
+s <- c(paste0("m_",odors))
+datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = odors))
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+# datachosen <- subset(datachosen,voxels%in%c("fru","flo"))
+# plot
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Mean beta',fill='voxels')+#设置坐标轴
+  # geom_boxplot() +
+  stat_summary(fun = mean, geom = "bar",position = "dodge") +
+  stat_summary(fun.data = mean_se, color = "black",
+               geom = "errorbar",width = 0.1,position = position_dodge(width = 0.9))+
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color)+ #颜色
+  theme_prism(base_line_size = 0.5)
+print(figure)
+
+# activated only
+data_mean <- calmean(results,roilist,params$thr)
+s <- c(paste0("m_",odors))
+datachosen <- mutate(data_mean,voxels = factor(voxels,levels=s,labels = odors))
+datachosen <- mutate(datachosen,roi = factor(roi,levels=roi_name))
+# plot
+figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) + 
+  labs(x='ROI',y='Mean beta',fill='voxels')+#设置坐标轴
+  # geom_boxplot() +
+  stat_summary(fun = mean, geom = "bar",position = "dodge") +
+  stat_summary(fun.data = mean_se, color = "black",
+               geom = "errorbar",width = 0.1,position = position_dodge(width = 0.9))+
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values=gf_color)+ #颜色
+  theme_prism(base_line_size = 0.5)
+print(figure)
+```
+
+```{r fig.height=4, fig.width=15}
+# function for scatter plot
+plot_scatter <- function(plotdata,xlab,ylab){
+    ggscatter(plotdata,color = "#4c95c8",
+              x = xlab, y = ylab,alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+              ,fullrange = F)+
+      stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
+               show.legend=F,size=7)+theme_prism(base_size = 20,
+                                          base_family = "Helvetica",
+                                          base_fontface = "plain",
+                                          base_line_size = 0.5,
+                                          base_rect_size = 0.5,)
+}
+# ratings
+# read mat file
+data <- readMat(file.path(params$path,'../rating_mri.mat'))
+# ratedata is a dataframe
+ratedata <- as.data.frame(data$mriresults)
+# add subject name as row.names
+row.names(ratedata) <- sprintf("S%02d", ratedata[,1])
+# select subject in params$sub
+ratedata <- ratedata[rownames(ratedata) %in% params$sub,]
+ratedata[,1] <- row.names(ratedata)
+names(ratedata) <- c("sub","sex","age","aware",
+                    paste(rep(c("va","in","fa"),times = 6),
+                          rep(c('pin', 'app', 'ros', 'min', 'ind', 'gas'),each = 3),sep = "_"),
+                    paste("vivid",odors,sep = "_"),
+                    paste(paste0(rep("run",48),rep(1:6,each = 8)),odors,sep = "_"))
+ratedata <- as.data.table(ratedata)
+# melt to long format
+avgdata <- separate(melt(id.vars="sub",ratedata[,c(1,5:30)]),variable,c("dimension","odor"),sep = "_")
+vadiff <- as.data.table(cbind(ratedata$sub,
+                (ratedata$va_app+ratedata$va_pin+ratedata$va_ros+ratedata$va_min)/4-
+                  (ratedata$va_gas+ratedata$va_ind)/2))
+names(vadiff) <- c("sub","ratevadiff")
+vadiff$ratevadiff <- as.numeric(vadiff$ratevadiff)
+# beta differences
+results_diff <- results[,1:5]
+results_diff$fruf <- results$m_fru-results$m_flo
+results_diff$parm <- (results$m_pin+results$m_app)/2-(results$m_ros+results$m_min)/2
+results_diff$val <- (results$m_pin+results$m_app+results$m_ros+results$m_min)/4-(results$m_gas+results$m_ind)/2
+# threshold t value
+results$index <- apply(abs(subset(results,select = c((6+c):(5+c+c)))),1,
+                            function(x) any(x>params$thr))
+results_diff$index <- results$index
+# plot_scatter for each roi
+for (roi_i in names(roilist)){
+  # subset
+  roi_label <- roilist[[roi_i]]
+  # activated only
+  diff_avg <- subset(results_diff,roi %in% roi_label & index==TRUE)
+  # diff_avg <- subset(results_diff,roi %in% roi_label)
+  avgvoxel <- subset(results,roi %in% roi_label & index==TRUE)
+  # avgvoxel <- subset(results,roi %in% roi_label)
+  # average by ROI
+  diff_avg <- aggregate(diff_avg[,c(6,7,8)],list(diff_avg$sub),mean)
+  avgvoxel <- aggregate(avgvoxel[,c(6:13)],list(avgvoxel$sub),mean)
+  # rename first two columns
+  names(diff_avg)[1] <- c("sub")
+  avgvoxel <- separate(reshape2::melt(id.vars="Group.1",avgvoxel),variable,c("dimension","odor"),sep = "_")
+  names(avgvoxel) <- c("sub","dim","odor","beta")
+  valmerge <- merge(avgvoxel,subset(avgdata,dimension=="va"))
+  names(valmerge)[6] <- "rating"
+  # plot
+  f1 <- plot_scatter(diff_avg,"fruf","parm")+labs(title = roi_i)
+  diff_avg <- merge(diff_avg,vadiff)
+  f2 <- plot_scatter(diff_avg,"ratevadiff","val")
+  f3 <- plot_scatter(valmerge,"rating","beta")
+  print(wrap_plots(f1,f2,f3,ncol = 3))
+}
+```
+

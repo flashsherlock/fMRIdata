@@ -214,7 +214,7 @@ figure <- ggplot(datachosen, aes(x=roi, y=mean, fill=voxels)) +
 print(figure)
 ```
 
-```{r fig.height=4, fig.width=15}
+```{r fig.height=12, fig.width=15}
 # function for scatter plot
 plot_scatter <- function(plotdata,xlab,ylab){
     ggscatter(plotdata,color = "#4c95c8",
@@ -276,14 +276,22 @@ for (roi_i in names(roilist)){
   names(diff_avg)[1] <- c("sub")
   avgvoxel <- separate(reshape2::melt(id.vars="Group.1",avgvoxel),variable,c("dimension","odor"),sep = "_")
   names(avgvoxel) <- c("sub","dim","odor","beta")
-  valmerge <- merge(avgvoxel,subset(avgdata,dimension=="va"))
-  names(valmerge)[6] <- "rating"
+  
   # plot
-  f1 <- plot_scatter(diff_avg,"fruf","parm")+labs(title = roi_i)
+  f <- list()
+  f[["class"]] <- plot_scatter(diff_avg,"fruf","parm")+
+    labs(title = roi_i, x = "beta fru-flo",y="beta (pin+app)-(ros+min)")
   diff_avg <- merge(diff_avg,vadiff)
-  f2 <- plot_scatter(diff_avg,"ratevadiff","val")
-  f3 <- plot_scatter(valmerge,"rating","beta")
-  print(wrap_plots(f1,f2,f3,ncol = 3))
+  f[["val"]] <- plot_scatter(diff_avg,"ratevadiff","val")+
+    labs(title = roi_i, x = "valence difference",y="beta difference")
+  # for each dimension in avgdata
+  for (dim_i in unique(avgdata$dimension)){
+    valmerge <- merge(avgvoxel,subset(avgdata,dimension==dim_i))
+    names(valmerge)[6] <- dim_i
+    f[[dim_i]] <- plot_scatter(valmerge,dim_i,"beta")
+  }
+  
+  print(wrap_plots(f,ncol = 2))
 }
 ```
 

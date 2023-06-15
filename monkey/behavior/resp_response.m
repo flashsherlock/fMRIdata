@@ -99,23 +99,31 @@ for chan_i = 1:nchan
 end
 %% average by condition
 colors = {'#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#000000', '#E12A3C', '#777DDD', '#41AB5D','#B2B2B2'};
+labels = {'Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Unpleasant', 'Pleasant'};
+limx = [0,2000];
 % channel 1-temperature 2-airflow
 for chan_i = 1:nchan 
     data = avg{chan_i,2};
     for con_i=1:5
-        [resp4s(con_i,:), datresp{con_i}] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,2)),1,1.65);
-        [inhale(con_i,:), datin{con_i}] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,7)),1,1.65);
-        [param(con_i,:), datpm{con_i}] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,3:6)),1,1.65);
+        [resp4s(con_i,:), datresp{con_i}, semresp4s(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,2)),1,1.65);
+        [inhale(con_i,:), datin{con_i}, seminhale(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,7)),1,1.65);
+        [param(con_i,:), datpm{con_i}, semparam(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,3:6)),1,1.65);
     end
-    figure('position',[40,40,600,300]);
-    r4 = plot(resp4s(1:5,:)','LineWidth',2);
-    xlim([0 2500])
-    figure('position',[40,340,600,300]);
-    in = plot(inhale(1:5,:)','LineWidth',2);
-    for con_i=1:5
-        set(r4(con_i), 'color', hex2rgb(colors{con_i}));
-        set(in(con_i), 'color', hex2rgb(colors{con_i}));
+    % anova for resp curve
+    anovap=zeros(1,size(resp4s,2));
+    for time_i=1:size(resp4s,2)
+        d = [datresp{1}(:,time_i);datresp{2}(:,time_i);datresp{3}(:,time_i);datresp{4}(:,time_i);datresp{5}(:,time_i)];
+        group = [ones(size(datresp{1},1),1);2*ones(size(datresp{2},1),1);3*ones(size(datresp{3},1),1);4*ones(size(datresp{4},1),1);5*ones(size(datresp{5},1),1)];
+        anovap(time_i)=anova1(d,group,'off');
     end
+    % plot respiration
+    respplot(resp4s(1:5,:),semresp4s(1:5,:),anovap,colors(1:5),limx,[data_dir 'resp_odor' num2str(chan_i) '.svg'])
+%     xlim(limx)
+%     figure('position',[40,340,600,300]);
+%     in = plot(inhale(1:5,:)','LineWidth',2);
+%     for con_i=1:5
+%         set(in(con_i), 'color', hex2rgb(colors{con_i}));
+%     end
     % pleasant and unpleasant
     for con_i=6:7
         if con_i==6
@@ -123,19 +131,19 @@ for chan_i = 1:nchan
         else
             odors = [4 5];
         end
-        [resp4s(con_i,:), datresp{con_i}] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),2)),1,1.65);
-        [inhale(con_i,:), datin{con_i}] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),7)),1,1.65);
-        [param(con_i,:), datpm{con_i}] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),3:6)),1,1.65);
+        [resp4s(con_i,:), datresp{con_i}, semresp4s(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),2)),1,1.65);
+        [inhale(con_i,:), datin{con_i}, seminhale(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),7)),1,1.65);
+        [param(con_i,:), datpm{con_i}, semparam(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),3:6)),1,1.65);
     end
-    figure('position',[40,40,600,300]);
-    r4 = plot(resp4s(6:7,:)','LineWidth',2);
-    xlim([0 2500])
-    figure('position',[40,340,600,300]);
-    in = plot(inhale(6:7,:)','LineWidth',2);
-    for con_i=1:2
-        set(r4(con_i), 'color', hex2rgb(colors{con_i+7}));
-        set(in(con_i), 'color', hex2rgb(colors{con_i+7}));
-    end
+    % ttest for resp curve
+    [~,testp,~,~]=ttest2(datresp{6},datresp{7});
+    % plot respiration
+    respplot(resp4s(6:7,:),semresp4s(6:7,:),testp,[{'#ea5751','#0891c9'};labels(6:7)],limx,[data_dir 'resp_va' num2str(chan_i) '.svg'])
+%     figure('position',[40,340,600,300]);
+%     in = plot(inhale(6:7,:)','LineWidth',2);
+%     for con_i=1:2
+%         set(in(con_i), 'color', hex2rgb(colors{con_i+7}));
+%     end
     % ttest
     for i = 1:4
             % compare pleasant and unpleasant

@@ -1,4 +1,4 @@
-function [out, datnew] = outmean(dat,dim,n)
+function [out, datnew, datasem] = outmean(dat,dim,n)
 % calculate mean data excluded by n*std
     if nargin<3
         n=2;
@@ -13,4 +13,8 @@ function [out, datnew] = outmean(dat,dim,n)
     dat(dat>(datam+n*datastd))=nan;
     datnew = dat;
     out = nanmean(dat,dim);
+    % new datastd after removing outliers
+    datastd = nanstd(dat,dim);
+    % datasem
+    datasem = datastd./sqrt(size(dat,dim)-sum(isnan(dat),dim));
 end

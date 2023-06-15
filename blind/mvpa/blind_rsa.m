@@ -28,12 +28,12 @@ plotrdm = 0;
 %     end 
 % end
 %% use averaged sim RDM
-% if useavg == 1
-%     simavg = mean(cat(3,Models(6, :).RDM),3);
-%     for sub_i = 1:length(subn)
-%         Models(6, sub_i).RDM = simavg;
-%     end
-% end
+if useavg == 1
+    vivavg = mean(cat(3,Models(3, :).RDM),3);
+    for sub_i = 1:length(subn)
+        Models(3, sub_i).RDM = vivavg;
+    end
+end
 %% pariwise correlation for all subjects
 colms = [];
 cormat = [];
@@ -46,7 +46,7 @@ for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
         % select voxels
-        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,1,0,0);
+        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,50,0,0);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average
@@ -106,11 +106,11 @@ for sub_i = 1:length(subn)
     end
 end
 %% extract the correlation between rois and strut & sim
-represent = zeros(2,length(fields),length(subn));
-chosen = [1 2];
+chosen = [1 2 3 4];
+represent = zeros(length(chosen),length(fields),length(subn));
 for sub_i = 1:length(subn)
     % 1-3 VAcat FruFlo random
-    represent(:, :, sub_i) = cormat([length(fields) + chosen(1) length(fields) + chosen(2)], 1:length(fields), sub_i);
+    represent(:, :, sub_i) = cormat([length(fields) + chosen], 1:length(fields), sub_i);
     % fisher-z
     represent(:, :, sub_i)=atanh(represent(:, :, sub_i));
 end

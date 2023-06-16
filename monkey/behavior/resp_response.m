@@ -117,7 +117,7 @@ for chan_i = 1:nchan
         anovap(time_i)=anova1(d,group,'off');
     end
     % plot respiration
-    respplot(resp4s(1:5,:),semresp4s(1:5,:),anovap,colors(1:5),limx,[data_dir 'resp_odor' num2str(chan_i) '.svg'])
+    %respplot(resp4s(1:5,:),semresp4s(1:5,:),anovap,[colors(1:5);labels(1:5)],limx,[data_dir 'resp_odor' num2str(chan_i) '.svg'])
 %     xlim(limx)
 %     figure('position',[40,340,600,300]);
 %     in = plot(inhale(1:5,:)','LineWidth',2);
@@ -138,7 +138,7 @@ for chan_i = 1:nchan
     % ttest for resp curve
     [~,testp,~,~]=ttest2(datresp{6},datresp{7});
     % plot respiration
-    respplot(resp4s(6:7,:),semresp4s(6:7,:),testp,[{'#ea5751','#0891c9'};labels(6:7)],limx,[data_dir 'resp_va' num2str(chan_i) '.svg'])
+    %respplot(resp4s(6:7,:),semresp4s(6:7,:),testp,[{'#ea5751','#0891c9'};labels(6:7)],limx,[data_dir 'resp_va' num2str(chan_i) '.svg'])
 %     figure('position',[40,340,600,300]);
 %     in = plot(inhale(6:7,:)','LineWidth',2);
 %     for con_i=1:2
@@ -157,4 +157,13 @@ for chan_i = 1:nchan
         end
     end
     disp([param,ps])
+    % output pm for r
+    outpm = cat(1,datpm{:});
+    outpmcon=[];
+    for con_i=1:7
+        % add con_i
+        outpmcon = [outpmcon;con_i*ones(size(datpm{con_i},1),1)];
+    end
+    outpm = [outpmcon,outpm];
+    % save([data_dir 'pm' num2str(chan_i) '.mat'],'outpm')
 end

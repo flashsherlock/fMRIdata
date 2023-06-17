@@ -423,7 +423,7 @@ for (r in unique(cmatrix$roi)){
                      "between"=c("ros_pin","ros_app","pin_min","app_min"),
                      "fruflo_w"=c("pin_fru","app_fru","ros_flo","min_flo","pin_app","ros_min"),
                      "within"=c("pin_app","ros_min"),"fruflo"=c("fru_flo"),"all"=pairs)
-      newvar[["va_within"]] <- setdiff(pairs,newvar[["valence"]])
+      newvar[["va_within"]] <- setdiff(pairs,newvar[["fruflo_val"]])
       newvar[["fruf_betw"]] <- setdiff(pairs,newvar[["fruflo_w"]])
       concolor <- brewer.pal(10, "Paired")
       # agerage conditoins to new dataframe datachosen
@@ -449,9 +449,9 @@ for (r in unique(cmatrix$roi)){
       print(figure)
       # plot valence between within
       figure <- plot_erbar(
-        mutate(subset(datachosen,odor%in%c("valence","va_within","fruf_betw","fruflo_w")),
+        mutate(subset(datachosen,odor%in%c("fruflo_val","va_within","fruf_betw","fruflo_w")),
                odor = factor(odor,
-                             levels = c("valence","va_within","fruf_betw","fruflo_w"),
+                             levels = c("fruflo_val","va_within","fruf_betw","fruflo_w"),
                              labels = c("va_b","va_w","fruf_b","fruf_w")))
                            )+
         scale_fill_manual(values = concolor[c(1:4)])
@@ -467,7 +467,7 @@ for (r in unique(cmatrix$roi)){
 roiselect <- params$roi[c(1,2,4,6,7)]
 bruceR::MANOVA(subset(datasub,odor%in%c("within","between")&roi%in%roiselect),subID = "sub",dv="acc",within = c("odor","roi")) %>%
   EMMEANS("odor",by = "roi", p.adjust = "fdr")
-bruceR::MANOVA(subset(datasub,odor%in%c("valence","va_within")&roi%in%roiselect),subID = "sub",dv="acc",within = c("odor","roi")) %>%
+bruceR::MANOVA(subset(datasub,odor%in%c("fruflo_val","va_within")&roi%in%roiselect),subID = "sub",dv="acc",within = c("odor","roi")) %>%
   EMMEANS("odor",by = "roi", p.adjust = "fdr")
 bruceR::MANOVA(subset(datasub,odor%in%c("fruf_betw","fruflo_w")&roi%in%roiselect),subID = "sub",dv="acc",within = c("odor","roi")) %>%
   EMMEANS("odor",by = "roi", p.adjust = "fdr")

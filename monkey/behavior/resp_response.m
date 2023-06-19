@@ -105,9 +105,9 @@ limx = [0,2000];
 for chan_i = 1:nchan 
     data = avg{chan_i,2};
     for con_i=1:5
-        [resp4s(con_i,:), datresp{con_i}, semresp4s(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,2)),1,1.65);
-        [inhale(con_i,:), datin{con_i}, seminhale(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,7)),1,1.65);
-        [param(con_i,:), datpm{con_i}, semparam(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,3:6)),1,1.65);
+        [resp4s(con_i,:), datresp{con_i}, semresp4s(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,2)),1,2);
+        [inhale(con_i,:), datin{con_i}, seminhale(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,7)),1,2);
+        [param(con_i,:), datpm{con_i}, semparam(con_i,:)] = outmean(cell2mat(data(cell2mat(data(:,1))==con_i,3:6)),1,2);
     end
     % anova for resp curve
     anovap=zeros(1,size(resp4s,2));
@@ -131,9 +131,9 @@ for chan_i = 1:nchan
         else
             odors = [4 5];
         end
-        [resp4s(con_i,:), datresp{con_i}, semresp4s(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),2)),1,1.65);
-        [inhale(con_i,:), datin{con_i}, seminhale(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),7)),1,1.65);
-        [param(con_i,:), datpm{con_i}, semparam(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),3:6)),1,1.65);
+        [resp4s(con_i,:), datresp{con_i}, semresp4s(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),2)),1,2);
+        [inhale(con_i,:), datin{con_i}, seminhale(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),7)),1,2);
+        [param(con_i,:), datpm{con_i}, semparam(con_i,:)] = outmean(cell2mat(data(ismember(cell2mat(data(:,1)),odors),3:6)),1,2);
     end
     % ttest for resp curve
     [~,testp,~,~]=ttest2(datresp{6},datresp{7});

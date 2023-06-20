@@ -1,5 +1,5 @@
 % generate images, timing files for each subject
-subs=20:22;
+subs=23:25;
 rootfolder='/Volumes/WD_F/gufei/blind/';
 % generate files for each subject
 for subi=1:length(subs)
@@ -63,6 +63,18 @@ for subi=1:length(subs)
             runs = [17:1:20 22 23];
             pa = 24;
             str = 25;
+        case 23
+            runs = [15 21:1:25];
+            pa = 26;
+            str = 27;
+        case 24
+            runs = [15 21:1:25];
+            pa = 18;
+            str = 19;
+        case 25
+            runs = [10:1:13 15 17];
+            pa = 18;
+            str = 19;
     end
     % generate images if they are not exist
     if ~exist([datafolder filesep sub '.str.nii'],'file') 

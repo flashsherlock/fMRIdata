@@ -51,6 +51,8 @@ for subi = 1:sub_num
     end
 end
 %% calculate means
+valence = rating.valence;
+save('/Volumes/WD_D/gufei/monkey_data/respiratory/adinstrument/human_va.mat','valence')
 all= [rating.valence, rating.intensity, rating.familarity, rating.edibility];
 means_vi = [mean(rating.valence);mean(rating.intensity);mean(rating.familarity);mean(rating.edibility)];
 sems_vi = [std(rating.valence);std(rating.intensity);std(rating.familarity);std(rating.edibility)]./sqrt(sub_num);

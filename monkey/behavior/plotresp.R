@@ -89,7 +89,7 @@ boxplotd <- function(data, select, colors){
 data_dir <- '/Volumes/WD_D/gufei/monkey_data/respiratory/adinstrument/'
 odors <- c('Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Unpleasant', 'Pleasant')
 colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#ea5751','#0891c9');
-names <- c('pm1','pm2')
+names <- c('pm2','pm1')
 for (pm in names) {
   # load data
   data <- readMat(file.path(data_dir,paste0(pm,'.mat')))
@@ -115,3 +115,24 @@ for (pm in names) {
   ggsave(paste0(data_dir,pm,"_mean.pdf"), box, width = 10, height = 4,
          device = cairo_pdf)
 }
+# 3 human rating -------------------------------------------------------
+# load data
+hva <- readMat(file.path(data_dir,paste0('human_va','.mat')))
+hva <- as.data.frame(hva$valence)
+names(hva) <- odors[1:5]
+# add subject id
+hva$id <- 1:nrow(hva)
+# reshape data
+hva <- reshape2::melt(hva,'id', variable.name = "odor", value.name = "valence")
+# plot
+human <- boxplot(hva,'valence',colors[1:5])+
+  scale_y_continuous(name = "Valence", 
+                     expand = expansion(add = c(0, 0)),breaks=c(1,25,50,75,100))+
+  scale_x_discrete(labels = NULL)+
+  coord_cartesian(ylim = c(1,100))
+# save
+human <- wrap_plots(human,odor5,odor2,ncol = 3,guides = 'collect')
+print(human)
+ggsave(paste0(data_dir,'human_va',"_mean.pdf"), human, width = 12, height = 4,
+       device = cairo_pdf)
+ 

@@ -68,18 +68,19 @@ for subi=1:length(subs)
             pa = 26;
             str = 27;
         case 24
-            runs = [15 21:1:25];
-            pa = 18;
-            str = 19;
-        case 25
             runs = [10:1:13 15 17];
             pa = 18;
             str = 19;
+        case 25
+            runs = [8:1:13];
+            pa = 14;
+            str = 15;
     end
     % generate images if they are not exist
     if ~exist([datafolder filesep sub '.str.nii'],'file') 
-        strimg=sprintf('%02d',str);
-        genimage=['tcsh generate_img.tcsh ' sub ' "' num2str(runs) '" ' num2str(pa) ' ' strimg];
+        strimg = sprintf('%02d',str);
+        task = sprintf('%02d %02d %02d %02d %02d %02d',runs);
+        genimage=['tcsh generate_img.tcsh ' sub ' "' task '" ' sprintf('%02d',pa) ' ' strimg];
         unix(genimage)
     else
         disp(['Images of ' sub ' has already been generated!'])

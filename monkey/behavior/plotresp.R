@@ -97,10 +97,14 @@ for (pm in names) {
   names(data) <- c('odor','volume','duration','peak','speed')
   # ttest
   bruceR::TTEST(subset(data,odor%in%c(6:7)), x="odor",y=names(data)[-1])
-  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="volume",between = "odor")
-  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="duration",between = "odor")
-  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="peak",between = "odor")
-  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="speed",between = "odor")
+  bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="volume",between = "odor")%>%
+  bruceR::EMMEANS("odor")
+  bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="duration",between = "odor")%>%
+  bruceR::EMMEANS("odor")
+  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="peak",between = "odor")%>%
+  # bruceR::EMMEANS("odor")
+  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="speed",between = "odor")%>%
+  # bruceR::EMMEANS("odor")
   # convert odors to factors
   data$odor <- factor(data$odor,levels = c(1:7),labels = odors)
   # describe data by odor
@@ -110,9 +114,9 @@ for (pm in names) {
   odor5 <- boxplot(subset(data,odor%in%odors[1:5]),select,colors[1:5])+coord_cartesian(ylim = c(-0.6,1))
   odor2 <- boxplot(subset(data,odor%in%odors[6:7]),select,colors[6:7])+coord_cartesian(ylim = c(-0.6,1))
   # save
-  box <- wrap_plots(odor5,odor2,ncol = 2)
+  box <- wrap_plots(odor5,odor2,ncol = 2,guides = 'collect')
   print(box)
-  ggsave(paste0(data_dir,pm,"_mean.pdf"), box, width = 10, height = 4,
+  ggsave(paste0(data_dir,pm,"_mean.pdf"), box, width = 8, height = 3,
          device = cairo_pdf)
 }
 # 3 human rating -------------------------------------------------------
@@ -122,17 +126,33 @@ hva <- as.data.frame(hva$valence)
 names(hva) <- odors[1:5]
 # add subject id
 hva$id <- 1:nrow(hva)
+# average to pleasant and unpleasant
+hpu <- as.data.frame(hva$id)
+names(hpu) <- "id"
+hpu$Unpleasant <- rowMeans(subset(hva,select = odors[1:3]))
+hpu$Pleasant <- rowMeans(subset(hva,select = odors[4:5]))
+# pleasant and unpleasant
+bruceR::TTEST(hpu, y=c("Pleasant","Unpleasant"),paired = T)
 # reshape data
 hva <- reshape2::melt(hva,'id', variable.name = "odor", value.name = "valence")
+hpu <- reshape2::melt(hpu,'id', variable.name = "odor", value.name = "valence")
+# anova
+bruceR::MANOVA(hva,subID='id',dv="valence",within = "odor")%>%
+  bruceR::EMMEANS("odor")
 # plot
-human <- boxplot(hva,'valence',colors[1:5])+
+human5 <- boxplot(hva,'valence',colors[1:5])+
+  scale_y_continuous(name = "Valence", 
+                     expand = expansion(add = c(0, 0)),breaks=c(1,25,50,75,100))+
+  scale_x_discrete(labels = NULL)+
+  coord_cartesian(ylim = c(1,100))
+# plea unplea
+human2 <- boxplot(hpu,'valence',colors[6:7])+
   scale_y_continuous(name = "Valence", 
                      expand = expansion(add = c(0, 0)),breaks=c(1,25,50,75,100))+
   scale_x_discrete(labels = NULL)+
   coord_cartesian(ylim = c(1,100))
 # save
-human <- wrap_plots(human,odor5,odor2,ncol = 3,guides = 'collect')
+human <- wrap_plots(human5,human2,ncol = 2,guides = 'collect')
 print(human)
-ggsave(paste0(data_dir,'human_va',"_mean.pdf"), human, width = 12, height = 4,
+ggsave(paste0(data_dir,'human_va',"_mean.pdf"), human, width = 6, height = 3,
        device = cairo_pdf)
- 

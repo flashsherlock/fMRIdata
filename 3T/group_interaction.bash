@@ -3,15 +3,90 @@
 datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 suffix=congru
-
-mask=group/mask/Amy8_align.freesurfer+tlrc
-
-# if anova results exists, delete it
-if [ -f group/ANOVA_results+tlrc.HEAD ]; then
-      rm group/ANOVA_results+tlrc*
+mask=group/mask/BN_Amyg+tlrc
+outsuffix=BN
+# if ttest result exsist then delete it
+if [ -f group/congruent_${outsuffix}+tlrc.HEAD ]; then
+      rm group/congruent_${outsuffix}*
 fi
 # S03 S04 S05 S06 S07 S08 S11 S14 S15 S16 S19 S21 S22 S23 S24 S25 S26 S27 S28 S29
-3dMVM -prefix group/ANOVA_results -jobs 16            \
+3dttest++ -prefix group/congruent_${outsuffix}                    \
+          -mask ${mask}                                           \
+          -setA con_incon                                         \
+                01 "S03/analysis/S03.analysis.${suffix}+tlrc[25]" \
+                02 "S04/analysis/S04.analysis.${suffix}+tlrc[25]" \
+                03 "S05/analysis/S05.analysis.${suffix}+tlrc[25]" \
+                04 "S06/analysis/S06.analysis.${suffix}+tlrc[25]" \
+                05 "S07/analysis/S07.analysis.${suffix}+tlrc[25]" \
+                06 "S08/analysis/S08.analysis.${suffix}+tlrc[25]" \
+                07 "S11/analysis/S11.analysis.${suffix}+tlrc[25]" \
+                08 "S14/analysis/S14.analysis.${suffix}+tlrc[25]" \
+                09 "S15/analysis/S15.analysis.${suffix}+tlrc[25]" \
+                10 "S16/analysis/S16.analysis.${suffix}+tlrc[25]" \
+                11 "S19/analysis/S19.analysis.${suffix}+tlrc[25]" \
+                12 "S21/analysis/S21.analysis.${suffix}+tlrc[25]" \
+                13 "S22/analysis/S22.analysis.${suffix}+tlrc[25]" \
+                14 "S23/analysis/S23.analysis.${suffix}+tlrc[25]" \
+                15 "S24/analysis/S24.analysis.${suffix}+tlrc[25]" \
+                16 "S25/analysis/S25.analysis.${suffix}+tlrc[25]" \
+                17 "S26/analysis/S26.analysis.${suffix}+tlrc[25]" \
+                18 "S27/analysis/S27.analysis.${suffix}+tlrc[25]" \
+                19 "S28/analysis/S28.analysis.${suffix}+tlrc[25]" \
+                20 "S29/analysis/S29.analysis.${suffix}+tlrc[25]"
+# visible
+3dttest++ -prefix group/congruent__${outsuffix}_vis               \
+          -mask ${mask}                                           \
+          -setA viscon_incon                                      \
+                01 "S03/analysis/S03.analysis.${suffix}+tlrc[28]" \
+                02 "S04/analysis/S04.analysis.${suffix}+tlrc[28]" \
+                03 "S05/analysis/S05.analysis.${suffix}+tlrc[28]" \
+                04 "S06/analysis/S06.analysis.${suffix}+tlrc[28]" \
+                05 "S07/analysis/S07.analysis.${suffix}+tlrc[28]" \
+                06 "S08/analysis/S08.analysis.${suffix}+tlrc[28]" \
+                07 "S11/analysis/S11.analysis.${suffix}+tlrc[28]" \
+                08 "S14/analysis/S14.analysis.${suffix}+tlrc[28]" \
+                09 "S15/analysis/S15.analysis.${suffix}+tlrc[28]" \
+                10 "S16/analysis/S16.analysis.${suffix}+tlrc[28]" \
+                11 "S19/analysis/S19.analysis.${suffix}+tlrc[28]" \
+                12 "S21/analysis/S21.analysis.${suffix}+tlrc[28]" \
+                13 "S22/analysis/S22.analysis.${suffix}+tlrc[28]" \
+                14 "S23/analysis/S23.analysis.${suffix}+tlrc[28]" \
+                15 "S24/analysis/S24.analysis.${suffix}+tlrc[28]" \
+                16 "S25/analysis/S25.analysis.${suffix}+tlrc[28]" \
+                17 "S26/analysis/S26.analysis.${suffix}+tlrc[28]" \
+                18 "S27/analysis/S27.analysis.${suffix}+tlrc[28]" \
+                19 "S28/analysis/S28.analysis.${suffix}+tlrc[28]" \
+                20 "S29/analysis/S29.analysis.${suffix}+tlrc[28]"
+# invisible
+3dttest++ -prefix group/congruent__${outsuffix}_inv               \
+          -mask ${mask}                                           \
+          -setA invcon_incon                                      \
+                01 "S03/analysis/S03.analysis.${suffix}+tlrc[31]" \
+                02 "S04/analysis/S04.analysis.${suffix}+tlrc[31]" \
+                03 "S05/analysis/S05.analysis.${suffix}+tlrc[31]" \
+                04 "S06/analysis/S06.analysis.${suffix}+tlrc[31]" \
+                05 "S07/analysis/S07.analysis.${suffix}+tlrc[31]" \
+                06 "S08/analysis/S08.analysis.${suffix}+tlrc[31]" \
+                07 "S11/analysis/S11.analysis.${suffix}+tlrc[31]" \
+                08 "S14/analysis/S14.analysis.${suffix}+tlrc[31]" \
+                09 "S15/analysis/S15.analysis.${suffix}+tlrc[31]" \
+                10 "S16/analysis/S16.analysis.${suffix}+tlrc[31]" \
+                11 "S19/analysis/S19.analysis.${suffix}+tlrc[31]" \
+                12 "S21/analysis/S21.analysis.${suffix}+tlrc[31]" \
+                13 "S22/analysis/S22.analysis.${suffix}+tlrc[31]" \
+                14 "S23/analysis/S23.analysis.${suffix}+tlrc[31]" \
+                15 "S24/analysis/S24.analysis.${suffix}+tlrc[31]" \
+                16 "S25/analysis/S25.analysis.${suffix}+tlrc[31]" \
+                17 "S26/analysis/S26.analysis.${suffix}+tlrc[31]" \
+                18 "S27/analysis/S27.analysis.${suffix}+tlrc[31]" \
+                19 "S28/analysis/S28.analysis.${suffix}+tlrc[31]" \
+                20 "S29/analysis/S29.analysis.${suffix}+tlrc[31]"
+# if anova results exists, delete it
+if [ -f group/ANOVA_results_${outsuffix}+tlrc.HEAD ]; then
+      rm group/ANOVA_results_${outsuffix}+tlrc*
+fi
+# ANOVA
+3dMVM -prefix group/ANOVA_results_${outsuffix} -jobs 16            \
       -wsVars "face*odor*visib"         \
       -mask ${mask}                  \
       -SS_type 3                          \

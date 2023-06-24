@@ -145,7 +145,8 @@ for roi_i=1:roi_num
     title(cur_level_roi{roi_i,1})
     legend('Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor')
     ylabel('Power')
-    set(gca, 'FontSize', 18);
+    set(gca,'FontName','Helvetica', 'FontSize', 18);
+    set(gca,'xcolor',[0 0 0],'ycolor',[0 0 0])
     % plot zscore
     subplot(3,1,2)
     hold on;
@@ -163,7 +164,9 @@ for roi_i=1:roi_num
     end
     set(gca,'xlim',freq_win);
     ylabel('ZPower')
-    set(gca, 'FontSize', 18);
+    set(gca,'ylim',[-0.2 0.2]);
+    set(gca,'FontName','Helvetica', 'FontSize', 18);
+    set(gca,'xcolor',[0 0 0],'ycolor',[0 0 0])
     % plot p value
     subplot(3,1,3)
     hold on
@@ -183,7 +186,8 @@ for roi_i=1:roi_num
     set(gca,'xlim',freq_win);
     xlabel('Frequency (Hz)')
     ylabel('p')
-    set(gca, 'FontSize', 18);
+    set(gca,'FontName','Helvetica','FontSize', 18);
+    set(gca,'xcolor',[0 0 0],'ycolor',[0 0 0])
 
     subplot(3,1,3)
     % clear subplot cannot use clf()

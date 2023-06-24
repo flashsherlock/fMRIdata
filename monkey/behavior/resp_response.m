@@ -165,5 +165,7 @@ for chan_i = 1:nchan
         outpmcon = [outpmcon;con_i*ones(size(datpm{con_i},1),1)];
     end
     outpm = [outpmcon,outpm];
-    % save([data_dir 'pm' num2str(chan_i) '.mat'],'outpm')
+    save([data_dir 'pm' num2str(chan_i) '.mat'],'outpm')
+    outresp = [resp4s;semresp4s;anovap;testp]';
+    save([data_dir 'resp' num2str(chan_i) '.mat'],'outresp')
 end

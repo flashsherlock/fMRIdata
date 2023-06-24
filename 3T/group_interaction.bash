@@ -3,8 +3,8 @@
 datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 suffix=congru
-mask=group/mask/BN_Amyg+tlrc
-outsuffix=BN
+mask=group/mask/bmask.nii
+outsuffix=whole
 # if ttest result exsist then delete it
 if [ -f group/congruent_${outsuffix}+tlrc.HEAD ]; then
       rm group/congruent_${outsuffix}*

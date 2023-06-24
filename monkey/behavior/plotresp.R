@@ -84,40 +84,87 @@ boxplotd <- function(data, select, colors){
     scale_y_continuous(name = "Normalized value", expand = expansion(add = c(0, 0))) +
     theme(axis.title.x = element_blank())
 }
+# lineplot
+errorline <- function(data,select,colors){
+  ggplot(subset(datachosen, odor%in%select), aes(x=time)) + 
+    labs(x='Time (s)',y='Normalized respiration',color='Odor') +
+    geom_hline(yintercept = 0, linetype="dashed", color = "black")+
+    scale_y_continuous(expand = c(0,0))+
+    scale_fill_manual(values = colors)+
+    scale_color_manual(values = colors)+
+    scale_x_continuous(expand = c(0,0))+
+    geom_line(aes(y=mean,color=odor,group=odor)) +
+    geom_ribbon(aes(ymin = mean - 1.96*se,color=odor,group=odor,
+                    ymax = mean + 1.96*se,fill = odor), alpha = 0.1,linetype=0)+
+    guides(fill = "none",color = guide_legend(
+      order = 1,# set legend order
+      override.aes = list(fill = colors)))
+}
 # 2 Main -------------------------------------------------------------
 # read mat file
 data_dir <- '/Volumes/WD_D/gufei/monkey_data/respiratory/adinstrument/'
 odors <- c('Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Unpleasant', 'Pleasant')
-colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#ea5751','#0891c9');
+colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#ea5751','#90c31e');
 names <- c('pm2','pm1')
 for (pm in names) {
   # load data
-  data <- readMat(file.path(data_dir,paste0(pm,'.mat')))
-  data <- as.data.frame(data$outpm)
-  names(data) <- c('odor','volume','duration','peak','speed')
+  dataparm <- readMat(file.path(data_dir,paste0(pm,'.mat')))
+  dataparm <- as.data.frame(dataparm$outpm)
+  names(dataparm) <- c('odor','volume','duration','peak','speed')
   # ttest
-  bruceR::TTEST(subset(data,odor%in%c(6:7)), x="odor",y=names(data)[-1])
-  bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="volume",between = "odor")%>%
+  bruceR::TTEST(subset(dataparm,odor%in%c(6:7)), x="odor",y=names(dataparm)[-1])
+  bruceR::MANOVA(subset(dataparm,odor%in%c(1:5)),dv="volume",between = "odor")%>%
   bruceR::EMMEANS("odor")
-  bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="duration",between = "odor")%>%
+  bruceR::MANOVA(subset(dataparm,odor%in%c(1:5)),dv="duration",between = "odor")%>%
   bruceR::EMMEANS("odor")
-  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="peak",between = "odor")%>%
+  # bruceR::MANOVA(subset(dataparm,odor%in%c(1:5)),dv="peak",between = "odor")%>%
   # bruceR::EMMEANS("odor")
-  # bruceR::MANOVA(subset(data,odor%in%c(1:5)),dv="speed",between = "odor")%>%
+  # bruceR::MANOVA(subset(dataparm,odor%in%c(1:5)),dv="speed",between = "odor")%>%
   # bruceR::EMMEANS("odor")
   # convert odors to factors
-  data$odor <- factor(data$odor,levels = c(1:7),labels = odors)
-  # describe data by odor
-  data_ana <- describeBy(data[,-1], list(data$odor), mat = TRUE)
+  dataparm$odor <- factor(dataparm$odor,levels = c(1:7),labels = odors)
+  # describe dataparm by odor
+  data_ana <- describeBy(dataparm[,-1], list(dataparm$odor), mat = TRUE)
   select <- c('volume','duration')
   # plot
-  odor5 <- boxplot(subset(data,odor%in%odors[1:5]),select,colors[1:5])+coord_cartesian(ylim = c(-0.6,1))
-  odor2 <- boxplot(subset(data,odor%in%odors[6:7]),select,colors[6:7])+coord_cartesian(ylim = c(-0.6,1))
+  odor5 <- boxplot(subset(dataparm,odor%in%odors[1:5]),select,colors[1:5])+coord_cartesian(ylim = c(-0.6,1))
+  odor2 <- boxplot(subset(dataparm,odor%in%odors[6:7]),select,colors[6:7])+coord_cartesian(ylim = c(-0.6,1))
   # save
   box <- wrap_plots(odor5,odor2,ncol = 2,guides = 'collect')
   print(box)
   ggsave(paste0(data_dir,pm,"_mean.pdf"), box, width = 8, height = 3,
          device = cairo_pdf)
+  
+  # respiration
+  resp <- readMat(file.path(data_dir,paste0('resp',substr(pm,3,3),'.mat')))
+  resp <- as.data.frame(resp$outresp)
+  # select time
+  resp <- resp[1:1501,]
+  # names(resp) <- c(paste0("mean_",odors),paste0("se_",odors),"ap","tp")
+  names(resp) <- c(paste0("",odors),paste0("",odors),"ap","tp")
+  # add a column ap1 if ap<0.05 ap1=1 else ap1 is na
+  resp$ap1 <- ifelse(resp$ap<0.05,1,NA)
+  resp$tp1 <- ifelse(resp$tp<0.05,1,NA)
+  # add a column from 0 to nrows/1000
+  resp$time <- seq(0,(nrow(resp)-1)/1000,1/1000)
+  # reshape resp[1:7] to long format
+  datachosen <- merge(reshape2::melt(subset(resp,select=c(1:7,ncol(resp))), 
+                                        c("time"),variable.name = "odor", value.name = "mean"),
+                      reshape2::melt(subset(resp,select=c(8:14,ncol(resp))), 
+                                     c("time"),variable.name = "odor", value.name = "se"))
+  # plot
+  resp5 <- errorline(datachosen,odors[1:5],colors[1:5])+
+    geom_line(data = resp[c("time","ap1")],aes(y=ap1*0.5))+
+    coord_cartesian(ylim = c(-0.35,0.55))
+  resp2 <- errorline(datachosen,odors[6:7],colors[6:7])+
+    geom_line(data = resp[c("time","tp1")],aes(y=tp1*0.5))+
+    coord_cartesian(ylim = c(-0.35,0.55))
+  # save
+  resp_line <- wrap_plots(resp5,resp2,ncol = 2,guides = 'collect')
+  print(resp_line)
+  ggsave(paste0(data_dir,paste0('resp',substr(pm,3,3)),".pdf"), resp_line, width = 9, height = 3,
+         device = cairo_pdf)
+
 }
 # 3 human rating -------------------------------------------------------
 # load data

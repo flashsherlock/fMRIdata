@@ -1,8 +1,13 @@
 %% load and reorganize data
 m = 'RM033';
 % m = '2monkey';
-data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/pic/';
-pic_dir=[data_dir 'powerspec/' m '_air/'];
+cp_air = 0;
+data_dir='/Volumes/WD_D/gufei/monkey_data/yuanliu/merge2monkey/';
+if cp_air == 1
+    pic_dir = [data_dir 'pic/powerspec/' m '_HA_air/'];
+else
+    pic_dir = [data_dir 'pic/powerspec/' m '_HA/'];
+end
 load([pic_dir 'powspec_odor_7s_1_80hz.mat']);
 % load([data_dir 'trial_count/odor_level3_trial_count.mat']);
 % get number of roi

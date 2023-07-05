@@ -4,7 +4,7 @@ datafolder=/Volumes/WD_F/gufei/blind
 cd "${datafolder}" || exit
 
 # for each sub
-for sub in S{20..25}; do
+for sub in S{27..30}; do
     # if sub folder not exsist then continue
       if [[ ! -e "${sub}" ]]; then
             echo "${sub} not exsist"

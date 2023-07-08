@@ -1,10 +1,10 @@
 #! /bin/csh
-foreach ub (`count -dig 2 4 11` 13 14 16 17 18)
+foreach ub (`count -dig 2 4 11` 13 14 `count -dig 2 16 34`)
 
 set sub = S${ub}
 # foreach sub (S01_yyt S01 S02 S03)
-set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
-# set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}/
+# set datafolder=/Volumes/WD_E/gufei/7T_odor/${sub}
+set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 # make dir to save masks
 set analysis=pabiode
@@ -14,10 +14,13 @@ cd ${subj}.results
 # move piriform roi to mask folder
 # mv Piriform.seg* ../mask
 # mv ../${subj}.results.old/Piriform.seg* ../mask
+@ pbvol = `ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1 | cut -c3-4` - 1    
+@ blurvol = `ls pb0?.*.r01.blur+orig.HEAD | cut -d . -f1 | cut -c3-4`
 
 # remove files
 # rm all_runs*
-# rm pb0[0-4]*
+rm pb0[0-${pbvol}]*
+rm pb0${blurvol}*
 # rm NIerrts.${subj}.rmpolort+orig*
 # rm NIerrts.${subj}.rmbs*
 # rm fitts.${subj}+orig*
@@ -25,7 +28,7 @@ cd ${subj}.results
 # rm *odorVIv_noblur*
 # rm *odorVIvat_noblur*
 # rm errts.${subj}.odorVI+orig*
-rm NIerrts*
+# rm NIerrts*
 # cd mvpa
 # rm -r *br*
 # rm -r *rpt*

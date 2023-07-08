@@ -16,10 +16,12 @@ if ( -d "${datafolder}" ) then
 
     # find volreg number
     @ pbvol = `ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1 | cut -c3-4` - 1
+    @ blurvol = `ls pb0?.*.r01.blur+orig.HEAD | cut -d . -f1 | cut -c3-4`
 
     # remove files
     rm all_runs*
     rm pb0[0-${pbvol}]*
+    rm pb0${blurvol}*
     rm errts*
     rm fitts*
 else

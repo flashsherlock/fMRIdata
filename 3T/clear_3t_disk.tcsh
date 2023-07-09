@@ -4,7 +4,8 @@
 foreach ub (`count -dig 2 $1 $2`)
 
 set sub = S${ub}
-set datafolder=/Volumes/WD_F/gufei/3T_cw/${sub}/
+# set datafolder=/Volumes/WD_F/gufei/3T_cw/${sub}/
+set datafolder=/Volumes/WD_D/allsub/${sub}/
 # if datafolder exist
 if ( -d "${datafolder}" ) then
     cd "${datafolder}"
@@ -12,17 +13,18 @@ if ( -d "${datafolder}" ) then
     # make dir to save masks
     set analysis=de
     set subj = ${sub}.${analysis}
-    cd ${subj}.results
+    # cd ${subj}.results
+    cd analysis
 
     # find volreg number
-    @ pbvol = `ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1 | cut -c3-4` - 1
-    @ blurvol = `ls pb0?.*.r01.blur+orig.HEAD | cut -d . -f1 | cut -c3-4`
+    # @ pbvol = `ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1 | cut -c3-4` - 1
+    # @ blurvol = `ls pb0?.*.r01.blur+orig.HEAD | cut -d . -f1 | cut -c3-4`
 
     # remove files
-    rm all_runs*
-    rm pb0[0-${pbvol}]*
-    rm pb0${blurvol}*
-    rm errts*
+    # rm all_runs*
+    # rm pb0[0-${pbvol}]*
+    # rm pb0${blurvol}*
+    # rm errts*
     rm fitts*
 else
     echo "${datafolder} not exsist"

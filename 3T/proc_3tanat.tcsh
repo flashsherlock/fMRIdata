@@ -13,7 +13,7 @@ endif
 # align to epi data
 # use matrix cauculated previously
 3dAllineate                                                                                         \
-    -master ${sub}.de.results/anat_final.${sub}.de+orig                          \
+    -master ${sub}.de.results/anatSS.${sub}+orig                        \
     -1Dmatrix_apply ${sub}.de.results/anatSS.${sub}_al_keep_mat.aff12.1D                \
     -input ${sub}_anat_warped/anatUAC.${sub}.nii                                                  \
     -prefix ${sub}_anat_warped/anatUACa.${sub}.nii

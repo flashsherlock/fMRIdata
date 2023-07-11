@@ -18,7 +18,7 @@ set subjva = ${subj}
 cd ${subj}.results
 
 # warp to standard space
-set name = stats.${sub}.${analysis}
+set name = stats.${sub}.${analysis}.cross
 3dNwarpApply -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
              -source ${name}+orig                                                 \
              -master anatQQ.${sub}+tlrc    \

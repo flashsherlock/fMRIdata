@@ -1,10 +1,12 @@
 #! /bin/bash
 
-for sub in S{06..10}; do
+for sub in S{03..21}; do
     datafolder=/Volumes/WD_F/gufei/3T_cw/${sub}
     cd "${datafolder}" || exit
+    # check freesurfer results
+    ls ${sub}_surf_hiresalign/scripts/*done
     # echo "${datafolder}"
-    tcsh -xef proc."${sub}".de 2>&1 | tee output.proc."${sub}".de
+    # tcsh -xef proc."${sub}".de 2>&1 | tee output.proc."${sub}".de
 done
 
 # for sub in S{07..25}; do

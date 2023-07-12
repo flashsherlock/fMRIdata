@@ -4,7 +4,7 @@ for sub in S{03..21}; do
     datafolder=/Volumes/WD_F/gufei/3T_cw/${sub}
     cd "${datafolder}" || exit
     # check freesurfer results
-    ls ${sub}_surf_hiresalign/scripts/*done
+    ls ${sub}_surf_hiresalign/scripts/*error
     # echo "${datafolder}"
     # tcsh -xef proc."${sub}".de 2>&1 | tee output.proc."${sub}".de
 done

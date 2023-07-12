@@ -25,7 +25,7 @@ recon-all                                                                       
     -i ${sub}_anat_warped/anatUACa.${sub}.nii                                                  \
     -s ${sub}_surf_hiresalign -sd ./                                                                 \
     -all                                                                                        \
-    # -parallel -threads 8
+    # -parallel -threads 8 -notal-check
 
 # create files for suma
 # -fs_setup might me useful on macOS according to the help page

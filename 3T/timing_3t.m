@@ -45,5 +45,17 @@ end
 % fixation
 fix = sort(reshape(timing,run,times(1)*times(2))-1,2);
 dlmwrite([outdatadir filesep 'fix' '.txt'],fix,'delimiter',' ');
+% frame
+frame = [zeros(run,1),sort(reshape(timing,run,times(1)*times(2))+10,2)];
+framet = [7*ones(run,1),5*ones(run,size(frame,2)-1)];
+for i=1:run
+    ftime(i,:) = strcat(strsplit(num2str(frame(i,:))),{':'},strsplit(num2str(framet(i,:))));
+end
+fid=fopen([outdatadir filesep 'frame' '.txt'],'w');
+    for i=1:run
+        temp=strjoin(ftime(i,:));
+        fprintf(fid,'%s\r\n',temp);
+    end
+fclose(fid);
 end
 

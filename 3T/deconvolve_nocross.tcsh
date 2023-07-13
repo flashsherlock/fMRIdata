@@ -9,7 +9,7 @@ cd "${datafolder}"
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
-set filedec = nocross95
+set filedec = frame
 set pb = `ls pb0?.*.r01.scale+orig.HEAD | cut -d . -f1`
 3dDeconvolve -input ${pb}.$subj.r*.scale+orig.HEAD             \
     -censor motion_${subj}_censor.1D                           \
@@ -19,7 +19,7 @@ set pb = `ls pb0?.*.r01.scale+orig.HEAD | cut -d . -f1`
     -ortvec mot_demean.r04.1D mot_demean_r04                   \
     -ortvec mot_demean.r05.1D mot_demean_r05                   \
     -polort 3 -float -jobs 16                                   \
-    -num_stimts 8                                              \
+    -num_stimts 9                                              \
     -stim_times 1 ../behavior/FearPleaVis.txt 'BLOCK(9.5,1)'        \
     -stim_label 1 FearPleaVis                                  \
     -stim_times 2 ../behavior/FearPleaInv.txt 'BLOCK(9.5,1)'        \
@@ -36,6 +36,8 @@ set pb = `ls pb0?.*.r01.scale+orig.HEAD | cut -d . -f1`
     -stim_label 7 HappUnpleaVis                                \
     -stim_times 8 ../behavior/HappUnpleaInv.txt 'BLOCK(9.5,1)'      \
     -stim_label 8 HappUnpleaInv                                \
+    -stim_times_AM1 9 ../behavior/frame.txt 'dmBLOCK(1)'      \
+    -stim_label 9 frame                                \
     -num_glt 4	                                 \
         -glt_label 1 con_incon -gltsym 'SYM: FearUnpleaVis +HappPleaVis +FearUnpleaInv +HappPleaInv -FearPleaVis -HappUnpleaVis -FearPleaInv -HappUnpleaInv'   \
 		-glt_label 2 Viscon_incon -gltsym 'SYM: FearUnpleaVis +HappPleaVis -FearPleaVis -HappUnpleaVis'   \

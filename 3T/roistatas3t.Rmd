@@ -2,7 +2,7 @@
 output: html_document
 params:
     path: "/Volumes/WD_F/gufei/3t_cw/"
-    roi: !r c('Amy8_at165')
+    roi: !r c('Amy8_atfix165')
     roiname: !r c("Amy")
     sub: !r c(sprintf('S%02d',c(3:29)))
     suffix: "_tent_16.txt"
@@ -39,10 +39,9 @@ ggthemr('fresh',layout = "clean")
 # array of odors
 odors <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv','HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv')
 pd <- position_dodge(0)
-roi_color <- c("#1F78B4", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#CAB2D6", "#00441B", "#A1D99B", "#41AB5D", "#006D2C")
-if (length(params$roi)==3)
-roi_color <- c("#1F78B4", "#FF7F00","#41AB5D")
-gf_color <- c("#412d21", "#777DDD", "#cf7ced", "#ECB556", "#dc0922", "#4292C6", "#e45869", "#41AB5D")
+roi_color <- c("#1F78B4", "#FB9A99", "#FDBF6F", "#A1D99B", "#41AB5D", "#006D2C")
+# colors for odors
+gf_color <- c("#41AB5D","#A1D99B", "#4292C6","#9ECAE1", "#F16913","#FDAE6B", "#807DBA", "#BCBDDC")
 pd <- position_dodge(0.1)
 ##################################################
 # function to extract time courses from txt file

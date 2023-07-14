@@ -3,9 +3,9 @@
 datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
-suffix=de.cross
+suffix=de.frame
 mask=group/mask/Amy8_align.freesurfer+tlrc
-outsuffix=fscross
+outsuffix=fsframe
 
 # S03 S04 S05 S06 S07 S08 S11 S14 S15 S16 S19 S21 S22 S23 S24 S25 S26 S27 S28 S29
 # 3dROIstats -nzmean -mask ${mask} \

@@ -9,7 +9,7 @@ cd "${datafolder}"
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 set pb=`ls pb0?.*.r01.scale+orig.HEAD | cut -d . -f1`
-set filedec = odorfix_16
+set filedec = odorfixl_16
 
 # run the regression analysis
 3dDeconvolve -input ${pb}.${subj}.r*.scale+orig.HEAD           \
@@ -37,9 +37,9 @@ set filedec = odorfix_16
     -stim_label 7 HappUnpleaVis                                          \
     -stim_times 8 ../behavior/HappUnpleaInv.txt 'TENT(0,16,9)'          \
     -stim_label 8 HappUnpleaInv                                          \
-    -stim_times 9 ../behavior/fix.txt 'BLOCK(1,1)'      \
+    -stim_times 9 ../behavior/fix.txt 'BLOCK(11,1)'      \
     -stim_label 9 fixation                                \
-    -jobs 28                                                   \
+    -jobs 14                                                   \
     -x1D X.xmat.tent.${filedec}.1D                             \
     -xjpeg X.tent.${filedec}.jpg                               \
     -noFDR                                                     \

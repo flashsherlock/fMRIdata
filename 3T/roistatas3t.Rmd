@@ -2,10 +2,10 @@
 output: html_document
 params:
     path: "/Volumes/WD_F/gufei/3t_cw/"
-    roi: !r c('Amy8_atfix165')
+    roi: !r c('Amy8_at165')
     roiname: !r c("Amy")
     sub: !r c(sprintf('S%02d',c(3:29)))
-    suffix: "_tent_16.txt"
+    suffix: "_tent_16p.txt"
 title: "ROIs"
 author: "Fei"
 date: "`r Sys.time()`"
@@ -48,7 +48,7 @@ pd <- position_dodge(0.1)
 ##################################################
 extractdata <- function(txtname,odors){
 # use comment.char = "" to avoid problems caused by "#"
-data <- read.table(txtname,header = TRUE,comment.char = "",
+data <- read.table(txtname,header = TRUE,fill=TRUE,comment.char = "",
                    colClasses = c("character","character","NULL","character"),
                    col.names = c("sub","time","Null","NZmean"))
 # 去掉每个被试开头的标题的那一行
@@ -59,13 +59,15 @@ data <- na.omit(data)
 sub <- strsplit(data$sub,"\\.")
 sub <- sapply(sub,"[",2)
 data$sub <- sub
-# repeat times from 0 to 16
-times <- seq(0,16,2)
-data$time <- rep(times,times=length(odors))
-data$NZmean <- as.numeric(data$NZmean)
+# get roiname
 roi <- strsplit(txtname,fixed = T,"/")
 roi <- strsplit(sapply(roi,"[",length(roi[[1]])),fixed = T,"_p_tent")
+ntime <- as.numeric(str_extract(sapply(roi,"[",2),"[0-9][0-9]"))
 roi <- sapply(roi,"[",1)
+# repeat times from 0 to 16
+times <- seq(0,ntime,2)
+data$time <- rep(times,times=length(odors))
+data$NZmean <- as.numeric(data$NZmean)
 data <- cbind(data,rep(roi,each=nrow(data)))
 names(data)[4] <- "roi"
 data$odor <- rep(odors,each=length(times))
@@ -80,6 +82,7 @@ return(data)
 # data_tent stores time courses for each subject and each region
 data_tent <- data.frame(sub=0,odor=0,time=0,NZmean=0,roi=0)
 data_tent <- data_tent[-1,]
+ntime <- as.numeric(str_extract(params$suffix,"[0-9][0-9]"))
 for (sub_i in params$sub) {
   # file path
   name <- file.path(params$path,"stats",sub_i,paste0(params$roi,'_p',params$suffix))
@@ -87,6 +90,8 @@ for (sub_i in params$sub) {
   data_tent <- rbind(data_tent,extractdata(name[region],odors))
   }
 }
+# remove NA
+# data_tent <- na.omit(data_tent)
 ```
 
 ## Separate
@@ -96,7 +101,7 @@ for (sub_i in params$sub) {
   # choose data
   datachosen <- subset(data_tent,sub==sub_i & roi==region)
   # set time and odor levels
-  datachosen$time <- factor(datachosen$time,levels = as.character(seq(0,16,2)))
+  datachosen$time <- factor(datachosen$time,levels = as.character(seq(0,ntime,2)))
   datachosen$odor <- factor(datachosen$odor,levels = odors)
   # plot time course
   figure_4 <- ggplot(datachosen, aes(x=time, y=NZmean,color=odor,group=odor)) + 
@@ -129,7 +134,7 @@ for (region in c(params$roi,"All")) {
   datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
   names(datachosen) <- c("odor","time","mean","se")
   # set time and odor levels
-  datachosen$time <- factor(datachosen$time,levels = as.character(seq(0,16,2))) 
+  datachosen$time <- factor(datachosen$time,levels = as.character(seq(0,ntime,2))) 
   datachosen$odor <- factor(datachosen$odor,levels = odors)
   # plot time course
   figure_4 <- ggplot(datachosen, aes(x=time, y=mean,color=odor,group=odor)) + 
@@ -166,7 +171,7 @@ datachosen <- describeBy(datachosen$x,list(datachosen$Group.3),mat = T)
 datachosen <- subset(datachosen,select = c(group1,mean,se))
 names(datachosen) <- c("time","mean","se")
 # set time and odor levels
-datachosen$time <- factor(datachosen$time,levels = as.character(seq(0,16,2)))
+datachosen$time <- factor(datachosen$time,levels = as.character(seq(0,ntime,2)))
 
 # plot time course
 # figure_4 <- ggplot(datachosen, aes(x=time, y=mean,group=1)) +

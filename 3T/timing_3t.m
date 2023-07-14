@@ -37,17 +37,18 @@ names={'FearPleaVis';'FearPleaInv';'FearUnpleaVis';'FearUnpleaInv';...
 for i=1:times(2)
     % timing for each odor(all runs)
     dlmwrite([outdatadir filesep names{i} '.txt'],timing(:,:,i),'delimiter',' ');
+    dlmwrite([outdatadir filesep names{i} '_11s.txt'],timing(:,:,i)-1,'delimiter',' ');    
     % timing for each odor(each run)
-    for runi=1:run
-        dlmwrite([outdatadir filesep names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
-    end
+%     for runi=1:run
+%         dlmwrite([outdatadir filesep names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
+%     end
 end
 % fixation
 fix = sort(reshape(timing,run,times(1)*times(2))-1,2);
 dlmwrite([outdatadir filesep 'fix' '.txt'],fix,'delimiter',' ');
 % frame
 frame = [zeros(run,1),sort(reshape(timing,run,times(1)*times(2))+10,2)];
-framet = [7*ones(run,1),5*ones(run,size(frame,2)-1)];
+framet = [7*ones(run,1),5*ones(run,size(frame,2)-2),6*ones(run,1)];
 for i=1:run
     ftime(i,:) = strcat(strsplit(num2str(frame(i,:))),{':'},strsplit(num2str(framet(i,:))));
 end
@@ -57,5 +58,7 @@ fid=fopen([outdatadir filesep 'frame' '.txt'],'w');
         fprintf(fid,'%s\r\n',temp);
     end
 fclose(fid);
+% remove timing for each run
+% unix(['rm ' outdatadir filesep '*run*.txt'])
 end
 

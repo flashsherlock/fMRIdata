@@ -58,6 +58,18 @@ fid=fopen([outdatadir filesep 'frame' '.txt'],'w');
         fprintf(fid,'%s\r\n',temp);
     end
 fclose(fid);
+% duration modulated fixation
+dufix = sort([fix fix+10.5],2);
+dufixt = kron(ones(run,size(fix,2)),[1,0.5]);
+for i=1:run
+    fixtime(i,:) = strcat(strsplit(num2str(dufix(i,:))),{':'},strsplit(num2str(dufixt(i,:))));
+end
+fid=fopen([outdatadir filesep 'fixdu' '.txt'],'w');
+    for i=1:run
+        temp=strjoin(fixtime(i,:));
+        fprintf(fid,'%s\r\n',temp);
+    end
+fclose(fid);
 % remove timing for each run
 % unix(['rm ' outdatadir filesep '*run*.txt'])
 end

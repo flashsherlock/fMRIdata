@@ -14,11 +14,11 @@ set analysis=de
 echo ${sub} ${analysis}
 # cd to the folder
 set subj = ${sub}.${analysis}
-set subjva = ${subj}.11s
+set subjva = ${subj}.crossdu
 cd ${subj}.results
 
 # warp to standard space
-set name = stats.${sub}.${analysis}.11s
+set name = stats.${subjva}
 3dNwarpApply -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
              -source ${name}+orig                                                 \
              -master anatQQ.${sub}+tlrc    \
@@ -27,9 +27,9 @@ set name = stats.${sub}.${analysis}.11s
 3drefit -fbuc ${name}+tlrc
 
 # extract tent and beta values
-set filedec = odor11s_14
+set filedec = odorfixdu_14
 set maskdec = align
-set maskdec_t2 = at11s165
+set maskdec_t2 = atfixdu165
 set maskdec_t = ${maskdec_t2}_p # positive only for tent
 set data_tent=tent.${subj}.${filedec}+orig
 set data_beta=stats.${subjva}+orig

@@ -3,11 +3,11 @@
 # datafolder=/Volumes/WD_D/allsub/
 datafolder=/Volumes/WD_F/gufei/3T_cw/
 cd "${datafolder}" || exit
-suffix=de.cross2
+suffix=de.crossl
 # mask=group/mask/Amy8_align.freesurfer+tlrc
-# outsuffix=Amycross2
+# outsuffix=Amycrossl
 mask=group/mask/bmask.nii
-outsuffix=wholecross2
+outsuffix=wholecrossl
 # if ttest result exsist then delete it
 # if [ -f group/congruent_${outsuffix}+tlrc.HEAD ]; then
 #       rm group/congruent_${outsuffix}*

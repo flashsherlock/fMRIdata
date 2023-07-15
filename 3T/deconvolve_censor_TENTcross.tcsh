@@ -9,7 +9,7 @@ cd "${datafolder}"
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 set pb=`ls pb0?.*.r01.scale+orig.HEAD | cut -d . -f1`
-set filedec = odorfix2_14
+set filedec = odorfixl_14
 
 # run the regression analysis
 3dDeconvolve -input ${pb}.${subj}.r*.scale+orig.HEAD           \
@@ -20,7 +20,7 @@ set filedec = odorfix2_14
     -ortvec mot_demean.r04.1D mot_demean_r04                   \
     -ortvec mot_demean.r05.1D mot_demean_r05                   \
     -polort 3                                                  \
-    -num_stimts 10                                              \
+    -num_stimts 9                                              \
     -stim_times 1 ../behavior/FearPleaVis.txt 'TENT(0,14,8)'          \
     -stim_label 1 FearPleaVis                                          \
     -stim_times 2 ../behavior/FearPleaInv.txt 'TENT(0,14,8)'          \
@@ -37,10 +37,8 @@ set filedec = odorfix2_14
     -stim_label 7 HappUnpleaVis                                          \
     -stim_times 8 ../behavior/HappUnpleaInv.txt 'TENT(0,14,8)'          \
     -stim_label 8 HappUnpleaInv                                          \
-    -stim_times 9 ../behavior/fix.txt 'BLOCK(1,1)'      \
+    -stim_times 9 ../behavior/fix.txt 'BLOCK(11,1)'      \
     -stim_label 9 fixation                                \
-    -stim_times 10 ../behavior/fixoff.txt 'BLOCK(0.5,1)'      \
-    -stim_label 10 fixoff                                \
     -jobs 28                                                   \
     -x1D X.xmat.tent.${filedec}.1D                             \
     -xjpeg X.tent.${filedec}.jpg                               \

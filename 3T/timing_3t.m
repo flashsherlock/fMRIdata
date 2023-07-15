@@ -46,6 +46,9 @@ end
 % fixation
 fix = sort(reshape(timing,run,times(1)*times(2))-1,2);
 dlmwrite([outdatadir filesep 'fix' '.txt'],fix,'delimiter',' ');
+% fixation
+fixoff = sort(reshape(timing,run,times(1)*times(2))+9.5,2);
+dlmwrite([outdatadir filesep 'fixoff' '.txt'],fixoff,'delimiter',' ');
 % frame
 frame = [zeros(run,1),sort(reshape(timing,run,times(1)*times(2))+10,2)];
 framet = [7*ones(run,1),5*ones(run,size(frame,2)-2),6*ones(run,1)];

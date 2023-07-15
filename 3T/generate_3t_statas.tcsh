@@ -14,7 +14,7 @@ set analysis=de
 echo ${sub} ${analysis}
 # cd to the folder
 set subj = ${sub}.${analysis}
-set subjva = ${subj}.crossdu
+set subjva = ${subj}.cross2
 cd ${subj}.results
 
 # warp to standard space
@@ -27,9 +27,9 @@ set name = stats.${subjva}
 3drefit -fbuc ${name}+tlrc
 
 # extract tent and beta values
-set filedec = odorfixdu_14
+set filedec = odorfix2_14
 set maskdec = align
-set maskdec_t2 = atfixdu165
+set maskdec_t2 = atfix2165
 set maskdec_t = ${maskdec_t2}_p # positive only for tent
 set data_tent=tent.${subj}.${filedec}+orig
 set data_beta=stats.${subjva}+orig

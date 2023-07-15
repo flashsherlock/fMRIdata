@@ -26,7 +26,9 @@ if ( -d "${datafolder}" ) then
     # rm pb0${blurvol}*
     # rm errts*
     # rm fitts*
-    rm *nocross*
+    # rm *nocross*
+    # ls *frame*
+    rm *_16*
 else
     echo "${datafolder} not exsist"
 endif

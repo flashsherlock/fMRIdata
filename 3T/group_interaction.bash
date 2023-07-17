@@ -3,87 +3,22 @@
 # datafolder=/Volumes/WD_D/allsub/
 datafolder=/Volumes/WD_F/gufei/3T_cw/
 cd "${datafolder}" || exit
-suffix=de.crossl
-# mask=group/mask/Amy8_align.freesurfer+tlrc
-# outsuffix=Amycrossl
-mask=group/mask/bmask.nii
-outsuffix=wholecrossl
-# if ttest result exsist then delete it
-# if [ -f group/congruent_${outsuffix}+tlrc.HEAD ]; then
-#       rm group/congruent_${outsuffix}*
-# fi
-# S03 S04 S05 S06 S07 S08 S11 S14 S15 S16 S19 S21 S22 S23 S24 S25 S26 S27 S28 S29
-# 3dttest++ -prefix group/congruent_${outsuffix}                    \
-#           -mask ${mask}                                           \
-#           -setA con_incon                                         \
-#                 01 "S03/analysis/S03.analysis.${suffix}+tlrc[25]" \
-#                 02 "S04/analysis/S04.analysis.${suffix}+tlrc[25]" \
-#                 03 "S05/analysis/S05.analysis.${suffix}+tlrc[25]" \
-#                 04 "S06/analysis/S06.analysis.${suffix}+tlrc[25]" \
-#                 05 "S07/analysis/S07.analysis.${suffix}+tlrc[25]" \
-#                 06 "S08/analysis/S08.analysis.${suffix}+tlrc[25]" \
-#                 07 "S11/analysis/S11.analysis.${suffix}+tlrc[25]" \
-#                 08 "S14/analysis/S14.analysis.${suffix}+tlrc[25]" \
-#                 09 "S15/analysis/S15.analysis.${suffix}+tlrc[25]" \
-#                 10 "S16/analysis/S16.analysis.${suffix}+tlrc[25]" \
-#                 11 "S19/analysis/S19.analysis.${suffix}+tlrc[25]" \
-#                 12 "S21/analysis/S21.analysis.${suffix}+tlrc[25]" \
-#                 13 "S22/analysis/S22.analysis.${suffix}+tlrc[25]" \
-#                 14 "S23/analysis/S23.analysis.${suffix}+tlrc[25]" \
-#                 15 "S24/analysis/S24.analysis.${suffix}+tlrc[25]" \
-#                 16 "S25/analysis/S25.analysis.${suffix}+tlrc[25]" \
-#                 17 "S26/analysis/S26.analysis.${suffix}+tlrc[25]" \
-#                 18 "S27/analysis/S27.analysis.${suffix}+tlrc[25]" \
-#                 19 "S28/analysis/S28.analysis.${suffix}+tlrc[25]" \
-#                 20 "S29/analysis/S29.analysis.${suffix}+tlrc[25]"
-# # visible
-# 3dttest++ -prefix group/congruent__${outsuffix}_vis               \
-#           -mask ${mask}                                           \
-#           -setA viscon_incon                                      \
-#                 01 "S03/analysis/S03.analysis.${suffix}+tlrc[28]" \
-#                 02 "S04/analysis/S04.analysis.${suffix}+tlrc[28]" \
-#                 03 "S05/analysis/S05.analysis.${suffix}+tlrc[28]" \
-#                 04 "S06/analysis/S06.analysis.${suffix}+tlrc[28]" \
-#                 05 "S07/analysis/S07.analysis.${suffix}+tlrc[28]" \
-#                 06 "S08/analysis/S08.analysis.${suffix}+tlrc[28]" \
-#                 07 "S11/analysis/S11.analysis.${suffix}+tlrc[28]" \
-#                 08 "S14/analysis/S14.analysis.${suffix}+tlrc[28]" \
-#                 09 "S15/analysis/S15.analysis.${suffix}+tlrc[28]" \
-#                 10 "S16/analysis/S16.analysis.${suffix}+tlrc[28]" \
-#                 11 "S19/analysis/S19.analysis.${suffix}+tlrc[28]" \
-#                 12 "S21/analysis/S21.analysis.${suffix}+tlrc[28]" \
-#                 13 "S22/analysis/S22.analysis.${suffix}+tlrc[28]" \
-#                 14 "S23/analysis/S23.analysis.${suffix}+tlrc[28]" \
-#                 15 "S24/analysis/S24.analysis.${suffix}+tlrc[28]" \
-#                 16 "S25/analysis/S25.analysis.${suffix}+tlrc[28]" \
-#                 17 "S26/analysis/S26.analysis.${suffix}+tlrc[28]" \
-#                 18 "S27/analysis/S27.analysis.${suffix}+tlrc[28]" \
-#                 19 "S28/analysis/S28.analysis.${suffix}+tlrc[28]" \
-#                 20 "S29/analysis/S29.analysis.${suffix}+tlrc[28]"
-# # invisible
-# 3dttest++ -prefix group/congruent__${outsuffix}_inv               \
-#           -mask ${mask}                                           \
-#           -setA invcon_incon                                      \
-#                 01 "S03/analysis/S03.analysis.${suffix}+tlrc[31]" \
-#                 02 "S04/analysis/S04.analysis.${suffix}+tlrc[31]" \
-#                 03 "S05/analysis/S05.analysis.${suffix}+tlrc[31]" \
-#                 04 "S06/analysis/S06.analysis.${suffix}+tlrc[31]" \
-#                 05 "S07/analysis/S07.analysis.${suffix}+tlrc[31]" \
-#                 06 "S08/analysis/S08.analysis.${suffix}+tlrc[31]" \
-#                 07 "S11/analysis/S11.analysis.${suffix}+tlrc[31]" \
-#                 08 "S14/analysis/S14.analysis.${suffix}+tlrc[31]" \
-#                 09 "S15/analysis/S15.analysis.${suffix}+tlrc[31]" \
-#                 10 "S16/analysis/S16.analysis.${suffix}+tlrc[31]" \
-#                 11 "S19/analysis/S19.analysis.${suffix}+tlrc[31]" \
-#                 12 "S21/analysis/S21.analysis.${suffix}+tlrc[31]" \
-#                 13 "S22/analysis/S22.analysis.${suffix}+tlrc[31]" \
-#                 14 "S23/analysis/S23.analysis.${suffix}+tlrc[31]" \
-#                 15 "S24/analysis/S24.analysis.${suffix}+tlrc[31]" \
-#                 16 "S25/analysis/S25.analysis.${suffix}+tlrc[31]" \
-#                 17 "S26/analysis/S26.analysis.${suffix}+tlrc[31]" \
-#                 18 "S27/analysis/S27.analysis.${suffix}+tlrc[31]" \
-#                 19 "S28/analysis/S28.analysis.${suffix}+tlrc[31]" \
-#                 20 "S29/analysis/S29.analysis.${suffix}+tlrc[31]"
+# check $1, if is whole, use bmask.nii as mask
+if [ "$1" = "whole" ]; then
+      mask=group/mask/bmask.nii
+      out=whole
+else
+      mask=group/mask/Amy8_align.freesurfer+tlrc
+      out=Amy
+fi
+# if $2 esists, use it as suffix
+if [ -n "$2" ]; then
+      suffix=de.$2
+      outsuffix=${out}$2
+else
+      suffix=de
+      outsuffix=${out}
+fi
 # if anova results exists, delete it
 if [ -f group/ANOVA_results_${outsuffix}+tlrc.HEAD ]; then
       rm group/ANOVA_results_${outsuffix}+tlrc*
@@ -93,14 +28,14 @@ fi
       -wsVars "face*odor*visib"         \
       -mask ${mask}                  \
       -SS_type 3                          \
-      -num_glt 3                         \
+      -num_glt 7                         \
       -gltLabel 1 fointer -gltCode  1 'face : 1*fear -1*happy odor : 1*unplea -1*plea'            \
       -gltLabel 2 fointer_vis -gltCode 2 'face : 1*fear -1*happy odor : 1*unplea -1*plea visib: 1*vis'     \
       -gltLabel 3 fointer_inv -gltCode 3 'face : 1*fear -1*happy odor : 1*unplea -1*plea visib: 1*inv' \
-      -num_glf 3                         \
-      -glfLabel 1 fointer_f -glfCode 1 'face : 1*fear -1*happy odor : 1*unplea -1*plea' \
-      -glfLabel 2 f2ointer_f -glfCode 2 'face : 1*fear & 1*happy odor : 1*unplea -1*plea' \
-      -glfLabel 3 f2o2inter_f -glfCode 3 'face : 1*fear & 1*happy odor : 1*unplea & 1*plea' \
+      -gltLabel 4 face_vis -gltCode 4 'face : 1*fear -1*happy visib: 1*vis' \
+      -gltLabel 5 face_inv -gltCode 5 'face : 1*fear -1*happy visib: 1*inv' \
+      -gltLabel 6 odor_vis -gltCode 6 'odor : 1*unplea -1*plea visib: 1*vis' \
+      -gltLabel 7 odor_inv -gltCode 7 'odor : 1*unplea -1*plea visib: 1*inv' \
       -dataTable                                                                                     \
       Subj   face    odor      visib     InputFile                               \
       S03    fear    plea      vis       "S03/S03.de.results/stats.S03.${suffix}+tlrc[1]"  \

@@ -90,6 +90,11 @@ for (sub_i in params$sub) {
   data_tent <- rbind(data_tent,extractdata(name[region],odors))
   }
 }
+# set datatent$NZmean to its half if time is the min and max
+tmin <- min(data_tent$time)
+tmax <- max(data_tent$time)
+data_tent$NZmean[data_tent$time==tmin] <- data_tent$NZmean[data_tent$time==tmin]/2
+data_tent$NZmean[data_tent$time==tmax] <- data_tent$NZmean[data_tent$time==tmax]/2
 # remove NA
 # data_tent <- na.omit(data_tent)
 ```

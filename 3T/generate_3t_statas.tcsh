@@ -14,7 +14,7 @@ set analysis=de
 echo ${sub} ${analysis}
 # cd to the folder
 set subj = ${sub}.${analysis}
-set subjva = ${subj}.crossl
+set subjva = ${subj}
 cd ${subj}.results
 
 # warp to standard space
@@ -27,9 +27,9 @@ set name = stats.${subjva}
 3drefit -fbuc ${name}+tlrc
 
 # extract tent and beta values
-set filedec = odorfixl_16
+set filedec = odor_12
 set maskdec = align
-set maskdec_t2 = atfixl165
+set maskdec_t2 = at165
 set maskdec_t = ${maskdec_t2}_p # positive only for tent
 set data_tent=tent.${subj}.${filedec}+orig
 set data_beta=stats.${subjva}+orig
@@ -72,10 +72,10 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -prefix ../mask/${region}_${maskdec_t}.freesurfer
     # all significant voxels
     3dROIstats -mask ../mask/${region}_${maskdec_t2}.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 71`72]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_16.txt
+    -nzmean ${data_tent}"[`seq -s , 1 55`56]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
     # posistive only
     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 71`72]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_16p.txt
+    -nzmean ${data_tent}"[`seq -s , 1 55`56]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12p.txt
     # rename
     # mv ../../stats/${sub}/${region}_${maskdec_t}_tent11s_14.txt ../../stats/${sub}/${region}_${maskdec_t}_tent_14.txt
     # mv ../../stats/${sub}/${region}_${maskdec_t}_tent11s_14p.txt ../../stats/${sub}/${region}_${maskdec_t}_tent_14p.txt

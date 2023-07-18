@@ -29,6 +29,7 @@ fi
       -mask ${mask}                  \
       -SS_type 3                          \
       -num_glt 7                         \
+      -resid   group/errs.${outsuffix} \
       -gltLabel 1 fointer -gltCode  1 'face : 1*fear -1*happy odor : 1*unplea -1*plea'            \
       -gltLabel 2 fointer_vis -gltCode 2 'face : 1*fear -1*happy odor : 1*unplea -1*plea visib: 1*vis'     \
       -gltLabel 3 fointer_inv -gltCode 3 'face : 1*fear -1*happy odor : 1*unplea -1*plea visib: 1*inv' \

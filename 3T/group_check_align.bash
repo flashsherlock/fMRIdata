@@ -48,32 +48,31 @@ do
     # -com "QUIT"                                                                                     \
     # ./mask ../S${sub}/${subj}.results/
     # statas and anatomy
-    # afni                                                                                            \
-    # -all_dsets                                                                                      \
-    # -com "OPEN_WINDOW A.coronalimage"                                                               \
-    # -com "SET_XHAIRS A.OFF"                                                                         \
-    # -com "SWITCH_UNDERLAY stats.S${sub}.de+tlrc"                                                     \
-    # -com "SWITCH_OVERLAY Amy8_align.freesurfer+tlrc"                                                   \
-    # -com "SET_DICOM_XYZ A 26 2 -18"                                                                    \
-    # -com "SAVE_PNG A.coronalimage ./image/checkt2amy/S${sub}_coronal.png"                      \
-    # -com "SAVE_PNG A.axialimage ./image/checkt2amy/S${sub}_axial.png"                          \
-    # -com "SAVE_PNG A.sagittalimage ./image/checkt2amy/S${sub}_sagittal.png"                    \
-    # -com "QUIT"                                                                                     \
-    # ./mask ../S${sub}/${subj}.results/
-    # t2 and anatomy
+    ijk=($(3dAutobox -extent_xyz_midslice -noclust ../S${sub}/${subj}.results/Amy.seg.freesurfer+orig))
     afni                                                                                            \
     -all_dsets                                                                                      \
-    -com "OPEN_WINDOW A.coronalimage keypress=e keypress=6"                                        \
-    -com "OPEN_WINDOW A.sagitalimage keypress=e keypress=6"                                        \
-    -com "OPEN_WINDOW A.axialimage keypress=e keypress=6"                                        \
+    -com "OPEN_WINDOW A.coronalimage mont=6x6:1 geom=600x600+800+600"                                                               \
     -com "SET_XHAIRS A.OFF"                                                                         \
-    -com "SWITCH_UNDERLAY anatQQ.S${sub}+tlrc"                                                     \
-    -com "SWITCH_OVERLAY ${name}+tlrc"                                                   \
-    -com "SET_DICOM_XYZ A 26 2 -18"                                                        \
-    -com "SAVE_PNG A.coronalimage ./image/checkt2/S${sub}_coronal.png"                      \
-    -com "SAVE_PNG A.axialimage ./image/checkt2/S${sub}_axial.png"                          \
-    -com "SAVE_PNG A.sagittalimage ./image/checkt2/S${sub}_sagittal.png"                    \
+    -com "SWITCH_UNDERLAY anat_final.S${sub}.de+orig"                                                     \
+    -com "SWITCH_OVERLAY Amy.seg.freesurfer+orig"                                                   \
+    -com "SET_DICOM_XYZ A ${ijk[0]} ${ijk[1]} ${ijk[2]}"                                                                    \
+    -com "SAVE_PNG A.coronalimage ./image/checkt2amy/S${sub}_coronal.png"                      \
     -com "QUIT"                                                                                     \
     ./mask ../S${sub}/${subj}.results/
+    # t2 and anatomy
+    # afni                                                                                            \
+    # -all_dsets                                                                                      \
+    # -com "OPEN_WINDOW A.coronalimage keypress=e keypress=6"                                        \
+    # -com "OPEN_WINDOW A.sagitalimage keypress=e keypress=6"                                        \
+    # -com "OPEN_WINDOW A.axialimage keypress=e keypress=6"                                        \
+    # -com "SET_XHAIRS A.OFF"                                                                         \
+    # -com "SWITCH_UNDERLAY anatQQ.S${sub}+tlrc"                                                     \
+    # -com "SWITCH_OVERLAY ${name}+tlrc"                                                   \
+    # -com "SET_DICOM_XYZ A 26 2 -18"                                                        \
+    # -com "SAVE_PNG A.coronalimage ./image/checkt2/S${sub}_coronal.png"                      \
+    # -com "SAVE_PNG A.axialimage ./image/checkt2/S${sub}_axial.png"                          \
+    # -com "SAVE_PNG A.sagittalimage ./image/checkt2/S${sub}_sagittal.png"                    \
+    # -com "QUIT"                                                                                     \
+    # ./mask ../S${sub}/${subj}.results/
 done
 

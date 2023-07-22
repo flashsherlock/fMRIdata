@@ -28,7 +28,9 @@ if ( -d "${datafolder}" ) then
     # rm fitts*
     # rm *nocross*
     # ls *frame*
-    rm *_16*
+    # rm *_16*
+    3dcopy anat_final.${subj}+orig ../../roi/${sub}.nii
+    3dcopy ../mask/Amy8_align.freesurfer+orig ../../roi/${sub}_amy.nii
 else
     echo "${datafolder} not exsist"
 endif

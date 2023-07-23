@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 # for subs from 01 to 04
-foreach ub (`count -dig 2 2 19`)
+foreach ub (`count -dig 2 $1 $2`)
 set sub=S${ub}
 set datafolder=/Volumes/WD_F/gufei/blind/${sub}
 # if sub folder not exsist then continue

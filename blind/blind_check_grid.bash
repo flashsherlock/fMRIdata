@@ -4,8 +4,9 @@ datafolder=/Volumes/WD_F/gufei/blind
 cd "${datafolder}" || exit
 
 # for each sub
-for sub in S{27..30}; do
-    # if sub folder not exsist then continue
+for ub in $(count -dig 2 ${1} ${2}); do
+      sub=S${ub}
+      # if sub folder not exsist then continue
       if [[ ! -e "${sub}" ]]; then
             echo "${sub} not exsist"
             continue
@@ -43,9 +44,9 @@ done
 #                 -1Dmatrix_apply ${datafolder}/Subs_remove/S14/S14.pade.results/new.1D
 
 # refit orient
-# sub=S23
+# sub=S35
 # cd "${sub}" || exit
-# for r in {2..5}; do
+# for r in {2..6}; do
 #       3drefit -duporigin ${sub}.run1.nii ${sub}.run${r}.nii
 # done
 # 3drefit -duporigin ${sub}.run1.nii ${sub}.pa.nii

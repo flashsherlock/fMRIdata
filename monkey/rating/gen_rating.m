@@ -122,8 +122,89 @@ switch exp
         Screen('DrawText', windowPtr, rating_v1, line_left - floor(rv1_Width / 2), 7 * height / 16 - floor(rv1_Height / 2), yellow);
         Screen('DrawText', windowPtr, rating_v2, line_right - floor(rv2_Width / 2), 7 * height / 16 - floor(rv1_Height / 2), yellow);              
         
+    case 'all'
+        % define positions
+        rate_num = 5;        
+        rates = (height / 8) * (3:8);        
+        % rating page
+        rating_valence = double('愉悦度');
+        v_insBoundsRect = Screen('TextBounds', windowPtr, rating_valence);
+        v_insWidth = RectWidth(v_insBoundsRect);
+        v_insHeight = RectHeight(v_insBoundsRect);
+        rating_intensity = double('强    度');
+        i_insBoundsRect = Screen('TextBounds', windowPtr, rating_intensity);
+        i_insWidth = RectWidth(i_insBoundsRect);
+        i_insHeight = RectHeight(i_insBoundsRect);
+        rating_familarity = double('熟悉度');
+        f_insBoundsRect = Screen('TextBounds', windowPtr, rating_familarity);
+        f_insWidth = RectWidth(f_insBoundsRect);
+        f_insHeight = RectHeight(f_insBoundsRect);
+        rating_edibility = double('可食用性');
+        e_insBoundsRect = Screen('TextBounds', windowPtr, rating_edibility);
+        e_insWidth = RectWidth(e_insBoundsRect);
+        e_insHeight = RectHeight(e_insBoundsRect);
+        rating_arousal = double('唤醒度');
+        a_insBoundsRect = Screen('TextBounds', windowPtr, rating_arousal);
+        a_insWidth = RectWidth(a_insBoundsRect);
+        a_insHeight = RectHeight(a_insBoundsRect);
+        % labels
+        rating_v1 = double('非常难闻');
+        rating_v2 = double('非常好闻');
+        rv1_BoundsRect = Screen('TextBounds', windowPtr, rating_v1);
+        rv1_Width = RectWidth(rv1_BoundsRect);
+        rv1_Height = RectHeight(rv1_BoundsRect);
+        rv2_BoundsRect = Screen('TextBounds', windowPtr, rating_v2);
+        rv2_Width = RectWidth(rv2_BoundsRect);
+        rating_i1 = double('非常微弱');
+        rating_i2 = double('非常强烈');
+        ri1_BoundsRect = Screen('TextBounds', windowPtr, rating_i1);
+        ri1_Width = RectWidth(ri1_BoundsRect);
+        ri1_Height = RectHeight(ri1_BoundsRect);
+        ri2_BoundsRect = Screen('TextBounds', windowPtr, rating_i2);
+        ri2_Width = RectWidth(ri2_BoundsRect);
+        rating_f1 = double('非常陌生');
+        rating_f2 = double('非常熟悉');
+        rf1_BoundsRect = Screen('TextBounds', windowPtr, rating_f1);
+        rf1_Width = RectWidth(rf1_BoundsRect);
+        rf1_Height = RectHeight(rf1_BoundsRect);
+        rf2_BoundsRect = Screen('TextBounds', windowPtr, rating_f2);
+        rf2_Width = RectWidth(rf2_BoundsRect);
+        rating_e1 = double('不可食用');
+        rating_e2 = double('可以食用');
+        re1_BoundsRect = Screen('TextBounds', windowPtr, rating_e1);
+        re1_Width = RectWidth(re1_BoundsRect);
+        re1_Height = RectHeight(re1_BoundsRect);
+        re2_BoundsRect = Screen('TextBounds', windowPtr, rating_e2);
+        re2_Width = RectWidth(re2_BoundsRect);
+        rating_a1 = double('不可食用');
+        rating_a2 = double('可以食用');
+        ra1_BoundsRect = Screen('TextBounds', windowPtr, rating_a1);
+        ra1_Width = RectWidth(ra1_BoundsRect);
+        ra1_Height = RectHeight(ra1_BoundsRect);
+        ra2_BoundsRect = Screen('TextBounds', windowPtr, rating_a2);
+        ra2_Width = RectWidth(ra2_BoundsRect);
+        % dimension
+        % Screen('TextSize',windowPtr, 20);
+        Screen('DrawText', windowPtr, rating_valence, width / 4 - floor(v_insWidth / 2), rates(1) - floor(v_insHeight / 2), white);
+        Screen('DrawText', windowPtr, rating_intensity, width / 4 - floor(i_insWidth / 2), rates(2) - floor(i_insHeight / 2), white);
+        Screen('DrawText', windowPtr, rating_familarity, width / 4 - floor(f_insWidth / 2), rates(3) - floor(f_insHeight / 2), white);
+        Screen('DrawText', windowPtr, rating_edibility, width / 4 - floor(e_insWidth / 2), rates(4) - floor(e_insHeight / 2), white);
+        Screen('DrawText', windowPtr, rating_arousal, width / 4 - floor(a_insWidth / 2), rates(5) - floor(a_insHeight / 2), white);
+        % labels of the rating
+        Screen('TextSize', windowPtr, 22);
+        Screen('DrawText', windowPtr, rating_v1, line_left - floor(rv1_Width / 2), 5 * height / 16 - floor(rv1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_v2, line_right - floor(rv2_Width / 2), 5 * height / 16 - floor(rv1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_i1, line_left - floor(ri1_Width / 2), 7 * height / 16 - floor(ri1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_i2, line_right - floor(ri2_Width / 2), 7 * height / 16 - floor(ri1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_f1, line_left - floor(rf1_Width / 2), 9 * height / 16 - floor(rf1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_f2, line_right - floor(rf2_Width / 2), 9 * height / 16 - floor(rf1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_e1, line_left - floor(re1_Width / 2), 11 * height / 16 - floor(re1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_e2, line_right - floor(re2_Width / 2), 11 * height / 16 - floor(re1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_a1, line_left - floor(ra1_Width / 2), 13 * height / 16 - floor(ra1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_a2, line_right - floor(ra2_Width / 2), 13 * height / 16 - floor(ra1_Height / 2), yellow);
+
     otherwise
-        error('Should be vi or si');
+        error('Should be vi, si, or all');
 end
 
 % lines and ticks

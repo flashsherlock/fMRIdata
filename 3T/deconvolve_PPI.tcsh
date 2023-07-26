@@ -9,11 +9,11 @@ cd "${datafolder}"
 # run the regression analysis
 set subj = ${sub}.${analysis}
 cd ${subj}.results
-# remove existing files
-rm ppi.$seed
 # deconvolve
 set filedec = new
 set seed = ${subj}.${filedec}
+# remove existing files
+rm ppi.${seed}*
 set pb = `ls pb0?.*.r01.scale+orig.HEAD | cut -d . -f1`
 3dDeconvolve -input ${pb}.$subj.r*.scale+orig.HEAD             \
     -censor motion_${subj}_censor.1D                           \

@@ -33,12 +33,12 @@ for i = 1:supele
 end
 
 Screen('Preference', 'SkipSyncTests', 1);
-[windowPtr, rect] = Screen('OpenWindow', whichscreen, black);
+[windowPtr, rectw] = Screen('OpenWindow', whichscreen, black);
 Screen('BlendFunction', windowPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 Screen('TextFont', windowPtr, 'Kaiti');
 [width, height] = Screen('WindowSize', windowPtr);
 textlinespace = 1.5;
-[centerx, centery] = RectCenter(rect);
+[centerx, centery] = RectCenter(rectw);
 
 msgwelcome = {'这是一个评价气味的实验。', ...
                   '请按照提示闻不同的气味并对其进行评价。', ...
@@ -106,9 +106,8 @@ for o = 1:data.odornum
     end
 
     % rating
-    [ratingresults_vif(no, :), again] = gen_rating('all', windowPtr, rect, whichscreen);
-    data.results_vif = ratingresults_vif;
-
+    [ratingresults_vif(no, :), again] = gen_rating('all', windowPtr, rectw, whichscreen);
+    
     % rate on descriptors
     msgwelcome = {'接下来，请评价该气味符合描述词的程度。', ...
                       '实验过程中可多次闻气味。', ...
@@ -334,30 +333,31 @@ for o = 1:data.odornum
             end
 
         end % mouse while true end
+    end % page end           
 
-    end % page end
-            data.results = ratingresults;
-            save([datadir datafile], 'data');
-
-            if o < data.odornum
-                Screen('TextSize', windowPtr, 25);
-                waitmessage = double('请休息一下......');
-                wmBoundsRect = Screen('TextBounds', windowPtr, waitmessage);
-                wmWidth = RectWidth(wmBoundsRect);
-                wmHeight = RectHeight(wmBoundsRect);
-                Screen('DrawText', windowPtr, waitmessage, centerx - floor(wmWidth / 2), centery -floor(wmHeight / 2), white);
-                Screen('Flip', windowPtr);
-                WaitSecs(data.break_time);
-            else
-                Screen('TextSize', windowPtr, 30);
-                breakmessage = double('评价结束，谢谢！');
-                bBoundsRect = Screen('TextBounds', windowPtr, breakmessage);
-                bWidth = RectWidth(bBoundsRect);
-                bHeight = RectHeight(bBoundsRect);
-                Screen('DrawText', windowPtr, breakmessage, centerx - floor(bWidth / 2), centery -floor(bHeight / 2), white);
-                Screen('Flip', windowPtr);
-                WaitSecs(2);
-                Screen('CloseAll');
-                ListenChar(0);
-            end
+    if o < data.odornum
+        Screen('TextSize', windowPtr, 25);
+        waitmessage = double('请休息一下......');
+        wmBoundsRect = Screen('TextBounds', windowPtr, waitmessage);
+        wmWidth = RectWidth(wmBoundsRect);
+        wmHeight = RectHeight(wmBoundsRect);
+        Screen('DrawText', windowPtr, waitmessage, centerx - floor(wmWidth / 2), centery -floor(wmHeight / 2), white);
+        Screen('Flip', windowPtr);
+        WaitSecs(data.break_time);
+    else
+        Screen('TextSize', windowPtr, 30);
+        breakmessage = double('评价结束，谢谢！');
+        bBoundsRect = Screen('TextBounds', windowPtr, breakmessage);
+        bWidth = RectWidth(bBoundsRect);
+        bHeight = RectHeight(bBoundsRect);
+        Screen('DrawText', windowPtr, breakmessage, centerx - floor(bWidth / 2), centery -floor(bHeight / 2), white);
+        Screen('Flip', windowPtr);
+        WaitSecs(2);
+        Screen('CloseAll');
+        ListenChar(0);
+    end   
 end
+% save results
+data.results_vif = ratingresults_vif;
+data.results = ratingresults(:,1:desnum);
+save([datadir datafile], 'data');

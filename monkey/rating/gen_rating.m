@@ -1,6 +1,6 @@
 function [ratings, again] = gen_rating(exp, windowPtr, rect, whichscreen)
 % ratings
-%   exp: vi or si
+%   exp: vi, si or all
 again = 0;
 [width, height] = Screen('WindowSize', windowPtr);
 [centerx, centery] = RectCenter(rect);
@@ -125,7 +125,7 @@ switch exp
     case 'all'
         % define positions
         rate_num = 5;        
-        rates = (height / 8) * (3:8);        
+        rates = (height / 8) * (3:7);        
         % rating page
         rating_valence = double('愉悦度');
         v_insBoundsRect = Screen('TextBounds', windowPtr, rating_valence);
@@ -176,8 +176,8 @@ switch exp
         re1_Height = RectHeight(re1_BoundsRect);
         re2_BoundsRect = Screen('TextBounds', windowPtr, rating_e2);
         re2_Width = RectWidth(re2_BoundsRect);
-        rating_a1 = double('不可食用');
-        rating_a2 = double('可以食用');
+        rating_a1 = double('低');
+        rating_a2 = double('高');
         ra1_BoundsRect = Screen('TextBounds', windowPtr, rating_a1);
         ra1_Width = RectWidth(ra1_BoundsRect);
         ra1_Height = RectHeight(ra1_BoundsRect);

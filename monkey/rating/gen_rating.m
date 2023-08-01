@@ -123,9 +123,11 @@ switch exp
         Screen('DrawText', windowPtr, rating_v2, line_right - floor(rv2_Width / 2), 7 * height / 16 - floor(rv1_Height / 2), yellow);              
         
     case 'all'
+        white=WhiteIndex(whichscreen);
+        yellow=[255, 127, 0];
         % define positions
         rate_num = 5;        
-        rates = (height / 8) * (3:7);        
+        rates = (height / 8) * (2:6);        
         % rating page
         rating_valence = double('愉悦度');
         v_insBoundsRect = Screen('TextBounds', windowPtr, rating_valence);
@@ -192,16 +194,16 @@ switch exp
         Screen('DrawText', windowPtr, rating_arousal, width / 4 - floor(a_insWidth / 2), rates(5) - floor(a_insHeight / 2), white);
         % labels of the rating
         Screen('TextSize', windowPtr, 22);
-        Screen('DrawText', windowPtr, rating_v1, line_left - floor(rv1_Width / 2), 5 * height / 16 - floor(rv1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_v2, line_right - floor(rv2_Width / 2), 5 * height / 16 - floor(rv1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_i1, line_left - floor(ri1_Width / 2), 7 * height / 16 - floor(ri1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_i2, line_right - floor(ri2_Width / 2), 7 * height / 16 - floor(ri1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_f1, line_left - floor(rf1_Width / 2), 9 * height / 16 - floor(rf1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_f2, line_right - floor(rf2_Width / 2), 9 * height / 16 - floor(rf1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_e1, line_left - floor(re1_Width / 2), 11 * height / 16 - floor(re1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_e2, line_right - floor(re2_Width / 2), 11 * height / 16 - floor(re1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_a1, line_left - floor(ra1_Width / 2), 13 * height / 16 - floor(ra1_Height / 2), yellow);
-        Screen('DrawText', windowPtr, rating_a2, line_right - floor(ra2_Width / 2), 13 * height / 16 - floor(ra1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_v1, line_left - floor(rv1_Width / 2), 3 * height / 16 - floor(rv1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_v2, line_right - floor(rv2_Width / 2), 3 * height / 16 - floor(rv1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_i1, line_left - floor(ri1_Width / 2), 5 * height / 16 - floor(ri1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_i2, line_right - floor(ri2_Width / 2), 5 * height / 16 - floor(ri1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_f1, line_left - floor(rf1_Width / 2), 7 * height / 16 - floor(rf1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_f2, line_right - floor(rf2_Width / 2), 7 * height / 16 - floor(rf1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_e1, line_left - floor(re1_Width / 2), 9 * height / 16 - floor(re1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_e2, line_right - floor(re2_Width / 2), 9 * height / 16 - floor(re1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_a1, line_left - floor(ra1_Width / 2), 11 * height / 16 - floor(ra1_Height / 2), yellow);
+        Screen('DrawText', windowPtr, rating_a2, line_right - floor(ra2_Width / 2), 11 * height / 16 - floor(ra1_Height / 2), yellow);
 
     otherwise
         error('Should be vi, si, or all');

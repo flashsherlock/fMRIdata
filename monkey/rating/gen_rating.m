@@ -9,6 +9,9 @@ black = BlackIndex(whichscreen);
 % white=WhiteIndex(whichscreen);
 yellow = black;
 white = black;
+% define keys
+KbName('UnifyKeyNames');
+escapeKey = KbName('ESCAPE');
 % common components
 Screen('TextSize', windowPtr, 25);
 rating_instruction = double('请评价闻到的气味：');
@@ -244,6 +247,7 @@ srm(:, 4) = rates'+10;
 % get mouse
 while true
     [x, y, buttons] = GetMouse(windowPtr);
+    [touch, ~, keyCode] = KbCheck;
     % click in the rating region
     if buttons(1) && IsInRect(x, y, [srm(1, 1), srm(1, 2), srm(rate_num, 3), srm(rate_num, 4)])
         % find the xy in which rect
@@ -281,6 +285,10 @@ while true
         % the same odor again
         again = 1;
         break;
+    % esc
+    elseif touch == 1 && (keyCode(escapeKey))
+        Screen('CloseAll');
+        ListenChar(0);
     end
 end
     % return ratings

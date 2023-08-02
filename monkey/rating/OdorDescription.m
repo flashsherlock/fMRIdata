@@ -73,7 +73,7 @@ end
 odorseq = randperm(data.odornum);
 data.seq = odorseq;
 ratingresults_vif = zeros(data.odornum, 5);
-ratingresults = zeros(data.odornum, desnum+supele);
+ratingresults = [];
 % for each odor
 for o = 1:data.odornum
     no = odorseq(o);
@@ -97,8 +97,9 @@ for o = 1:data.odornum
     end
 
     % rating
-    [ratingresults_vif(no, :), again] = gen_rating('all', windowPtr, rectw, whichscreen);
-    
+    while ~all(ratingresults_vif(no, :))
+        ratingresults_vif(no, :) = gen_rating('all', windowPtr, rectw, whichscreen);
+    end
     % rate on descriptors
     msgwelcome = {'接下来，请评价该气味符合描述词的程度。', ...
                       '实验过程中可多次闻气味。', ...
@@ -124,7 +125,7 @@ for o = 1:data.odornum
     end
 
     % descriptions
-    [ratingresults(no, :), again] = gen_description(descriptors, windowPtr, rectw, whichscreen, data.page_num);
+    ratingresults(no, :) = gen_description(descriptors, windowPtr, rectw, whichscreen, data.page_num);
 
     if o < data.odornum
         Screen('TextSize', windowPtr, 25);
@@ -150,5 +151,5 @@ for o = 1:data.odornum
 end
 % save results
 data.results_vif = ratingresults_vif;
-data.results = ratingresults(:,1:desnum);
+data.results = ratingresults(:,1:length(descriptors));
 save([datadir datafile], 'data');

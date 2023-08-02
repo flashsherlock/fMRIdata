@@ -108,11 +108,9 @@ for p = 1:page_num
     rrm(:, 1) = repmat([width / 5; 7 * width / 10], size(demat, 2) / 2, 1);
     rrm(:, 3) = repmat([2 * width / 5; 9 * width / 10], size(demat, 2) / 2, 1);
     % rating height setvalue
-    sens = height/24;
-    for i = 1:size(demat, 2)
-        rrm(i, 2) = 3 * rowHeight / 2 + floor((i - 1) / 2) * rowHeight - sens;
-        rrm(i, 4) = 3 * rowHeight / 2 + floor((i - 1) / 2) * rowHeight + sens;
-    end
+    sens = rowHeight/2 - 5;
+    rrm(:,2)=xys1(2,:) - sens;
+    rrm(:,4)=xys1(2,:) + sens;
 
     sens = rowHeight / 4;
     % put the rating page onset
@@ -131,6 +129,7 @@ for p = 1:page_num
     end
 
     rectlables = 1:size(demat, 2);
+    rectnumber = [];
     while true
         [x, y, buttons] = GetMouse(windowPtr);
         [touch, ~, keyCode] = KbCheck;
@@ -142,7 +141,7 @@ for p = 1:page_num
                     rectnumber = rect;
                 end
             end
-
+        if ~isempty(rectnumber)
             [~, rectcentery] = RectCenter(rrm(rectnumber, :));
             points = [x - 4, rectcentery - 10; x + 4, rectcentery - 10; x, rectcentery];
             allxs{rectnumber} = [allxs{rectnumber} x];
@@ -162,21 +161,22 @@ for p = 1:page_num
             end                
             Screen('Flip', windowPtr);
             ratingresults(descriptorlabels(rectnumber)) = max(1,ceil((allxs{rectnumber}(end) - rrm(rectnumber, 1)) / (width / 5) * 100));
+            rectnumber = [];
             WaitSecs(0.1);
+        end
         % confirm button
         elseif buttons(1) && IsInRect(x, y, [centerx - floor(msg_certainWidth / 2) - 10, height - rowHeight / 2 - floor(wordsHeight / 2) - 10, centerx + floor(msg_certainWidth / 2) + 10, height - rowHeight / 2 + floor(wordsHeight / 2) + 10])
             blanks = cellfun('isempty', allxs);
             % make sure no blanks
             if sum(blanks) == 0
-                ShowCursor('Hand', windowPtr);
-                Screen('PreloadTextures', windowPtr, ratingbody);
-                Screen('DrawTexture', windowPtr, ratingbody);
-                Screen('DrawText', windowPtr, msg_certain, centerx - floor(msg_certainWidth / 2), height - rowHeight / 2 - floor(wordsHeight / 2), gray);
-                Screen('Flip', windowPtr);
-                WaitSecs(0.1);
-                SetMouse(centerx - floor(msg_certainWidth / 2) - 5, height - rowHeight / 2 - floor(wordsHeight / 2) - 5, windowPtr);
                 break;
             end
+        % any other click on confirm
+        % buttons(2) on mac but buttons(3) on win for right click
+%         elseif ~buttons(1) && any(buttons) && IsInRect(x, y, [centerx - floor(msg_certainWidth / 2) - 10, height - rowHeight / 2 - floor(wordsHeight / 2) - 10, centerx + floor(msg_certainWidth / 2) + 10, height - rowHeight / 2 + floor(wordsHeight / 2) + 10])
+%             % the same odor again
+%             again = 1;
+%             break;
         % esc
         elseif touch == 1 && (keyCode(escapeKey))
             Screen('CloseAll');

@@ -40,14 +40,14 @@ Screen('TextFont', windowPtr, 'Kaiti');
 textlinespace = 1.5;
 [centerx, centery] = RectCenter(rectw);
 
+% first screen
 msgwelcome = {'这是一个评价气味的实验。', ...
                   '请按照提示闻不同的气味并对其进行评价。', ...
-                  '首先需要评价气味的愉悦度、熟悉度、强度和可食用性，接下来评价气味符合描述词的程度。', ...
+                  '首先需要评价气味的愉悦度、熟悉度、强度、可食用性和唤醒度。', ...
                   '实验过程中可多次闻气味。', ...
                   '        ', ...
               '如果准备好了，请按“空格键”开始'};
 newY = centery - 200;
-
 for r = 1:numel(msgwelcome)
     Screen('TextSize', windowPtr, 20);
     msg_now = double(msgwelcome{r});
@@ -56,20 +56,20 @@ for r = 1:numel(msgwelcome)
     textHeight = RectHeight(msgiBoundsRect);
     [~, newY] = Screen('DrawText', windowPtr, msg_now, centerx - floor(textWidth / 2), newY + textlinespace * textHeight, white);
 end
-
-HideCursor;
 Screen('Flip', windowPtr);
 
+% define keys
 KbName('UnifyKeyNames');
 escapeKey = KbName('ESCAPE');
 spaceKey = KbName('SPACE');
 ListenChar(2);
-[touch, ~, keyCode] = KbCheck;
+HideCursor;
 
+% check keys
+[touch, ~, keyCode] = KbCheck;
 while ~(touch && (keyCode(spaceKey) || keyCode(escapeKey)))
     [touch, ~, keyCode] = KbCheck;
 end
-
 if keyCode(escapeKey)
     Screen('CloseAll');
     ListenChar(0);
@@ -79,6 +79,7 @@ end
 odorseq = randperm(data.odornum);
 data.seq = odorseq;
 ratingresults_vif = zeros(data.odornum, 5);
+ratingresults = zeros(data.odornum, desnum+supele);
 % for each odor
 for o = 1:data.odornum
     no = odorseq(o);
@@ -92,14 +93,10 @@ for o = 1:data.odornum
     Screen('DrawText', windowPtr, instruction, centerx - floor(insWidth / 2), centery - floor(insHeight / 2), white);
     Screen('Flip', windowPtr);
     WaitSecs(1);
-
-    ListenChar(2);
     [touch, ~, keyCode] = KbCheck;
-
     while ~(touch && (keyCode(spaceKey) || keyCode(escapeKey)))
         [touch, ~, keyCode] = KbCheck;
     end
-
     if keyCode(escapeKey)
         Screen('CloseAll');
         ListenChar(0);
@@ -114,7 +111,6 @@ for o = 1:data.odornum
                       '        ', ...
                   '如果准备好了，请按“空格键”开始'};
     newY = centery - 200;
-
     for r = 1:numel(msgwelcome)
         Screen('TextSize', windowPtr, 20);
         msg_now = double(msgwelcome{r});
@@ -123,10 +119,7 @@ for o = 1:data.odornum
         textHeight = RectHeight(msgiBoundsRect);
         [~, newY] = Screen('DrawText', windowPtr, msg_now, centerx - floor(textWidth / 2), newY + textlinespace * textHeight, white);
     end
-
-    HideCursor;
     Screen('Flip', windowPtr);
-
     [touch, ~, keyCode] = KbCheck;
     while ~(touch && (keyCode(spaceKey) || keyCode(escapeKey)))
         [touch, ~, keyCode] = KbCheck;
@@ -170,36 +163,28 @@ for o = 1:data.odornum
         Screen('DrawText', windowPtr, msg_certain, centerx - floor(msg_certainWidth / 2), height - rowHeight / 2 - floor(msg_certainHeight / 2), white);
         Screen('FrameRect', windowPtr, 255, [centerx - floor(msg_certainWidth / 2) - 10, height - rowHeight / 2 - floor(msg_certainHeight / 2) - 10, centerx + floor(msg_certainWidth / 2) + 10, height - rowHeight / 2 + floor(msg_certainHeight / 2) + 10], 3); %the confirm part
         % ratingbar coordinate matrix
-        for l = 1:size(demat, 2)
-            xys1(1, l) = mod(l, 2) * (2/10) * width + width / 5;
-            xys1(2, l) = 3 * rowHeight / 2 + (ceil(l / 2) - 1) * rowHeight;
-        end
-
-        for l = 1:size(demat, 2)
-            xys2(1, l) = mod(l, 2) * (2/10) * width + 7 * width / 10;
-            xys2(2, l) = 3 * rowHeight / 2 + (ceil(l / 2) - 1) * rowHeight;
-        end
+        l = 1:size(demat, 2);
+        xys1(1, l) = mod(l, 2) * (2/10) * width + width / 5;
+        xys1(2, l) = 3 * rowHeight / 2 + (ceil(l / 2) - 1) * rowHeight;
+        xys2(1, l) = mod(l, 2) * (2/10) * width + 7 * width / 10;
+        xys2(2, l) = 3 * rowHeight / 2 + (ceil(l / 2) - 1) * rowHeight;
 
         Screen('DrawLines', windowPtr, xys1, 2, []);
         Screen('DrawLines', windowPtr, xys2, 2, []);
-        % calibration coordinate matrix
+        % rating scale
         cali_rowy1 = [];
-
         for c = 1:size(demat, 2) / 2
             cali_rowy1c = repmat([3 * rowHeight / 2 - 5 + (c - 1) * rowHeight 3 * rowHeight / 2 + (c - 1) * rowHeight], 1, 5);
             cali_rowy1 = [cali_rowy1, cali_rowy1c];
         end
-
         cali_row1x1 = repelem([width / 5, width / 5 + width / 20, width / 5 + 2 * width / 20, width / 5 + 3 * width / 20, width / 5 + 4 * width / 20], 2);
         cali_rowx1 = repmat(cali_row1x1, 1, rowinpage - 2);
         cali_xys1 = [cali_rowx1; cali_rowy1];
         cali_rowy2 = [];
-
         for c = 1:size(demat, 2) / 2
             cali_rowy2c = repmat([3 * rowHeight / 2 - 5 + (c - 1) * rowHeight 3 * rowHeight / 2 + (c - 1) * rowHeight], 1, 5);
             cali_rowy2 = [cali_rowy2, cali_rowy2c];
         end
-
         cali_row1x2 = repelem([7 * width / 10, 7 * width / 10 + width / 20, 7 * width / 10 + 2 * width / 20, 7 * width / 10 + 3 * width / 20, 7 * width / 10 + 4 * width / 20], 2);
         cali_rowx2 = repmat(cali_row1x2, 1, rowinpage - 2);
         cali_xys2 = [cali_rowx2; cali_rowy2];
@@ -230,6 +215,7 @@ for o = 1:data.odornum
         end
 
         % generate the rating rect matrix, rows for the start and end coordinates of one rating rect
+        rrm=[];
         rrm(:, 1) = repmat([width / 5; 7 * width / 10], size(demat, 2) / 2, 1);
         rrm(:, 3) = repmat([2 * width / 5; 9 * width / 10], size(demat, 2) / 2, 1);
         % rating height setvalue
@@ -247,20 +233,15 @@ for o = 1:data.odornum
         ratingbody = Screen('MakeTexture', windowPtr, bodyimage);
 
         descriptorlabels = demat(p, :);
-
+        allxs = cell(1, size(demat, 2));
+        % if the last page, fill sup
         if p == data.page_num
-            allxs = cell(size(demat, 2));
-
             for i = 1:supele
                 allxs{size(demat, 2) + 1 - i} = rrm(size(demat, 2) + 1 - i, 1);
             end
-
-        else
-            allxs = cell(1, size(demat, 2));
         end
 
-        rectlables = [1:1:size(demat, 2)];
-
+        rectlables = 1:size(demat, 2);
         while true
             [x, y, buttons] = GetMouse(windowPtr);
             [touch, ~, keyCode] = KbCheck;
@@ -268,13 +249,9 @@ for o = 1:data.odornum
             if buttons(1) && (IsInRect(x, y, [rrm(1, 1), rowHeight, rrm(1, 3), height - rowHeight]) || IsInRect(x, y, [rrm(2, 1), rowHeight, rrm(2, 3), height - rowHeight]))
                 % find the xy in which rect
                 for rect = 1:size(demat, 2)
-
                     if IsInRect(x, y, rrm(rect, :))
                         rectnumber = rect;
-                    else
-                        continue;
                     end
-
                 end
 
                 [~, rectcentery] = RectCenter(rrm(rectnumber, :));
@@ -284,54 +261,38 @@ for o = 1:data.odornum
                 rectchosen = rectlables(blanks == 0);
                 Screen('PreloadTextures', windowPtr, ratingbody);
                 Screen('DrawTexture', windowPtr, ratingbody);
-
+                % show ratings
                 if size(rectchosen, 2) >= 2
-
                     for r = 1:size(rectchosen, 2)
                         [~, rectcenteryed] = RectCenter(rrm(rectchosen(r), :));
                         points_ed = [allxs{rectchosen(r)}(end) - 4, rectcenteryed - 10; allxs{rectchosen(r)}(end) + 4, rectcenteryed - 10; allxs{rectchosen(r)}(end), rectcenteryed];
                         Screen('FramePoly', windowPtr, yellow, points_ed, 2);
                     end
-
-                end
-
-                Screen('FramePoly', windowPtr, yellow, points, 2);
+                else
+                    Screen('FramePoly', windowPtr, yellow, points, 2);
+                end                
                 Screen('Flip', windowPtr);
                 ratingresults(no,descriptorlabels(rectnumber)) = max(1,ceil((allxs{rectnumber}(end) - rrm(rectnumber, 1)) / (width / 5) * 100));
                 WaitSecs(0.1);
+            % confirm button
             elseif buttons(1) && IsInRect(x, y, [centerx - floor(msg_certainWidth / 2) - 10, height - rowHeight / 2 - floor(wordsHeight / 2) - 10, centerx + floor(msg_certainWidth / 2) + 10, height - rowHeight / 2 + floor(wordsHeight / 2) + 10])
                 blanks = cellfun('isempty', allxs);
-
-                if sum(blanks) > 0
-                    continue;
-                else
+                % make sure no blanks
+                if sum(blanks) == 0
                     ShowCursor('Hand', windowPtr);
                     Screen('PreloadTextures', windowPtr, ratingbody);
                     Screen('DrawTexture', windowPtr, ratingbody);
                     Screen('DrawText', windowPtr, msg_certain, centerx - floor(msg_certainWidth / 2), height - rowHeight / 2 - floor(wordsHeight / 2), gray);
-
-                    if size(rectchosen, 2) >= 2
-
-                        for r = 1:size(rectchosen, 2)
-                            [~, rectcenteryed] = RectCenter(rrm(rectchosen(r), :));
-                            points_ed = [allxs{rectchosen(r)}(end) - 4, rectcenteryed - 10; allxs{rectchosen(r)}(end) + 4, rectcenteryed - 10; allxs{rectchosen(r)}(end), rectcenteryed]; Screen('FramePoly', windowPtr, yellow, points_ed, 2);
-                        end
-
-                    end
-
                     Screen('Flip', windowPtr);
                     WaitSecs(0.1);
                     SetMouse(centerx - floor(msg_certainWidth / 2) - 5, height - rowHeight / 2 - floor(wordsHeight / 2) - 5, windowPtr);
                     break;
                 end
-
+            % esc
             elseif touch == 1 && (keyCode(escapeKey))
                 Screen('CloseAll');
                 ListenChar(0);
-            else
-                continue;
             end
-
         end % mouse while true end
     end % page end           
 

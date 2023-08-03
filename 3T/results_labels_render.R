@@ -19,6 +19,13 @@ for (roi_i in rois){
                       params = list(path = path, sub = subs, roi = roi, roiname = roiname, suffix = suffix))
   }
 }
+roi <- "Indiv40_0.001_fointer_inv_Amy"
+s <- "14"
+suffix <- paste0("_tent_", s, ".txt")
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/roistatas3t.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste("ROIstatas",roi,s,sep = "_"),
+                  params = list(path = path, sub = subs, roi = roi, roiname = "Amyinter", suffix = suffix))
 # 12s
 roi_i <- "at165"
 roi <- gsub("at165",roi_i,roibase)

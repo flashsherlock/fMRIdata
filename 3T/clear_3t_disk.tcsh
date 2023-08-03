@@ -27,10 +27,11 @@ if ( -d "${datafolder}" ) then
     # rm errts*
     # rm fitts*
     # rm *nocross*
-    # ls *frame*
+    rm *frame*
+    rm stats.${subj}+*
     # rm *_16*
-    3dcopy anat_final.${subj}+orig ../../roi/${sub}.nii
-    3dcopy ../mask/Amy8_align.freesurfer+orig ../../roi/${sub}_amy.nii
+    # 3dcopy anat_final.${subj}+orig ../../roi/${sub}.nii
+    # 3dcopy ../mask/Amy8_align.freesurfer+orig ../../roi/${sub}_amy.nii
 else
     echo "${datafolder} not exsist"
 endif

@@ -14,20 +14,20 @@ set analysis=de
 echo ${sub} ${analysis}
 # cd to the folder
 set subj = ${sub}.${analysis}
-set subjva = ${subj}
+set subjva = ${subj}.new
 cd ${subj}.results
 
 # warp to standard space
 set name = stats.${subjva}
-3dNwarpApply -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
-             -source ${name}+orig                                                 \
-             -master anatQQ.${sub}+tlrc    \
-             -prefix ${name}
-# refit type
-3drefit -fbuc ${name}+tlrc
+# 3dNwarpApply -nwarp "anatQQ.${sub}_WARP.nii anatQQ.${sub}.aff12.1D INV(anatSS.${sub}_al_keep_mat.aff12.1D)"   \
+#              -source ${name}+orig                                                 \
+#              -master anatQQ.${sub}+tlrc    \
+#              -prefix ${name}
+# # refit type
+# 3drefit -fbuc ${name}+tlrc
 
 # extract tent and beta values
-set filedec = odor_12
+set filedec = odor_14
 set maskdec = align
 set maskdec_t2 = at165
 set maskdec_t = ${maskdec_t2}_p # positive only for tent
@@ -42,11 +42,13 @@ if (! -e ../../stats/${sub}) then
     mkdir ../../stats/${sub}
 endif
 
-foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
+foreach region (Pir_new Pir_old APC_new APC_old PPC)
 
-    # rm ../mask/${region}_${maskdec_t2}.freesurfer*
-    # rm ../mask/${region}_${maskdec_t}.freesurfer*
+    # rm ../mask/${region}_${maskdec_t2}.draw*
+    # rm ../mask/${region}_${maskdec_t}.draw*
 
+    # generate t threshold masks
+    # different regions of amygdala
     3dcalc  -a ${data_beta}'[2]' \
             -b ${data_beta}'[5]' \
             -c ${data_beta}'[8]' \
@@ -55,10 +57,10 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -f ${data_beta}'[17]' \
             -g ${data_beta}'[20]' \
             -h ${data_beta}'[23]' \
-            -i ../mask/${region}_${maskdec}.freesurfer+orig \
+            -i ../mask/${region}.draw+orig \
             -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65),astep(f,1.65),astep(g,1.65),astep(h,1.65))*i' \
-            -prefix ../mask/${region}_${maskdec_t2}.freesurfer
-    
+            -prefix ../mask/${region}_${maskdec_t2}.draw
+
     3dcalc  -a ${data_beta}'[2]' \
             -b ${data_beta}'[5]' \
             -c ${data_beta}'[8]' \
@@ -67,19 +69,56 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -f ${data_beta}'[17]' \
             -g ${data_beta}'[20]' \
             -h ${data_beta}'[23]' \
-            -i ../mask/${region}_${maskdec}.freesurfer+orig \
+            -i ../mask/${region}.draw+orig \
             -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65),step(f-1.65),step(g-1.65),step(h-1.65))*i' \
-            -prefix ../mask/${region}_${maskdec_t}.freesurfer
-    # all significant voxels
-    3dROIstats -mask ../mask/${region}_${maskdec_t2}.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 55`56]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12.txt
-    # posistive only
-    3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
-    -nzmean ${data_tent}"[`seq -s , 1 55`56]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_12p.txt
-    # rename
-    # mv ../../stats/${sub}/${region}_${maskdec_t}_tent11s_14.txt ../../stats/${sub}/${region}_${maskdec_t}_tent_14.txt
-    # mv ../../stats/${sub}/${region}_${maskdec_t}_tent11s_14p.txt ../../stats/${sub}/${region}_${maskdec_t}_tent_14p.txt
+            -prefix ../mask/${region}_${maskdec_t}.draw
 
+    # all significant voxels
+    3dROIstats -mask ../mask/${region}_${maskdec_t2}.draw+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 63`64]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_14.txt
+    # posistive only
+    3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
+    -nzmean ${data_tent}"[`seq -s , 1 63`64]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_14p.txt
 end
+
+# foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy )
+
+#     # rm ../mask/${region}_${maskdec_t2}.freesurfer*
+#     # rm ../mask/${region}_${maskdec_t}.freesurfer*
+
+#     3dcalc  -a ${data_beta}'[2]' \
+#             -b ${data_beta}'[5]' \
+#             -c ${data_beta}'[8]' \
+#             -d ${data_beta}'[11]' \
+#             -e ${data_beta}'[14]' \
+#             -f ${data_beta}'[17]' \
+#             -g ${data_beta}'[20]' \
+#             -h ${data_beta}'[23]' \
+#             -i ../mask/${region}_${maskdec}.freesurfer+orig \
+#             -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65),astep(f,1.65),astep(g,1.65),astep(h,1.65))*i' \
+#             -prefix ../mask/${region}_${maskdec_t2}.freesurfer
+    
+#     3dcalc  -a ${data_beta}'[2]' \
+#             -b ${data_beta}'[5]' \
+#             -c ${data_beta}'[8]' \
+#             -d ${data_beta}'[11]' \
+#             -e ${data_beta}'[14]' \
+#             -f ${data_beta}'[17]' \
+#             -g ${data_beta}'[20]' \
+#             -h ${data_beta}'[23]' \
+#             -i ../mask/${region}_${maskdec}.freesurfer+orig \
+#             -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65),step(f-1.65),step(g-1.65),step(h-1.65))*i' \
+#             -prefix ../mask/${region}_${maskdec_t}.freesurfer
+#     # all significant voxels
+#     3dROIstats -mask ../mask/${region}_${maskdec_t2}.freesurfer+orig \
+#     -nzmean ${data_tent}"[`seq -s , 1 63`64]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_14.txt
+#     # posistive only
+#     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \
+#     -nzmean ${data_tent}"[`seq -s , 1 63`64]" >! ../../stats/${sub}/${region}_${maskdec_t}_tent_14p.txt
+#     # rename
+#     # mv ../../stats/${sub}/${region}_${maskdec_t}_tent11s_14.txt ../../stats/${sub}/${region}_${maskdec_t}_tent_14.txt
+#     # mv ../../stats/${sub}/${region}_${maskdec_t}_tent11s_14p.txt ../../stats/${sub}/${region}_${maskdec_t}_tent_14p.txt
+
+# end
 
 end

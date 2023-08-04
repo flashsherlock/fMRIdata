@@ -7,6 +7,9 @@ roibase <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165')
 roiname <- c("Amy","Cortical","CeMe","BaLa")
 suf <- c("14","14p")
 rois <- c("at165","atfix165","atfixdu165")
+roibase <- c('Amy8_at165','Pir_new_at165')
+roiname <- c("Amy","Piriform")
+rois <- c("at165")
 # render roistats
 for (roi_i in rois){
   # replace roi with rois

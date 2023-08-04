@@ -28,7 +28,7 @@ fi
       -wsVars "face*odor*visib"         \
       -mask ${mask}                  \
       -SS_type 3                          \
-      -num_glt 7                         \
+      -num_glt 9                         \
       -resid   group/errs.${outsuffix} \
       -gltLabel 1 fointer -gltCode  1 'face : 1*fear -1*happy odor : 1*unplea -1*plea'            \
       -gltLabel 2 fointer_vis -gltCode 2 'face : 1*fear -1*happy odor : 1*unplea -1*plea visib: 1*vis'     \
@@ -37,6 +37,8 @@ fi
       -gltLabel 5 face_inv -gltCode 5 'face : 1*fear -1*happy visib: 1*inv' \
       -gltLabel 6 odor_vis -gltCode 6 'odor : 1*unplea -1*plea visib: 1*vis' \
       -gltLabel 7 odor_inv -gltCode 7 'odor : 1*unplea -1*plea visib: 1*inv' \
+      -gltLabel 8 face -gltCode 8 'face : 1*fear -1*happy'\
+      -gltLabel 9 odor -gltCode 9 'odor : 1*unplea -1*plea' \
       -dataTable                                                                                     \
       Subj   face    odor      visib     InputFile                               \
       S03    fear    plea      vis       "S03/S03.de.results/stats.S03.${suffix}+tlrc[1]"  \

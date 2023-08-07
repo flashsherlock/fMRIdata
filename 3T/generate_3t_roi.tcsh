@@ -1,5 +1,30 @@
 #! /bin/csh
 
+# ffa mask
+# cd "/Volumes/WD_D/allsub/BN_atlas/nonresample"
+# whereami -mask_atlas_region Brainnetome_1.0::A37lv_right
+# whereami -mask_atlas_region Brainnetome_1.0::A37lv_left
+# whereami -mask_atlas_region Brainnetome_1.0::A37mv_right
+# whereami -mask_atlas_region Brainnetome_1.0::A37mv_left
+# whereami -mask_atlas_region Brainnetome_1.0::A20rv_right
+# whereami -mask_atlas_region Brainnetome_1.0::A20rv_left
+# # combine
+# 3dcalc \
+# -a Brainnetome_1.0.A_lv_left+tlrc \
+# -b Brainnetome_1.0.A_lv_right+tlrc \
+# -c Brainnetome_1.0.A_mv_left+tlrc \
+# -d Brainnetome_1.0.A_mv_right+tlrc \
+# -e Brainnetome_1.0.A_rv_left+tlrc \
+# -f Brainnetome_1.0.A_rv_right+tlrc \
+# -expr 'a+b+c+d+e+f' \
+# -prefix fusiform.BN
+# # resample
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix ../Fusiform \
+# -input fusiform.BN+tlrc
+
+# 
 foreach ub (`count -dig 2 $1 $2`)
 set sub=S${ub}
 set analysis=de

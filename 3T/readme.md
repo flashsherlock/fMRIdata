@@ -17,4 +17,43 @@ Remove useless files.
 
 # Preprocessing
 
+## proc_2xsmooth_censor.tcsh
+Preprocess data using `afni_proc.py`.
+
+## proc_3tanat.tcsh
+Parcellate anataomy data using `recon-all` and `segmentHA_T1.sh` in freesurfer.
+
+## usefulcmd.bash
+Useful commands for checking freesurfer results.
+
+## deconvolve_censor_TENT.tcsh
+Deconvolve data using `3dDeconvolve` and TENT function.
+
+## deconvolve_censor_TENTcross.tcsh
+Add fixation to regressors.
+
+## deconvolve_nocross.tcsh
+Deconvolve data without cross for betas.
+
+## deconvolve_cross.tcsh
+Deconvolve data with cross for betas.
+
+## deconvolve_frame.tcsh
+Deconvolve data with frame for betas.
+
+## deconvolve_congruent.tcsh
+Deconvolve data for congruent/incongruent conditions (old data).
+
+## parallelproc.tcsh
+Parallel processing.
+
+## generate_PPI.tcsh
+Generate PPI regressors using `make_ppi_regress.tcsh`.
+
+## make_ppi_regress.tcsh
+Make regressors for PPI analysis.
+
+## deconvolve_PPI.tcsh
+Deconvolve data for PPI analysis.
+
 # Analysis

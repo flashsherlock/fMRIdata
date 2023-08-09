@@ -5,7 +5,7 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 cd "${datafolder}" || exit
 # roi
 roi=wholenew
-nvox=40
+nvox=1
 # for each pvalue
 # for p in 0.001 0.05  
 # do
@@ -26,7 +26,7 @@ nvox=40
 # done
 
 # for each pvalue
-for p in 0.001 0.005 0.01  
+for p in 0.001 0.005 0.01 0.05
 do
     for brick in face odor
     do

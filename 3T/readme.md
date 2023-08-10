@@ -17,6 +17,12 @@ Remove useless files.
 
 # Preprocessing
 
+## check_grid_3t.bash
+Check grid for each subject.
+
+## group_check_align.bash
+Check alignment for each subject.
+
 ## proc_2xsmooth_censor.tcsh
 Preprocess data using `afni_proc.py`.
 
@@ -57,3 +63,27 @@ Make regressors for PPI analysis.
 Deconvolve data for PPI analysis.
 
 # Analysis
+
+## group_cluster.bash
+Group level cluster analysis. Run `3dClustSim` and add results to header.
+
+## group_interaction.bash
+Group level ANOVA.
+
+## group_interaction_ppi.bash
+Group level ANOVA for PPI analysis.
+
+## group_ppi.bash
+Group level ttest for PPI analysis.
+
+## group_statas.bash
+Dump betas from group level mask.
+
+## group_masks.bash
+Get level masks for main effects of face and odor.
+
+## map_masks.bash
+Get individual level interaction mask and dump tent data.
+
+## findtrs3t.m
+Find TRs for each condition.

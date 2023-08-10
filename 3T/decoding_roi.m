@@ -41,32 +41,38 @@ for i=1:length(rois)
     cfg.files.labelname={};
     cfg.files.chunk=[];
     cfg.files.label=[];
+    cfg.design.train = [];
+    cfg.design.test = [];
 
     % tr stores all the timing information
     tr = [];
     for shift_i=1:length(shift)
-        timing=blind_findtrs(shift(shift_i),sub);
-        % lim tra car cit
+        timing=findtrs3t(shift(shift_i),sub);        
         tr = [tr;timing];
-        numtr=4*6*8;
+        numtr=8*5*3;
         F=cell(1,numtr);
         for subi = 1:numtr
             t=timing(subi,2);
             F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odor_noblur+orig.BRIK,' num2str(t)];
         end
-        cfg.files.name = [cfg.files.name F];
+        cfg.files.name = [cfg.files.name F];        
         % and the other two fields if you use a make_design function (e.g. make_design_cv)
         %
         % (1) a nx1 vector to indicate what data you want to keep together for 
         % cross-validation (typically runs, so enter run numbers)
         % each trial is a chunk
-        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:24, [1 8]), [numtr 1])];
-        %
-        % (2) any numbers as class labels, normally we use 1 and -1. Each file gets a
-        % label number (i.e. a nx1 vector)
-        cfg.files.label = [cfg.files.label;reshape(repmat(1:8, [24 1]), [numtr 1])];
+        cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:15, [1 8]), [numtr 1])];
+        % decoding faces
+        cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
         % cfg.files.label = timing(:, 1);
-        cfg.files.labelname = [cfg.files.labelname;reshape(repmat({'gas','ind','ros','pin','app','min','fru','flo'}, [24 1]), [numtr 1])];
+        % names={'FearPleaVis';'FearPleaInv';'FearUnpleaVis';'FearUnpleaInv';...
+        %       'HappPleaVis';'HappPleaInv';'HappUnpleaVis';'HappUnpleaInv'};
+           names={'Fear';'Fear';'Fear';'Fear';'Happy';'Happy';'Happy';'Happy'};
+        cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];
+        % train on visible
+        cfg.design.train = [cfg.files.label;reshape(repmat([1 0 1 0 1 0 1 0], [15 1]), [numtr 1])];
+        % test on invisible
+        cfg.design.test = [cfg.files.label;reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1])];
     end
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
@@ -93,7 +99,7 @@ for i=1:length(rois)
     % load data the standard way
     [passed_data, ~, cfg] = decoding_load_data(cfg);
     % add run number and repeat num as features    
-    combine = 1;
+    combine = 0;
     if combine == 1
        nsample = size(passed_data.data, 1);
        nvoxel = size(passed_data.data, 2);
@@ -110,10 +116,6 @@ for i=1:length(rois)
        % change design
        cfg.files.name = cfg.files.name(1:nsample/length(shift));
        cfg.files.chunk = cfg.files.chunk(1:nsample/length(shift));
-       % run as chunk
-       % cfg.files.chunk = tr(1:nsample/length(shift),3);
-       % rept as chunk
-       % cfg.files.chunk = tr(1:nsample/length(shift),4);
        cfg.files.label = cfg.files.label(1:nsample/length(shift));
        cfg.files.labelname = cfg.files.labelname(1:nsample/length(shift));
        passed_data.files.name = passed_data.files.name(1:nsample/length(shift));

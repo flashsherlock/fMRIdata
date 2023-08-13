@@ -70,6 +70,9 @@ Group level cluster analysis. Run `3dClustSim` and add results to header.
 ## group_interaction.bash
 Group level ANOVA.
 
+## group_ttest.bash
+Group level ttest for main effect of visible faces.
+
 ## group_interaction_ppi.bash
 Group level ANOVA for PPI analysis.
 
@@ -87,3 +90,6 @@ Get individual level interaction mask and dump tent data.
 
 ## findtrs3t.m
 Find TRs for each condition.
+
+## decoding_roi.m
+Decoding analysis for Amy. Train on visible and test on invisible.

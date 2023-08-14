@@ -65,9 +65,9 @@ for i=1:length(rois)
         % decoding faces
         cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
         % cfg.files.label = timing(:, 1);
-        % names={'FearPleaVis';'FearPleaInv';'FearUnpleaVis';'FearUnpleaInv';...
-        %       'HappPleaVis';'HappPleaInv';'HappUnpleaVis';'HappUnpleaInv'};
-           names={'Fear';'Fear';'Fear';'Fear';'Happy';'Happy';'Happy';'Happy'};
+        % names={'FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv';...
+        %       'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv'};
+           names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
         cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];
         % train on visible
         cfg.design.train = [cfg.files.label;reshape(repmat([1 0 1 0 1 0 1 0], [15 1]), [numtr 1])];

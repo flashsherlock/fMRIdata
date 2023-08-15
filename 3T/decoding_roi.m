@@ -41,8 +41,6 @@ for i=1:length(rois)
     cfg.files.labelname={};
     cfg.files.chunk=[];
     cfg.files.label=[];
-    cfg.design.train = [];
-    cfg.design.test = [];
 
     % tr stores all the timing information
     tr = [];
@@ -68,11 +66,7 @@ for i=1:length(rois)
         % names={'FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv';...
         %       'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv'};
            names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
-        cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];
-        % train on visible
-        cfg.design.train = [cfg.files.label;reshape(repmat([1 0 1 0 1 0 1 0], [15 1]), [numtr 1])];
-        % test on invisible
-        cfg.design.test = [cfg.files.label;reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1])];
+        cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];        
     end
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
@@ -122,9 +116,14 @@ for i=1:length(rois)
     end
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
+    % train on visible    
+    invisible = reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]);
+    cfg.design.train(invisible==1,:) = 0;
+    % test on invisible
+    cfg.design.test(invisible==0,:) = 0;
     % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');
     % overwrite existing results
-    cfg.results.overwrite = 0;
+    cfg.results.overwrite = 1;
     % Run decoding
     decoding(cfg, passed_data);   
     

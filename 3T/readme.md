@@ -62,6 +62,9 @@ Make regressors for PPI analysis.
 ## deconvolve_PPI.tcsh
 Deconvolve data for PPI analysis.
 
+## deconvolve_3tnoblur.tcsh
+Deconvolve data without blur.
+
 # Analysis
 
 ## group_cluster.bash
@@ -93,3 +96,6 @@ Find TRs for each condition.
 
 ## decoding_roi.m
 Decoding analysis for Amy. Train on visible and test on invisible.
+
+## run_decoding.tcsh
+Run decoding analysis for Amy.

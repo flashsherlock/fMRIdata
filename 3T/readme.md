@@ -83,7 +83,7 @@ Group level ANOVA for PPI analysis.
 Group level ttest for PPI analysis.
 
 ## group_statas.bash
-Dump betas from group level mask.
+Dump betas from group level mask and individual masks.
 
 ## group_masks.bash
 Get level masks for main effects of face and odor.
@@ -99,3 +99,9 @@ Decoding analysis for Amy. Train on visible and test on invisible.
 
 ## run_decoding.tcsh
 Run decoding analysis for Amy.
+
+## results_labels_mean.Rmd
+Generate mvpa results.
+
+## plot3t.r
+Plot results for 3T betas data.

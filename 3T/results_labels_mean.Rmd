@@ -1,0 +1,245 @@
+---
+output: html_document
+params:
+    path: "/Volumes/WD_F/gufei/3t_cw/"
+    sub: !r c(sprintf('S%02d', c(3:29)))
+    analysis: "de"
+    mvpa_pattern: "roi_odor_shift6"
+    roi: !r c('Amy8_align')
+    roiname: !r c("Amy")
+    set_title: "Decoding_mean"
+title: "`r params$set_title`"
+author: "Fei"
+date: "`r Sys.time()`"
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+library(bruceR)
+library(psych)
+library(ggplot2)
+library(ggthemr)
+library(RColorBrewer)
+library(ggpubr)
+library(ggrepel)
+library(plotly)
+library(R.matlab)
+library(dplyr)
+library(tidyr)
+library(ggprism)
+library(ggdendro)
+library(patchwork)
+# ggthemr('fresh',layout = "clean")
+sysfonts::font_add("Helvetica", "Helvetica.ttc")
+theme_set(theme_prism(base_size = 9,
+                      base_family = "Helvetica",
+                      base_fontface = "plain",
+                      base_line_size = 0.5,
+                      base_rect_size = 0.5,))
+gf_color <- c("#412d21", "#777DDD", "#cf7ced", "#ECB556", "#dc0922", "#4292C6", "#e45869", "#41AB5D")
+odors <- c("gas","ind","ros","pin","app","min","fru","flo")
+```
+
+```{r, include=FALSE}
+# function for loading mvpa labels (true and predicted)
+readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
+  data <- list()
+  # 3 kinds of phy
+  for (ana in analysis) {
+    workingdir <- paste0(path,sub,'/',sub,'.',ana,'.results/mvpa')
+    # mvpa <- c("roi","roi_IM","searchligt")
+    mvpa <- dir(path=workingdir,pattern = mvpa_pattern)
+    # 2 kinds of beta (run and trial)
+    for (m in mvpa){
+      # dirname start not with 8
+      odor2 <- dir(path=file.path(workingdir,m),pattern = "^[^8]")
+      odor2 <- subset(odor2,odor2%in%roi_order)
+      # 4 kinds of roi
+      for (r in odor2){
+        # read mat file
+        true <- readMat(file.path(workingdir,m,paste0("8odors_",r),'res_true_labels.mat'))
+        predict <- readMat(file.path(workingdir,m,paste0("8odors_",r),'res_predicted_labels.mat'))
+        true <- unlist(true$results[[9]][[1]][[1]])
+        predict <- unlist(predict$results[[9]][[1]])
+        labels <- rbind(true,predict)
+        
+        # add to list
+        data <- c(data,list(labels))
+        names(data)[length(data)] <- paste(ana,m,r,sep = '_')
+        for (campare in dir(path=file.path(workingdir,m,r),pattern = "2")) {
+          # read mat file
+          true <- readMat(file.path(workingdir,m,r,campare,'res_true_labels.mat'))
+          predict <- readMat(file.path(workingdir,m,r,campare,'res_predicted_labels.mat'))
+          true <- unlist(true$results[[9]][[1]][[1]])
+          predict <- unlist(predict$results[[9]][[1]])
+          labels <- rbind(true,predict)
+          
+          # add to list
+          data <- c(data,list(labels))
+          names(data)[length(data)] <- paste(ana,m,r,campare,sep = '_')
+        }
+      }
+    }
+  }
+  return(data)
+}
+# function for scatter plot
+plot_scatter <- function(plotdata,xlab,ylab){
+    ggscatter(plotdata,color = "#4c95c8",
+              x = xlab, y = ylab,alpha = 0.8,
+              conf.int = TRUE,add = "reg.line",add.params = list(color = "gray20")
+              ,fullrange = F)+
+      stat_cor(aes(label = paste(after_stat(r.label), after_stat(p.label), sep = "~`,`~")),
+               show.legend=F,size=7)+theme_prism(base_size = 20,
+                                          base_family = "Helvetica",
+                                          base_fontface = "plain",
+                                          base_line_size = 0.5,
+                                          base_rect_size = 0.5,)
+}
+# function for bar plot
+plot_erbar <- function(datachosen){
+  ggplot(datachosen, aes(x=roi, y=mean, fill=odor)) + 
+        labs(title = paste(m,ana,sep = "_") ,x='ROI',y='ACC',fill='Odor')+#设置坐标轴
+        geom_bar(position="dodge", stat="identity") +
+        coord_cartesian(ylim=c(0,100)) +
+        scale_y_continuous(breaks=scales::breaks_width(10),expand = c(0,0))+
+        scale_x_discrete(labels=roiname)+
+        geom_hline(yintercept=c(50), linetype="dotted")+ #颜色
+        geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.2,color='black',
+                      position=position_dodge(.9))+
+        theme_prism(base_line_size = 0.5)
+}
+```
+
+# Accuracy_align
+
+```{r echo=FALSE}
+path <- params$path
+sub <- params$sub
+analysis <- params$analysis
+mvpa_pattern <- params$mvpa_pattern
+roi <- params$roi
+roiname <- params$roiname
+cat(sub)
+```
+
+## align labels
+```{r echo=FALSE, fig.height=3, fig.width=4}
+mvpa <- mvpa_pattern
+run_num <- 6
+pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "_"))
+campares <- paste("2odors",pairs,sep = "_")
+acc_run <- data.frame(sub=0,phy=0,beta=0,roi=0,odor=0,acc=0,run=0)
+acc_run <- acc_run[-1,]
+matrix_all <- data.frame(matrix(ncol = 4, nrow = 0))
+
+compute_acc <- function(labels){
+  acc_matrix <- as.matrix(table(odor=labels[1,],prediction=labels[2,]))
+  n = sum(acc_matrix)
+  acc = 100*sum(diag(acc_matrix))/n # overall accuracy
+}
+
+for (sub_i in sub) {
+  data_labels <- readlabel(path,sub_i,analysis,mvpa_pattern,roi)
+  for (ana in analysis) {
+    for (m in mvpa) {
+      for (r in roi) {
+        # 8odors
+        cname <- paste(ana,m,r,sep = '_')
+        current_data <- data_labels[[cname]]
+        # make sure every class is presented in predict
+        current_data_add <- cbind(current_data,matrix(rep(unique(current_data["true",]),each=2),nrow = 2))
+        cmatrix <- as.matrix(table(odor=current_data_add["true",],prediction=current_data_add["predict",]))
+        cmatrix <- cmatrix-diag(8)
+        
+        # useful information
+        n = sum(cmatrix) # number of instances
+        nc = nrow(cmatrix) # number of classes
+        truesums = as.numeric(apply(cmatrix, 1, sum)) # number of instances per class
+        predsums = as.numeric(apply(cmatrix, 2, sum)) # number of predictions per class
+        
+        # accuracy
+        acc = 100*sum(diag(cmatrix))/n # overall accuracy
+        acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("8odors_",r),acc,"run_all")
+        sep_cmatrix <- split(current_data,rep(1:run_num, each = 2*n/run_num))
+        for (i_run in 1:run_num) {
+          run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
+          acc = compute_acc(run_matrix) # overall accuracy
+          acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("8odors_",r),acc,paste("run_",i_run))
+        }
+        
+        # confusion matrix
+        cmatrix <- as.data.frame.matrix(cmatrix/truesums)
+        cmatrix <- cbind(cmatrix,odors)
+        names(cmatrix) <- c(paste0('p_',odors),"odor")
+        cmatrix <- gather(cmatrix, prediction, value, p_gas:p_flo)
+        cmatrix <- cbind(rep(sub_i,times=nrow(cmatrix)),
+                         rep(ana,times=nrow(cmatrix)),
+                         rep(m,times=nrow(cmatrix)),
+                         rep(r,times=nrow(cmatrix)),
+                         cmatrix)
+        matrix_all <- rbind(matrix_all,cmatrix)
+        
+        # 2odors
+        for (campare in campares) {
+          cname <- paste(ana,m,r,campare,sep = '_')
+          current_data <- data_labels[[cname]]
+          acc <-  compute_acc(current_data) # overall accuracy
+          acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,campare,acc,"run_all")
+          # n*2/nc/run_num pair(true-predict), so should multiply 2 again
+          sep_cmatrix <- split(current_data,rep(1:run_num, each = n*2*2/nc/run_num))
+          for (i_run in 1:run_num) {
+            run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
+            acc  <-  compute_acc(run_matrix) # overall accuracy
+            acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,campare,acc,paste("run_",i_run))
+          }
+        }
+      }
+    }
+  }
+}
+acc_run$acc <- as.numeric(acc_run$acc)
+acc_run$roi <- factor(acc_run$roi,levels = roi)
+acc_run$phy <- factor(acc_run$phy,levels = analysis)
+cmatrix <- mutate(cmatrix,odor = factor(odor,rev(odors)), # alphabetical order by default
+                  prediction = factor(prediction, levels = paste0('p_',odors))) # force reverse alphabetical order
+names(matrix_all)[1:4] <- c("sub","phy","beta","roi")
+```
+
+### accuracy all runs 4 odors
+```{r echo=FALSE, fig.height=5, fig.width=12}
+acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^8",unique(acc_run$odor))])
+  for (m in mvpa_pattern){
+    acc4odor <- subset(acc4odor,beta==m)
+    datachosen <- describeBy(acc4odor$acc,list(acc4odor$phy,acc4odor$roi),mat=T)
+    datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+    names(datachosen) <- c("phy","roi","mean","se")
+    datachosen <- mutate(datachosen,roi = factor(roi,levels=params$roi))
+    datachosen <- mutate(datachosen,phy = factor(phy,levels=analysis))
+    # Bar plot of mean +/-se
+    control <- subset(acc4odor,roi == params$roi[1])
+    control$acc <- 12.5
+    control$roi <- "control"
+    acc4odor <- rbind(acc4odor,control)
+    acc4odor <- mutate(acc4odor,roi = factor(roi,levels=c(params$roi,"control")))
+    figure <- ggbarplot(acc4odor, x = "roi", y = "acc", fill = 'phy', add = "mean_se")+
+      labs(title = m ,x='ROI',y='ACC',fill='PHY')+#设置坐标轴
+      stat_compare_means(method = "t.test",
+                         ref.group = "control",
+                         paired = TRUE,
+                         label = "p.format")+
+      coord_cartesian(ylim=c(0,50)) +
+      geom_hline(yintercept=c(control$acc), linetype="dotted")+
+      scale_y_continuous(breaks = scales::breaks_width(5),
+                         expand = c(0,0))+
+      scale_x_discrete(labels=c(roiname,"control"))+
+      scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
+      theme_prism(base_line_size = 0.5)
+    print(figure)
+    # plot individual data
+    plotly_fig <- ggplotly(ggplot(acc4odor, aes(x = roi, y = acc,color = sub))
+             +geom_point()+color_palette(rainbow(length(sub))),
+             tooltip = c("sub","acc"))
+  }
+plotly_fig
+```

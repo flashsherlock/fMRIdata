@@ -63,7 +63,7 @@ for i=1:length(rois)
         % decoding faces
         cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
         % cfg.files.label = timing(:, 1);
-        % names={'FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv';...
+        % names={'FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',...
         %       'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv'};
            names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
         cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];        
@@ -130,14 +130,3 @@ for i=1:length(rois)
 end
 end
 end
-% some warnings
-% there may be errors when saving fig because of replacing . with _
-% edit save_fig.m
-    
-% Results for output confusion_matrix and roi
-% 'Piriform.S01_yyt' cannot be written, because the format is wrong
-% (e.g. leave-one-run-out with more than one output per run). 
-
-% You can trust the result. The confusion matrix cannot be written as an
-% image. Sorry for the confusion with the warning (pun intended)
-% http://web.bccn-berlin.de/pipermail/tdt_list/2016-May/000118.html

@@ -37,7 +37,8 @@ theme_set(theme_prism(base_size = 9,
                       base_line_size = 0.5,
                       base_rect_size = 0.5,))
 gf_color <- c("#412d21", "#777DDD", "#cf7ced", "#ECB556", "#dc0922", "#4292C6", "#e45869", "#41AB5D")
-odors <- c("gas","ind","ros","pin","app","min","fru","flo")
+conditions <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
+                'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv')
 ```
 
 ```{r, include=FALSE}
@@ -47,18 +48,14 @@ readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
   # 3 kinds of phy
   for (ana in analysis) {
     workingdir <- paste0(path,sub,'/',sub,'.',ana,'.results/mvpa')
-    # mvpa <- c("roi","roi_IM","searchligt")
     mvpa <- dir(path=workingdir,pattern = mvpa_pattern)
     # 2 kinds of beta (run and trial)
     for (m in mvpa){
-      # dirname start not with 8
-      odor2 <- dir(path=file.path(workingdir,m),pattern = "^[^8]")
-      odor2 <- subset(odor2,odor2%in%roi_order)
       # 4 kinds of roi
-      for (r in odor2){
+      for (r in roi_order){
         # read mat file
-        true <- readMat(file.path(workingdir,m,paste0("8odors_",r),'res_true_labels.mat'))
-        predict <- readMat(file.path(workingdir,m,paste0("8odors_",r),'res_predicted_labels.mat'))
+        true <- readMat(file.path(workingdir,m,paste0("odors_",r),'res_true_labels.mat'))
+        predict <- readMat(file.path(workingdir,m,paste0("odors_",r),'res_predicted_labels.mat'))
         true <- unlist(true$results[[9]][[1]][[1]])
         predict <- unlist(predict$results[[9]][[1]])
         labels <- rbind(true,predict)
@@ -66,18 +63,6 @@ readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
         # add to list
         data <- c(data,list(labels))
         names(data)[length(data)] <- paste(ana,m,r,sep = '_')
-        for (campare in dir(path=file.path(workingdir,m,r),pattern = "2")) {
-          # read mat file
-          true <- readMat(file.path(workingdir,m,r,campare,'res_true_labels.mat'))
-          predict <- readMat(file.path(workingdir,m,r,campare,'res_predicted_labels.mat'))
-          true <- unlist(true$results[[9]][[1]][[1]])
-          predict <- unlist(predict$results[[9]][[1]])
-          labels <- rbind(true,predict)
-          
-          # add to list
-          data <- c(data,list(labels))
-          names(data)[length(data)] <- paste(ana,m,r,campare,sep = '_')
-        }
       }
     }
   }
@@ -126,9 +111,7 @@ cat(sub)
 ## align labels
 ```{r echo=FALSE, fig.height=3, fig.width=4}
 mvpa <- mvpa_pattern
-run_num <- 6
-pairs <- apply(combn(odors,2), 2, function(x) paste(x[1],x[2],sep = "_"))
-campares <- paste("2odors",pairs,sep = "_")
+run_num <- 5
 acc_run <- data.frame(sub=0,phy=0,beta=0,roi=0,odor=0,acc=0,run=0)
 acc_run <- acc_run[-1,]
 matrix_all <- data.frame(matrix(ncol = 4, nrow = 0))
@@ -150,7 +133,7 @@ for (sub_i in sub) {
         # make sure every class is presented in predict
         current_data_add <- cbind(current_data,matrix(rep(unique(current_data["true",]),each=2),nrow = 2))
         cmatrix <- as.matrix(table(odor=current_data_add["true",],prediction=current_data_add["predict",]))
-        cmatrix <- cmatrix-diag(8)
+        cmatrix <- cmatrix-diag(2)
         
         # useful information
         n = sum(cmatrix) # number of instances
@@ -160,39 +143,12 @@ for (sub_i in sub) {
         
         # accuracy
         acc = 100*sum(diag(cmatrix))/n # overall accuracy
-        acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("8odors_",r),acc,"run_all")
+        acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("odors_",r),acc,"run_all")
         sep_cmatrix <- split(current_data,rep(1:run_num, each = 2*n/run_num))
         for (i_run in 1:run_num) {
           run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
           acc = compute_acc(run_matrix) # overall accuracy
-          acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("8odors_",r),acc,paste("run_",i_run))
-        }
-        
-        # confusion matrix
-        cmatrix <- as.data.frame.matrix(cmatrix/truesums)
-        cmatrix <- cbind(cmatrix,odors)
-        names(cmatrix) <- c(paste0('p_',odors),"odor")
-        cmatrix <- gather(cmatrix, prediction, value, p_gas:p_flo)
-        cmatrix <- cbind(rep(sub_i,times=nrow(cmatrix)),
-                         rep(ana,times=nrow(cmatrix)),
-                         rep(m,times=nrow(cmatrix)),
-                         rep(r,times=nrow(cmatrix)),
-                         cmatrix)
-        matrix_all <- rbind(matrix_all,cmatrix)
-        
-        # 2odors
-        for (campare in campares) {
-          cname <- paste(ana,m,r,campare,sep = '_')
-          current_data <- data_labels[[cname]]
-          acc <-  compute_acc(current_data) # overall accuracy
-          acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,campare,acc,"run_all")
-          # n*2/nc/run_num pair(true-predict), so should multiply 2 again
-          sep_cmatrix <- split(current_data,rep(1:run_num, each = n*2*2/nc/run_num))
-          for (i_run in 1:run_num) {
-            run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
-            acc  <-  compute_acc(run_matrix) # overall accuracy
-            acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,campare,acc,paste("run_",i_run))
-          }
+          acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("odors_",r),acc,paste("run_",i_run))
         }
       }
     }
@@ -201,14 +157,11 @@ for (sub_i in sub) {
 acc_run$acc <- as.numeric(acc_run$acc)
 acc_run$roi <- factor(acc_run$roi,levels = roi)
 acc_run$phy <- factor(acc_run$phy,levels = analysis)
-cmatrix <- mutate(cmatrix,odor = factor(odor,rev(odors)), # alphabetical order by default
-                  prediction = factor(prediction, levels = paste0('p_',odors))) # force reverse alphabetical order
-names(matrix_all)[1:4] <- c("sub","phy","beta","roi")
 ```
 
 ### accuracy all runs 4 odors
 ```{r echo=FALSE, fig.height=5, fig.width=12}
-acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^8",unique(acc_run$odor))])
+acc4odor <- subset(acc_run,run=="run_all")
   for (m in mvpa_pattern){
     acc4odor <- subset(acc4odor,beta==m)
     datachosen <- describeBy(acc4odor$acc,list(acc4odor$phy,acc4odor$roi),mat=T)
@@ -218,7 +171,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^8
     datachosen <- mutate(datachosen,phy = factor(phy,levels=analysis))
     # Bar plot of mean +/-se
     control <- subset(acc4odor,roi == params$roi[1])
-    control$acc <- 12.5
+    control$acc <- 50
     control$roi <- "control"
     acc4odor <- rbind(acc4odor,control)
     acc4odor <- mutate(acc4odor,roi = factor(roi,levels=c(params$roi,"control")))
@@ -242,4 +195,34 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^8
              tooltip = c("sub","acc"))
   }
 plotly_fig
+```
+### accuracy for each run 4 odors
+```{r echo=FALSE, fig.height=3, fig.width=5}
+acc4odor_run <- subset(acc_run,run!="run_all")
+  for (m in mvpa_pattern){
+    acc4odor_run <- subset(acc4odor_run, beta==m)
+    for (r in roi) {
+    acc4odor_run_r <- subset(acc4odor_run, roi==r)
+    datachosen <- describeBy(acc4odor_run_r$acc,list(acc4odor_run_r$phy,acc4odor_run_r$run),mat=T)
+    datachosen <- subset(datachosen,select = c(group1,group2,mean,se))
+    names(datachosen) <- c("phy","run","mean","se")
+    datachosen <- mutate(datachosen,run = factor(run,levels=paste("run_",1:run_num)))
+    datachosen <- mutate(datachosen,phy = factor(phy,levels=analysis))
+    # plot
+    figure <- ggplot(datachosen, aes(x=run, y=mean, group=phy, color=phy)) + 
+      labs(title = paste0(r) ,x='Run',y='ACC',group='PHY')+#设置坐标轴
+      geom_line() +
+      geom_point()+
+      coord_cartesian(ylim=c(0,80),clip = 'off') +
+      scale_x_discrete(labels=as.character(1:run_num),expand = c(0,0))+
+      scale_y_continuous(breaks=waiver(),expand = c(0,0))+
+      scale_color_brewer(palette = "Paired",direction = 1)+ #颜色
+      scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
+      geom_ribbon(aes(ymin = mean - se,
+                  ymax = mean + se,fill = phy), alpha = 0.1,linetype=0)+
+      geom_hline(yintercept=c(control$acc), linetype="dotted")+
+      theme_prism(base_line_size = 0.5)
+    print(figure)
+    }
+  }
 ```

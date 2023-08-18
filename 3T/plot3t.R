@@ -28,12 +28,72 @@ extractdata <- function(txtname){
   return(data)
 }
 
+# boxplot
+ci90 <- function(x){
+  # return(qnorm(0.95)*sd(x)/sqrt(length(x)))
+  # similar to 5% and 90%
+  return(qnorm(0.95)*sd(x))
+}
+
+boxset <- function(data){
+  summarise(data,
+            y0 = quantile(Score, 0.05), 
+            #y0 = mean(Score)-ci90(Score),
+            y25 = quantile(Score, 0.25), 
+            y50 = median(Score), 
+            # y50 = mean(Score), 
+            y75 = quantile(Score, 0.75), 
+            #y100 = mean(Score)+ci90(Score))
+            y100 = quantile(Score, 0.95))
+}
+
+# boxplot with horizontal line
+boxplotv <- function(data, con, select){
+  # select data
+  Violin_data <- subset(data,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  test="Plea"
+  tests <- c("Pleasant","Unpleasant")
+  
+  Violin_data <- mutate(Violin_data,
+                        test=ifelse(str_detect(Task,test),tests[1],tests[2]),
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
+  
+  # summarise data 5% and 90% quantile
+  df <- Violin_data %>% group_by(condition, test) %>% boxset
+  
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = ifelse(test == tests[1], 
+                                                     jitter(as.numeric(condition) - 0.15, 0.3),
+                                                     jitter(as.numeric(condition) + 0.15, 0.3) ))
+  # boxplot
+  ggplot(data=Violin_data, aes(x=condition)) + 
+    # geom_boxplot(aes(y=Score,color=test),
+    #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
+    geom_errorbar(data=df, position = position_dodge(0.6),
+                  aes(ymin=y0,ymax=y100,color=test),linetype = 1,width = 0.3)+ # add line to whisker
+    geom_boxplot(data=df,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=test),
+                 outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6),
+                 stat = "identity") +
+    scale_color_manual(values=c("grey50","black"))+
+    geom_point(aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
+    geom_line(aes(x=con,y=Score,group = interaction(id,condition)), color = "#e8e8e8")+
+    coord_cartesian(ylim = c(0,100))+
+    scale_fill_manual(values = c("#233b42","#65adc2")) +
+    scale_y_continuous(expand = expansion(add = c(0,0)),breaks = c(1,seq(from=20, to=100, by=20)))+
+    theme(axis.title.x=element_blank())
+}
+
 lineplot <- function(data, con, select){
   # select data
   Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
   test="Plea"
-  tests <- c("Happy_odor","Fearful_odor")
+  tests <- c("Pleasant","Unpleasant")
 
   Violin_data <- mutate(Violin_data,
                         test=ifelse(str_detect(Task,test),tests[1],tests[2]),
@@ -66,8 +126,15 @@ names <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
 betas$condition <- factor(betas$condition, levels = c(1:8), labels = names, ordered = F)
 # reshape data to wide format
 betas <- reshape2::dcast(betas, id ~ condition, value.var = "NZmean")
-
+# ANOVA
+bruceR::MANOVA(betas, dvs=c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'), dvs.pattern="(Happ|Fear)(PleaInv|UnpleaInv)",
+               within=c("face", "odor"))%>%
+  bruceR::EMMEANS("odor", by="face")
+bruceR::MANOVA(betas, dvs=c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'), dvs.pattern="(Happ|Fear)(PleaVis|UnpleaVis)",
+               within=c("face", "odor"))%>%
+  bruceR::EMMEANS("odor", by="face")
 # 3 lineplots -------------------------------------------------------------------
+# invisible
 line_hfinv <- lineplot(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
   coord_cartesian(ylim = c(-0.2,0.1))+
   scale_y_continuous(expand = c(0,0),
@@ -81,3 +148,7 @@ line_hfvis <- lineplot(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','H
                      breaks = seq(from=-0.2, to=0.1, by=0.1))+
   labs(y="Mean Beta",title = "Visible")+
   scale_x_discrete(labels=c("Happy","Fearful"))
+
+# 3 boxplots -------------------------------------------------------------------
+# invisible
+

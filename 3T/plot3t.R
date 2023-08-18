@@ -6,6 +6,7 @@ library(ggpubr)
 library(ggprism)
 library(patchwork)
 library(Rmisc)
+library(dplyr)
 theme_set(theme_prism(base_line_size = 0.5))
 showtext::showtext_auto(enable = F)
 sysfonts::font_add("Helvetica","Helvetica.ttc")
@@ -79,12 +80,9 @@ boxplotv <- function(data, con, select){
                  aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=test),
                  outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6),
                  stat = "identity") +
-    scale_color_manual(values=c("grey50","black"))+
-    geom_point(aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
+    scale_color_manual(values=c("#faa61e","#5067b0"))+
+    # geom_point(aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
     geom_line(aes(x=con,y=Score,group = interaction(id,condition)), color = "#e8e8e8")+
-    coord_cartesian(ylim = c(0,100))+
-    scale_fill_manual(values = c("#233b42","#65adc2")) +
-    scale_y_continuous(expand = expansion(add = c(0,0)),breaks = c(1,seq(from=20, to=100, by=20)))+
     theme(axis.title.x=element_blank())
 }
 
@@ -109,16 +107,17 @@ lineplot <- function(data, con, select){
     geom_point(size = 0.5, show.legend = F)+
     geom_line(aes(group=test),stat = "identity")+
     geom_errorbar(aes(ymin=Score-se, ymax=Score+se),width=.15)+
-    scale_color_manual(values=c("#a1d08d","#f8c898"))+
+    scale_color_manual(values=c("#faa61e","#5067b0"))+
     coord_cartesian(ylim = c(1.3,1.8))+
-    scale_fill_manual(values = c("#a1d08d","#f8c898")) +
+    scale_fill_manual(values = c("#faa61e","#5067b0")) +
     theme(axis.title.x=element_blank())
 }
 # 2 Main -------------------------------------------------------------
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
-txtname <- paste0(data_dir,'indi8con_','Indiv40','.txt')
+data_name <- 'Indiv40'
+txtname <- paste0(data_dir,'indi8con_',data_name,'.txt')
 betas <- extractdata(txtname)
 names <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
            'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv')
@@ -136,19 +135,40 @@ bruceR::MANOVA(betas, dvs=c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnp
 # 3 lineplots -------------------------------------------------------------------
 # invisible
 line_hfinv <- lineplot(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
-  coord_cartesian(ylim = c(-0.2,0.1))+
+  coord_cartesian(ylim = c(-0.2,0))+
   scale_y_continuous(expand = c(0,0),
-                     breaks = seq(from=-0.2, to=0.1, by=0.1))+
+                     breaks = seq(from=-0.2, to=0, by=0.1))+
   labs(y="Mean Beta",title = "Invisible")+
   scale_x_discrete(labels=c("Happy","Fearful"))
 # visible
 line_hfvis <- lineplot(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'))+
-  coord_cartesian(ylim = c(-0.2,0.1))+
+  coord_cartesian(ylim = c(-0.2,0))+
   scale_y_continuous(expand = c(0,0),
-                     breaks = seq(from=-0.2, to=0.1, by=0.1))+
+                     breaks = seq(from=-0.2, to=0, by=0.1))+
   labs(y="Mean Beta",title = "Visible")+
   scale_x_discrete(labels=c("Happy","Fearful"))
-
+# save
+line <- wrap_plots(line_hfinv,line_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
+print(line)
+ggsave(paste0(figure_dir,"line_", data_name, ".pdf"), line, width = 8, height = 4,
+       device = cairo_pdf)
 # 3 boxplots -------------------------------------------------------------------
 # invisible
-
+box_hfinv <- boxplotv(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
+  coord_cartesian(ylim = c(-0.7,0.5))+
+  scale_y_continuous(expand = c(0,0),
+                     breaks = seq(from=-0.65, to=0.4, by=0.2))+
+  labs(y="Mean Beta",title = "Invisible")+
+  scale_x_discrete(labels=c("Happy","Fearful"))
+# visible
+box_hfvis <- boxplotv(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'))+
+  coord_cartesian(ylim = c(-0.7,0.5))+
+  scale_y_continuous(expand = c(0,0),
+                     breaks = seq(from=-0.65, to=0.4, by=0.2))+
+  labs(y="Mean Beta",title = "Visible")+
+  scale_x_discrete(labels=c("Happy","Fearful"))
+# save
+box <- wrap_plots(box_hfinv,box_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
+print(box)
+ggsave(paste0(figure_dir,"box_", data_name, ".pdf"), box, width = 8, height = 4,
+       device = cairo_pdf)

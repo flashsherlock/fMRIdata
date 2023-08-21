@@ -5,6 +5,23 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 cd "${datafolder}" || exit
 suffix=${1}
 outsuffix=${2}
+# define mask according to the second input
+if [[ "${2}" == Amy* ]]; then
+    mask="${2}.freesurfer"
+# if start with Pir
+elif [[ "${2}" == Pir* ]]; then
+    mask="${2}.draw"
+# if start with Pir
+elif [[ "${2}" == FFA* ]]; then
+    mask="${2}"
+# otherwise exit
+else
+    # echo "Please input the correct mask name!"
+    # exit
+    echo "Use the default mask: ${2}*"
+    mask="${2}*"
+fi
+
 # 8 conditions for each subject
 # if file exsit then remove it
 if [ -e "stats/indi8con_${outsuffix}.txt" ]; then
@@ -14,16 +31,15 @@ for sub in S{03..29}
 do
     analysis=de
     subj=${sub}.${analysis}
-    mask=${2}
-    
+        
     # if is the first loop then add header
     if [ "${sub}" == "S03" ]; then
-        3dROIstats -nzmean -mask ${sub}/mask/${mask}*+orig.HEAD \
+        3dROIstats -nzmean -mask ${sub}/mask/${mask}+orig.HEAD \
             "${sub}/${subj}.results/stats.${sub}.${suffix}+orig[1,4,7,10,13,16,19,22]" \
             >> stats/indi8con_${outsuffix}.txt
     else
         # remove the first row
-        3dROIstats -nzmean -mask ${sub}/mask/${mask}*+orig.HEAD \
+        3dROIstats -nzmean -mask ${sub}/mask/${mask}+orig.HEAD \
             "${sub}/${subj}.results/stats.${sub}.${suffix}+orig[1,4,7,10,13,16,19,22]" \
             | sed '1d' >> stats/indi8con_${outsuffix}.txt
     fi

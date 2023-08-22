@@ -5,8 +5,8 @@ params:
     sub: !r c(sprintf('S%02d', c(3:29)))
     analysis: "de"
     mvpa_pattern: "roi_odor_shift6"
-    roi: !r c('Amy8_align')
-    roiname: !r c("Amy")
+    roi: !r c('Amy8_align','Indiv40')
+    roiname: !r c("Amy","Interaction")
     set_title: "Decoding_mean"
 title: "`r params$set_title`"
 author: "Fei"
@@ -181,7 +181,7 @@ acc4odor <- subset(acc_run,run=="run_all")
                          ref.group = "control",
                          paired = TRUE,
                          label = "p.format")+
-      coord_cartesian(ylim=c(0,50)) +
+      coord_cartesian(ylim=c(0,100)) +
       geom_hline(yintercept=c(control$acc), linetype="dotted")+
       scale_y_continuous(breaks = scales::breaks_width(5),
                          expand = c(0,0))+

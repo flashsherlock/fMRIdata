@@ -43,7 +43,7 @@ do
         -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
         -pref_map group/mask/Cluster${nvox}_${p}_visface_${roi}
 # combine maps
-# rm Cluster${nvox}_${p}_${roi}*
+rm group/FvOCluster${nvox}_${p}_${roi}*
 # 3dcalc \
 # -a group/mask/Cluster${nvox}_${p}_face_${roi}+tlrc \
 # -b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
@@ -55,8 +55,8 @@ do
 3dcalc \
 -a group/mask/Cluster${nvox}_${p}_visface_${roi}+tlrc \
 -b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
--c group/ANOVA_results_${roi}+tlrc[23] \
--d group/ttest_facevis_whole+tlrc[0] \
+-c group/ttest_facevis_whole+tlrc[0] \
+-d group/ANOVA_results_${roi}+tlrc[25] \
 -expr '20*bool(a)*(step(c)-0.5)+200*bool(b)*(step(d)-0.5)' \
 -prefix group/FvOCluster${nvox}_${p}_${roi}
 done

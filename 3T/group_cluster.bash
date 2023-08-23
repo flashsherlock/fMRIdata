@@ -7,6 +7,15 @@ cd "${datafolder}" || exit
 if [ "$1" = "whole" ]; then
       mask=group/mask/bmask.nii
       out=whole
+elif [ "$1" = "Pir" ]; then
+      mask=group/mask/Pir_new.draw+tlrc
+      out=Pir
+elif [ "$1" = "FFA" ]; then
+      mask=group/mask/FFA+tlrc
+      out=FFA
+elif [ "$1" = "fusiform" ]; then
+      mask=group/mask/fusiform+tlrc
+      out=fusiform
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
       out=Amy
@@ -20,7 +29,7 @@ else
       outsuffix=${out}
 fi
 # acf parameters
-zork=($(3dFWHMx -acf group/3dFWHMx_${outsuffix} -mask ${mask} group/errs.${outsuffix}+tlrc))
+zork=($(3dFWHMx -acf group/3dFWHMx_${outsuffix} -mask ${mask} group/errs.wholenew+tlrc))
 # echo the 5-7 elements of $zork
 # acf=${echo ${zork} | awk '{print $5,$6,$7}'}
 echo ${zork[4]} ${zork[5]} ${zork[6]}
@@ -33,4 +42,4 @@ echo ${zork[4]} ${zork[5]} ${zork[6]}
 -cmd group/3dClustSim_${outsuffix}.cmd \
 -prefix group/${outsuffix}
 # add to header
-$(cat group/3dClustSim_${outsuffix}.cmd) group/ANOVA_results_${outsuffix}+tlrc
+# $(cat group/3dClustSim_${outsuffix}.cmd) group/ANOVA_results_${outsuffix}+tlrc

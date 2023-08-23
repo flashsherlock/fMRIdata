@@ -115,11 +115,10 @@ lineplot <- function(data, con, select){
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
-data_names <- c("Indiv40","Amy8_align","Pir_new","FFA",
-                "Amy8_at165","Pir_new_at165","FFA_at165")
+data_names <- c("Amy8_at165","Pir_new_at165","FFA_at165")
 # for each data_name
 for (data_name in data_names) {
-txtname <- paste0(data_dir,'indi8con_',data_name,'.txt')
+txtname <- paste0(data_dir,'indi8conppi_',data_name,'.txt')
 betas <- extractdata(txtname)
 names <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
            'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv')
@@ -162,7 +161,7 @@ line_hfvis <- lineplot(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','H
 # save
 line <- wrap_plots(line_hfinv,line_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
 print(line)
-ggsave(paste0(figure_dir,"line_", data_name, ".pdf"), line, width = 8, height = 4,
+ggsave(paste0(figure_dir,"ppiline_", data_name, ".pdf"), line, width = 8, height = 4,
        device = cairo_pdf)
 # 3 boxplots -------------------------------------------------------------------
 # invisible
@@ -182,6 +181,6 @@ box_hfvis <- boxplotv(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','Ha
 # save
 box <- wrap_plots(box_hfinv,box_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
 print(box)
-ggsave(paste0(figure_dir,"box_", data_name, ".pdf"), box, width = 8, height = 4,
+ggsave(paste0(figure_dir,"ppibox_", data_name, ".pdf"), box, width = 8, height = 4,
        device = cairo_pdf)
 }

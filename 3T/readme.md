@@ -103,5 +103,11 @@ Run decoding analysis for Amy.
 ## results_labels_mean.Rmd
 Generate mvpa results.
 
+## results_labels_render.R
+Render mvpa results.
+
+## roistatas3t.Rmd
+Plot time courses for each roi.
+
 ## plot3t.r
 Plot results for 3T betas data.

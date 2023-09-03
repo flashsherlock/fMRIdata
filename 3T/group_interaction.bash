@@ -7,6 +7,15 @@ cd "${datafolder}" || exit
 if [ "$1" = "whole" ]; then
       mask=group/mask/bmask.nii
       out=whole
+elif [ "$1" = "Pir" ]; then
+      mask=group/mask/Pir_new.draw+tlrc
+      out=Pir
+elif [ "$1" = "FFA" ]; then
+      mask=group/mask/FFA+tlrc
+      out=FFA
+elif [ "$1" = "fusiform" ]; then
+      mask=group/mask/fusiform+tlrc
+      out=fusiform
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
       out=Amy

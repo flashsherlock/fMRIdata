@@ -37,11 +37,11 @@ do
     #     -pref_map group/mask/Cluster${nvox}_${p}_${brick}_${roi}
     # done
     # visible face main effect
-    3dClusterize -nosum -1Dformat \
-        -inset group/ttest_facevis_whole+tlrc \
-        -idat "all_mean" -ithr "all_Tstat" \
-        -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
-        -pref_map group/mask/Cluster${nvox}_${p}_visface_${roi}
+    # 3dClusterize -nosum -1Dformat \
+    #     -inset group/ttest_facevis_whole+tlrc \
+    #     -idat "all_mean" -ithr "all_Tstat" \
+    #     -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
+    #     -pref_map group/mask/Cluster${nvox}_${p}_visface_${roi}
 # combine maps
 rm group/FvOCluster${nvox}_${p}_${roi}*
 # 3dcalc \
@@ -52,13 +52,25 @@ rm group/FvOCluster${nvox}_${p}_${roi}*
 # -expr '20*bool(a)*(step(c)-0.5)+200*bool(b)*(step(d)-0.5)' \
 # -prefix group/FOCluster${nvox}_${p}_${roi}
 # visble face only
+# 3dcalc \
+# -a group/mask/Cluster${nvox}_${p}_visface_${roi}+tlrc \
+# -b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
+# -c group/ttest_facevis_whole+tlrc[0] \
+# -d group/ANOVA_results_${roi}+tlrc[25] \
+# -expr '20*bool(a)*(step(c)-0.5)+200*bool(b)*(step(d)-0.5)' \
+# -prefix group/FvOCluster${nvox}_${p}_${roi}
+
+# modality independent
+3dcalc \
+-a group/mask/Cluster${nvox}_${p}_face_${roi}+tlrc \
+-b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
+-expr 'and(bool(a),bool(b))' \
+-prefix group/FOindCluster${nvox}_${p}_${roi}
 3dcalc \
 -a group/mask/Cluster${nvox}_${p}_visface_${roi}+tlrc \
 -b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
--c group/ttest_facevis_whole+tlrc[0] \
--d group/ANOVA_results_${roi}+tlrc[25] \
--expr '20*bool(a)*(step(c)-0.5)+200*bool(b)*(step(d)-0.5)' \
--prefix group/FvOCluster${nvox}_${p}_${roi}
+-expr 'and(bool(a),bool(b))' \
+-prefix group/FvOindCluster${nvox}_${p}_${roi}
 done
 
 # indivisual masks

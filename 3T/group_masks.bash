@@ -4,30 +4,50 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 # roi
-roi=wholenew
-nvox=1
+roi=Amy
+nvox=40
+if [ "$roi" = "whole" ]; then
+      mask=group/mask/bmask.nii
+elif [ "$roi" = "Pir" ]; then
+      mask=group/mask/Pir_new.draw+tlrc
+elif [ "$roi" = "FFA" ]; then
+      mask=group/mask/FFA+tlrc
+elif [ "$roi" = "fusiform" ]; then
+      mask=group/mask/fusiform+tlrc
+elif [ "$roi" = "fusiformCA" ]; then
+      mask=group/mask/fusiformCA+tlrc
+elif [ "$roi" = "A37mlv" ]; then
+      mask=group/mask/A37mlv+tlrc
+elif [ "$roi" = "A37mv" ]; then
+      mask=group/mask/A37mv+tlrc
+else
+      mask=group/mask/Amy8_align.freesurfer+tlrc
+fi
+
 # for each pvalue
-# for p in 0.001 0.05  
-# do
-#     for brick in fointer_inv face_inv odor_inv
-#     do
-#         3dClusterize -nosum -1Dformat \
-#         -inset group/ANOVA_results_${roi}+tlrc \
-#         -idat "${brick}" -ithr "${brick} t" \
-#         -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
-#         -pref_map group/mask/Cluster${nvox}_${p}_${brick}_${roi}
-#     done
-# # combine maps
+for p in 0.001 #0.05  
+do
+    for brick in face_vis odor #fointer_inv face_inv odor_inv
+    do
+        3dClusterize -nosum -1Dformat \
+        -inset group/ANOVA_results_wholenew+tlrc \
+        -mask ${mask} \
+        -idat "${brick}" -ithr "${brick} t" \
+        -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
+        -pref_map group/mask/Cluster${nvox}_${p}_${brick}_${roi}
+    done
+# combine maps
 # 3dcalc -a group/mask/Cluster${nvox}_${p}_fointer_inv_${roi}+tlrc \
 # -b group/mask/Cluster${nvox}_${p}_face_inv_${roi}+tlrc \
 # -c group/mask/Cluster${nvox}_${p}_odor_inv_${roi}+tlrc \
 # -expr '20*bool(a)+10*bool(b)+1*bool(c)' \
 # -prefix group/Cluster${nvox}_${p}_${roi}
-# done
+done
 
+# combine main effects
 # for each pvalue
-for p in 0.001 0.005 0.01 0.05
-do
+# for p in 0.001 0.005 0.01 0.05
+# do
     # for brick in face odor
     # do
     #     3dClusterize -nosum -1Dformat \
@@ -43,7 +63,7 @@ do
     #     -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
     #     -pref_map group/mask/Cluster${nvox}_${p}_visface_${roi}
 # combine maps
-rm group/FvOCluster${nvox}_${p}_${roi}*
+# rm group/FvOCluster${nvox}_${p}_${roi}*
 # 3dcalc \
 # -a group/mask/Cluster${nvox}_${p}_face_${roi}+tlrc \
 # -b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
@@ -61,17 +81,17 @@ rm group/FvOCluster${nvox}_${p}_${roi}*
 # -prefix group/FvOCluster${nvox}_${p}_${roi}
 
 # modality independent
-3dcalc \
--a group/mask/Cluster${nvox}_${p}_face_${roi}+tlrc \
--b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
--expr 'and(bool(a),bool(b))' \
--prefix group/FOindCluster${nvox}_${p}_${roi}
-3dcalc \
--a group/mask/Cluster${nvox}_${p}_visface_${roi}+tlrc \
--b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
--expr 'and(bool(a),bool(b))' \
--prefix group/FvOindCluster${nvox}_${p}_${roi}
-done
+# 3dcalc \
+# -a group/mask/Cluster${nvox}_${p}_face_${roi}+tlrc \
+# -b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
+# -expr 'and(bool(a),bool(b))' \
+# -prefix group/FOindCluster${nvox}_${p}_${roi}
+# 3dcalc \
+# -a group/mask/Cluster${nvox}_${p}_visface_${roi}+tlrc \
+# -b group/mask/Cluster${nvox}_${p}_odor_${roi}+tlrc \
+# -expr 'and(bool(a),bool(b))' \
+# -prefix group/FvOindCluster${nvox}_${p}_${roi}
+# done
 
 # indivisual masks
 # for sub in S{03..29}

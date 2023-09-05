@@ -33,6 +33,16 @@
 # -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA \
 # -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformCA_face+tlrc
 
+# http://www.brainactivityatlas.org/atlas/atlas-download/object-recognition/
+3dcalc \
+-a /Volumes/WD_F/gufei/3T_cw/BAA-OR/face/volume/BAA-OR-FvO-MPRM-thr10-2mm.nii.gz \
+-expr 'amongst(a,3,4,5,6)' \
+-prefix /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformOR_face
+3dresample \
+-master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+-prefix /Volumes/WD_F/gufei/3T_cw/group/mask/FFA_OR \
+-input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformOR_face+tlrc
+
 # generate roi for each subject
 foreach ub (`count -dig 2 $1 $2`)
 set sub=S${ub}

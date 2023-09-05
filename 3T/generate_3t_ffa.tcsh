@@ -34,15 +34,37 @@
 # -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformCA_face+tlrc
 
 # http://www.brainactivityatlas.org/atlas/atlas-download/object-recognition/
+# 3dcalc \
+# -a /Volumes/WD_F/gufei/3T_cw/BAA-OR/face/volume/BAA-OR-FvO-MPRM-thr10-2mm.nii.gz \
+# -expr 'amongst(a,3,4,5,6)' \
+# -prefix /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformOR_face
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/FFA_OR \
+# -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformOR_face+tlrc
+
+# A37mv only
 3dcalc \
--a /Volumes/WD_F/gufei/3T_cw/BAA-OR/face/volume/BAA-OR-FvO-MPRM-thr10-2mm.nii.gz \
--expr 'amongst(a,3,4,5,6)' \
--prefix /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformOR_face
+-a Brainnetome_1.0.A_mv_left+tlrc \
+-b Brainnetome_1.0.A_mv_right+tlrc \
+-expr 'a+b' \
+-prefix A37mv
 3dresample \
 -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
--prefix /Volumes/WD_F/gufei/3T_cw/group/mask/FFA_OR \
--input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformOR_face+tlrc
-
+-prefix /Volumes/WD_F/gufei/3T_cw/group/mask/A37mv \
+-input /Volumes/WD_D/allsub/BN_atlas/nonresample/A37mv+tlrc
+# A37mv and A37lv
+3dcalc \
+-a Brainnetome_1.0.A_lv_left+tlrc \
+-b Brainnetome_1.0.A_lv_right+tlrc \
+-c Brainnetome_1.0.A_mv_left+tlrc \
+-d Brainnetome_1.0.A_mv_right+tlrc \
+-expr 'a+b+c+d' \
+-prefix A37mlv
+3dresample \
+-master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+-prefix /Volumes/WD_F/gufei/3T_cw/group/mask/A37mlv \
+-input /Volumes/WD_D/allsub/BN_atlas/nonresample/A37mlv+tlrc
 # generate roi for each subject
 foreach ub (`count -dig 2 $1 $2`)
 set sub=S${ub}

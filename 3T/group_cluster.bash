@@ -19,6 +19,12 @@ elif [ "$1" = "fusiform" ]; then
 elif [ "$1" = "fusiformCA" ]; then
       mask=group/mask/fusiformCA+tlrc
       out=fusiformCA
+elif [ "$1" = "A37mlv" ]; then
+      mask=group/mask/A37mlv+tlrc
+      out=A37mlv
+elif [ "$1" = "A37mv" ]; then
+      mask=group/mask/A37mv+tlrc
+      out=A37mv
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
       out=Amy

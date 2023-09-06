@@ -11,15 +11,12 @@ if [[ "${2}" == Amy* ]]; then
 # if start with Pir
 elif [[ "${2}" == Pir* ]]; then
     mask="${2}.draw"
-# if start with Pir
-elif [[ "${2}" == FFA* ]]; then
-    mask="${2}"
 # otherwise exit
 else
     # echo "Please input the correct mask name!"
     # exit
-    echo "Use the default mask: ${2}*"
-    mask="${2}*"
+    echo "Use the default mask: ${2}"
+    mask="${2}"
 fi
 
 # 8 conditions for each subject
@@ -34,12 +31,12 @@ do
         
     # if is the first loop then add header
     if [ "${sub}" == "S03" ]; then
-        3dROIstats -nzmean -mask ${sub}/mask/${mask}+orig.HEAD \
+        3dROIstats -nzmean -mask "3dcalc( -a ${sub}/mask/${mask}+orig -expr bool(a) )" \
             "${sub}/${subj}.results/ppi.${sub}.${suffix}+orig[25,28,31,34,37,40,43,46]" \
             >> stats/indi8conppi_${outsuffix}.txt
     else
         # remove the first row
-        3dROIstats -nzmean -mask ${sub}/mask/${mask}+orig.HEAD \
+        3dROIstats -nzmean -mask "3dcalc( -a ${sub}/mask/${mask}+orig -expr bool(a) )" \
             "${sub}/${subj}.results/ppi.${sub}.${suffix}+orig[25,28,31,34,37,40,43,46]" \
             | sed '1d' >> stats/indi8conppi_${outsuffix}.txt
     fi

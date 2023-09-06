@@ -115,11 +115,11 @@ lineplot <- function(data, con, select){
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
-# data_names <- c("Amy8_at165","Pir_new_at165","FFA_at165")
-data_names <- c("Indiv40_0.001_odor_Pir",
-                "Indiv40_0.001_odor_Amy",
-                "Indiv40_0.001_face_vis_fusiform",
-                "Indiv40_0.001_fointer_inv_Amy")
+data_names <- c("Amy8_at165","Pir_new_at165","fusiform_at165","FFA_at165")
+# data_names <- c("Indiv40_0.001_odor_Pir",
+#                 "Indiv40_0.001_odor_Amy",
+#                 "Indiv40_0.001_face_vis_fusiform",
+#                 "Indiv40_0.001_fointer_inv_Amy")
 prefix <- 'indi8con_'
 # for each data_name
 for (data_name in data_names) {
@@ -131,6 +131,14 @@ names <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
 betas$condition <- factor(betas$condition, levels = c(1:8), labels = names, ordered = F)
 # reshape data to wide format
 betas <- reshape2::dcast(betas, id ~ condition, value.var = "NZmean")
+# ttest
+cat("*********",data_name,"ttest","*********")
+bruceR::TTEST(betas, names)
+# average names in betas
+bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[-1])),"x"),"x")
+bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[,c(2,3,8,9)])),"incon"),"incon")
+bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[4:7])),"con"),"con")
+
 # ANOVA
 cat("*********",data_name,"Invisible","*********")
 bruceR::MANOVA(betas, dvs=c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'), dvs.pattern="(Happ|Fear)(PleaInv|UnpleaInv)",

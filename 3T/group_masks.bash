@@ -4,37 +4,47 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 # roi
-roi=Amy
-nvox=40
+# roi=Amy
+for roi in Amy Pir fusiform FFA
+do
+nvox=10
 if [ "$roi" = "whole" ]; then
       mask=group/mask/bmask.nii
+      nvox=295
 elif [ "$roi" = "Pir" ]; then
       mask=group/mask/Pir_new.draw+tlrc
+      nvox=10
 elif [ "$roi" = "FFA" ]; then
       mask=group/mask/FFA+tlrc
+      nvox=27
 elif [ "$roi" = "fusiform" ]; then
       mask=group/mask/fusiform+tlrc
+      nvox=40
 elif [ "$roi" = "fusiformCA" ]; then
       mask=group/mask/fusiformCA+tlrc
+      nvox=36
 elif [ "$roi" = "A37mlv" ]; then
       mask=group/mask/A37mlv+tlrc
+      nvox=37
 elif [ "$roi" = "A37mv" ]; then
       mask=group/mask/A37mv+tlrc
+      nvox=23
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
+      nvox=11
 fi
 
 # for each pvalue
 for p in 0.001 #0.05  
 do
-    for brick in face_vis odor #fointer_inv face_inv odor_inv
+    for brick in face_vis odor fointer_inv fointer_vis face_inv
     do
         3dClusterize -nosum -1Dformat \
         -inset group/ANOVA_results_wholenew+tlrc \
         -mask ${mask} \
         -idat "${brick}" -ithr "${brick} t" \
         -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
-        -pref_map group/mask/Cluster${nvox}_${p}_${brick}_${roi}
+        -pref_map group/findmask/Cluster${nvox}_${p}_${brick}_${roi}
     done
 # combine maps
 # 3dcalc -a group/mask/Cluster${nvox}_${p}_fointer_inv_${roi}+tlrc \
@@ -135,3 +145,4 @@ done
 #         3dROIstats -nzvoxels -mask "3dcalc( -a ${sub}/mask/Cluster${nvox}_${p}_Inviscon_incon_${roi}+orig -expr bool(a) )" ${sub}/mask/Amy8_align.freesurfer+orig >> group/Invcon${nvox}_${p}_${roi}.txt
 #     done
 # done
+done

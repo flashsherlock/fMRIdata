@@ -37,7 +37,7 @@ do
         # get tent values
         data_tent=tent.${subj}.odor_14+orig
         # rm ../../stats/${sub}/Indiv${nvox}_${p}_${brick}_${roi}_tent_12.txt
-        3dROIstats -mask ../mask/Indiv${nvox}_${p}_${brick}_${roi}+orig \
+        3dROIstats -mask "3dcalc( -a ../mask/Indiv${nvox}_${p}_${brick}_${roi}+orig -expr bool(a) )" \
             -nzmean ${data_tent}"[$(seq -s , 1 63)64]" >| ../../stats/${sub}/Indiv${nvox}_${p}_${brick}_${roi}_p_tent_14.txt    
         # cd back
         cd "${datafolder}" || exit

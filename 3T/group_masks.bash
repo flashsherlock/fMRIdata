@@ -5,24 +5,27 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 cd "${datafolder}" || exit
 # roi
 # roi=Amy
-for roi in Amy Pir fusiform FFA
+for roi in whole Amy Pir fusiform FFA fusiformCA FFA_CA
 do
 nvox=10
 if [ "$roi" = "whole" ]; then
       mask=group/mask/bmask.nii
-      nvox=295
+      nvox=413
 elif [ "$roi" = "Pir" ]; then
       mask=group/mask/Pir_new.draw+tlrc
-      nvox=10
+      nvox=11
 elif [ "$roi" = "FFA" ]; then
       mask=group/mask/FFA+tlrc
-      nvox=27
+      nvox=34
+elif [ "$roi" = "FFA_CA" ]; then
+      mask=group/mask/FFA_CA+tlrc
+      nvox=23
 elif [ "$roi" = "fusiform" ]; then
       mask=group/mask/fusiform+tlrc
-      nvox=40
+      nvox=44
 elif [ "$roi" = "fusiformCA" ]; then
       mask=group/mask/fusiformCA+tlrc
-      nvox=36
+      nvox=38
 elif [ "$roi" = "A37mlv" ]; then
       mask=group/mask/A37mlv+tlrc
       nvox=37
@@ -31,20 +34,38 @@ elif [ "$roi" = "A37mv" ]; then
       nvox=23
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
-      nvox=11
+      nvox=12
 fi
 
 # for each pvalue
 for p in 0.001 #0.05  
 do
-    for brick in face_vis odor fointer_inv fointer_vis face_inv
+    for brick in face odor
     do
         3dClusterize -nosum -1Dformat \
         -inset group/ANOVA_results_wholenew+tlrc \
-        -mask ${mask} \
+        -mask "3dcalc( -a ${mask} -b group/mask/whole_any_at165+tlrc -expr a*b )"\
         -idat "${brick}" -ithr "${brick} t" \
         -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
-        -pref_map group/findmask/Cluster${nvox}_${p}_${brick}_${roi}
+        -pref_map group/findmask/anysigCluster${nvox}_${p}_${brick}_${roi}
+    done
+    for brick in face_vis fointer_vis
+    do
+        3dClusterize -nosum -1Dformat \
+        -inset group/ANOVA_results_wholenew+tlrc \
+        -mask "3dcalc( -a ${mask} -b group/mask/whole_anyvis_at165+tlrc -expr a*b )"\
+        -idat "${brick}" -ithr "${brick} t" \
+        -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
+        -pref_map group/findmask/anysigCluster${nvox}_${p}_${brick}_${roi}
+    done
+    for brick in face_inv fointer_inv
+    do
+        3dClusterize -nosum -1Dformat \
+        -inset group/ANOVA_results_wholenew+tlrc \
+        -mask "3dcalc( -a ${mask} -b group/mask/whole_anyinv_at165+tlrc -expr a*b )"\
+        -idat "${brick}" -ithr "${brick} t" \
+        -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
+        -pref_map group/findmask/anysigCluster${nvox}_${p}_${brick}_${roi}
     done
 # combine maps
 # 3dcalc -a group/mask/Cluster${nvox}_${p}_fointer_inv_${roi}+tlrc \

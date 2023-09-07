@@ -8,7 +8,7 @@ set maskdec_t = at165
 set suffix = de.new
 set outsuffix = whole
 # 8 conditions
-foreach con (`count -dig 1 2 23 3`)
+foreach con (`count -dig 1 1 22 3`)
 3dttest++ -prefix consep/ttest_con${con}_${outsuffix}                                       \
           -mask ./mask/bmask.nii                                            \
           -setA all                                                \
@@ -40,18 +40,42 @@ foreach con (`count -dig 1 2 23 3`)
                 26 "../S28/S28.de.results/stats.S28.${suffix}+tlrc[${con}]" \
                 27 "../S29/S29.de.results/stats.S29.${suffix}+tlrc[${con}]"
 end
-# any sig
-3dcalc  -a consep/ttest_con2_${outsuffix}+tlrc \
-        -b consep/ttest_con5_${outsuffix}+tlrc \
-        -c consep/ttest_con8_${outsuffix}+tlrc \
-        -d consep/ttest_con11_${outsuffix}+tlrc \
-        -e consep/ttest_con14_${outsuffix}+tlrc \
-        -f consep/ttest_con17_${outsuffix}+tlrc \
-        -g consep/ttest_con20_${outsuffix}+tlrc \
-        -h consep/ttest_con23_${outsuffix}+tlrc \
+any sig
+if results exist then delete
+if ( -e ./mask/whole_any_${maskdec_t}+tlrc.HEAD ) then
+    rm ./mask/whole_any_${maskdec_t}+tlrc.*
+endif
+3dcalc  -a "consep/ttest_con1_${outsuffix}+tlrc[1]" \
+        -b "consep/ttest_con4_${outsuffix}+tlrc[1]" \
+        -c "consep/ttest_con7_${outsuffix}+tlrc[1]" \
+        -d "consep/ttest_con10_${outsuffix}+tlrc[1]" \
+        -e "consep/ttest_con13_${outsuffix}+tlrc[1]" \
+        -f "consep/ttest_con16_${outsuffix}+tlrc[1]" \
+        -g "consep/ttest_con19_${outsuffix}+tlrc[1]" \
+        -h "consep/ttest_con22_${outsuffix}+tlrc[1]" \
         -i ./mask/bmask.nii \
         -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65),astep(f,1.65),astep(g,1.65),astep(h,1.65))*i' \
         -prefix ./mask/whole_any_${maskdec_t}
+if ( -e ./mask/whole_anyvis_${maskdec_t}+tlrc.HEAD ) then
+    rm ./mask/whole_anyvis_${maskdec_t}+tlrc.*
+endif
+3dcalc  -a "consep/ttest_con1_${outsuffix}+tlrc[1]" \
+        -b "consep/ttest_con7_${outsuffix}+tlrc[1]" \
+        -c "consep/ttest_con13_${outsuffix}+tlrc[1]" \
+        -d "consep/ttest_con19_${outsuffix}+tlrc[1]" \
+        -e ./mask/bmask.nii \
+        -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65))*e' \
+        -prefix ./mask/whole_anyvis_${maskdec_t}
+if ( -e ./mask/whole_anyinv_${maskdec_t}+tlrc.HEAD ) then
+    rm ./mask/whole_anyinv_${maskdec_t}+tlrc.*
+endif
+3dcalc  -a "consep/ttest_con4_${outsuffix}+tlrc[1]" \
+        -b "consep/ttest_con10_${outsuffix}+tlrc[1]" \
+        -c "consep/ttest_con16_${outsuffix}+tlrc[1]" \
+        -d "consep/ttest_con22_${outsuffix}+tlrc[1]" \
+        -e ./mask/bmask.nii \
+        -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65))*e' \
+        -prefix ./mask/whole_anyinv_${maskdec_t}
 
 # foreach region (FFA fusiform)
 

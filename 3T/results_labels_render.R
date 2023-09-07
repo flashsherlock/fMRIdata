@@ -22,10 +22,14 @@ for (roi_i in rois){
                       params = list(path = path, sub = subs, roi = roi, roiname = roiname, suffix = suffix))
   }
 }
-roi <- "Indiv40_0.001_fointer_inv_Amy"
+roi <- c("Indiv40_0.001_odor_Pir",
+         "Indiv40_0.001_odor_Amy",
+         "Indiv40_0.001_face_vis_fusiform",
+         "Indiv40_0.001_fointer_inv_Amy")
+roiname <- c("Pir_odor","Amy_odor","Fus_facevis","Amy_interinv")
 s <- "14"
 suffix <- paste0("_tent_", s, ".txt")
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/roistatas3t.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste("ROIstatas",roi,s,sep = "_"),
-                  params = list(path = path, sub = subs, roi = roi, roiname = "Amyinter", suffix = suffix))
+                  output_file = paste("ROIstatas","indiv40",s,sep = "_"),
+                  params = list(path = path, sub = subs, roi = roi, roiname = roiname, suffix = suffix))

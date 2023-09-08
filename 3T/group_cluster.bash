@@ -13,6 +13,9 @@ elif [ "$1" = "Pir" ]; then
 elif [ "$1" = "FFA" ]; then
       mask=group/mask/FFA+tlrc
       out=FFA
+elif [ "$1" = "FFA_CA" ]; then
+      mask=group/mask/FFA_CA+tlrc
+      out=FFA_CA
 elif [ "$1" = "fusiform" ]; then
       mask=group/mask/fusiform+tlrc
       out=fusiform
@@ -38,17 +41,29 @@ else
       outsuffix=${out}
 fi
 # acf parameters
-zork=($(3dFWHMx -acf group/3dFWHMx_${outsuffix} -mask ${mask} group/errs.wholenew+tlrc))
+# zork=($(3dFWHMx -acf group/3dFWHMx_${outsuffix} -mask ${mask} group/errs.wholenew+tlrc))
 # echo the 5-7 elements of $zork
 # acf=${echo ${zork} | awk '{print $5,$6,$7}'}
-echo ${zork[4]} ${zork[5]} ${zork[6]}
+# echo ${zork[4]} ${zork[5]} ${zork[6]}
 # cluster simulation
-3dClustSim -mask ${mask} -both \
+# 3dClustSim -mask ${mask} -both \
+# -acf ${zork[4]} ${zork[5]} ${zork[6]} \
+# -athr 0.10 0.05 0.02 0.01 \
+# -pthr 0.05 0.01 0.005 0.001 \
+# -iter 10000 -nodec \
+# -cmd group/3dClustSim_${outsuffix}.cmd \
+# -prefix group/${outsuffix}
+# add anysig mask
+for sig in anyvis any anyinv
+do
+zork=($(3dFWHMx -acf group/3dFWHMx_${outsuffix} -mask "3dcalc( -a ${mask} -b group/mask/whole_${sig}_at165+tlrc -expr a*b )" group/errs.wholenew+tlrc))
+3dClustSim -mask "3dcalc( -a ${mask} -b group/mask/whole_${sig}_at165+tlrc -expr a*b )" -both \
 -acf ${zork[4]} ${zork[5]} ${zork[6]} \
--athr 0.10 0.05 0.02 0.01 \
+-athr 0.10 0.05 0.01 0.001 \
 -pthr 0.05 0.01 0.005 0.001 \
 -iter 10000 -nodec \
--cmd group/3dClustSim_${outsuffix}.cmd \
--prefix group/${outsuffix}
+-cmd group/findmask/3dClustSim_${sig}_${outsuffix}.cmd \
+-prefix group/findmask/${outsuffix}_${sig}
+done
 # add to header
 # $(cat group/3dClustSim_${outsuffix}.cmd) group/ANOVA_results_${outsuffix}+tlrc

@@ -7,8 +7,10 @@ roibase <- c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165')
 roiname <- c("Amy","Cortical","CeMe","BaLa")
 suf <- c("14","14p")
 rois <- c("at165","atfix165","atfixdu165")
-roibase <- c('Amy8_at165','Pir_new_at165',"Fusiform_at165","FFA_at165")
-roiname <- c("Amy","Piriform","Fusiform","FFA")
+# roibase <- c('Amy8_at165','Pir_new_at165',"Fusiform_at165","FFA_at165","FusiformCA_at165","FFA_CA_at165")
+# roiname <- c("Amy","Piriform","Fusiform","FFA","FusiformCA","FFA_CA")
+roibase <- c('Amy8_at165','Pir_new_at165',"FusiformCA_at165","FFA_CA_at165")
+roiname <- c("Amy","Piriform","FusiformCA","FFA_CA")
 rois <- c("at165")
 # render roistats
 for (roi_i in rois){

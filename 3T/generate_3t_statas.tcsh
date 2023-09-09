@@ -42,7 +42,7 @@ if (! -e ../../stats/${sub}) then
     mkdir ../../stats/${sub}
 endif
 
-foreach region (FFA fusiform)
+foreach region (FFA fusiform FFA_CA fusiformCA)
 
     # rm ../mask/${region}_${maskdec_t2}*
     # rm ../mask/${region}_${maskdec_t}*

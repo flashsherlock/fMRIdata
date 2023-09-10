@@ -116,6 +116,7 @@ lineplot <- function(data, con, select){
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
 data_names <- c("Amy8_at165","Pir_new_at165","fusiform_at165","FFA_at165")
+data_names <- c("fusiformCA_at165","FFA_CA_at165","fusiformCA","FFA_CA")
 # data_names <- c("Indiv40_0.001_odor_Pir",
 #                 "Indiv40_0.001_odor_Amy",
 #                 "Indiv40_0.001_face_vis_fusiform",

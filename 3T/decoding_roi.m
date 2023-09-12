@@ -29,10 +29,10 @@ for i=1:length(rois)
     
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
-    test=['odors_' roi];
+    test=['faces_' roi];
     
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_odor_shift' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_faceall_shift' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -116,11 +116,13 @@ for i=1:length(rois)
     end
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
+    
     % train on visible    
-    invisible = reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]);
-    cfg.design.train(invisible==1,:) = 0;
-    % test on invisible
-    cfg.design.test(invisible==0,:) = 0;
+%     invisible = reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]);
+%     cfg.design.train(invisible==1,:) = 0;
+%     % test on invisible
+%     cfg.design.test(invisible==0,:) = 0;
+    
     % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');
     % overwrite existing results
     cfg.results.overwrite = 1;

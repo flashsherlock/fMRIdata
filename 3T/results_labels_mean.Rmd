@@ -4,9 +4,9 @@ params:
     path: "/Volumes/WD_F/gufei/3t_cw/"
     sub: !r c(sprintf('S%02d', c(3:29)))
     analysis: "de"
-    mvpa_pattern: "roi_odor_shift6"
-    roi: !r c('Amy8_align','Indiv40')
-    roiname: !r c("Amy","Interaction")
+    mvpa_pattern: "roi_faceall_shift6"
+    roi: !r c('faces_Amy8_align','faces_Amy8_at165')
+    roiname: !r c("Amy","Amy8_at165")
     set_title: "Decoding_mean"
 title: "`r params$set_title`"
 author: "Fei"
@@ -54,8 +54,8 @@ readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
       # 4 kinds of roi
       for (r in roi_order){
         # read mat file
-        true <- readMat(file.path(workingdir,m,paste0("odors_",r),'res_true_labels.mat'))
-        predict <- readMat(file.path(workingdir,m,paste0("odors_",r),'res_predicted_labels.mat'))
+        true <- readMat(file.path(workingdir,m,paste0("",r),'res_true_labels.mat'))
+        predict <- readMat(file.path(workingdir,m,paste0("",r),'res_predicted_labels.mat'))
         true <- unlist(true$results[[9]][[1]][[1]])
         predict <- unlist(predict$results[[9]][[1]])
         labels <- rbind(true,predict)

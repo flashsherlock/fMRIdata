@@ -29,10 +29,10 @@ for i=1:length(rois)
     
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'roi';
-    test=['faces_' roi];
+    test=['odors_' roi];
     
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_faceall_shift' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_odorall_shift' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -61,11 +61,15 @@ for i=1:length(rois)
         % each trial is a chunk
         cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:15, [1 8]), [numtr 1])];
         % decoding faces
-        cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
+        % face emotion
+        % cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
+        % odor emotion
+        cfg.files.label = [cfg.files.label;reshape(repmat([1 1 2 2 1 1 2 2], [15 1]), [numtr 1])];
         % cfg.files.label = timing(:, 1);
         % names={'FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',...
         %       'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv'};
-           names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
+        % names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
+        names={'Plea','Plea','Unplea','Unplea','Plea','Plea','Unplea','Unplea'};
         cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];        
     end
     %% Decide whether you want to see the searchlight/ROI/... during decoding

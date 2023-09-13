@@ -27,8 +27,9 @@ if ( -d "${datafolder}" ) then
     # rm errts*
     # rm fitts*
     # rm *nocross*
-    rm *frame*
-    rm stats.${subj}+*
+    # rm *frame*
+    # rm stats.${subj}+*
+    rm -r mvpa
     # rm *_16*
     # 3dcopy anat_final.${subj}+orig ../../roi/${sub}.nii
     # 3dcopy ../mask/Amy8_align.freesurfer+orig ../../roi/${sub}_amy.nii

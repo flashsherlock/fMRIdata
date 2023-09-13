@@ -1,4 +1,4 @@
-function decoding_roi(sub,analysis_all,rois,shift)
+function decoding_roi(sub,analysis_all,rois,shift,decode,con)
 % This script is a template that can be used for a decoding analysis on 
 % brain image data. It is for people who ran one deconvolution per run
 % using AFNI and want to automatically extract the relevant images used for
@@ -28,11 +28,11 @@ for i=1:length(rois)
     cfg.software = 'AFNI';
     
     % Set the analysis that should be performed (default is 'searchlight')
-    cfg.analysis = 'roi';
-    test=['odors_' roi];
+    cfg.analysis = 'roi';        
+    test=[con '_' roi];
     
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_odorall_shift' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_' decode '_shift' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end

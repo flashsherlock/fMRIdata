@@ -61,15 +61,19 @@ for i=1:length(rois)
         % each trial is a chunk
         cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:15, [1 8]), [numtr 1])];
         % decoding faces
-        % face emotion
-        % cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
-        % odor emotion
-        cfg.files.label = [cfg.files.label;reshape(repmat([1 1 2 2 1 1 2 2], [15 1]), [numtr 1])];
+        switch decode
+            case 'face'
+            % face emotion
+            cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
+            names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
+            case 'odor'
+            % odor emotion
+            cfg.files.label = [cfg.files.label;reshape(repmat([1 1 2 2 1 1 2 2], [15 1]), [numtr 1])];
+            names={'Plea','Plea','Unplea','Unplea','Plea','Plea','Unplea','Unplea'};
+        end
         % cfg.files.label = timing(:, 1);
         % names={'FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',...
-        %       'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv'};
-        % names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
-        names={'Plea','Plea','Unplea','Unplea','Plea','Plea','Unplea','Unplea'};
+        %       'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv'};              
         cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];        
     end
     %% Decide whether you want to see the searchlight/ROI/... during decoding

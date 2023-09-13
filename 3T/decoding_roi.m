@@ -124,14 +124,19 @@ for i=1:length(rois)
     end
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
-    
-    % train on visible    
-%     invisible = reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]);
+    invisible = reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]);
+%     % train on visible    
 %     cfg.design.train(invisible==1,:) = 0;
 %     % test on invisible
-%     cfg.design.test(invisible==0,:) = 0;
-    
-    % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');
+%     cfg.design.test(invisible==0,:) = 0;    
+    switch con
+        case 'vis'                       
+            cfg.design.train(invisible==1,:) = 0;
+            cfg.design.test(invisible==1,:) = 0; 
+        case 'inv'                       
+            cfg.design.train(invisible==0,:) = 0;
+            cfg.design.test(invisible==0,:) = 0; 
+    end
     % overwrite existing results
     cfg.results.overwrite = 1;
     % Run decoding

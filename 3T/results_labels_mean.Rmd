@@ -4,8 +4,8 @@ params:
     path: "/Volumes/WD_F/gufei/3t_cw/"
     sub: !r c(sprintf('S%02d', c(3:29)))
     analysis: "de"
-    mvpa_pattern: "roi_faceall_shift6"
-    roi: !r c('faces_Amy8_align','faces_Amy8_at165')
+    mvpa_pattern: "roi_face_shift6"
+    roi: !r c('all_Amy8_align','all_Amy8_at165')
     roiname: !r c("Amy","Amy8_at165")
     set_title: "Decoding_mean"
 title: "`r params$set_title`"

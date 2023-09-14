@@ -37,16 +37,14 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/roistatas3t.Rmd",
                   params = list(path = path, sub = subs, roi = roi, roiname = roiname, suffix = suffix))
 # mvpa results
 mvpa_pattern <- "roi_face_shift6"
-roi <- c('all_Amy8_align','all_Amy8_at165')
-roiname <- c("Amy","Amy8_at165")
+roi <- c('all_Amy8_align','all_Amy8_at165','vis_Amy8_align','vis_Amy8_at165','inv_Amy8_align','inv_Amy8_at165')
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste("mvpa_faces"),
-                  params = list(path = path, sub = subs, roi = roi, roiname = roiname, mvpa_pattern = mvpa_pattern))
+                  params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 mvpa_pattern <- "roi_odor_shift6"
 roi <- c('all_Amy8_align','all_Amy8_at165')
-roiname <- c("Amy","Amy8_at165")
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste("mvpa_odors"),
-                  params = list(path = path, sub = subs, roi = roi, roiname = roiname, mvpa_pattern = mvpa_pattern))
+                  params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))

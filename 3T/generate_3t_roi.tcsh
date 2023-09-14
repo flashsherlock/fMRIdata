@@ -113,19 +113,25 @@ endif
 
 # CA masks
 # transform FFA mask
-set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA+tlrc
-# nonlinear warp
-3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-             -source ${mask}                                                                      \
-             -interp NN                                                               \
-             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-             -prefix ../mask/FFA_CA
-# Fusiform
-set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FusiformCA+tlrc
-# nonlinear warp
-3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-             -source ${mask}                                                                      \
-             -interp NN                                                               \
-             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-             -prefix ../mask/FusiformCA
+# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA+tlrc
+# # nonlinear warp
+# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+#              -source ${mask}                                                                      \
+#              -interp NN                                                               \
+#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+#              -prefix ../mask/FFA_CA
+# # Fusiform
+# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FusiformCA+tlrc
+# # nonlinear warp
+# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+#              -source ${mask}                                                                      \
+#              -interp NN                                                               \
+#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+#              -prefix ../mask/FusiformCA
+# generate extended box ROI
+set ijk=(`3dAutobox -npad 9 -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
+3dcalc -a ../mask/Amy8_align.freesurfer+orig \
+-prefix ../mask/BoxROIext \
+-expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+
 end

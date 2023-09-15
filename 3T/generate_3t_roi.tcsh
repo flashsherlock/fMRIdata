@@ -128,10 +128,16 @@ endif
 #              -interp NN                                                               \
 #              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
 #              -prefix ../mask/FusiformCA
-# generate extended box ROI
-set ijk=(`3dAutobox -npad 9 -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
+rm ../mask/BoxROI*
+# generate extended box ROI 3 voxels
+set ijk=(`3dAutobox -npad 3 -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
 3dcalc -a ../mask/Amy8_align.freesurfer+orig \
 -prefix ../mask/BoxROIext \
+-expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# nopad
+set ijk=(`3dAutobox -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
+3dcalc -a ../mask/Amy8_align.freesurfer+orig \
+-prefix ../mask/BoxROI \
 -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
 
 end

@@ -22,5 +22,12 @@ for i=1:size(decode,1)
     if ~exist([result '/res_accuracy_minus_chance+orig.BRIK'],'file')
         decode_need(i)=1;
         disp([num2str(i) ' ' sub ' ' test]);
+    else
+        % align results to standard space
+        cd(result);
+        nw = ['../../../anatQQ.' sub '_WARP.nii ../../../anatQQ.' sub '.aff12.1D INV(../../../anatSS.' sub '_al_keep_mat.aff12.1D)'];
+        nm = 'res_accuracy_minus_chance';
+        cmd = ['3dNwarpApply -nwarp ' ['"' nw '"'] ' -source ' nm  '+orig -master ../../../anatQQ.' sub '+tlrc -prefix ' nm];
+        unix(cmd);
     end
 end

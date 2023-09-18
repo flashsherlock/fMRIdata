@@ -48,3 +48,13 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.R
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste("mvpa_odors"),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
+# transition
+for (con in c('odor','face')) {
+mvpa_pattern <- paste0('roi_',con,'trans_shift6')
+roi <- c('vis_Amy8_align','vis_Amy8_at165','inv_Amy8_align','inv_Amy8_at165',
+         'con_Amy8_align','con_Amy8_at165','inc_Amy8_align','inc_Amy8_at165')
+rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
+                  output_dir = paste0(path,"results_labels_r"),
+                  output_file = paste0("mvpa_trans",con),
+                  params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
+}

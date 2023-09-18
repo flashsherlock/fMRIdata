@@ -15,3 +15,13 @@ parfor i = 3:29
     % close figures
     close all
 end
+% decoding trans
+con = {'con','inc','vis','inv'};
+parfor i = 3:29
+    sub=sprintf('S%02d',i);
+    for con_i = 1:length(con)
+        decoding_roitrans(sub,analysis_all,rois,shift,decode,con{con_i});
+    end
+    % close figures
+    close all
+end

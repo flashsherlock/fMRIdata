@@ -37,6 +37,9 @@ elif [ "$1" = "OFC" ]; then
 elif [ "$1" = "FFV" ]; then
       mask=group/mask/FFV+tlrc
       out=FFV
+elif [ "$1" = "aSTS" ]; then
+      mask=group/mask/aSTS_OR+tlrc
+      out=aSTS_OR
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
       out=Amy

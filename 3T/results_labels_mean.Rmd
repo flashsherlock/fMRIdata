@@ -6,7 +6,7 @@ params:
     analysis: "de"
     mvpa_pattern: "roi_face_shift6"
     roi: !r c('all_Amy8_align','all_Amy8_at165')
-    roiname: !r c("Amy","Amy8_at165")
+    roiname: !r c('all_Amy8_align','all_Amy8_at165')
     set_title: "Decoding_mean"
 title: "`r params$set_title`"
 author: "Fei"
@@ -139,8 +139,8 @@ for (sub_i in sub) {
             # current_data[,which(congruent==1)]
             current_data <- current_data[,select==1]
           } else {
-            select <- rep(rep(select,each=dim(current_data)[2]/60),15)
-            current_data <- current_data[,select==1]
+            select_ext <- rep(rep(select,each=(dim(current_data)[2]/60)),15)
+            current_data <- current_data[,select_ext==1]
           }
         }
         # make sure every class is presented in predict
@@ -252,11 +252,18 @@ if (!str_detect(mvpa_pattern,"trans")) {
   inc <- c(1,0,0,1)
   test <- rbind(get_acc(path,sub,analysis,mvpa_pattern,roi,con,"con"),
                 get_acc(path,sub,analysis,mvpa_pattern,roi,inc,"inc"))
-  # ttest
-  
   # plot
   for (m in mvpa_pattern){
     acc4odor <- subset(test,run=="run_all" & beta==m)
+    # ttest
+    for (r in roi) {
+      datashose <- subset(acc4odor,roi==r,select = c("sub","odor","acc"))
+      datashose <- spread(datashose,odor,acc)
+      # change datachosen to wide format for ttest
+      # datashose <- reshape2::dcast(datashose,sub~odor,value.var = "acc")
+      cat(r)
+      bruceR::TTEST(datashose,c("inc","con"),paired = T)
+    }
     # Bar plot of mean +/-se
     control <- subset(acc4odor,roi == params$roi[1])
     control$acc <- 50

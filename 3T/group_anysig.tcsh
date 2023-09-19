@@ -108,7 +108,7 @@ endif
                 25 "../S27/S27.de.results/stats.S27.${suffix}+tlrc[52]" \
                 26 "../S28/S28.de.results/stats.S28.${suffix}+tlrc[52]" \
                 27 "../S29/S29.de.results/stats.S29.${suffix}+tlrc[52]"
-# generate mask
+# generate mask of voxels vis > inv 
 if ( -e ./mask/whole_vis_${maskdec_t}+tlrc.HEAD ) then
     rm ./mask/whole_vis_${maskdec_t}+tlrc.*
 endif
@@ -116,3 +116,21 @@ endif
         -b ./mask/bmask.nii \
         -expr 'step(a-1.65)*b' \
         -prefix ./mask/whole_vis_${maskdec_t}
+# generate mask of voxels vis < inv
+if ( -e ./mask/whole_inv_${maskdec_t}+tlrc.HEAD ) then
+    rm ./mask/whole_inv_${maskdec_t}+tlrc.*
+endif
+3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
+        -b ./mask/bmask.nii \
+        -expr 'step(-a-1.65)*b' \
+        -prefix ./mask/whole_inv_${maskdec_t}
+# generate mask of voxels vis > inv in fusiform
+3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
+        -b ./mask/FusiformCA+tlrc \
+        -expr 'step(a-1.65)*b' \
+        -prefix ./mask/FFV
+# generate mask of voxels different in vis and inv in fusiform
+3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
+        -b ./mask/FusiformCA+tlrc \
+        -expr 'astep(a,1.65)*b' \
+        -prefix ./mask/FFVext

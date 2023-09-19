@@ -41,6 +41,28 @@
 # -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/FFA \
 # -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiform_face+tlrc
 
+# # OFC mask 6mm sphere
+# 3dcalc \
+#     -a /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc   \
+#     -expr 'step(36-(x-22)*(x-22)-(y+32)*(y+32)-(z+18)*(z+18))+step(36-(x+24)*(x+24)-(y+33)*(y+33)-(z+12)*(z+12))' \
+#     -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/OFC6mm
+
+# # insula mask
+# cd "/Volumes/WD_D/allsub/BN_atlas/nonresample"
+# whereami -mask_atlas_region CA_ML_18_MNI:left:insula
+# whereami -mask_atlas_region CA_ML_18_MNI:right:insula
+# # combine
+# 3dcalc \
+# -a CA_ML_18_MNI.insula.l+tlrc \
+# -b CA_ML_18_MNI.insula.r+tlrc \
+# -expr 'a+b' \
+# -prefix insula.CA
+# # resample
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/insulaCA \
+# -input insula.CA+tlrc
+
 # generate roi for each subject
 foreach ub (`count -dig 2 $1 $2`)
 set sub=S${ub}

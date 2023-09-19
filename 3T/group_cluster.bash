@@ -28,6 +28,12 @@ elif [ "$1" = "A37mlv" ]; then
 elif [ "$1" = "A37mv" ]; then
       mask=group/mask/A37mv+tlrc
       out=A37mv
+elif [ "$1" = "insulaCA" ]; then
+      mask=group/mask/insulaCA+tlrc
+      out=insulaCA
+elif [ "$1" = "OFC" ]; then
+      mask=group/mask/OFC6mm+tlrc
+      out=OFC6mm
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
       out=Amy

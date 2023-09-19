@@ -112,15 +112,17 @@ cat(sub)
 ```{r echo=FALSE, fig.height=3, fig.width=4}
 mvpa <- mvpa_pattern
 run_num <- 5
-acc_run <- data.frame(sub=0,phy=0,beta=0,roi=0,odor=0,acc=0,run=0)
-acc_run <- acc_run[-1,]
-matrix_all <- data.frame(matrix(ncol = 4, nrow = 0))
 
 compute_acc <- function(labels){
   acc_matrix <- as.matrix(table(odor=labels[1,],prediction=labels[2,]))
   n = sum(acc_matrix)
   acc = 100*sum(diag(acc_matrix))/n # overall accuracy
 }
+
+get_acc <- function(path,sub,analysis,mvpa_pattern,roi,select=1,olabel="all"){
+  
+acc_run <- data.frame(sub=0,phy=0,beta=0,roi=0,odor=0,acc=0,run=0)
+acc_run <- acc_run[-1,]
 
 for (sub_i in sub) {
   data_labels <- readlabel(path,sub_i,analysis,mvpa_pattern,roi)
@@ -130,6 +132,17 @@ for (sub_i in sub) {
         # 8odors
         cname <- paste(ana,m,r,sep = '_')
         current_data <- data_labels[[cname]]
+        # whether to select data
+        if (length(select)>1){
+          # if index length match data length
+          if (length(select)==dim(current_data)[2]){
+            # current_data[,which(congruent==1)]
+            current_data <- current_data[,select==1]
+          } else {
+            select <- rep(rep(select,each=dim(current_data)[2]/60),15)
+            current_data <- current_data[,select==1]
+          }
+        }
         # make sure every class is presented in predict
         current_data_add <- cbind(current_data,matrix(rep(unique(current_data["true",]),each=2),nrow = 2))
         cmatrix <- as.matrix(table(odor=current_data_add["true",],prediction=current_data_add["predict",]))
@@ -143,12 +156,12 @@ for (sub_i in sub) {
         
         # accuracy
         acc = 100*sum(diag(cmatrix))/n # overall accuracy
-        acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("odors_",r),acc,"run_all")
+        acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,olabel,acc,"run_all")
         sep_cmatrix <- split(current_data,rep(1:run_num, each = 2*n/run_num))
         for (i_run in 1:run_num) {
           run_matrix <- matrix(sep_cmatrix[[i_run]],nrow = 2)
           acc = compute_acc(run_matrix) # overall accuracy
-          acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,paste0("odors_",r),acc,paste("run_",i_run))
+          acc_run[nrow(acc_run)+1,] <- c(sub_i,ana,m,r,olabel,acc,paste("run_",i_run))
         }
       }
     }
@@ -157,6 +170,9 @@ for (sub_i in sub) {
 acc_run$acc <- as.numeric(acc_run$acc)
 acc_run$roi <- factor(acc_run$roi,levels = roi)
 acc_run$phy <- factor(acc_run$phy,levels = analysis)
+return(acc_run)
+}
+acc_run <- get_acc(path,sub,analysis,mvpa_pattern,roi)
 ```
 
 ### accuracy all runs 4 odors
@@ -226,3 +242,45 @@ acc4odor_run <- subset(acc_run,run!="run_all")
     }
   }
 ```
+
+### congruent and incongruent condition
+```{r fig.height=5, fig.width=12}
+# only for normal mvpa
+if (!str_detect(mvpa_pattern,"trans")) {
+  # separate congruent and incongruent
+  con <- c(0,1,1,0)
+  inc <- c(1,0,0,1)
+  test <- rbind(get_acc(path,sub,analysis,mvpa_pattern,roi,con,"con"),
+                get_acc(path,sub,analysis,mvpa_pattern,roi,inc,"inc"))
+  # ttest
+  
+  # plot
+  for (m in mvpa_pattern){
+    acc4odor <- subset(test,run=="run_all" & beta==m)
+    # Bar plot of mean +/-se
+    control <- subset(acc4odor,roi == params$roi[1])
+    control$acc <- 50
+    control$roi <- "control"
+    acc4odor <- rbind(acc4odor,control)
+    acc4odor <- mutate(acc4odor,roi = factor(roi,levels=c(params$roi,"control")))
+    for (oi in c("inc","con")) {
+      figure <- ggbarplot(subset(acc4odor,odor==oi), x = "roi", y = "acc", fill = 'odor',
+                          add = "mean_se", position = position_dodge())+
+        labs(title = m ,x='ROI',y='ACC',fill='Condition')+#设置坐标轴
+        stat_compare_means(method = "t.test",
+                           ref.group = "control",
+                           paired = TRUE,
+                           label = "p.format")+
+        coord_cartesian(ylim=c(0,100)) +
+        geom_hline(yintercept=c(control$acc), linetype="dotted")+
+        scale_y_continuous(breaks = scales::breaks_width(5),
+                           expand = c(0,0))+
+        scale_x_discrete(labels=c(roiname,"control"))+
+        scale_fill_brewer(palette = "Paired",direction = 1)+ #颜色
+        theme_prism(base_line_size = 0.5)
+      print(figure)
+    }
+  }
+}
+```
+

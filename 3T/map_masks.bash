@@ -4,8 +4,8 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 # roi
-roi=Amy
-nvox=40
+roi=OFC
+nvox=4
 # for each pvalue
 for p in 0.001 #0.05  
 do

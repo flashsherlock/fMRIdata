@@ -65,14 +65,14 @@
 
 # # aSTS mask
 # http://www.brainactivityatlas.org/atlas/atlas-download/object-recognition/
-3dcalc \
--a /Volumes/WD_F/gufei/3T_cw/BAA-OR/face/volume/BAA-OR-FvO-MPRM-thr10-2mm.nii.gz \
--expr 'amongst(a,11,12)' \
--prefix /Volumes/WD_F/gufei/3T_cw/ASAP_maps/aSTS
-3dresample \
--master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
--prefix /Volumes/WD_F/gufei/3T_cw/group/mask/aSTS_OR \
--input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/aSTS+tlrc
+# 3dcalc \
+# -a /Volumes/WD_F/gufei/3T_cw/BAA-OR/face/volume/BAA-OR-FvO-MPRM-thr10-2mm.nii.gz \
+# -expr 'amongst(a,11,12)' \
+# -prefix /Volumes/WD_F/gufei/3T_cw/ASAP_maps/aSTS
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/aSTS_OR \
+# -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/aSTS+tlrc
 
 # generate roi for each subject
 foreach ub (`count -dig 2 $1 $2`)
@@ -128,49 +128,41 @@ endif
 # mv Piriform.seg* ../mask
 
 # transform FFA mask
-# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA+tlrc
+# foreach roi (Fusiform FFA FusiformCA FFA_CA)
+# foreach roi (insulaCA OFC6mm aSTS_OR)
+# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/${roi}+tlrc
 # # nonlinear warp
 # 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
 #              -source ${mask}                                                                      \
 #              -interp NN                                                               \
 #              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-#              -prefix ../mask/FFA
-# # Fusiform
-# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/Fusiform+tlrc
-# # nonlinear warp
-# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-#              -source ${mask}                                                                      \
-#              -interp NN                                                               \
-#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-#              -prefix ../mask/Fusiform
+#              -prefix ../mask/${roi}
+# end
 
-# CA masks
-# transform FFA mask
-# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA+tlrc
-# # nonlinear warp
-# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-#              -source ${mask}                                                                      \
-#              -interp NN                                                               \
-#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-#              -prefix ../mask/FFA_CA
-# # Fusiform
-# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FusiformCA+tlrc
-# # nonlinear warp
-# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-#              -source ${mask}                                                                      \
-#              -interp NN                                                               \
-#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-#              -prefix ../mask/FusiformCA
-rm ../mask/BoxROI*
-# generate extended box ROI 3 voxels
-set ijk=(`3dAutobox -npad 3 -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
-3dcalc -a ../mask/Amy8_align.freesurfer+orig \
--prefix ../mask/BoxROIext \
--expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
-# nopad
-set ijk=(`3dAutobox -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
-3dcalc -a ../mask/Amy8_align.freesurfer+orig \
--prefix ../mask/BoxROI \
--expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# FFV masks
+3dcalc \
+    -a "stats.${sub}.de.new+orig[52]" \
+    -b ../mask/FusiformCA+orig \
+    -expr 'step(a-1.65)*b' \
+    -prefix ../mask/FFV_CA
+# foreach dec (_at165 _at165_p)
+#     3dcalc \
+#         -a "stats.${sub}.de.new+orig[52]" \
+#         -b ../mask/FusiformCA${dec}+orig \
+#         -expr 'step(a-1.65)*b' \
+#         -prefix ../mask/FFV_CA${dec}
+# end
+
+# rm ../mask/BoxROI*
+# # generate extended box ROI 3 voxels
+# set ijk=(`3dAutobox -npad 3 -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
+# 3dcalc -a ../mask/Amy8_align.freesurfer+orig \
+# -prefix ../mask/BoxROIext \
+# -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# # nopad
+# set ijk=(`3dAutobox -extent_ijk -noclust ../mask/Amy8_align.freesurfer+orig`)
+# 3dcalc -a ../mask/Amy8_align.freesurfer+orig \
+# -prefix ../mask/BoxROI \
+# -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
 
 end

@@ -5,7 +5,7 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 cd "${datafolder}" || exit
 # roi
 # roi=Amy
-for roi in whole Amy Pir fusiform FFA fusiformCA FFA_CA
+for roi in insulaCA OFC FFV aSTS # whole Amy Pir fusiform FFA fusiformCA FFA_CA
 do
 nvox=10
 if [ "$roi" = "whole" ]; then
@@ -32,6 +32,22 @@ elif [ "$roi" = "A37mlv" ]; then
 elif [ "$roi" = "A37mv" ]; then
       mask=group/mask/A37mv+tlrc
       nvox=23
+elif [ "$roi" = "insulaCA" ]; then
+      mask=group/mask/insulaCA+tlrc
+      out=insulaCA
+      nvox=47
+elif [ "$roi" = "OFC" ]; then
+      mask=group/mask/OFC6mm+tlrc
+      out=OFC6mm
+      nvox=4
+elif [ "$roi" = "FFV" ]; then
+      mask=group/mask/FFV+tlrc
+      out=FFV
+      nvox=20
+elif [ "$roi" = "aSTS" ]; then
+      mask=group/mask/aSTS_OR+tlrc
+      out=aSTS_OR
+      nvox=42
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
       nvox=12
@@ -42,6 +58,7 @@ for p in 0.001 #0.05
 do
     for brick in face odor
     do
+      # rm group/findmask/anysigCluster*_${p}_${brick}_${roi}*
         3dClusterize -nosum -1Dformat \
         -inset group/ANOVA_results_wholenew+tlrc \
         -mask "3dcalc( -a ${mask} -b group/mask/whole_any_at165+tlrc -expr a*b )"\
@@ -51,6 +68,7 @@ do
     done
     for brick in face_vis fointer_vis
     do
+      # rm group/findmask/anysigCluster*_${p}_${brick}_${roi}*
         3dClusterize -nosum -1Dformat \
         -inset group/ANOVA_results_wholenew+tlrc \
         -mask "3dcalc( -a ${mask} -b group/mask/whole_anyvis_at165+tlrc -expr a*b )"\
@@ -60,6 +78,7 @@ do
     done
     for brick in face_inv fointer_inv
     do
+      # rm group/findmask/anysigCluster*_${p}_${brick}_${roi}*
         3dClusterize -nosum -1Dformat \
         -inset group/ANOVA_results_wholenew+tlrc \
         -mask "3dcalc( -a ${mask} -b group/mask/whole_anyinv_at165+tlrc -expr a*b )"\

@@ -65,6 +65,18 @@ Deconvolve data for PPI analysis.
 ## deconvolve_3tnoblur.tcsh
 Deconvolve data without blur.
 
+## generate_3t_roi.tcsh
+Generate individual roi.
+
+## generate_3t_ffa.tcsh
+Generate individual FFA mask.
+
+## indiv_cluster.bash
+Find individual level cluster threshold for each roi.
+
+## indiv_masks.bash
+Get individual level significant clusters in each roi.
+
 # Analysis
 
 ## group_cluster.bash
@@ -88,6 +100,9 @@ Dump betas from group level mask and individual masks.
 ## group_masks.bash
 Get level masks for main effects of face and odor.
 
+## group_anysig.tcsh
+Get group level masks of significant voxels for any condition.
+
 ## map_masks.bash
 Get individual level interaction mask and dump tent data.
 
@@ -96,6 +111,12 @@ Find TRs for each condition.
 
 ## decoding_roi.m
 Decoding analysis for Amy. Train on visible and test on invisible.
+
+## decoding_roitrans.m
+Decoding analysis for Amy. Train on one condition and test on another.
+
+## decoding_search.m
+Searchlight decoding analysis for Amy.
 
 ## run_decoding.tcsh
 Run decoding analysis for Amy.

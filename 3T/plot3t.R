@@ -6,7 +6,6 @@ library(ggpubr)
 library(ggprism)
 library(patchwork)
 library(Rmisc)
-library(dplyr)
 theme_set(theme_prism(base_line_size = 0.5))
 showtext::showtext_auto(enable = F)
 sysfonts::font_add("Helvetica","Helvetica.ttc")
@@ -63,7 +62,8 @@ boxplotv <- function(data, con, select){
   Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   # summarise data 5% and 90% quantile
-  df <- Violin_data %>% group_by(condition, test) %>% boxset
+  df <- ddply(Violin_data, .(condition, test), boxset)
+  # df <- Violin_data %>% group_by(condition, test) %>% boxset
   
   # jitter
   set.seed(111)
@@ -117,10 +117,13 @@ data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
 data_names <- c("Amy8_at165","Pir_new_at165","fusiform_at165","FFA_at165")
 data_names <- c("fusiformCA_at165","FFA_CA_at165","fusiformCA","FFA_CA")
+data_names <- c("FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR",
+                "FFV_CA_at165", "insulaCA_at165", "OFC6mm_at165", "aSTS_OR_at165")
 # data_names <- c("Indiv40_0.001_odor_Pir",
 #                 "Indiv40_0.001_odor_Amy",
 #                 "Indiv40_0.001_face_vis_fusiform",
 #                 "Indiv40_0.001_fointer_inv_Amy")
+# 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
 prefix <- 'indi8con_'
 # for each data_name
 for (data_name in data_names) {

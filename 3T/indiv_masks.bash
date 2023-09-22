@@ -29,7 +29,12 @@ do
                   do
                         for con in face odor
                         do
-                        nvox=2
+                        name=${sub}/threshold/${out}_${sig}.NN2_bisided.1D
+                        # get the last line of the file
+                        nvox=$(tail -n 1 ${name})
+                        # get the last number of the line
+                        # https://unix.stackexchange.com/questions/147560/explain-this-bash-script-echo-1
+                        nvox=${nvox##* }
                         if [ "${sig}" = "any" ]
                         then
                               brick=${con}_GLT#0

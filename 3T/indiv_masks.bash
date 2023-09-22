@@ -27,7 +27,7 @@ do
                   
                   for sig in any anyvis anyinv
                   do
-                        for con in face odor
+                        for con in inter face odor
                         do
                         name=${sub}/threshold/${out}_${sig}.NN2_bisided.1D
                         # get the last line of the file
@@ -35,11 +35,25 @@ do
                         # get the last number of the line
                         # https://unix.stackexchange.com/questions/147560/explain-this-bash-script-echo-1
                         nvox=${nvox##* }
-                        if [ "${sig}" = "any" ]
+                        if [ "${con}" = "inter" ]
                         then
-                              brick=${con}_GLT#0
+                              if [ "${sig}" = "any" ]
+                              then
+                                    brick=con_incon_GLT#0
+                              elif [ "${sig}" = "anyvis" ]
+                              then
+                                    brick=Viscon_incon_GLT#0
+                              elif [ "${sig}" = "anyinv" ]
+                              then
+                                    brick=Inviscon_incon_GLT#0
+                              fi
                         else
-                              brick=${con}_${sig: -3}_GLT#0
+                              if [ "${sig}" = "any" ]
+                              then
+                                    brick=${con}_GLT#0
+                              else
+                                    brick=${con}_${sig: -3}_GLT#0
+                              fi
                         fi
                         3dClusterize -nosum -1Dformat \
                         -inset ${sub}/${subj}.results/stats.${subj}.new+orig \

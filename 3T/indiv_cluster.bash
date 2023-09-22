@@ -1,9 +1,11 @@
 #! /bin/bash
 
+# set threads
+export OMP_NUM_THREADS=2
 datafolder=/Volumes/WD_F/gufei/3T_cw/
 cd "${datafolder}" || exit
 maskdec_t=at165
-
+# for each sub
 for ub in $(count -dig 2 ${1} ${2})
 do
       sub=S${ub}
@@ -34,24 +36,21 @@ do
             -prefix ${sub}/threshold/whole_anyinv_${maskdec_t}
 
       # for each mask
-      for mask in Amy Pir fusiformCA FFA_CA insulaCA OFC6mm aSTS_OR FFV_CA
+      for out in Amy Pir fusiformCA FFA_CA insulaCA OFC6mm aSTS_OR FFV_CA
       do
             # check $1, if is whole, use bmask.nii as mask
-            if [ ${mask} = "Amy" ]; then
-                  mask=${sub}/mask/Amy8_align.freesurfer+orig
-                  out=Amy
-            elif [ ${mask} = "Pir" ]; then
+            if [ ${out} = "Amy" ]; then
+                  mask=${sub}/mask/Amy8_align.freesurfer+orig                  
+            elif [ ${out} = "Pir" ]; then
                   mask=${sub}/mask/Pir_new.draw+orig
-                  out=Pir
             else
-                  mask=${sub}/mask/${mask}+orig
-                  out=${mask}
+                  mask=${sub}/mask/${out}+orig
             fi
             # add anysig mask
             for sig in anyvis any anyinv
             do
             zork=($(3dFWHMx -acf ${sub}/threshold/3dFWHMx_${out}_${sig} -mask "3dcalc( -a ${mask} -b ${sub}/threshold/whole_${sig}_${maskdec_t}+orig -expr a*b )" ${sub}/${subj}.results/errts.${subj}.new+orig))
-            3dClustSim -mask "3dcalc( -a ${mask} -b ${sub}/threshold/whole_${sig}_${maskdec_t}+orig -expr a*b )" \
+            3dClustSim -OKsmallmask -mask "3dcalc( -a ${mask} -b ${sub}/threshold/whole_${sig}_${maskdec_t}+orig -expr a*b )" \
             -acf ${zork[4]} ${zork[5]} ${zork[6]} \
             -athr 0.05 \
             -pthr 0.001 \

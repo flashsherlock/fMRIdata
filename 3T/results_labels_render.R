@@ -26,9 +26,10 @@ for (roi_i in rois){
 }
 roi <- c("Indiv40_0.001_odor_Pir",
          "Indiv40_0.001_odor_Amy",
+         "Indiv4_0.001_odor_OFC",
          "Indiv40_0.001_face_vis_fusiform",
          "Indiv40_0.001_fointer_inv_Amy")
-roiname <- c("Pir_odor","Amy_odor","Fus_facevis","Amy_interinv")
+roiname <- c("Pir_odor","OFC_odor","Amy_odor","Fus_facevis","Amy_interinv")
 s <- "14"
 suffix <- paste0("_tent_", s, ".txt")
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/roistatas3t.Rmd",
@@ -37,13 +38,15 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/roistatas3t.Rmd",
                   params = list(path = path, sub = subs, roi = roi, roiname = roiname, suffix = suffix))
 # mvpa results
 mvpa_pattern <- "roi_face_shift6"
-roi <- c('all_Amy8_align','all_Amy8_at165','vis_Amy8_align','vis_Amy8_at165','inv_Amy8_align','inv_Amy8_at165')
+roi <- c('all_Amy8_align','all_Amy8_at165','vis_Amy8_align','vis_Amy8_at165','inv_Amy8_align','inv_Amy8_at165',
+         'all_Pir_new','all_Pir_new_at165','vis_Pir_new','vis_Pir_new_at165','inv_Pir_new','inv_Pir_new_at165',
+         'all_fusiformCA','all_fusiformCA_at165','vis_fusiformCA','vis_fusiformCA_at165','inv_fusiformCA','inv_fusiformCA_at165')
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste("mvpa_faces"),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 mvpa_pattern <- "roi_odor_shift6"
-roi <- c('all_Amy8_align','all_Amy8_at165')
+roi <- c('all_Amy8_align','all_Amy8_at165','all_Pir_new','all_Pir_new_at165','all_fusiformCA','all_fusiformCA_at165')
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste("mvpa_odors"),

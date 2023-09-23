@@ -119,12 +119,12 @@ data_names <- c("Amy8_at165","Pir_new_at165","fusiform_at165","FFA_at165")
 data_names <- c("fusiformCA_at165","FFA_CA_at165","fusiformCA","FFA_CA")
 data_names <- c("FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR",
                 "FFV_CA_at165", "insulaCA_at165", "OFC6mm_at165", "aSTS_OR_at165")
-# data_names <- c("Indiv40_0.001_odor_Pir",
-#                 "Indiv40_0.001_odor_Amy",
-#                 "Indiv40_0.001_face_vis_fusiform",
-#                 "Indiv40_0.001_fointer_inv_Amy")
-# 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
-prefix <- 'indi8con_'
+data_names <- c("Indiv40_0.001_odor_Pir",
+                "Indiv40_0.001_odor_Amy",
+                "Indiv4_0.001_odor_OFC",
+                "Indiv40_0.001_face_vis_fusiform",
+                "Indiv40_0.001_fointer_inv_Amy")
+refix <- 'indi8conppi_'
 # for each data_name
 for (data_name in data_names) {
 txtname <- paste0(data_dir,prefix,data_name,'.txt')

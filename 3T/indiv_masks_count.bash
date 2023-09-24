@@ -4,19 +4,19 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 cd "${datafolder}" || exit
 
 # for each mask
-for out in Amy #Pir fusiformCA FFA_CA insulaCA OFC6mm aSTS_OR FFV_CA
+for out in Amy Pir fusiformCA FFA_CA insulaCA OFC6mm aSTS_OR FFV_CA
 do            
       # for each pvalue
       for p in 0.001 #0.05  
       do    
             # echo to stats
             printf "sub any_inter any_face any_odor anyvis_inter anyvis_face anyvis_odor inv_inter inv_face inv_odor\n" \
-                  > count_${out}_${p}.txt  
+                  > stats/count_${out}_${p}.txt  
             # for each sub
             for ub in $(count -dig 2 3 29)
             do
                   sub=S${ub}
-                  printf "${sub} " >> count_${out}_${p}.txt            
+                  printf "${sub} " >> stats/count_${out}_${p}.txt            
                   for sig in any anyvis anyinv
                   do
                         for con in inter face odor
@@ -32,16 +32,18 @@ do
                         then
                               # get the last number of the output
                               file=${sub}/threshold/Cluster${nvox}_${p}_${con}_${sig}_${out}+orig
-                              nz=$(3dROIstats -nzvoxels -mask  "3dcalc( -a ${file} -expr bool(a) )" ${file} | tail -n 1)
-                              printf "%d " ${nz##*0} >> count_${out}_${p}.txt
+                              # get the last field of the last line
+                              nz=$(3dROIstats -nzvoxels -mask  "3dcalc( -a ${file} -expr bool(a) )" ${file} | tail -n 1 | awk '{print $NF}')
+                              printf "%d " ${nz} >> stats/count_${out}_${p}.txt
+                              # printf "1 " >> stats/count_${out}_${p}.txt
                               # 3dROIstats -nzvoxels -mask  ${sub}/threshold/Cluster${nvox}_${p}_${con}_${sig}_${out}+orig  ${sub}/threshold/Cluster${nvox}_${p}_${con}_${sig}_${out}+orig
                         # esle print zero
                         else
-                              printf "0 " >> count_${out}_${p}.txt
+                              printf "0 " >> stats/count_${out}_${p}.txt
                         fi
                         done
                   done
-                  printf "\n" >> count_${out}_${p}.txt
+                  printf "\n" >> stats/count_${out}_${p}.txt
             done
       done
 done

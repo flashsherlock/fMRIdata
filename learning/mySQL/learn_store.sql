@@ -192,3 +192,35 @@ WHERE state = 'CA' AND points > 1000;
 EXPLAIN SELECT customer_id FROM customers ORDER BY state;
 
 SHOW STATUS LIKE 'last_query_cost';
+
+-- GA4 data
+CREATE TEMP TABLE event_count AS
+SELECT
+  user_pseudo_id,
+  COUNT(event_date) AS number
+FROM (SELECT 
+      user_pseudo_id,
+      event_date
+  FROM `learn-339408.analytics_353482307.events_*`
+  WHERE event_name='page_view' )
+GROUP BY 
+  user_pseudo_id 
+ORDER BY
+  number;
+
+SELECT 
+    number,
+    user_pseudo_id,
+    event_date,
+    device,
+    geo,
+    event_name,
+    event_params,
+    traffic_source
+FROM `learn-339408.analytics_353482307.events_*`
+JOIN event_count USING (user_pseudo_id)
+WHERE event_name='page_view'
+ORDER BY
+  number DESC,
+  user_pseudo_id,
+  event_date;

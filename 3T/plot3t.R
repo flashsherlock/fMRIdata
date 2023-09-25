@@ -115,16 +115,19 @@ lineplot <- function(data, con, select){
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
-data_names <- c("Amy8_at165","Pir_new_at165","fusiform_at165","FFA_at165")
-data_names <- c("fusiformCA_at165","FFA_CA_at165","fusiformCA","FFA_CA")
-data_names <- c("FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR",
+data_names <- c("Amy8_align","Pir_new","fusiformCA","FFA_CA",
+                "FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR")
+data_names <- c("Amy8_at165","Pir_new_at165","fusiformCA_at165","FFA_CA_at165",
                 "FFV_CA_at165", "insulaCA_at165", "OFC6mm_at165", "aSTS_OR_at165")
 data_names <- c("Indiv40_0.001_odor_Pir",
                 "Indiv40_0.001_odor_Amy",
                 "Indiv4_0.001_odor_OFC",
                 "Indiv40_0.001_face_vis_fusiform",
                 "Indiv40_0.001_fointer_inv_Amy")
-refix <- 'indi8conppi_'
+data_names <- c("Indiv40_0.001_odor_Pir",
+                "Indiv4_0.001_odor_OFC",
+                "Indiv40_0.001_face_vis_fusiform")
+prefix <- 'indi8conppi_'
 # for each data_name
 for (data_name in data_names) {
 txtname <- paste0(data_dir,prefix,data_name,'.txt')
@@ -198,3 +201,28 @@ print(box)
 ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppibox_","box_"), data_name, ".pdf"), box, width = 8, height = 4,
        device = cairo_pdf)
 }
+# # 4 stats number of voxels -------------------------------------------------------------------
+# expected threshold
+trials <- 27
+x <- seq(0,trials)
+bi_viz <- data.frame(x,dbinom(x, trials, 0.5), pbinom(x, trials, 0.5))
+names(bi_viz) <- c("number","dbinom","pbinom")
+# bi_viz <- mutate(bi_viz,number = number/trials)
+cri <- as.numeric(bi_viz[min(which(bi_viz$pbinom>0.95)),1])
+rois <- c("Amy","Pir", "fusiformCA", "FFA_CA", "insulaCA", "OFC6mm", "aSTS_OR", "FFV_CA")
+# blank vc: column name is rois
+vc <- data.frame(matrix(ncol = 9, nrow = 0))
+# voxel number
+for (r in rois) {
+  cfile <- paste("count",r,"0.001.txt",sep = "_")
+  # read txt
+  count_data <- read.table(paste0(data_dir,cfile), header = T)
+  # count number of sub in count_data above 0 for each column
+  vc <- rbind(vc, colSums(count_data[,-1]>0))
+}
+# rownames of vc is rois
+rownames(vc) <- rois
+# column names of vc is the same as count_data
+colnames(vc) <- colnames(count_data)
+# mutate to 1 if vc > cri
+vcbi <- mutate(vc, across(everything(), ~ifelse(.>cri,1,0)))

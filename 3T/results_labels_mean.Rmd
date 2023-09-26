@@ -176,7 +176,7 @@ acc_run <- get_acc(path,sub,analysis,mvpa_pattern,roi)
 ```
 
 ### accuracy all runs 4 odors
-```{r echo=FALSE, fig.height=5, fig.width=15}
+```{r echo=FALSE, fig.height=5, fig.width=12}
 acc4odor <- subset(acc_run,run=="run_all")
   for (m in mvpa_pattern){
     acc4odor <- subset(acc4odor,beta==m)
@@ -245,7 +245,7 @@ acc4odor_run <- subset(acc_run,run!="run_all")
 ```
 
 ### congruent and incongruent condition
-```{r fig.height=5, fig.width=24}
+```{r fig.height=5, fig.width=12}
 # only for normal mvpa
 if (!str_detect(mvpa_pattern,"trans")) {
   # separate congruent and incongruent

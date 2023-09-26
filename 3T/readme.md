@@ -77,6 +77,9 @@ Find individual level cluster threshold for each roi.
 ## indiv_masks.bash
 Get individual level significant clusters in each roi.
 
+## indiv_masks_count.bash
+Count number of significant voxels in each roi.
+
 # Analysis
 
 ## group_cluster.bash
@@ -117,6 +120,12 @@ Decoding analysis for Amy. Train on one condition and test on another.
 
 ## decoding_search.m
 Searchlight decoding analysis for Amy.
+
+## check_3t_decoding.m
+Check searchlight results for 3T and generate `result_avg3t.bash`.
+
+## result_avg3t.bash
+Normalize and average searchlight results for 3T.
 
 ## run_decoding.tcsh
 Run decoding analysis for Amy.

@@ -16,10 +16,12 @@ datafolder='/Volumes/WD_F/gufei/3t_cw/';
 % shift=6;
 for i_analysis=1:length(analysis_all)
     analysis=analysis_all{i_analysis};
-    rois = {'BoxROIext'};
+%     rois = {'BoxROIext'};
+    rois = {'epi_anat'};
 for i=1:length(rois)
     roi=rois{i};
-    mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
+%     mask=get_filenames_afni([datafolder sub '/mask/' roi '*+orig.HEAD']);
+    mask=get_filenames_afni([datafolder sub '/' sub '.' analysis '.results/mask_' roi '*+orig.HEAD']);
     % avoid matching too many files
     mask=mask(1,:);
     % Set defaults
@@ -31,7 +33,7 @@ for i=1:length(rois)
     % Set the analysis that should be performed (default is 'searchlight')
     cfg.analysis = 'searchlight';        
     test=[con '_' roi];
-    cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
+    cfg.searchlight.radius = 4; % use searchlight of radius 4 (by default in voxels), see more details below
     
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
     cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_' decode '_shift' strrep(num2str(shift), ' ', '') '/' test];

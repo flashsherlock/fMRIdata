@@ -223,6 +223,6 @@ for (r in rois) {
 # rownames of vc is rois
 rownames(vc) <- rois
 # column names of vc is the same as count_data
-colnames(vc) <- colnames(count_data)
+colnames(vc) <- colnames(count_data[,-1])
 # mutate to 1 if vc > cri
 vcbi <- mutate(vc, across(everything(), ~ifelse(.>cri,1,0)))

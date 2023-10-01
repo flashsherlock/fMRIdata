@@ -2,7 +2,7 @@
 datafolder='/Volumes/WD_F/gufei/3T_cw/';
 subs=3:29;
 subnum=length(subs);
-rois={'BoxROIext'};
+rois={'epi_anat'};
 shift=[6];
 check = 'odor'; 
 if strcmp(check,'odor')
@@ -39,13 +39,14 @@ fprintf(f,'#! /bin/bash\n\n');
 fprintf(f,'# datafolder=/Volumes/WD_E/gufei/3t_cw\n');
 fprintf(f,'datafolder=/Volumes/WD_F/gufei/3t_cw\n');
 fprintf(f,'cd "${datafolder}" || exit\n\n');
-fprintf(f, 'mask=group/mask/Amy8_align.freesurfer+tlrc\n');
+% fprintf(f, 'mask=group/mask/Amy8_align.freesurfer+tlrc\n');
+fprintf(f, 'mask=group/mask/bmask.nii\n');
 fprintf(f, '%s',['stats="' check '_shift' strrep(num2str(shift),' ','') '"']);
 fprintf(f, ['\n' 'statsn="' check '"' '\n\n']);
 % 3dtest++
 for con_i=1:combn
     con = comb{con_i};
-    fprintf(f, ['3dttest++ -prefix group/mvpa/${statsn}_' con ' -mask ${mask} -setA ' con ' \\\n']);
+    fprintf(f, ['3dttest++ -prefix group/mvpa/${statsn}_' con '_whole4r' ' -mask ${mask} -setA ' con ' \\\n']);
     for sub_i=1:subnum
         sub=sprintf('S%02d',subs(sub_i));
         test=[con '_' rois{1}];

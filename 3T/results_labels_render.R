@@ -44,17 +44,20 @@ roi <- c('all_Amy8_align','vis_Amy8_align','inv_Amy8_align')
 roi <- c('all_Pir_new','vis_Pir_new','inv_Pir_new',
          'all_OFC6mm','vis_OFC6mm','inv_OFC6mm',
          'all_FFV_CA','vis_FFV_CA','inv_FFV_CA')
+roi <- c('all_aSTS','vis_aSTS','inv_aSTS',
+         'all_OFC_AAL','vis_OFC_AAL','inv_OFC_AAL')
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste("mvpa_faces_add"),
+                  output_file = paste("mvpa_faces_ofcsts"),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 mvpa_pattern <- "roi_odor_shift6"
 roi <- c('all_Amy8_align','all_Amy8_at165','all_Pir_new','all_Pir_new_at165','all_fusiformCA','all_fusiformCA_at165')
 roi <- c('all_Amy8_align')
 roi <- c('all_Pir_new','all_OFC6mm','all_FFV_CA')
+roi <- c('all_aSTS','all_OFC_AAL')
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste("mvpa_odors_add"),
+                  output_file = paste("mvpa_odors_ofcsts"),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 # transition
 for (con in c('odor','face')) {

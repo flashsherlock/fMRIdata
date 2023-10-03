@@ -5,7 +5,7 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 cd "${datafolder}" || exit
 # roi
 # roi=Amy
-for roi in insulaCA OFC FFV aSTS # whole Amy Pir fusiform FFA fusiformCA FFA_CA
+for roi in OFC_AAL # whole Amy Pir fusiform FFA fusiformCA FFA_CA
 do
 nvox=10
 if [ "$roi" = "whole" ]; then
@@ -48,6 +48,10 @@ elif [ "$roi" = "aSTS" ]; then
       mask=group/mask/aSTS_OR+tlrc
       out=aSTS_OR
       nvox=42
+elif [ "$roi" = "OFC_AAL" ]; then
+      mask=group/mask/OFC_AAL+tlrc
+      out=OFC_AAL
+      nvox=67
 else
       mask=group/mask/Amy8_align.freesurfer+tlrc
       nvox=12

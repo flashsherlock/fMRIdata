@@ -17,6 +17,7 @@ library(egg)
 library(patchwork)
 library(R.matlab)
 library(psych)
+library(ggradar)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
 showtext_auto(enable = F)
@@ -100,11 +101,11 @@ errorline <- function(data,select,colors){
       order = 1,# set legend order
       override.aes = list(fill = colors)))
 }
+odors <- c('Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Unpleasant', 'Pleasant')
+colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#ea5751','#90c31e');
 # 2 Main -------------------------------------------------------------
 # read mat file
 data_dir <- '/Volumes/WD_D/gufei/monkey_data/respiratory/adinstrument/'
-odors <- c('Indole', 'Iso_l', 'Iso_h', 'Peach', 'Banana', 'Unpleasant', 'Pleasant')
-colors <- c('#777DDD', '#69b4d9', '#149ade', '#41AB5D', '#ECB556', '#ea5751','#90c31e');
 names <- c('pm2','pm1')
 for (pm in names) {
   # load data
@@ -203,3 +204,39 @@ human <- wrap_plots(human5,human2,ncol = 2,guides = 'collect')
 print(human)
 ggsave(paste0(data_dir,'human_va',"_mean.pdf"), human, width = 6, height = 3,
        device = cairo_pdf)
+# 4 new human rating and descriptions-------------------------------------------------------
+# load data
+radarplot <- function(data, rgrid, ...){
+  ggradar(...,data,
+          gridline.mid.colour = "grey",
+          group.line.width = 1,
+          group.point.size = 3,
+          grid.min = rgrid[1],
+          grid.mid = rgrid[2],
+          grid.max = rgrid[3],
+          values.radar = rgrid)
+}
+data_dir2 <- '/Volumes/WD_D/gufei/monkey_data/description/'
+des <- readMat(file.path(data_dir2,paste0('mresults','.mat')))
+# ratings
+ratingdims <- c('valence','intensity','familarity','edibility','arousal')
+mvi <- cbind(factor(odors[1:5],levels = odors[1:5]),as.data.frame(des$mvi))
+colnames(mvi) <- c('odors',ratingdims)
+rgrid <- c(20, 60, 100)
+fig_mvi <- radarplot(mvi,rgrid,
+                     group.colours = colors,
+                     centre.y = 10)
+print(fig_mvi)
+# descriptions
+dimensions <- c('fear','hostility','sadness','joviality','self-assurance',
+                'attentiveness','shyness','fatigue','serenity','surprise')
+mdes <- cbind(factor(odors[1:5],levels = odors[1:5]),as.data.frame(des$desdim))
+colnames(mdes) <- c('odors',dimensions)
+rgrid <- c(10, 40, 70)
+fig_des <- radarplot(mdes,rgrid,
+                     group.colours = colors,
+                     centre.y = 1)
+print(fig_des)
+ggsave(paste0(data_dir2,'des',"_mean.pdf"),
+       wrap_plots(fig_mvi,fig_des,ncol = 2,guides = 'collect'),
+       width = 12, height = 4, device = cairo_pdf)

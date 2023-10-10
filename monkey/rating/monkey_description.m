@@ -52,8 +52,10 @@ dimidx{10}=[17,23,34];
 % average subs
 mdes=mean(des,3);
 desdim=zeros(odor_num,length(dimensions));
+desdimall=zeros(odor_num,length(dimensions),sub_num);
 for di=1:length(dimensions)
     desdim(:,di)=mean(mdes(:,dimidx{di}),2);
+    desdimall(:,di,:)=mean(des(:,dimidx{di},:),2);
 end
 %% ttest
 for dim=1:2
@@ -69,6 +71,22 @@ for dim=1:2
     [h,p,ci,stats]=ttest(squeeze(ratings(4,dim,:)),squeeze(ratings(5,dim,:)));
     disp(p)
 end
+% descriptions
+% dis = 'euclidean';
+% dis = 'cosine';
+dis = 'correlation';
+dist=[];
+for subi = 1:sub_num
+    % 10 dimensions
+    temp = pdist2(desdimall(:,:,subi),desdimall(:,:,subi),dis);
+    % 68 descriptors
+%     temp = pdist2(des(:,:,subi),des(:,:,subi),dis);
+    % select upper triangle
+    dist(:,subi) = 1-temp(triu(true(size(temp)), 1));
+end
+[h,p,ci,stats]=ttest(dist');
+disp(mean(dist'))
+disp(p)
 %% save results
 mvi=means_vi';
 save([datadir 'mresults.mat'],'desdim','mvi')

@@ -55,6 +55,20 @@ desdim=zeros(odor_num,length(dimensions));
 for di=1:length(dimensions)
     desdim(:,di)=mean(mdes(:,dimidx{di}),2);
 end
-% save results
+%% ttest
+for dim=1:2
+    disp(rnames{dim})
+    [h,p,ci,stats]=ttest(squeeze(ratings(1,dim,:)),squeeze(ratings(2,dim,:)));
+    disp(p)
+    [h,p,ci,stats]=ttest(squeeze(ratings(1,dim,:)),squeeze(ratings(3,dim,:)));
+    disp(p)
+    [h,p,ci,stats]=ttest(squeeze(ratings(1,dim,:)),mean(squeeze(ratings(2:3,dim,:)))');
+    disp(p)
+    [h,p,ci,stats]=ttest(squeeze(ratings(2,dim,:)),squeeze(ratings(3,dim,:)));
+    disp(p)
+    [h,p,ci,stats]=ttest(squeeze(ratings(4,dim,:)),squeeze(ratings(5,dim,:)));
+    disp(p)
+end
+%% save results
 mvi=means_vi';
 save([datadir 'mresults.mat'],'desdim','mvi')

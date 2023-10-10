@@ -118,3 +118,21 @@ rating.famRDM=pdist2(rating.familarity',rating.familarity',dis);
 rating.ediRDM=pdist2(rating.edibility',rating.edibility',dis);
 % save rating to mat file
 save([datadir '../rating_inva.mat'],'rating')
+%% ttest
+for dim=1:2    
+    % get the field for struct rating
+    field = rnames{dim};
+    disp(field)
+    % get the data
+    dimdata = rating.(field);
+    [h,p,ci,stats]=ttest(dimdata(:,1),dimdata(:,2));
+    disp(p)
+    [h,p,ci,stats]=ttest(dimdata(:,1),dimdata(:,3));
+    disp(p)
+    [h,p,ci,stats]=ttest(dimdata(:,1),mean(dimdata(:,2:3),2));
+    disp(p)
+    [h,p,ci,stats]=ttest(dimdata(:,2),dimdata(:,3));
+    disp(p)
+    [h,p,ci,stats]=ttest(dimdata(:,4),dimdata(:,5));
+    disp(p)
+end

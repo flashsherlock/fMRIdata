@@ -181,6 +181,7 @@ for monkey_i=1:2
 end
 %% get and normalize distance data
 dis_data = plot_data;
+write = 0;
 for dis=[1 3 4]
     % get distance
     color_data = dis_mean(:,dis,1);
@@ -205,52 +206,77 @@ for dis=[1 3 4]
     % output data to csv
     file_dir = [data_dir '../IMG/']; 
     outfile = [file_dir '2m_' distance{dis} '.csv'];
-    dlmwrite(outfile,[plot_data color_data],'delimiter',',');
+    if write==1
+        dlmwrite(outfile,[plot_data color_data],'delimiter',',');
+    end
 end
 %% correlation between x,y,z and distances
 xl = {'x','y','z'};
 yl = distance([1 3 4]);
-monkeys = {'RM033','RM035','2m'};
-for m = 1:length(monkeys)
-    figure('position',[20,450,900,800],'Renderer','Painters');
-    % change x to abs(x)
-    dis_data_select = dis_data;
-    % select roi
-%     index = ~ismember(cur_level_roi(:,2),{'Hi','S'});
-%     dis_data_select = dis_data_select(index,:);
-    switch monkeys{m}
-        case 'RM033'
-            dis_data_select = dis_data_select(dis_data_select(:,1)<0,:);
-        case 'RM035'
-            dis_data_select = dis_data_select(dis_data_select(:,1)>0,:);
-    end
-    dis_data_select(:,1) = abs(dis_data_select(:,1));
-    % plot 3 coords
-    coord = 3;
-    for dis=1:3
-        for j=1:coord
-            % get data
-            x = dis_data_select(:,j);
-            y = dis_data_select(:,3+dis);
-            % correlation
-            [r,p]=corr(x,y);
-            % scatter plot
-            subplot(3,coord,(dis-1)*coord+j);
-            scatter(x,y,'.')
-            % add regression line
-            hold on
-            pfit = polyfit(x, y, 1);
-            ycalc = polyval(pfit, x);
-            plot(x,ycalc,'k')
-            % add r and p values
-            xlabel(xl(j))
-            ylabel(yl(dis))
-            set(gca,'ylim',[0 1],'xlim',[min(x)-1 max(x)+1],'FontSize',18);
-            text(min(x),0.9,[sprintf('r=%0.2f, p=%0.3f',round(r,2),round(p,3))],'Fontsize',18)
+% monkeys = {'RM033','RM035'};
+monkeys = {'2m'};
+% roi_select = {'Amy','HF'};
+roi_select = {'CoA','CeMe','BA','BM','La'};
+for roi_i = 1:length(roi_select)
+    for m = 1:length(monkeys)
+        figure('position',[20,450,900,800],'Renderer','Painters');
+        % change x to abs(x)
+        dis_data_select = dis_data;
+        % select roi
+        switch roi_select{roi_i}
+            case 'Amy'
+                index = ~ismember(cur_level_roi(:,2),{'Hi','S'});
+            case 'HF'
+                index = ismember(cur_level_roi(:,2),{'Hi','S'});
+            case 'CoA'
+                index = ismember(cur_level_roi(:,2),{'APir','VCo'});
+            case 'BA'
+                index = ismember(cur_level_roi(:,2),{'BL','PaL'});
+            case 'CeMe'
+                index = ismember(cur_level_roi(:,2),{'Ce','Me'});
+            case 'BM'
+                index = ismember(cur_level_roi(:,2),{'BM'});
+            case 'La'
+                index = ismember(cur_level_roi(:,2),{'La'});  
+            case 'All'
+                index = 1:length(cur_level_roi(:,2));  
         end
+        dis_data_select = dis_data_select(index,:);
+        % select monkeys
+        switch monkeys{m}
+            case 'RM033'
+                dis_data_select = dis_data_select(dis_data_select(:,1)<0,:);
+            case 'RM035'
+                dis_data_select = dis_data_select(dis_data_select(:,1)>0,:);
+        end
+        dis_data_select(:,1) = abs(dis_data_select(:,1));
+        % plot 3 coords
+        coord = 3;
+        for dis=1:3
+            for j=1:coord
+                % get data
+                x = dis_data_select(:,j);
+                y = dis_data_select(:,3+dis);
+                % correlation
+                [r,p]=corr(x,y);
+                % scatter plot
+                subplot(3,coord,(dis-1)*coord+j);
+                scatter(x,y,'.')
+                % add regression line
+                hold on
+                pfit = polyfit(x, y, 1);
+                ycalc = polyval(pfit, x);
+                plot(x,ycalc,'k')
+                % add r and p values
+                xlabel(xl(j))
+                ylabel(yl(dis))
+                set(gca,'ylim',[0 1],'xlim',[min(x)-1 max(x)+1],'FontSize',18);
+                text(min(x),0.9,[sprintf('r=%0.2f, p=%0.3f',round(r,2),round(p,3))],'Fontsize',18)
+            end
+        end
+        saveas(gcf, [pic_dir roi_select{roi_i} '_corr_' monkeys{m} '.svg'],'svg')
+        close all
     end
-    saveas(gcf, [pic_dir 'corr_' monkeys{m} '.svg'],'svg')
-    close all
 end
 %% plot each distance
 file_dir = [data_dir '../IMG/'];

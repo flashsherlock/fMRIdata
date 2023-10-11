@@ -4,12 +4,16 @@ datadir=['/Volumes/WD_D/gufei/monkey_data/description/'];
 [num,~,raw]=xlsread([datadir 'subs.xlsx']);
 subs=raw(2:end,1);
 sub_num=size(subs,1);
+% descriptors
+des_num=68;
+[~,~,desname]=xlsread([datadir 'Descriptors.xlsx']);
+desname=desname(1:des_num);
 % odor_names={'indole', 'iso_l', 'iso_h', 'peach', 'banana'};
 odor_names={'ind', 'isol', 'isoh', 'pea', 'ban'};
 odor_num=length(odor_names);
 % rating results
-ratings=zeros(odor_num,5,sub_num);
-des=zeros(odor_num,68,sub_num);
+ratings=zeros(odor_num,odor_num,sub_num);
+des=zeros(odor_num,des_num,sub_num);
 %% load data
 for subi = 1:sub_num
     % load data
@@ -58,6 +62,14 @@ for di=1:length(dimensions)
     desdimall(:,di,:)=mean(des(:,dimidx{di},:),2);
 end
 %% ttest
+% self-assurance
+[h,p,ci,stats]=ttest(squeeze(desdimall(4,5,:)),squeeze(desdimall(5,5,:)));
+for dim=dimidx{5}%[1:68]
+    [h,p,ci,stats]=ttest(squeeze(des(4,dim,:)),squeeze(des(5,dim,:)));    
+    disp(desname{dim})
+    disp([dim stats.tstat p])
+end
+% valence & intensity
 for dim=1:2
     disp(rnames{dim})
     [h,p,ci,stats]=ttest(squeeze(ratings(1,dim,:)),squeeze(ratings(2,dim,:)));

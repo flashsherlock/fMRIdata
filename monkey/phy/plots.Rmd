@@ -126,7 +126,7 @@ color_tar <- function(color_list_all,tar){
     }
 }
 # function to get classification results
-class_results <- function(power_data,tar,av_freq=TRUE){
+class_results <- function(power_data,tar,av_freq=TRUE,perm=FALSE){
   # parallel
   future::plan(future::sequential)
   # multisession need to start a bunch of r sessions
@@ -136,6 +136,14 @@ class_results <- function(power_data,tar,av_freq=TRUE){
   #     future::plan(future::multisession)
   # }
   power_by_time <- recode_odor(power_data, tar)
+  # if perm is true
+  if (perm){
+    # shuffle labels
+    # power_by_time[,roi:=sample(roi),by=.(odor,time)]
+    # randomly recode odors by roi
+    odor_names <- unique(power_by_time$odor)
+    power_by_time[,odor:=rep(sample(odor_names),each=length(unique(power_by_time$time))),by=.(roi)]
+  }
   # model by mlr3, select fearures
   task <- as_task_classif(power_by_time, target = tar)
   # Stratified resampling
@@ -290,7 +298,7 @@ for (m in monkeys){
 # load and store power data
 ```{r}
 power_data <- list()
-power_data_per <- list()
+# power_data_per <- list()
 # for each monkey
 for (m in monkeys) {       
     # colors for tree plot
@@ -335,22 +343,22 @@ for (m in monkeys) {
     power_data[[m]] <- power
     
     # permutated data    
-    data_pca_per <- readMat(file.path(pic_dir, "data_pca_per.mat"))
-    per_num <- length(data_pca_per[[1]])
-    power_data_per[[m]] <- data.table(matrix(ncol = 4+per_num, nrow = nrow(power)))
-    power_data_per[[m]][,1:4] <- power[,1:4]
+    # data_pca_per <- readMat(file.path(pic_dir, "data_pca_per.mat"))
+    # per_num <- length(data_pca_per[[1]])
+    # power_data_per[[m]] <- data.table(matrix(ncol = 4+per_num, nrow = nrow(power)))
+    # power_data_per[[m]][,1:4] <- power[,1:4]
     # for each permutation
-    for (per_i in 1:per_num) {
-        p_i <- abind(map(data_pca_per[[1]][[per_i]][[1]][(roi_num * 1 + 1):(roi_num * 2)], 1), along = 0)
-        # convert to data.table
-        p_i <- as.data.table(p_i)
-        power_data_per[[m]][,4+per_i] <- p_i[,5]
-    }
-    setnames(power_data_per[[m]],names(power_data_per[[m]]),
-             c("roi", "odor", "time", "freq", paste0("power",1:per_num)))
+    # for (per_i in 1:per_num) {
+    #     p_i <- abind(map(data_pca_per[[1]][[per_i]][[1]][(roi_num * 1 + 1):(roi_num * 2)], 1), along = 0)
+    #     # convert to data.table
+    #     p_i <- as.data.table(p_i)
+    #     power_data_per[[m]][,4+per_i] <- p_i[,5]
+    # }
+    # setnames(power_data_per[[m]],names(power_data_per[[m]]),
+    #          c("roi", "odor", "time", "freq", paste0("power",1:per_num)))
 }
 # save power_data and power_data_per to Rdata
-save(power_data, power_data_per, file = file.path(root_dir, "pic/pca_power/noair", paste0("Power_data_per",".Rdata")))
+# save(power_data, power_data_per, file = file.path(root_dir, "pic/pca_power/noair", paste0("Power_data_per",".Rdata")))
 # settings for decodings
 # use power for each frequency band
 av_freq <- TRUE
@@ -686,7 +694,7 @@ Combine data from monkey RM033 and RM035, tunning parameters and train model, th
 ## test cross validation 
 ```{r fig.height=2, fig.width=3}
 # load data
-load(file.path(root_dir, "pic/pca_power/noair", paste0("Power_data_per",".Rdata")))
+# load(file.path(root_dir, "pic/pca_power/noair", paste0("Power_data_per",".Rdata")))
 # record processing time
 ptm <- proc.time()
 monkeys  <- c("RM033", "RM035", "2monkey")
@@ -700,7 +708,8 @@ for (roi in roiselect){
     # load(file.path(root_dir, "pic/pca_power/noair", paste0("Results_tree_", roi, ".Rdata")))
     for (m in monkeys) {
         # permutation data for current monkey
-        power_data_per_m <- power_data_per[[m]]
+        # power_data_per_m <- power_data_per[[m]]
+        power_data_per_m <- power_data[[m]]
         # for each coding methods
         for (tar in tars){
         # true results
@@ -712,7 +721,7 @@ for (roi in roiselect){
         results_per[[m]][[tar]] <- foreach (per_i = 1:per_num) %dopar% {
             power_per <- power_data_per_m[,.SD,.SDcols=c(1:4,per_i+4)]
             setnames(power_per,paste0("power",per_i),"power")
-            class_results(select_roi(power_per,roi),tar,av_freq)
+            class_results(select_roi(power_per,roi),tar,av_freq,perm = TRUE)
         }
         # stop cluster
         parallel::stopCluster(cl = cluster)

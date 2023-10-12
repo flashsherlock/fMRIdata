@@ -20,6 +20,8 @@ for m_i = 1:length(monkeys)
     % time range
     time_range = [-3 3];
     time = '-33';
+    % time_range = [0 3];
+    % time = '';
     % load data or analyze data
     load([data_dir 'tf_level5_' m '.mat'],'freq_sep_all')
     load([data_dir 'pic/trial_count/odorresp_level5_trial_count_' m '.mat'],'cur_level_roi')

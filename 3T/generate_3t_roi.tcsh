@@ -145,19 +145,26 @@ endif
 #     -b ../mask/FusiformCA+orig \
 #     -expr 'step(a-1.65)*b' \
 #     -prefix ../mask/FFV_CA
+rm ../mask/FFV_CA0*
 3dcalc \
 -a "stats.${sub}.de.new+orig[52]" \
 -b ../mask/FusiformCA+orig \
--expr 'step(a-2.78)*b' \
+-expr 'step(a-1.96)*b' \
+-prefix ../mask/FFV_CA05
+3dcalc \
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformCA+orig \
+-expr 'step(a-2.58)*b' \
 -prefix ../mask/FFV_CA01
 3dcalc \
 -a "stats.${sub}.de.new+orig[52]" \
 -b ../mask/FusiformCA+orig \
--expr 'step(a-3.07)*b' \
+-expr 'step(a-2.81)*b' \
 -prefix ../mask/FFV_CA005
+3dcalc \
 -a "stats.${sub}.de.new+orig[52]" \
 -b ../mask/FusiformCA+orig \
--expr 'step(a-3.71)*b' \
+-expr 'step(a-3.30)*b' \
 -prefix ../mask/FFV_CA001
 # foreach dec (_at165 _at165_p)
 #     3dcalc \

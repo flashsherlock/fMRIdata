@@ -140,11 +140,25 @@ endif
 # end
 
 # FFV masks
+# 3dcalc \
+#     -a "stats.${sub}.de.new+orig[52]" \
+#     -b ../mask/FusiformCA+orig \
+#     -expr 'step(a-1.65)*b' \
+#     -prefix ../mask/FFV_CA
 3dcalc \
-    -a "stats.${sub}.de.new+orig[52]" \
-    -b ../mask/FusiformCA+orig \
-    -expr 'step(a-1.65)*b' \
-    -prefix ../mask/FFV_CA
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformCA+orig \
+-expr 'step(a-2.78)*b' \
+-prefix ../mask/FFV_CA01
+3dcalc \
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformCA+orig \
+-expr 'step(a-3.07)*b' \
+-prefix ../mask/FFV_CA005
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformCA+orig \
+-expr 'step(a-3.71)*b' \
+-prefix ../mask/FFV_CA001
 # foreach dec (_at165 _at165_p)
 #     3dcalc \
 #         -a "stats.${sub}.de.new+orig[52]" \

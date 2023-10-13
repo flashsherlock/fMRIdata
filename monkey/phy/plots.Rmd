@@ -8,7 +8,7 @@ date: "`r Sys.time()`"
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(warning = F, message = F, cache = F,tidy = F,
 fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
-library(bruceR)
+# library(bruceR)
 library(psych)
 library(RColorBrewer)
 library(ggpubr)
@@ -24,6 +24,7 @@ library(abind)
 library(purrr)
 library(foreach)
 library(doParallel)
+library(data.table)
 font_add("Helvetica", "Helvetica.ttc")
 theme_set(theme_prism(base_size = 9,
                       base_family = "Helvetica",
@@ -79,6 +80,7 @@ recode_odor <- function(power, tar) {
     power_noair[, odor := factor(odor, levels = as.character(1:5), labels = odors[1:5])]
     # frequency bands
     cutoff <- c(1, 4, 8, 13, 30, 80)
+    freq <- 10^(seq(log10(1), log10(200), length.out = 51))
     freqbands_name <- c("delta", "theta", "alpha", "beta", "gamma")
     # dcast to frequencies
     power_by_time <- dcast(power_noair, roi + odor + time ~ freq, value.var = "power")
@@ -140,9 +142,10 @@ class_results <- function(power_data,tar,av_freq=TRUE,perm=FALSE){
   if (perm){
     # shuffle labels
     # power_by_time[,roi:=sample(roi),by=.(odor,time)]
+    power_by_time[,(tar):=sample(get(tar)),by=.(roi,time)]
     # randomly recode odors by roi
-    odor_names <- unique(power_by_time$odor)
-    power_by_time[,odor:=rep(sample(odor_names),each=length(unique(power_by_time$time))),by=.(roi)]
+    # tar_names <- unique(power_by_time$tar)
+    # power_by_time[,tar:=rep(sample(tar_names),each=length(unique(power_by_time$time))),by=.(roi)]
   }
   # model by mlr3, select fearures
   task <- as_task_classif(power_by_time, target = tar)

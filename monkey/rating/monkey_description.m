@@ -26,21 +26,6 @@ end
 %% mean ratings
 means_vi = mean(ratings,3)';
 sems_vi = std(ratings,0,3)'./sqrt(sub_num);
-% plot
-figure;
-hold on
-alpha = 0.2;
-colors = { '#7E2F8E', '#0072BD', '#D95319', '#EDB120','#000000'};
-rnames = {'valence','intensity','familarity','edibility','arousal'};
-for i=1:5
-    stdshade(means_vi(i,:),sems_vi(i,:),alpha,hex2rgb(colors{i}));    
-end
-set(gca,'xtick',1:odor_num,'XTickLabel',odor_names,'FontSize',12)
-legend(rnames,'Location','eastoutside')
-% save figure
-saveas(gcf, [datadir 'rating_5dim' '.svg'], 'svg')
-saveas(gcf, [datadir 'rating_5dim' '.png'], 'png')
-%% descritors
 dimensions={'fear','hostility','sadness','joviality','selfassurance','attentiveness','shyness','fatigue','serenity','surprise'};
 dimidx=cell(1,length(dimensions));
 dimidx{1}=[9,14,21,30,37,53,61];
@@ -61,6 +46,20 @@ for di=1:length(dimensions)
     desdim(:,di)=mean(mdes(:,dimidx{di}),2);
     desdimall(:,di,:)=mean(des(:,dimidx{di},:),2);
 end
+%% plot
+figure;
+hold on
+alpha = 0.2;
+colors = { '#7E2F8E', '#0072BD', '#D95319', '#EDB120','#000000'};
+rnames = {'valence','intensity','familarity','edibility','arousal'};
+for i=1:5
+    stdshade(means_vi(i,:),sems_vi(i,:),alpha,hex2rgb(colors{i}));    
+end
+set(gca,'xtick',1:odor_num,'XTickLabel',odor_names,'FontSize',12)
+legend(rnames,'Location','eastoutside')
+% save figure
+saveas(gcf, [datadir 'rating_5dim' '.svg'], 'svg')
+saveas(gcf, [datadir 'rating_5dim' '.png'], 'png')
 %% ttest
 % self-assurance
 [h,p,ci,stats]=ttest(squeeze(desdimall(4,5,:)),squeeze(desdimall(5,5,:)));
@@ -99,6 +98,31 @@ end
 [h,p,ci,stats]=ttest(dist');
 disp(mean(dist'))
 disp(p)
-%% save results
+%% RDMs
+% rating results
+rating=struct('valence',zeros(sub_num,odor_num));
+rating.intensity=rating.valence;
+rating.familarity=rating.valence;
+rating.edibility=rating.valence;
+rating.arousal=rating.valence;
+for odori=1:odor_num
+    % caculate mean score
+    rating.valence(:,odori) = squeeze(ratings(odori,1,:));
+    rating.intensity(:,odori) = squeeze(ratings(odori,2,:));
+    rating.familarity(:,odori) = squeeze(ratings(odori,3,:));
+    rating.edibility(:,odori) = squeeze(ratings(odori,4,:));
+    rating.arousal(:,odori) = squeeze(ratings(odori,5,:));
+end
+% distances
+% dis = 'euclidean';
+dis = 'correlation';
+rating.valRDM=pdist2(rating.valence',rating.valence',dis);
+rating.intRDM=pdist2(rating.intensity',rating.intensity',dis);
+rating.famRDM=pdist2(rating.familarity',rating.familarity',dis);
+rating.ediRDM=pdist2(rating.edibility',rating.edibility',dis);
+rating.aroRDM=pdist2(rating.arousal',rating.arousal',dis);
+rating.simRDM=pdist2(mdes,mdes,dis);
+% save rating to mat file
+save([datadir 'rating_inva.mat'],'rating')
 mvi=means_vi';
 save([datadir 'mresults.mat'],'desdim','mvi')

@@ -114,14 +114,34 @@ for odori=1:odor_num
     rating.arousal(:,odori) = squeeze(ratings(odori,5,:));
 end
 % distances
-% dis = 'euclidean';
-dis = 'correlation';
+dis = 'euclidean';
+% dis = 'correlation';
 rating.valRDM=pdist2(rating.valence',rating.valence',dis);
 rating.intRDM=pdist2(rating.intensity',rating.intensity',dis);
 rating.famRDM=pdist2(rating.familarity',rating.familarity',dis);
 rating.ediRDM=pdist2(rating.edibility',rating.edibility',dis);
 rating.aroRDM=pdist2(rating.arousal',rating.arousal',dis);
 rating.simRDM=pdist2(mdes,mdes,dis);
+vai=[mean(rating.valence);mean(rating.intensity)]';
+rating.vaiRDM=pdist2(vai,vai,dis);
+% add each RDM to x
+x=[];
+% get field of struct
+fname=fieldnames(rating);
+for i=1:5    
+    x=[x rating.(fname{i+5})(triu(true(size(rating.(fname{i+5}))), 1))];
+end
+x=rating.vaiRDM(triu(true(size(rating.vaiRDM)), 1));
+y=rating.simRDM(triu(true(size(rating.simRDM)), 1));
+[b,dev,stats] = glmfit(x(:,[1]),y,'normal');
+disp([b stats.p])
+% plot fitted line
+figure;
+hold on
+plot(x(:,[1]),y,'o')
+% fitted line
+yfit = glmval(b,x(:,[1]),'identity');
+plot(x(:,[1]),yfit,'-')
 % save rating to mat file
 save([datadir 'rating_inva.mat'],'rating')
 mvi=means_vi';

@@ -127,6 +127,24 @@ color_tar <- function(color_list_all,tar){
         color_list <- color_list_all[c(2, 3)]
     }
 }
+# function to shuffle lables
+permtar <- function(target){
+  unitar <- unique(target)
+  ntime <- min(table(target))
+  # levels of unitar
+  levs <- levels(unitar)
+  # if levs contains "Iso"
+    if ("Iso" %in% levs){
+        if (length(levs)==2)
+          unitar <- factor(c(1,2,2), levels = c(1, 2), labels = c("Ind", "Iso"))
+        else if (length(levs)==4)
+          unitar <- factor(c(1,2,2,3,4), levels = c(1,2,3,4), labels = c("Ind", "Iso", "Peach", "Banana"))
+    } else if ("Pos" %in% levs){
+      ntime <- ntime/2
+      unitar <- factor(c(1,1,2,2,2), levels = c(1,2), labels = c("Neg", "Pos"))
+    }
+  return(rep(sample(unitar), each=ntime))
+}
 # function to get classification results
 class_results <- function(power_data,tar,av_freq=TRUE,perm=FALSE){
   # parallel
@@ -142,10 +160,9 @@ class_results <- function(power_data,tar,av_freq=TRUE,perm=FALSE){
   if (perm){
     # shuffle labels
     # power_by_time[,roi:=sample(roi),by=.(odor,time)]
-    power_by_time[,(tar):=sample(get(tar)),by=.(roi,time)]
+    # power_by_time[,(tar):=sample(get(tar)),by=.(roi,time)
     # randomly recode odors by roi
-    # tar_names <- unique(power_by_time$tar)
-    # power_by_time[,tar:=rep(sample(tar_names),each=length(unique(power_by_time$time))),by=.(roi)]
+    power_by_time[,(tar):=permtar(get(tar)),by=.(roi)]
   }
   # model by mlr3, select fearures
   task <- as_task_classif(power_by_time, target = tar)
@@ -718,7 +735,7 @@ for (roi in roiselect){
         # true results
         results[[m]][[tar]] <- class_results(select_roi(power_data[[m]],roi),tar,av_freq)
         # permutation results in parallel
-        cluster <- parallel::makeCluster(20, type = "FORK")
+        cluster <- parallel::makeCluster(50, type = "FORK")
         doParallel::registerDoParallel(cl = cluster)
         # doparalell
         results_per[[m]][[tar]] <- foreach (per_i = 1:per_num) %dopar% {

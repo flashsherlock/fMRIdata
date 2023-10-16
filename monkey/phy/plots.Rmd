@@ -729,7 +729,7 @@ for (roi in roiselect){
     # load(file.path(root_dir, "pic/pca_power/noair", paste0("Results_tree_", roi, ".Rdata")))
     for (m in monkeys) {
         # permutation data for current monkey
-        # power_data_per_m <- power_data_per[[m]]
+        power_data_per_m <- power_data_per[[m]]
         # for each coding methods
         for (tar in tars){
         # true results
@@ -739,10 +739,10 @@ for (roi in roiselect){
         doParallel::registerDoParallel(cl = cluster)
         # doparalell
         results_per[[m]][[tar]] <- foreach (per_i = 1:per_num) %dopar% {
-            # power_per <- power_data_per_m[,.SD,.SDcols=c(1:4,per_i+4)]
-            # setnames(power_per,paste0("power",per_i),"power")
-            # class_results(select_roi(power_per,roi),tar,av_freq,perm = TRUE)
-            class_results(select_roi(power_data[[m]],roi),tar,av_freq,perm = TRUE)
+            power_per <- power_data_per_m[,.SD,.SDcols=c(1:4,per_i+4)]
+            setnames(power_per,paste0("power",per_i),"power")
+            class_results(select_roi(power_per,roi),tar,av_freq,perm = TRUE)
+            # class_results(select_roi(power_data[[m]],roi),tar,av_freq,perm = TRUE)
         }
         # stop cluster
         parallel::stopCluster(cl = cluster)

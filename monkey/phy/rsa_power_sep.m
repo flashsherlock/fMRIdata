@@ -92,8 +92,8 @@ else
             % remove air
             dis_data = dis_data(1:end-1,:);
             % distance matrix
-            % dis = 'euclidean';
-            dis = 'correlation';
+            dis = 'euclidean';
+%             dis = 'correlation';
             cur_dis = pdist2(dis_data,dis_data,dis);
             dis_mean(roi_i,:,dim_i) = cur_dis(triu(true(size(cur_dis)), 1));
         end
@@ -102,7 +102,8 @@ else
 end
 %% correlation with ratings
 % load human rating
-load('/Volumes/WD_D/gufei/monkey_data/human_rating/rating_inva.mat')
+% load('/Volumes/WD_D/gufei/monkey_data/human_rating/rating_inva.mat')
+load('/Volumes/WD_D/gufei/monkey_data/description/rating_inva.mat')
 % get field names from stuct rating
 fn = fieldnames(rating);
 nrate = 5;
@@ -118,11 +119,73 @@ disp(fn')
 disp(corr(rate'))
 % rsa
 rsa_r = zeros(roi_num,nrate,3);
+% add each RDM to x
+x=[];
+b=cell(roi_num,2);
+stats=cell(roi_num,2);
+resid=cell(roi_num,1);
+% get field of struct
+fname=fieldnames(rating);
+for i=6:length(fname)    
+    x=[x rating.(fname{i})(triu(true(size(rating.(fname{i}))), 1))];
+end
 % 1-no pca, 2 and 3 pca dimension
-for dim_i=1:3
+for dim_i=2%1:3
     for roi_i=1:roi_num
-        rsa_r(roi_i,:,dim_i) = corr(dis_mean(roi_i,:,dim_i)',rate', 'type', 'Spearman');
+        y=dis_mean(roi_i,:,dim_i)';
+        rsa_r(roi_i,:,dim_i) = corr(y,rate', 'type', 'Spearman');
+        [b{roi_i,1},~,stats{roi_i,1}] = glmfit(x(:,[1 2]),y,'normal');
+        resid{roi_i}=stats{roi_i}.resid';
+        [b{roi_i,2},~,stats{roi_i,2}] = glmfit(x(:,[1 2 6]),y,'normal');
     end
+end
+% residual
+[h,p,ci,stats]=ttest(cell2mat(resid(ismember(cur_level_roi(:,2),{'Hi','S'}),1)))
+[h,p,ci,stats]=ttest(cell2mat(resid(ismember(cur_level_roi(:,2),{'BM'}),1)))
+% betas
+[h,p,ci,stats]=ttest(reshape(cell2mat(b(~ismember(cur_level_roi(:,2),{'Hi','S'}),2)),4,[])')
+[h,p,ci,stats]=ttest(reshape(cell2mat(b(~ismember(cur_level_roi(:,2),{'Hi','S'}),1)),3,[])')
+[h,p,ci,stats]=ttest(reshape(cell2mat(b(ismember(cur_level_roi(:,2),{'Hi','S'}),1)),3,[])')
+[h,p,ci,stats]=ttest(reshape(cell2mat(b(ismember(cur_level_roi(:,2),{'BM'}),1)),3,[])')
+%% fit for each roi
+monkeys = {'RM033'};
+% monkeys = {'2m'};
+roi_select = {'Amy','HF'};
+% roi_select = {'CoA','CeMe','BA','BM','La'};
+b=cell(length(roi_select),2);
+stats=cell(length(roi_select),2);
+y=cell(1,length(roi_select));
+for dim_i=2%1:3
+for roi_i = 1:length(roi_select)
+    for m = 1:length(monkeys)
+        % select roi
+        switch roi_select{roi_i}
+            case 'Amy'
+                index = ~ismember(cur_level_roi(:,2),{'Hi','S'});
+            case 'HF'
+                index = ismember(cur_level_roi(:,2),{'Hi','S'});
+            case 'CoA'
+                index = ismember(cur_level_roi(:,2),{'APir','VCo'});
+            case 'BA'
+                index = ismember(cur_level_roi(:,2),{'BL','PaL'});
+            case 'CeMe'
+                index = ismember(cur_level_roi(:,2),{'Ce','Me'});
+            case 'BM'
+                index = ismember(cur_level_roi(:,2),{'BM'});
+            case 'La'
+                index = ismember(cur_level_roi(:,2),{'La'});  
+            case 'All'
+                index = 1:length(cur_level_roi(:,2));  
+        end
+        % select monkeys
+        if ~strcmp(monkeys{m},'2m')
+                index = index&ismember(cur_level_roi(:,3),monkeys{m});
+        end
+        y{roi_i}=mean(dis_mean(index,:,dim_i),1)';
+        [b{roi_i,1},~,stats{roi_i,1}] = glmfit(x(:,[1 2]),y{roi_i},'normal');
+        [b{roi_i,2},~,stats{roi_i,2}] = glmfit(x(:,[1 2 6]),y{roi_i},'normal');
+    end
+end
 end
 %% output data
 file_dir = [data_dir '../IMG/'];

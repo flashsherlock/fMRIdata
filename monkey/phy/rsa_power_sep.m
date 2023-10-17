@@ -148,13 +148,15 @@ end
 [h,p,ci,stats]=ttest(reshape(cell2mat(b(ismember(cur_level_roi(:,2),{'Hi','S'}),1)),3,[])')
 [h,p,ci,stats]=ttest(reshape(cell2mat(b(ismember(cur_level_roi(:,2),{'BM'}),1)),3,[])')
 %% fit for each roi
-monkeys = {'RM033'};
-% monkeys = {'2m'};
+% monkeys = {'RM033'};
+monkeys = {'2m'};
 roi_select = {'Amy','HF'};
 % roi_select = {'CoA','CeMe','BA','BM','La'};
+roi_select = {'CoA','CeMe','BA','BM','La','Hi','S'};
 b=cell(length(roi_select),2);
 stats=cell(length(roi_select),2);
 y=cell(1,length(roi_select));
+nelec=zeros(length(roi_select),1);
 for dim_i=2%1:3
 for roi_i = 1:length(roi_select)
     for m = 1:length(monkeys)
@@ -170,13 +172,16 @@ for roi_i = 1:length(roi_select)
                 index = ismember(cur_level_roi(:,2),{'BL','PaL'});
             case 'CeMe'
                 index = ismember(cur_level_roi(:,2),{'Ce','Me'});
-            case 'BM'
-                index = ismember(cur_level_roi(:,2),{'BM'});
-            case 'La'
-                index = ismember(cur_level_roi(:,2),{'La'});  
+%             case 'BM'
+%                 index = ismember(cur_level_roi(:,2),{'BM'});
+%             case 'La'
+%                 index = ismember(cur_level_roi(:,2),{'La'});  
             case 'All'
                 index = 1:length(cur_level_roi(:,2));  
+            otherwise
+                index = ismember(cur_level_roi(:,2),{roi_select{roi_i}});
         end
+        nelec(roi_i)=length(find(index)==1);
         % select monkeys
         if ~strcmp(monkeys{m},'2m')
                 index = index&ismember(cur_level_roi(:,3),monkeys{m});

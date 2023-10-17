@@ -385,7 +385,8 @@ av_freq <- TRUE
 # split test data set
 test <- FALSE
 # targets
-tars <- c("odor5", "odor4", "valence", "intensity")
+# tars <- c("odor5", "odor4", "valence", "intensity")
+tars <- c("odor5", "intensity","valence")
 ```
 
 # decision tree based on time-frequency analysis
@@ -757,6 +758,7 @@ for (roi in roiselect){
 ## Plot results
 ```{r fig.height=2, fig.width=3}
 roiselect <- c("All","Amy","HF")
+# roiselect <- c("Amy")
 for (roi in roiselect){
     # load results and results_per
     load(file.path(root_dir, "pic/pca_power/noair", paste0("Results_tree_", roi, ".Rdata")))
@@ -764,7 +766,7 @@ for (roi in roiselect){
     impt_results <- list()
     resp_results <- list()
     for (m in monkeys) {
-        pic_dir <- file.path(root_dir, 'pic/pca_power/noair',m);
+        pic_dir <- file.path(root_dir, 'pic/pca_power/noair',m)
         for (tar in tars){
         # extract list of accs
         accs_per <- map_depth(results_per[[m]][[tar]], 1, "acc")
@@ -897,6 +899,12 @@ for (roi in roiselect){
         # dcast data_impt change labels to columns
         data_acc_roi <- dcast(mean_acc_roi[labels%in%c("true","95%"),], 
                               target + roi ~ labels, value.var = "acc")
+        # define roi levels
+        # levels(data_acc_roi$roi) <- roi_level
+        roin <- length(unique(data_acc_roi$roi))
+        if (roin > 2){
+            data_acc_roi[,roi := factor(roi, levels = roi_level[1:roin], labels = roi_level[1:roin])]
+        }
         # if true larger than 95% add a column of *
         data_acc_roi[,plabels:=ifelse(true>`95%`,"*","")]
         ggplot(data_acc_roi, aes(x = roi, y = target, fill = true)) +

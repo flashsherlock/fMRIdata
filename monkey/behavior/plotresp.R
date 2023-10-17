@@ -240,3 +240,20 @@ print(fig_des)
 ggsave(paste0(data_dir2,'des',"_mean.pdf"),
        wrap_plots(fig_mvi,fig_des,ncol = 2,guides = 'collect'),
        width = 12, height = 4, device = cairo_pdf)
+
+# 5 electrodes -------------------------------------------------------
+df <- data.frame(
+  value = c(40, 15, 89, 65, 99, 15, 84, 14),
+  Region = factor(1:8,levels=1:8,labels=c("CoA", "CeMe", "BA", "BM", "La", "others", "Hi", "S"))
+)
+# set colors for each group
+# oranges for the first 6 groups and blues for the last 2
+colors <- c(brewer.pal(9,"YlOrRd")[c(1:6)],brewer.pal(6,"Blues")[c(2,5)])
+ggplot(df, aes(x = "", y = value, fill = Region)) +
+  geom_col(color = "black") +
+  geom_text(aes(label = value),
+    position = position_stack(vjust = 0.5)
+  ) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = colors) +
+  theme_void()

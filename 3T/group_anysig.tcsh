@@ -132,5 +132,5 @@ endif
 # generate mask of voxels different in vis and inv in fusiform
 3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
         -b ./mask/FusiformCA+tlrc \
-        -expr 'astep(a,1.65)*b' \
-        -prefix ./mask/FFVext
+        -expr 'astep(a,2.78)*b' \
+        -prefix ./mask/FFV01

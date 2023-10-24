@@ -13,6 +13,9 @@ Genrate timing files for each odor.
 ## blind_timing_rating.m
 Genrate timing files for each rating.
 
+## blind_check_grid.bash
+Check whether the grids (centers) are matched across runs.
+
 ## proc_2xsmooth_censor.tcsh
 Preprocess data using `afni_proc.py`.
 
@@ -54,3 +57,6 @@ Analyze odor awareness and ratings.
 
 ## clear_disk.tcsh
 Remove useless files.
+
+## backup_blind_data.tcsh
+Backup images and masks.

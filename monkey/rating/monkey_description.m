@@ -124,6 +124,24 @@ rating.aroRDM=pdist2(rating.arousal',rating.arousal',dis);
 rating.simRDM=pdist2(mdes,mdes,dis);
 vai=[mean(rating.valence);mean(rating.intensity)]';
 rating.vaiRDM=pdist2(vai,vai,dis);
+% mean for each subject
+% for subi=1:sub_num
+% tempsimRDM(:,:,subi)=pdist2(des(:,:,subi),des(:,:,subi),dis);
+% vai=[rating.valence(subi,:);rating.valence(subi,:)]';
+% tempvaiRDM(:,:,subi)=pdist2(vai,vai,dis);
+% tempvalRDM(:,:,subi)=pdist2(rating.valence',rating.valence',dis);
+% tempintRDM(:,:,subi)=pdist2(rating.intensity',rating.intensity',dis);
+% tempfamRDM(:,:,subi)=pdist2(rating.familarity',rating.familarity',dis);
+% tempediRDM(:,:,subi)=pdist2(rating.edibility',rating.edibility',dis);
+% temparoRDM(:,:,subi)=pdist2(rating.arousal',rating.arousal',dis);
+% end
+% rating.valRDM=mean(tempvalRDM,3);
+% rating.intRDM=mean(tempintRDM,3);
+% rating.famRDM=mean(tempfamRDM,3);
+% rating.ediRDM=mean(tempediRDM,3);
+% rating.aroRDM=mean(temparoRDM,3);
+% rating.simRDM=mean(tempsimRDM,3);
+% rating.vaiRDM=mean(tempvaiRDM,3);
 % add each RDM to x
 x=[];
 % get field of struct

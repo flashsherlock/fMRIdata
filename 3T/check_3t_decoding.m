@@ -4,7 +4,7 @@ subs=3:29;
 subnum=length(subs);
 rois={'epi_anat'};
 shift=[6];
-check = 'odor'; 
+check = 'face'; 
 if strcmp(check,'odor')
     comb={'all'};
 else
@@ -25,33 +25,46 @@ for i=1:size(decode,1)
     else
         % align results to standard space
         cd(result);
-        nw = ['../../../anatQQ.' sub '_WARP.nii ../../../anatQQ.' sub '.aff12.1D INV(../../../anatSS.' sub '_al_keep_mat.aff12.1D)'];
-        nm = 'res_accuracy_minus_chance';
-        cmd = ['3dNwarpApply -nwarp ' ['"' nw '"'] ' -source ' nm  '+orig -master ../../../anatQQ.' sub '+tlrc -prefix ' nm];
-        unix(cmd);
+        % check if aligned
+        if ~exist([result '/res_accuracy_minus_chance+tlrc.BRIK'],'file')
+            nw = ['../../../anatQQ.' sub '_WARP.nii ../../../anatQQ.' sub '.aff12.1D INV(../../../anatSS.' sub '_al_keep_mat.aff12.1D)'];
+            nm = 'res_accuracy_minus_chance';
+            cmd = ['3dNwarpApply -nwarp ' ['"' nw '"'] ' -source ' nm  '+orig -master ../../../anatQQ.' sub '+tlrc -prefix ' nm];
+            unix(cmd);
+        end
+        % smooth results
+        if ~exist([result '/res_accuracy_minus_chance_sm+tlrc.BRIK'],'file')
+            cmd = ['3dmerge -1blur_fwhm 3.6 -doall -prefix ' 'res_accuracy_minus_chance_sm ' 'res_accuracy_minus_chance+tlrc'];
+            unix(cmd);
+        end
     end
 end
 %% generate commands
 CWPath = fileparts(mfilename('fullpath'));
 cd(CWPath);
-f=fopen('result_avg3t.bash','w');
+filename=['result_avg3t_' check '.bash'];
+f=fopen(filename,'w');
 fprintf(f,'#! /bin/bash\n\n');
 fprintf(f,'# datafolder=/Volumes/WD_E/gufei/3t_cw\n');
 fprintf(f,'datafolder=/Volumes/WD_F/gufei/3t_cw\n');
 fprintf(f,'cd "${datafolder}" || exit\n\n');
 % fprintf(f, 'mask=group/mask/Amy8_align.freesurfer+tlrc\n');
 fprintf(f, 'mask=group/mask/bmask.nii\n');
+% whether smooth
+fprintf(f, ['sm=' '"_sm"' '\n']);
+% combine mask and smooth
+fprintf(f, 'out=whole${sm}\n');
 fprintf(f, '%s',['stats="' check '_shift' strrep(num2str(shift),' ','') '"']);
 fprintf(f, ['\n' 'statsn="' check '"' '\n\n']);
 % 3dtest++
 for con_i=1:combn
     con = comb{con_i};
-    fprintf(f, ['3dttest++ -prefix group/mvpa/${statsn}_' con '_whole4r' ' -mask ${mask} -setA ' con ' \\\n']);
+    fprintf(f, ['3dttest++ -prefix group/mvpa/${statsn}_' con '_${out}4r' ' -mask ${mask} -resid group/mvpa/errs_${statsn}_${out}4r -setA ' con ' \\\n']);
     for sub_i=1:subnum
         sub=sprintf('S%02d',subs(sub_i));
         test=[con '_' rois{1}];
         result = [sub '/' sub '.de.results/mvpa/searchlight_${stats}/' test];
-        result_tlrc = [result '/res_accuracy_minus_chance+tlrc'];
+        result_tlrc = [result '/res_accuracy_minus_chance' '${sm}' '+tlrc'];
         if sub_i == subnum
             fprintf(f, [sprintf('%02d "%s"',sub_i,result_tlrc) ' \n\n']);
         else
@@ -60,4 +73,4 @@ for con_i=1:combn
     end
 end    
 fclose(f);
-unix('bash result_avg3t.bash');
+unix(['bash ' filename]);

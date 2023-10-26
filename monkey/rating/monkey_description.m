@@ -122,11 +122,15 @@ rating.famRDM=pdist2(rating.familarity',rating.familarity',dis);
 rating.ediRDM=pdist2(rating.edibility',rating.edibility',dis);
 rating.aroRDM=pdist2(rating.arousal',rating.arousal',dis);
 rating.simRDM=pdist2(mdes,mdes,dis);
+% 10 dimension
+% rating.simRDM=pdist2(desdim,desdim,dis);
 vai=[mean(rating.valence);mean(rating.intensity)]';
 rating.vaiRDM=pdist2(vai,vai,dis);
 % mean for each subject
 % for subi=1:sub_num
 % tempsimRDM(:,:,subi)=pdist2(des(:,:,subi),des(:,:,subi),dis);
+% % 10 dimension
+% tempsimRDM(:,:,subi)=pdist2(desdimall(:,:,subi),desdimall(:,:,subi),dis);
 % vai=[rating.valence(subi,:);rating.valence(subi,:)]';
 % tempvaiRDM(:,:,subi)=pdist2(vai,vai,dis);
 % tempvalRDM(:,:,subi)=pdist2(rating.valence',rating.valence',dis);

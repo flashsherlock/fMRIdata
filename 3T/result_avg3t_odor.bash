@@ -10,7 +10,7 @@ out=whole${sm}
 stats="odor_shift6"
 statsn="odor"
 
-3dttest++ -prefix group/mvpa/${statsn}_all_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_${out}4r -setA all \
+3dttest++ -prefix group/mvpa/${statsn}_all_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_all_${out}4r -setA all \
 01 "S03/S03.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 02 "S04/S04.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 03 "S05/S05.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \

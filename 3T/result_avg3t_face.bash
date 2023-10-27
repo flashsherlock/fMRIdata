@@ -5,12 +5,12 @@ datafolder=/Volumes/WD_F/gufei/3t_cw
 cd "${datafolder}" || exit
 
 mask=group/mask/bmask.nii
-sm="_sm"
+sm=""
 out=whole${sm}
 stats="face_shift6"
 statsn="face"
 
-3dttest++ -prefix group/mvpa/${statsn}_all_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_${out}4r -setA all \
+3dttest++ -prefix group/mvpa/${statsn}_all_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_all_${out}4r -setA all \
 01 "S03/S03.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 02 "S04/S04.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 03 "S05/S05.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
@@ -39,7 +39,7 @@ statsn="face"
 26 "S28/S28.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 27 "S29/S29.de.results/mvpa/searchlight_${stats}/all_epi_anat/res_accuracy_minus_chance${sm}+tlrc" 
 
-3dttest++ -prefix group/mvpa/${statsn}_inv_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_${out}4r -setA inv \
+3dttest++ -prefix group/mvpa/${statsn}_inv_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_inv_${out}4r -setA inv \
 01 "S03/S03.de.results/mvpa/searchlight_${stats}/inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 02 "S04/S04.de.results/mvpa/searchlight_${stats}/inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 03 "S05/S05.de.results/mvpa/searchlight_${stats}/inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
@@ -68,7 +68,7 @@ statsn="face"
 26 "S28/S28.de.results/mvpa/searchlight_${stats}/inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 27 "S29/S29.de.results/mvpa/searchlight_${stats}/inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" 
 
-3dttest++ -prefix group/mvpa/${statsn}_vis_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_${out}4r -setA vis \
+3dttest++ -prefix group/mvpa/${statsn}_vis_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_vis_${out}4r -setA vis \
 01 "S03/S03.de.results/mvpa/searchlight_${stats}/vis_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 02 "S04/S04.de.results/mvpa/searchlight_${stats}/vis_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 03 "S05/S05.de.results/mvpa/searchlight_${stats}/vis_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \

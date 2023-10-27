@@ -51,7 +51,7 @@ fprintf(f,'cd "${datafolder}" || exit\n\n');
 % fprintf(f, 'mask=group/mask/Amy8_align.freesurfer+tlrc\n');
 fprintf(f, 'mask=group/mask/bmask.nii\n');
 % whether smooth
-fprintf(f, ['sm=' '"_sm"' '\n']);
+fprintf(f, ['sm=' '""' '\n']);
 % combine mask and smooth
 fprintf(f, 'out=whole${sm}\n');
 fprintf(f, '%s',['stats="' check '_shift' strrep(num2str(shift),' ','') '"']);
@@ -59,7 +59,8 @@ fprintf(f, ['\n' 'statsn="' check '"' '\n\n']);
 % 3dtest++
 for con_i=1:combn
     con = comb{con_i};
-    fprintf(f, ['3dttest++ -prefix group/mvpa/${statsn}_' con '_${out}4r' ' -mask ${mask} -resid group/mvpa/errs_${statsn}_${out}4r -setA ' con ' \\\n']);
+    outname = ['${statsn}_' con '_${out}4r'];
+    fprintf(f, ['3dttest++ -prefix group/mvpa/' outname ' -mask ${mask} -resid group/mvpa/errs_' outname ' -setA ' con ' \\\n']);
     for sub_i=1:subnum
         sub=sprintf('S%02d',subs(sub_i));
         test=[con '_' rois{1}];

@@ -1,5 +1,5 @@
 % generate images, timing files for each subject
-subs=[50:52];
+subs=[53:54];
 rootfolder='/Volumes/WD_F/gufei/blind/';
 % generate files for each subject
 for subi=1:length(subs)
@@ -17,7 +17,7 @@ for subi=1:length(subs)
             runs = [17 18 23 24 25];
             pa = 26;
             str = 5;
-        case {3 4 9 11 14 18 19 31 32 36 41}
+        case {3 4 9 11 14 18 19 31 32 36 41 54}
             runs = 15:1:20;
             pa = 21;
             str = 22;
@@ -79,7 +79,7 @@ for subi=1:length(subs)
             runs = [13:1:15 17:1:19];
             pa = 20;
             str = 21;
-        case 29
+        case {29 53}
             runs = [16:1:21];
             pa = 22;
             str = 23;

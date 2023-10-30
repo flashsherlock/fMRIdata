@@ -47,6 +47,9 @@ Deconvolve data with cross for betas.
 ## deconvolve_frame.tcsh
 Deconvolve data with frame for betas.
 
+## deconvolve_odors.tcsh
+Deconvolve data with only odors condition.
+
 ## deconvolve_congruent.tcsh
 Deconvolve data for congruent/incongruent conditions (old data).
 
@@ -71,6 +74,9 @@ Generate individual roi.
 ## generate_3t_ffa.tcsh
 Generate individual FFA mask.
 
+## generate_3t_ofc.tcsh
+Generate individual OFC mask.
+
 ## indiv_cluster.bash
 Find individual level cluster threshold for each roi.
 
@@ -84,6 +90,9 @@ Count number of significant voxels in each roi.
 
 ## group_cluster.bash
 Group level cluster analysis. Run `3dClustSim` and add results to header.
+
+## group_mvpa_cluster.bash
+Generate group level cluster thresholds for searchlight.
 
 ## group_interaction.bash
 Group level ANOVA.
@@ -101,7 +110,10 @@ Group level ttest for PPI analysis.
 Dump betas from group level mask and individual masks.
 
 ## group_masks.bash
-Get level masks for main effects of face and odor.
+Get level masks for main effects of face and odor. Get masks for significant clusters using `3dClusterize`.
+
+## group_masks.bash
+Get masks for significant clusters using `3dClusterize`.
 
 ## group_anysig.tcsh
 Get group level masks of significant voxels for any condition.
@@ -124,8 +136,11 @@ Searchlight decoding analysis for Amy.
 ## check_3t_decoding.m
 Check searchlight results for 3T and generate `result_avg3t.bash`.
 
-## result_avg3t.bash
-Normalize and average searchlight results for 3T.
+## result_avg3t_odor.bash
+Normalize and average searchlight results for decoding odors.
+
+## result_avg3t_face.bash
+Normalize and average searchlight results for decoding faces.
 
 ## run_decoding.tcsh
 Run decoding analysis for Amy.

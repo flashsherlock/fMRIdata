@@ -3,8 +3,8 @@
 touch command.txt
 cat /dev/null >! command.txt
 
-foreach run (`count -dig 2 8 21`)
-  echo tcsh proc_3tanat.tcsh S${run} >> command.txt
+foreach run (`count -dig 2 4 29`)
+  echo tcsh deconvolve_odors.tcsh S${run} >> command.txt
 end
 # cat command.txt
 

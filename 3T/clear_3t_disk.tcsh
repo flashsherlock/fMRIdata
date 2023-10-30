@@ -26,10 +26,13 @@ if ( -d "${datafolder}" ) then
     # rm pb0${blurvol}*
     # rm errts*
     # rm fitts*
-    # rm *nocross*
+    rm *cross*
+    rm *odorfix*
+    rm *11s*
+    # rm errts.${subj}.new+tlrc*
     # rm *frame*
     # rm stats.${subj}+*
-    rm -r mvpa
+    # rm -r mvpa
     # rm *_16*
     # 3dcopy anat_final.${subj}+orig ../../roi/${sub}.nii
     # 3dcopy ../mask/Amy8_align.freesurfer+orig ../../roi/${sub}_amy.nii

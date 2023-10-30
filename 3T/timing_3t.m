@@ -43,6 +43,9 @@ for i=1:times(2)
 %         dlmwrite([outdatadir filesep names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
 %     end
 end
+% all odors
+fix = sort(reshape(timing,run,times(1)*times(2)),2);
+dlmwrite([outdatadir filesep 'odors' '.txt'],fix,'delimiter',' ');
 % fixation
 fix = sort(reshape(timing,run,times(1)*times(2))-1,2);
 dlmwrite([outdatadir filesep 'fix' '.txt'],fix,'delimiter',' ');

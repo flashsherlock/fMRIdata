@@ -134,3 +134,24 @@ endif
         -b ./mask/FusiformCA+tlrc \
         -expr 'astep(a,2.78)*b' \
         -prefix ./mask/FFV01
+# generate mask of voxels sig in all conditions
+3dcalc  -a "ttest_${outsuffix}odors+tlrc[1]" \
+        -b ./mask/bmask.nii \
+        -expr 'astep(a,1.65)*b' \
+        -prefix ./mask/whole_odors
+3dcalc  -a "ttest_${outsuffix}odors+tlrc[1]" \
+        -b ./mask/bmask.nii \
+        -expr 'astep(a,2.05)*b' \
+        -prefix ./mask/whole_odors05
+3dcalc  -a "ttest_${outsuffix}odors+tlrc[1]" \
+        -b ./mask/bmask.nii \
+        -expr 'astep(a,2.78)*b' \
+        -prefix ./mask/whole_odors01
+3dcalc  -a "ttest_${outsuffix}odors+tlrc[1]" \
+        -b ./mask/bmask.nii \
+        -expr 'astep(a,3.07)*b' \
+        -prefix ./mask/whole_odors005
+3dcalc  -a "ttest_${outsuffix}odors+tlrc[1]" \
+        -b ./mask/bmask.nii \
+        -expr 'astep(a,3.71)*b' \
+        -prefix ./mask/whole_odors001

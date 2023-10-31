@@ -148,24 +148,44 @@ endif
 # rm ../mask/Pir_new0*
 3dcalc \
 -a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/Pir_new.draw+orig \
+-b ../mask/aSTS_OR+orig \
 -expr 'astep(a,1.96)*b' \
--prefix ../mask/Pir_new05
+-prefix ../mask/aSTS_OR05
 3dcalc \
 -a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/Pir_new.draw+orig \
+-b ../mask/aSTS_OR+orig \
 -expr 'astep(a,2.58)*b' \
--prefix ../mask/Pir_new01
+-prefix ../mask/aSTS_OR01
 3dcalc \
 -a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/Pir_new.draw+orig \
+-b ../mask/aSTS_OR+orig \
 -expr 'astep(a,2.81)*b' \
--prefix ../mask/Pir_new005
+-prefix ../mask/aSTS_OR005
 3dcalc \
 -a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/Pir_new.draw+orig \
+-b ../mask/aSTS_OR+orig \
 -expr 'astep(a,3.30)*b' \
--prefix ../mask/Pir_new001
+-prefix ../mask/aSTS_OR001
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/Pir_new.draw+orig \
+# -expr 'astep(a,1.96)*b' \
+# -prefix ../mask/Pir_new05
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/Pir_new.draw+orig \
+# -expr 'astep(a,2.58)*b' \
+# -prefix ../mask/Pir_new01
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/Pir_new.draw+orig \
+# -expr 'astep(a,2.81)*b' \
+# -prefix ../mask/Pir_new005
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/Pir_new.draw+orig \
+# -expr 'astep(a,3.30)*b' \
+# -prefix ../mask/Pir_new001
 # rm ../mask/FFV_CA0*
 # 3dcalc \
 # -a "stats.${sub}.de.new+orig[52]" \

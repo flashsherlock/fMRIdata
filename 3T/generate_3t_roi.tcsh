@@ -73,6 +73,24 @@
 # -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
 # -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/aSTS_OR \
 # -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/aSTS+tlrc
+# # pSTS mask
+# 3dcalc \
+# -a /Volumes/WD_F/gufei/3T_cw/BAA-OR/face/volume/BAA-OR-FvO-MPRM-thr10-2mm.nii.gz \
+# -expr 'amongst(a,9,10)' \
+# -prefix /Volumes/WD_F/gufei/3T_cw/ASAP_maps/pSTS
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/pSTS_OR \
+# -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/pSTS+tlrc
+# # pSTS mask
+# 3dcalc \
+# -a /Volumes/WD_F/gufei/3T_cw/BAA-OR/face/volume/BAA-OR-FvO-MPRM-thr10-2mm.nii.gz \
+# -expr 'amongst(a,7,8)' \
+# -prefix /Volumes/WD_F/gufei/3T_cw/ASAP_maps/pcSTS
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/pcSTS_OR \
+# -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/pcSTS+tlrc
 
 # generate roi for each subject
 foreach ub (`count -dig 2 $1 $2`)
@@ -130,14 +148,15 @@ endif
 # transform FFA mask
 # foreach roi (Fusiform FFA FusiformCA FFA_CA)
 # foreach roi (insulaCA OFC6mm aSTS_OR)
-# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/${roi}+tlrc
-# # nonlinear warp
-# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-#              -source ${mask}                                                                      \
-#              -interp NN                                                               \
-#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-#              -prefix ../mask/${roi}
-# end
+foreach roi (pSTS_OR pcSTS_OR)
+set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/${roi}+tlrc
+# nonlinear warp
+3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+             -source ${mask}                                                                      \
+             -interp NN                                                               \
+             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+             -prefix ../mask/${roi}
+end
 
 # FFV masks
 # 3dcalc \
@@ -146,26 +165,26 @@ endif
 #     -expr 'step(a-1.65)*b' \
 #     -prefix ../mask/FFV_CA
 # rm ../mask/Pir_new0*
-3dcalc \
--a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/aSTS_OR+orig \
--expr 'astep(a,1.96)*b' \
--prefix ../mask/aSTS_OR05
-3dcalc \
--a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/aSTS_OR+orig \
--expr 'astep(a,2.58)*b' \
--prefix ../mask/aSTS_OR01
-3dcalc \
--a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/aSTS_OR+orig \
--expr 'astep(a,2.81)*b' \
--prefix ../mask/aSTS_OR005
-3dcalc \
--a "stats.${sub}.de.odors+orig[2]" \
--b ../mask/aSTS_OR+orig \
--expr 'astep(a,3.30)*b' \
--prefix ../mask/aSTS_OR001
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/aSTS_OR+orig \
+# -expr 'astep(a,1.96)*b' \
+# -prefix ../mask/aSTS_OR05
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/aSTS_OR+orig \
+# -expr 'astep(a,2.58)*b' \
+# -prefix ../mask/aSTS_OR01
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/aSTS_OR+orig \
+# -expr 'astep(a,2.81)*b' \
+# -prefix ../mask/aSTS_OR005
+# 3dcalc \
+# -a "stats.${sub}.de.odors+orig[2]" \
+# -b ../mask/aSTS_OR+orig \
+# -expr 'astep(a,3.30)*b' \
+# -prefix ../mask/aSTS_OR001
 # 3dcalc \
 # -a "stats.${sub}.de.odors+orig[2]" \
 # -b ../mask/Pir_new.draw+orig \

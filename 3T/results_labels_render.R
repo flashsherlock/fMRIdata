@@ -53,11 +53,24 @@ roi <- c('all_FFV_CA05','vis_FFV_CA05','inv_FFV_CA05',
          'all_FFV_CA01','vis_FFV_CA01','inv_FFV_CA01',
          'all_FFV_CA005','vis_FFV_CA005','inv_FFV_CA005',
          'all_FFV_CA001','vis_FFV_CA001','inv_FFV_CA001')
+roi <- c('all_Pir_new05','vis_Pir_new05','inv_Pir_new05',
+         'all_Pir_new01','vis_Pir_new01','inv_Pir_new01',
+         'all_Pir_new005','vis_Pir_new005','inv_Pir_new005',
+         'all_Pir_new001','vis_Pir_new001','inv_Pir_new001')
+roi <- c('all_aSTS_OR05','vis_aSTS_OR05','inv_aSTS_OR05',
+         'all_aSTS_OR01','vis_aSTS_OR01','inv_aSTS_OR01',
+         'all_aSTS_OR005','vis_aSTS_OR005','inv_aSTS_OR005',
+         'all_aSTS_OR001','vis_aSTS_OR001','inv_aSTS_OR001')
+roi <- c(  "all_pSTS_OR", "vis_pSTS_OR", "inv_pSTS_OR",
+           "all_pcSTS_OR", "vis_pcSTS_OR", "inv_pcSTS_OR")
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste("mvpa_faces_ffvs"),
+                  output_file = paste("mvpa_faces_Pir_news"),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 mvpa_pattern <- "roi_odor_shift6"
+roi <- c('all_pSTS_OR','all_pcSTS_OR')
+roi <- c('all_aSTS_OR05','all_aSTS_OR01','all_aSTS_OR005','all_aSTS_OR001')
+roi <- c('all_Pir_new05','all_Pir_new01','all_Pir_new005','all_Pir_new001')
 roi <- c('all_FFV_CA05','all_FFV_CA01','all_FFV_CA005','all_FFV_CA001')
 roi <- c('all_APC_old','all_APC_new','all_PPC')
 roi <- c('all_Amy8_align','all_Amy8_at165','all_Pir_new','all_Pir_new_at165','all_fusiformCA','all_fusiformCA_at165')
@@ -66,7 +79,7 @@ roi <- c('all_Pir_new','all_OFC6mm','all_FFV_CA')
 roi <- c('all_aSTS','all_OFC_AAL')
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
-                  output_file = paste("mvpa_odors_ffvs"),
+                  output_file = paste("mvpa_odors_Pir_news"),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 # transition
 for (con in c('odor','face')) {

@@ -145,27 +145,48 @@ endif
 #     -b ../mask/FusiformCA+orig \
 #     -expr 'step(a-1.65)*b' \
 #     -prefix ../mask/FFV_CA
-rm ../mask/FFV_CA0*
+# rm ../mask/Pir_new0*
 3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformCA+orig \
--expr 'step(a-1.96)*b' \
--prefix ../mask/FFV_CA05
+-a "stats.${sub}.de.odors+orig[2]" \
+-b ../mask/Pir_new.draw+orig \
+-expr 'astep(a,1.96)*b' \
+-prefix ../mask/Pir_new05
 3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformCA+orig \
--expr 'step(a-2.58)*b' \
--prefix ../mask/FFV_CA01
+-a "stats.${sub}.de.odors+orig[2]" \
+-b ../mask/Pir_new.draw+orig \
+-expr 'astep(a,2.58)*b' \
+-prefix ../mask/Pir_new01
 3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformCA+orig \
--expr 'step(a-2.81)*b' \
--prefix ../mask/FFV_CA005
+-a "stats.${sub}.de.odors+orig[2]" \
+-b ../mask/Pir_new.draw+orig \
+-expr 'astep(a,2.81)*b' \
+-prefix ../mask/Pir_new005
 3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformCA+orig \
--expr 'step(a-3.30)*b' \
--prefix ../mask/FFV_CA001
+-a "stats.${sub}.de.odors+orig[2]" \
+-b ../mask/Pir_new.draw+orig \
+-expr 'astep(a,3.30)*b' \
+-prefix ../mask/Pir_new001
+# rm ../mask/FFV_CA0*
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformCA+orig \
+# -expr 'step(a-1.96)*b' \
+# -prefix ../mask/FFV_CA05
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformCA+orig \
+# -expr 'step(a-2.58)*b' \
+# -prefix ../mask/FFV_CA01
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformCA+orig \
+# -expr 'step(a-2.81)*b' \
+# -prefix ../mask/FFV_CA005
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformCA+orig \
+# -expr 'step(a-3.30)*b' \
+# -prefix ../mask/FFV_CA001
 # foreach dec (_at165 _at165_p)
 #     3dcalc \
 #         -a "stats.${sub}.de.new+orig[52]" \

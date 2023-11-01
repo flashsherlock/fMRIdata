@@ -26,12 +26,19 @@ parfor i = 3:29
     close all
 end
 % decoding trans
-con = {'con','inc','vis','inv'};
+% con = {'con','inc','vis','inv'};
+rois={'Amy8_align','OFC_AAL'};
 parfor i = 3:29
     sub=sprintf('S%02d',i);
-    for con_i = 1:length(con)
-        decoding_roitrans(sub,analysis_all,rois,shift,decode,con{con_i});
-    end
+%     for con_i = 1:length(con)
+%         decoding_roitrans(sub,analysis_all,rois,shift,decode,con{con_i});
+%     end
+    decoding_roitrans(sub,analysis_all,rois,shift,'face','vis_inv')
+    decoding_roitrans(sub,analysis_all,rois,shift,'face','inv_vis')
+    decoding_roitrans(sub,analysis_all,rois,shift,'of','test_vis')
+    decoding_roitrans(sub,analysis_all,rois,shift,'of','test_inv')
+    decoding_roitrans(sub,analysis_all,rois,shift,'fo','train_vis')
+    decoding_roitrans(sub,analysis_all,rois,shift,'fo','train_inv')
     % close figures
     close all
 end

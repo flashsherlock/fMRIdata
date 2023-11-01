@@ -32,7 +32,7 @@ for i=1:length(rois)
     test=[con '_' roi];
     
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_' decode 'trans_shift' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_' 'new' 'trans_shift' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -44,6 +44,7 @@ for i=1:length(rois)
 
     % tr stores all the timing information
     tr = [];
+    for data_code=1:2
     for shift_i=1:length(shift)
         timing=findtrs3t(shift(shift_i),sub);        
         tr = [tr;timing];
@@ -61,12 +62,12 @@ for i=1:length(rois)
         % each trial is a chunk
         cfg.files.chunk = [cfg.files.chunk; reshape(repmat(1:15, [1 8]), [numtr 1])];
         % decoding faces
-        switch decode
-            case 'face'
+        switch data_code
+            case 1
             % face emotion
             cfg.files.label = [cfg.files.label;reshape(repmat([1 1 1 1 2 2 2 2], [15 1]), [numtr 1])];
             names={'Fear','Fear','Fear','Fear','Happy','Happy','Happy','Happy'};
-            case 'odor'
+            case 2
             % odor emotion
             cfg.files.label = [cfg.files.label;reshape(repmat([1 1 2 2 1 1 2 2], [15 1]), [numtr 1])];
             names={'Plea','Plea','Unplea','Unplea','Plea','Plea','Unplea','Unplea'};
@@ -75,6 +76,7 @@ for i=1:length(rois)
         % names={'FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',...
         %       'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv'};              
         cfg.files.labelname = [cfg.files.labelname;reshape(repmat(names, [15 1]), [numtr 1])];        
+    end
     end
     %% Decide whether you want to see the searchlight/ROI/... during decoding
     cfg.plot_selected_voxels = 500; % 0: no plotting, 1: every step, 2: every second step, 100: every hundredth step...
@@ -124,31 +126,57 @@ for i=1:length(rois)
     end
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
-    invisible = reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]);
-    congruent = reshape(repmat([0 0 1 1 1 1 0 0], [15 1]), [numtr 1]);
+    invisible = kron([1;1],reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]));
+%     congruent = kron([1;1],reshape(repmat([0 0 1 1 1 1 0 0], [15 1]), [numtr 1]));
+    facetrial = kron([1;0],reshape(repmat([1 1 1 1 1 1 1 1], [15 1]), [numtr 1]));
     % decoding training conditions 
+    switch decode
+        case 'face'  
+            % on face
+            cfg.design.test(facetrial==0,:) = 0;   
+            cfg.design.train(facetrial==0,:) = 0;  
+        case 'odor'  
+            % on odor
+            cfg.design.test(facetrial==1,:) = 0; 
+            cfg.design.train(facetrial==1,:) = 0; 
+        case 'of'  
+            % test on face
+            cfg.design.test(facetrial==0,:) = 0;   
+            % train on odors
+            cfg.design.train(facetrial==1,:) = 0;  
+        case 'fo'  
+            % test on odors
+            cfg.design.test(facetrial==1,:) = 0; 
+            % train on faces
+            cfg.design.train(facetrial==0,:) = 0; 
+    end
     switch con
-        case 'vis'                       
+        case 'vis_inv'                       
             % train on visible    
             cfg.design.train(invisible==1,:) = 0;
             % test on invisible
             cfg.design.test(invisible==0,:) = 0;   
-        case 'inv'                       
+        case 'inv_vis'                       
             % train on invisible    
             cfg.design.train(invisible==0,:) = 0;
             % test on visible
             cfg.design.test(invisible==1,:) = 0;   
-        case 'con'
-            % train and test on congruent    
-            cfg.design.train(congruent==0,:) = 0;
-            cfg.design.test(congruent==0,:) = 0;
-        case 'inc'
-            % train and test on congruent    
-            cfg.design.train(congruent==1,:) = 0;
-            cfg.design.test(congruent==1,:) = 0;  
+        case 'train_vis'                       
+            % train on visible    
+            cfg.design.train(invisible==1,:) = 0;  
+        case 'train_inv'                       
+            % train on invisible    
+            cfg.design.train(invisible==0,:) = 0;
+        case 'test_vis'                       
+            % test on visible    
+            cfg.design.test(invisible==1,:) = 0;  
+        case 'test_inv'                       
+            % test on invisible    
+            cfg.design.test(invisible==0,:) = 0;
     end
     % overwrite existing results
     cfg.results.overwrite = 1;
+    cfg.basic_checks.DoubleFilenameEntriesOk = 1;
     % Run decoding
     decoding(cfg, passed_data);   
     

@@ -4,7 +4,7 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 # roi
-for roi in FFV01 aSTS OFC_AAL Pir Amy
+for roi in Amy FFV01 OFC_AAL #aSTS Pir 
 do
 if [ "$roi" = "whole" ]; then
       mask=group/mask/bmask.nii
@@ -30,19 +30,22 @@ else
 fi
 
 # for each pvalue
-for p in 0.01 #0.05  
+for p in 0.001 #0.05  
 do
-    name=group/findmask/${out}.NN2_bisided.1D
-    # get the last line of the file
-#     nvox=$(tail -n 3 ${name})
-    # get the line related to voxel pvalue
-    nvox=$(sed -n "/^ $p/p" ${name})
-#     echo $nvox
-    # get the third field p=0.05 of nvox by awk
-    nvox=$(echo ${nvox} | awk '{print $3}')
+#     name=group/mvpa/threshold/${out}.NN2_bisided.1D
+#     # get the last line of the file
+# #     nvox=$(tail -n 3 ${name})
+#     # get the line related to voxel pvalue
+#     nvox=$(sed -n "/^ $p/p" ${name})
+# #     echo $nvox
+#     # get the third field p=0.05 of nvox by awk
+#     nvox=$(echo ${nvox} | awk '{print $3}')
 #     echo $nvox
     for brick in face_all face_vis face_inv odor_all
     do      
+      name=group/mvpa/threshold/${out}_${brick}.NN2_bisided.1D
+      nvox=$(sed -n "/^ $p/p" ${name})
+      nvox=$(echo ${nvox} | awk '{print $3}')
       # rm group/mvpa/${roi}_${brick}_${p}*
         3dClusterize -nosum -1Dformat \
         -inset group/mvpa/${brick}_whole4r+tlrc \
@@ -51,6 +54,7 @@ do
         -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
         -pref_map group/mvpa/${roi}_${brick}_${p}
       # Amy only
+      # # rm group/mvpa/${roi}3r_${brick}_${p}*
       #   3dClusterize -nosum -1Dformat \
       #   -inset group/mvpa/${brick}+tlrc \
       #   -mask ${mask} \

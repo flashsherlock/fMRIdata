@@ -62,13 +62,13 @@ roi <- c('all_aSTS_OR05','vis_aSTS_OR05','inv_aSTS_OR05',
          'all_aSTS_OR005','vis_aSTS_OR005','inv_aSTS_OR005',
          'all_aSTS_OR001','vis_aSTS_OR001','inv_aSTS_OR001')
 roi <- c(  "all_pSTS_OR", "vis_pSTS_OR", "inv_pSTS_OR",
-           "all_pcSTS_OR", "vis_pcSTS_OR", "inv_pcSTS_OR")
+           "all_aSTS", "vis_aSTS", "inv_aSTS")
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste("mvpa_faces_Pir_news"),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 mvpa_pattern <- "roi_odor_shift6"
-roi <- c('all_pSTS_OR','all_pcSTS_OR')
+roi <- c('all_pSTS_OR','all_aSTS')
 roi <- c('all_aSTS_OR05','all_aSTS_OR01','all_aSTS_OR005','all_aSTS_OR001')
 roi <- c('all_Pir_new05','all_Pir_new01','all_Pir_new005','all_Pir_new001')
 roi <- c('all_FFV_CA05','all_FFV_CA01','all_FFV_CA005','all_FFV_CA001')

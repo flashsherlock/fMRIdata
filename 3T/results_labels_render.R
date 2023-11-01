@@ -91,3 +91,15 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.R
                   output_file = paste0("mvpa_trans",con),
                   params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
 }
+# new trans
+roibase <- c("vis_inv_Amy8_align", "inv_vis_Amy8_align",'test_vis_Amy8_align','test_inv_Amy8_align','train_vis_Amy8_align','train_inv_Amy8_align')
+rois <- c('Amy8_align','OFC_AAL')
+for (roi_i in rois){
+  # replace roi with rois
+  roi <- gsub("Amy8_align",roi_i,roibase)
+  mvpa_pattern <- paste0('roi_newtrans_shift6')
+  rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/3T/results_labels_mean.Rmd",
+                    output_dir = paste0(path,"results_labels_r"),
+                    output_file = paste0("mvpa_trans_",roi_i),
+                    params = list(path = path, sub = subs, roi = roi, roiname = roi, mvpa_pattern = mvpa_pattern))
+}

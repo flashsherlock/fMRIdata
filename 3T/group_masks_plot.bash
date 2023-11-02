@@ -3,51 +3,60 @@
 datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
+
+# if the first input exist and is sm
+if [ -n "$1" ] && [ "$1" = "sm" ]; then
+      pre="sm_"
+else
+      pre=""
+fi
+
 # searchlight tmap for each roi
-# for roi in Amy OFC_AAL
-# do
-#       # for each pvalue
-#       for p in 0.001
-#       do
-#             for brick in face_vis face_inv odor_all
-#             do      
-#                   3dcalc \
-#                   -a group/mvpa/${brick}_whole4r+tlrc[1] \
-#                   -b group/mvpa/${roi}_${brick}_${p}+tlrc \
-#                   -expr 'bool(a)*b'\
-#                   -prefix group/plotmask/${roi}_${brick}_t
-#             done      
-#       done
-# done
+for roi in Amy OFC_AAL
+do
+      # for each pvalue
+      for p in 0.001
+      do
+            for brick in face_vis face_inv odor_all
+            do      
+                  rm group/plotmask/${pre}${roi}_${brick}_t*
+                  3dcalc \
+                  -a group/mvpa/${brick}_whole${pre:2}${pre:0:2}4r+tlrc[1] \
+                  -b group/mvpa/${pre}${roi}_${brick}_${p}+tlrc \
+                  -expr 'bool(b)*a'\
+                  -prefix group/plotmask/${pre}${roi}_${brick}_t
+            done      
+      done
+done
 
 p=0.001
 # convert to nii
-# for cluster in Amy_face_vis Amy_face_inv Amy_odor_all OFC_AAL_face_vis OFC_AAL_face_inv OFC_AAL_odor_all
-# do
-#       3dcalc \
-#       -a group/mvpa/${cluster}_${p}+tlrc \
-#       -expr 'bool(a)'\
-#       -prefix group/plotmask/${cluster}_${p}.nii
-# done
+for cluster in Amy_face_vis Amy_face_inv Amy_odor_all OFC_AAL_face_vis OFC_AAL_face_inv OFC_AAL_odor_all
+do
+      3dcalc \
+      -a group/mvpa/${pre}${cluster}_${p}+tlrc \
+      -expr 'bool(a)'\
+      -prefix group/plotmask/${pre}${cluster}_${p}.nii
+done
 # 3dcalc \
 #       -a group/findmask/Cluster11_0.001_fointer_inv_Amy+tlrc \
 #       -expr 'bool(a)'\
 #       -prefix group/plotmask/Amy_inter_inv+tlrc.nii
       
 # show clusters
-rm group/plotmask/all_mask*.nii
+# rm group/plotmask/${pre}all_mask*.nii
 3dcalc \
-      -a group/mvpa/Amy_face_vis_${p}+tlrc \
-      -b group/mvpa/OFC_AAL_face_vis_${p}+tlrc \
-      -c group/mvpa/Amy_face_inv_${p}+tlrc \
-      -d group/mvpa/OFC_AAL_face_inv_${p}+tlrc \
-      -e group/mvpa/Amy_odor_all_${p}+tlrc \
-      -f group/mvpa/OFC_AAL_odor_all_${p}+tlrc \
+      -a group/mvpa/${pre}Amy_face_vis_${p}+tlrc \
+      -b group/mvpa/${pre}OFC_AAL_face_vis_${p}+tlrc \
+      -c group/mvpa/${pre}Amy_face_inv_${p}+tlrc \
+      -d group/mvpa/${pre}OFC_AAL_face_inv_${p}+tlrc \
+      -e group/mvpa/${pre}Amy_odor_all_${p}+tlrc \
+      -f group/mvpa/${pre}OFC_AAL_odor_all_${p}+tlrc \
       -expr '10*bool(a+b)+5*bool(c+d)+20*bool(e+f)'\
-      -prefix group/plotmask/all_masks.nii
+      -prefix group/plotmask/${pre}all_masks.nii
 
 3dcalc \
-      -a group/plotmask/all_masks.nii \
+      -a group/plotmask/${pre}all_masks.nii \
       -b group/findmask/Cluster11_0.001_fointer_inv_Amy+tlrc\
       -expr 'a+60*bool(b)'\
-      -prefix group/plotmask/all_masks_inter.nii
+      -prefix group/plotmask/${pre}all_masks_inter.nii

@@ -112,6 +112,32 @@ lineplot <- function(data, con, select){
     theme(axis.title.x=element_blank())
 }
 
+# default boxplot
+boxplotd <- function(data, select, colors=rep("black",each=length(select))){
+  # select data
+  Violin_data <- subset(data, select = c("id", select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "parameter", value.name = "Score")
+  # summarise data 5% and 90% quantile
+  df <- ddply(Violin_data, .(parameter), boxset)
+  pd <- 0.6# boxplot
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = jitter(as.numeric(parameter), amount = 0.05))
+  ggplot(data = Violin_data, aes(x = parameter)) +
+    geom_errorbar(
+      data = df, position = position_dodge(0.6), show.legend = F,
+      aes(ymin = y0, ymax = y100, color = colors), linetype = 1, width = 0.15) + # add line to whisker
+    geom_boxplot(
+      data = df,
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = colors),
+      outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
+      stat = "identity", show.legend = F) +
+    geom_point(aes(x = con, y = Score, group = id), size = 0.5, color = "gray", show.legend = F) +
+    scale_color_manual(values = colors)+
+    geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
+    theme(axis.title.x = element_blank())
+}
+
 boxplot <- function(data, con, select, hx=0){
   # select data
   Violin_data <- subset(data, select = c("id", select))
@@ -150,7 +176,7 @@ boxcp <- function(data, con, select){
   Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
   # summarise data 5% and 90% quantile
-  df <- Violin_data %>% group_by(condition) %>% boxset
+  df <- ddply(Violin_data, .(condition), boxset)
   # jitter
   set.seed(111)
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), 0.3))
@@ -167,6 +193,35 @@ boxcp <- function(data, con, select){
     # geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
     geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8")+
     theme(axis.title.x=element_blank())
+}
+# function for loading mvpa acc
+readacc <- function(mvpa_pattern,con,roi_order) {
+  path <- "/Volumes/WD_F/gufei/3t_cw/"
+  ana <- c("de")
+  data <- data.frame(id=0,roi=0,con=0,acc=0)
+  data <- data[-1,]
+  subs <- c(sprintf('S%02d',c(3:29)))
+  for (sub in subs) {
+    workingdir <- paste0(path,sub,'/',sub,'.',ana,'.results/mvpa')
+    mvpa <- dir(path=workingdir,pattern = mvpa_pattern)
+    for (m in mvpa){
+      # roi
+      for (r in roi_order){
+        for (c in con){
+          # read mat file
+          mat <- readMat(file.path(workingdir,m,paste(c,r,sep='_'),'res_confusion_matrix.mat'))
+          # find acc
+          acc <- mat$results[[9]][[1]][[1]][[1]]
+          # average diagonal of acc
+          acc <- mean(diag(acc))/100
+          data[nrow(data)+1,] <- c(sub,r,c,acc)
+        }
+      }
+    }
+  }
+  data[,4] <- as.numeric(data[,4])
+  data <- mutate(data, roi=factor(roi,levels = roi_order))
+  return(data)
 }
 # 2 Main -------------------------------------------------------------
 # load data
@@ -303,6 +358,49 @@ amy <- wrap_plots(line_hfinv,coinbox,ncol = 2)+plot_annotation(tag_levels = "A")
 print(amy)
 ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiamy","amy"), ".pdf"), amy, width = 7, height = 3,
        device = cairo_pdf)
+
+# 4 mvpa results -------------------------------------------------------------------
+facecon <- c("all","vis","inv")
+transcon <- c("inv_vis","vis_inv","test_inv","test_vis","train_inv","train_vis")
+translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
+                "Odor\nInvisible Face","Odor\nVisible Face",
+                "Invisible Face\nOdor","Visible Face\nOdor")
+rois <- c("Amy8_align","OFC_AAL","FFV_CA005","Pir_new005")
+# decoding results
+for (roi in rois) {
+  testface <- readacc("roi_face_shift6",facecon[2:3],roi)
+  # testface$con <- paste0("face_",testface$con)
+  testodor <- readacc("roi_odor_shift6",facecon[1],roi)
+  # testodor$con <- paste0("odor_",testodor$con)
+  # decast test
+  test <- reshape2::dcast(rbind(testface,testodor), id ~ con, value.var = "acc")
+  # bruceR::TTEST(test,facecon,test.value=0.5)
+  
+  acc <- boxplotd(test,facecon)+
+    coord_cartesian(ylim = c(0.2,1))+
+    scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+    scale_x_discrete(labels=c('Odor', 'VisFace', 'InvFace'))
+  print(acc)
+  ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 3, height = 3,
+         device = cairo_pdf)
+}
+# trans decoding results
+for (roi in rois[1:2]) {
+  test <- readacc("roi_newtrans_shift6",transcon,roi)
+  # decast test
+  test <- reshape2::dcast(test, id ~ con, value.var = "acc")
+  bruceR::TTEST(test,transcon,test.value=0.5)
+  
+  acc <- boxplotd(test,transcon)+
+    coord_cartesian(ylim = c(0.2,0.8))+
+    scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+    scale_x_discrete(labels = c("InvFace\nVisFace","VisFace\nInvFace",
+                                "Odor\nInvFace","Odor\nVisFace",
+                                "InvFace\nOdor","VisFace\nOdor"))
+  print(acc)
+  ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acc, width = 4, height = 3,
+         device = cairo_pdf)
+}
 
 # # 4 stats number of voxels -------------------------------------------------------------------
 # expected threshold

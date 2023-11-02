@@ -140,12 +140,40 @@ boxplot <- function(data, con, select, hx=0){
     geom_hline(yintercept = hx, size = 0.5, linetype = "dashed", color = "black")+
     theme(axis.title.x = element_blank())
 }
+# box plot for comparision
+boxcp <- function(data, con, select){
+  # select data
+  Violin_data <- subset(data,select = c("id",select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
+  Violin_data <- mutate(Violin_data,
+                        condition=ifelse(str_detect(Task,con[1]),con[1],con[2]))
+  Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
+  
+  # summarise data 5% and 90% quantile
+  df <- Violin_data %>% group_by(condition) %>% boxset
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), 0.3))
+  # boxplot
+  ggplot(data=Violin_data, aes(x=condition)) + 
+    # geom_boxplot(aes(y=Score,color=test),
+    #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
+    geom_errorbar(data=df, position = position_dodge(0.6),
+                  aes(ymin=y0,ymax=y100),linetype = 1,width = 0.15)+ # add line to whisker
+    geom_boxplot(data=df,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+                 outlier.shape = NA, fill="white", width=0.25, position = position_dodge(0.6),
+                 stat = "identity") +
+    # geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
+    geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8")+
+    theme(axis.title.x=element_blank())
+}
 # 2 Main -------------------------------------------------------------
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
 data_names <- c("Amy8_align","Pir_new","fusiformCA","FFA_CA",
-                "FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR")
+                "FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR","OFC_AAL")
 data_names <- c("Amy8_at165","Pir_new_at165","fusiformCA_at165","FFA_CA_at165",
                 "FFV_CA_at165", "insulaCA_at165", "OFC6mm_at165", "aSTS_OR_at165")
 data_names <- c("Indiv40_0.001_odor_Pir",
@@ -167,13 +195,17 @@ names <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
 betas$condition <- factor(betas$condition, levels = c(1:8), labels = names, ordered = F)
 # reshape data to wide format
 betas <- reshape2::dcast(betas, id ~ condition, value.var = "NZmean")
+# add con-incon columns
+betas <- mutate(betas,incon = rowMeans(betas[,c(2,3,8,9)]),con = rowMeans(betas[4:7]))
+betas <- mutate(betas,vis = rowMeans(betas[,c(2,4,6,8)]),inv = rowMeans(betas[,c(3,5,7,9)]))
+betas <- mutate(betas,coin = con-incon)
+betas <- mutate(betas,vin = vis-inv)
 # ttest
 cat("*********",data_name,"ttest","*********")
 bruceR::TTEST(betas, names)
 # average names in betas
+bruceR::TTEST(betas,c("con","incon","coin","vis","inv","vin"))
 bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[-1])),"x"),"x")
-bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[,c(2,3,8,9)])),"incon"),"incon")
-bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[4:7])),"con"),"con")
 
 # ANOVA
 cat("*********",data_name,"Invisible","*********")
@@ -228,6 +260,12 @@ box_hfvis <- boxplotv(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','Ha
 box <- wrap_plots(box_hfinv,box_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
 print(box)
 ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppibox_","box_"), data_name, ".pdf"), box, width = 8, height = 4,
+       device = cairo_pdf)
+# visible invisble compare
+box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"))+
+  labs(y="Mean Beta")+
+  scale_x_discrete(labels=c("Visible","Invisible"))
+ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_"), data_name, ".pdf"), box_vin, width = 3, height = 2,
        device = cairo_pdf)
 }
 

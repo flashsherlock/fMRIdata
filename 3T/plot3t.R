@@ -340,27 +340,43 @@ betas$condition <- factor(betas$condition, levels = c(1:8), labels = names, orde
 betas <- reshape2::dcast(betas, id ~ condition, value.var = "NZmean")
 # add con-incon columns
 betas <- mutate(betas,incon = rowMeans(betas[,c(2,3,8,9)]),con = rowMeans(betas[4:7]))
-betas <- mutate(betas,coin = con-incon)
+betas <- mutate(betas,coin = -(con-incon))
+betas <- mutate(betas,inconvis = rowMeans(betas[,c(2,8)]),convis = rowMeans(betas[,c(4,6)]))
+betas <- mutate(betas,coinvis = -(convis-inconvis))
+betas <- mutate(betas,inconinv = rowMeans(betas[,c(3,9)]),coninv = rowMeans(betas[,c(5,7)]))
+betas <- mutate(betas,coininv = -(coninv-inconinv))
 # ttest
-bruceR::TTEST(betas,"coin")
+bruceR::TTEST(betas,c("coin","coinvis","coininv"))
 
 # invisible
 line_hfinv <- lineplot(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
   labs(y="Mean Beta",title = "Invisible")+
+  coord_cartesian(ylim = c(-0.18,0))+
   scale_x_discrete(labels=c("Happy","Fearful"))
-
+# visible
+line_hfvis <- lineplot(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'))+
+  labs(y="Mean Beta",title = "Visible")+
+  coord_cartesian(ylim = c(-0.18,0))+
+  scale_x_discrete(labels=c("Happy","Fearful"))
 # con-incon for amy interaction invisible
-coinbox <- boxplot(betas,"Amy_invis_inter","coin",0)+
-  coord_cartesian(ylim = c(-0.2,0.15))+
-  scale_y_continuous(name = "Con-Incon",expand = expansion(add = c(0,0)),breaks = c(seq(from=-0.2, to=0.1, by=0.1)))
-# save
-amy <- wrap_plots(line_hfinv,coinbox,ncol = 2)+plot_annotation(tag_levels = "A")
-print(amy)
-ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiamy","amy"), ".pdf"), amy, width = 7, height = 3,
+coinbox <- boxplot(betas,"Amy_invis_inter","coininv",0)+
+  coord_cartesian(ylim = c(-0.18,0.25))+
+  scale_y_continuous(name = "Mean Beta Difference",expand = expansion(add = c(0,0)),breaks = c(seq(from=-0.2, to=0.2, by=0.1)))
+# boxcp for visible and invisible
+box_convin <- boxcp(betas,c("coininv","coinvis"),c("coininv","coinvis"))+
+  labs(y="Mean Beta Difference")+
+  coord_cartesian(ylim = c(-0.18,0.25))+
+  scale_x_discrete(labels=c("Invisible","Visible"))
+print(box_convin)
+ggsave(paste0(figure_dir,"amy_convin.pdf"), box_convin, width = 4, height = 3,
        device = cairo_pdf)
+# save
+amy <- wrap_plots(line_hfinv,line_hfvis,coinbox,box_convin,ncol = 2)
+print(amy)
+ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiamy","amy"), ".pdf"), amy, width = 8, height = 6)
 
 # 4 mvpa results -------------------------------------------------------------------
-facecon <- c("all","vis","inv")
+facecon <- c("vis","inv","all")
 transcon <- c("inv_vis","vis_inv","test_inv","test_vis","train_inv","train_vis")
 translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
                 "Odor\nInvisible Face","Odor\nVisible Face",
@@ -368,18 +384,19 @@ translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
 rois <- c("Amy8_align","OFC_AAL","FFV_CA005","Pir_new005")
 # decoding results
 for (roi in rois) {
-  testface <- readacc("roi_face_shift6",facecon[2:3],roi)
+  testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
-  testodor <- readacc("roi_odor_shift6",facecon[1],roi)
+  testodor <- readacc("roi_odor_shift6",facecon[3],roi)
   # testodor$con <- paste0("odor_",testodor$con)
   # decast test
   test <- reshape2::dcast(rbind(testface,testodor), id ~ con, value.var = "acc")
-  # bruceR::TTEST(test,facecon,test.value=0.5)
+  cat("*********",roi,"*********")
+  bruceR::TTEST(test,facecon,test.value=0.5)
   
   acc <- boxplotd(test,facecon)+
     coord_cartesian(ylim = c(0.2,1))+
     scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
-    scale_x_discrete(labels=c('Odor', 'VisFace', 'InvFace'))
+    scale_x_discrete(labels=c('VisFace', 'InvFace', 'Odor'))
   print(acc)
   ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 3, height = 3,
          device = cairo_pdf)
@@ -389,6 +406,7 @@ for (roi in rois[1:2]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
+  cat("*********",roi,"*********")
   bruceR::TTEST(test,transcon,test.value=0.5)
   
   acc <- boxplotd(test,transcon)+

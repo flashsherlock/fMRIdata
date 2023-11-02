@@ -4,7 +4,7 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 # roi
-for roi in Amy FFV01 OFC_AAL #aSTS Pir 
+for roi in Amy OFC_AAL #FFV01 aSTS Pir 
 do
 if [ "$roi" = "whole" ]; then
       mask=group/mask/bmask.nii
@@ -29,6 +29,13 @@ else
       out=$roi
 fi
 
+# if the first input exist and is sm
+if [ -n "$1" ] && [ "$1" = "sm" ]; then
+      pre="sm_"
+else
+      pre=""
+fi
+
 # for each pvalue
 for p in 0.001 #0.05  
 do
@@ -42,17 +49,18 @@ do
 #     nvox=$(echo ${nvox} | awk '{print $3}')
 #     echo $nvox
     for brick in face_all face_vis face_inv odor_all
-    do      
-      name=group/mvpa/threshold/${out}_${brick}.NN2_bisided.1D
+    do        
+
+      name=group/mvpa/threshold/${pre}${out}_${brick}.NN2_bisided.1D
       nvox=$(sed -n "/^ $p/p" ${name})
       nvox=$(echo ${nvox} | awk '{print $3}')
       # rm group/mvpa/${roi}_${brick}_${p}*
         3dClusterize -nosum -1Dformat \
-        -inset group/mvpa/${brick}_whole4r+tlrc \
+        -inset group/mvpa/${brick}_whole${pre:2}${pre:0:2}4r+tlrc \
         -mask ${mask} \
         -idat 0 -ithr 1 \
         -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
-        -pref_map group/mvpa/${roi}_${brick}_${p}
+        -pref_map group/mvpa/${pre}${roi}_${brick}_${p}
       # Amy only
       # # rm group/mvpa/${roi}3r_${brick}_${p}*
       #   3dClusterize -nosum -1Dformat \

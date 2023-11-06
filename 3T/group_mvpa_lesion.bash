@@ -4,7 +4,7 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 # roi
-for roi in Amy # OFC_AAL
+for roi in Amy OFC_AAL
 do
 if [ "$roi" = "whole" ]; then
       mask=group/mask/bmask.nii
@@ -30,7 +30,7 @@ fi
 # for each pvalue
 for p in 0.001 #0.05  
 do
-    for brick in face_vis #face_inv odor_all
+    for brick in face_vis face_inv odor_all
     do              
       # convert to short data first if not exist
       if [ ! -f group/mvpa/lesion/${pre}${roi}_${brick}_t+tlrc.HEAD ]; then
@@ -41,12 +41,28 @@ do
             -datum short
       fi
       # find maxima in RAI coordinate
-      # use -dset_coords to convert to LPI
-      rm group/mvpa/lesion/${pre}${roi}_${brick}_max*
+      # use -dset_coords to convert to LPI      
+      # rm group/mvpa/lesion/${pre}${roi}_${brick}_max*
       3dmaxima \
       -input group/mvpa/lesion/${pre}${roi}_${brick}_t+tlrc \
       -spheres_1toN -out_rad 4 -prefix group/mvpa/lesion/${pre}${roi}_${brick}_max \
       -min_dist 8 -thresh 1.65 -coords_only > group/mvpa/lesion/${pre}${roi}_${brick}.txt
+      # find the first two sphere
+      for i in 1 2
+      do
+            # sphere masks
+            3dcalc \
+            -a group/mvpa/lesion/${pre}${roi}_${brick}_max+tlrc \
+            -expr "equals(a,$i)" \
+            -prefix group/mvpa/lesion/${pre}${roi}_${brick}_p${i}
+            # generate mask with out the cluster
+            # rm group/mvpa/lesion/${pre}${roi}_${brick}_l${i}*
+            3dcalc \
+            -a group/mvpa/lesion/${pre}${roi}_${brick}_p${i}+tlrc \
+            -b group/mvpa/${pre}${roi}_${brick}_${p}+tlrc \
+            -expr "step(bool(b)-a)" \
+            -prefix group/mvpa/lesion/${pre}${roi}_${brick}_l${i}
+      done
 
     done    
 done

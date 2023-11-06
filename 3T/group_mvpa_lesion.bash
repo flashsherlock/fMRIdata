@@ -72,6 +72,7 @@ do
                   -prefix group/mvpa/lesion/${pre}${roi}_${brick}_l0
             fi
             # indivisual masks
+            # for sub in $1
             for sub in S{03..29}
             do
                   analysis=de
@@ -83,7 +84,7 @@ do
                         continue
                   fi
                   # cd to results folder
-                  cd "${subdir}" || exit 
+                  cd "${datafolder}/${subdir}" || exit 
                   for m in p1 p2 l1 l2 l0
                   do
                         # define group mask

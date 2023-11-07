@@ -132,6 +132,7 @@ boxplotd <- function(data, select, colors=rep("black",each=length(select))){
       aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = colors),
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity", show.legend = F) +
+    geom_text(aes(label = id, x = con+0.25, y = Score), size = 3.5)+
     geom_point(aes(x = con, y = Score, group = id), size = 0.5, color = "gray", show.legend = F) +
     scale_color_manual(values = colors)+
     geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
@@ -402,7 +403,7 @@ for (roi in rois) {
          device = cairo_pdf)
 }
 # trans decoding results
-for (roi in rois[1:2]) {
+for (roi in rois[1:3]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
@@ -411,13 +412,42 @@ for (roi in rois[1:2]) {
   
   acc <- boxplotd(test,transcon)+
     coord_cartesian(ylim = c(0.2,0.8))+
-    scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+    scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
     scale_x_discrete(labels = c("InvFace\nVisFace","VisFace\nInvFace",
                                 "Odor\nInvFace","Odor\nVisFace",
                                 "InvFace\nOdor","VisFace\nOdor"))
   print(acc)
   ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acc, width = 4, height = 3,
          device = cairo_pdf)
+}
+# lesion decoding results
+prefix <- c('face_vis','face_inv','odor_all');
+suffix <- c('p1','p2','l0','l1','l2');
+# combine each prefix with each suffix
+lecons <- c()
+for (p in prefix) {
+  for (s in suffix) {
+    lecons <- c(lecons,paste0(p,'_',s))
+  }
+}
+for (roi in rois[1:2]) {
+  for (p in prefix) {
+    # lecons start with p
+    lecon <- lecons[str_detect(lecons,p)]
+    test <- readacc("roi_lesion_shift6",lecon,roi)
+    # decast test
+    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+    cat("*********",roi,"*********")
+    bruceR::TTEST(test,lecon,test.value=0.5)
+    
+    acc <- boxplotd(test,lecon)+
+      coord_cartesian(ylim = c(0.2,0.8))+
+      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+      scale_x_discrete(labels = lecon)
+    print(acc)
+    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
+    #        device = cairo_pdf)
+  }
 }
 
 # # 4 stats number of voxels -------------------------------------------------------------------

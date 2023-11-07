@@ -44,27 +44,27 @@
 # -input /Volumes/WD_F/gufei/3T_cw/ASAP_maps/fusiformOR_face+tlrc
 
 # A37mv only
-3dcalc \
--a Brainnetome_1.0.A_mv_left+tlrc \
--b Brainnetome_1.0.A_mv_right+tlrc \
--expr 'a+b' \
--prefix A37mv
-3dresample \
--master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
--prefix /Volumes/WD_F/gufei/3T_cw/group/mask/A37mv \
--input /Volumes/WD_D/allsub/BN_atlas/nonresample/A37mv+tlrc
-# A37mv and A37lv
-3dcalc \
--a Brainnetome_1.0.A_lv_left+tlrc \
--b Brainnetome_1.0.A_lv_right+tlrc \
--c Brainnetome_1.0.A_mv_left+tlrc \
--d Brainnetome_1.0.A_mv_right+tlrc \
--expr 'a+b+c+d' \
--prefix A37mlv
-3dresample \
--master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
--prefix /Volumes/WD_F/gufei/3T_cw/group/mask/A37mlv \
--input /Volumes/WD_D/allsub/BN_atlas/nonresample/A37mlv+tlrc
+# 3dcalc \
+# -a Brainnetome_1.0.A_mv_left+tlrc \
+# -b Brainnetome_1.0.A_mv_right+tlrc \
+# -expr 'a+b' \
+# -prefix A37mv
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/A37mv \
+# -input /Volumes/WD_D/allsub/BN_atlas/nonresample/A37mv+tlrc
+# # A37mv and A37lv
+# 3dcalc \
+# -a Brainnetome_1.0.A_lv_left+tlrc \
+# -b Brainnetome_1.0.A_lv_right+tlrc \
+# -c Brainnetome_1.0.A_mv_left+tlrc \
+# -d Brainnetome_1.0.A_mv_right+tlrc \
+# -expr 'a+b+c+d' \
+# -prefix A37mlv
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/A37mlv \
+# -input /Volumes/WD_D/allsub/BN_atlas/nonresample/A37mlv+tlrc
 # generate roi for each subject
 foreach ub (`count -dig 2 $1 $2`)
 set sub=S${ub}
@@ -81,27 +81,35 @@ cd "${datafolder}"
 
 cd ${sub}.${analysis}.results
 
-# get number from sub
-set subnum=`echo ${sub} | cut -c2-3`
-# if the first charactor is 0, then remove it
-if ( `echo ${subnum} | cut -c1` == 0 ) then
-    set subnum=`echo ${subnum} | cut -c2`
-endif
+# calculate t for fusiform
+# rm ../mask/FFV_CA_t+orig*
+3dcalc \
+    -a "stats.${sub}.de.new+orig[52]" \
+    -b ../mask/FusiformCA+orig \
+    -expr 'a*b' \
+    -prefix ../mask/FFV_CA_t \
+    -datum short
+# draw sphere
+3dmaxima \
+-input "../mask/FFV_CA_t+orig" \
+-spheres_1toN -out_rad 4 -prefix ../mask/FFV_CA_max4v \
+-min_dist 100 -thresh 1.65 -coords_only
 
-# transform FFA mask
-set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA+tlrc
-# nonlinear warp
-3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-             -source ${mask}                                                                      \
-             -interp NN                                                               \
-             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-             -prefix ../mask/FFA_CA
-# Fusiform
-set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FusiformCA+tlrc
-# nonlinear warp
-3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-             -source ${mask}                                                                      \
-             -interp NN                                                               \
-             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-             -prefix ../mask/FusiformCA
+
+# # transform FFA mask
+# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA+tlrc
+# # nonlinear warp
+# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+#              -source ${mask}                                                                      \
+#              -interp NN                                                               \
+#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+#              -prefix ../mask/FFA_CA
+# # Fusiform
+# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FusiformCA+tlrc
+# # nonlinear warp
+# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+#              -source ${mask}                                                                      \
+#              -interp NN                                                               \
+#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+#              -prefix ../mask/FusiformCA
 end

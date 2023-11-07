@@ -83,18 +83,22 @@ cd ${sub}.${analysis}.results
 
 # calculate t for fusiform
 # rm ../mask/FFV_CA_t+orig*
-3dcalc \
-    -a "stats.${sub}.de.new+orig[52]" \
-    -b ../mask/FusiformCA+orig \
-    -expr 'a*b' \
-    -prefix ../mask/FFV_CA_t \
-    -datum short
-# draw sphere
-3dmaxima \
--input "../mask/FFV_CA_t+orig" \
--spheres_1toN -out_rad 4 -prefix ../mask/FFV_CA_max4v \
--min_dist 100 -thresh 1.65 -coords_only
-
+# if data not exist
+if (! -e ../mask/FFV_CA_t+orig.HEAD) then
+    3dcalc \
+        -a "stats.${sub}.de.new+orig[52]" \
+        -b ../mask/FusiformCA+orig \
+        -expr 'a*b' \
+        -prefix ../mask/FFV_CA_t \
+        -datum short
+endif
+# draw sphere for difference radius
+foreach r (2 3 4 5 6)
+    3dmaxima \
+    -input "../mask/FFV_CA_t+orig" \
+    -spheres_1toN -out_rad ${r} -prefix ../mask/FFV_CA_max${r}v \
+    -min_dist 100 -thresh 1.65 -coords_only
+end
 
 # # transform FFA mask
 # set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA+tlrc

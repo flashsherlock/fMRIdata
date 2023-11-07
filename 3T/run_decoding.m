@@ -11,9 +11,9 @@ con = {'all'};
 % rois={'aSTS','OFC_AAL'};
 % rois={'APC_new','APC_old','PPC'};
 % rois={'FFV_CA05','FFV_CA01','FFV_CA005','FFV_CA001'};
-rois = {'pSTS_OR', 'aSTS_OR05', 'aSTS_OR01', 'aSTS_OR005', 'aSTS_OR001'};
-rois = [rois {'Pir_new05', 'Pir_new01', 'Pir_new005', 'Pir_new001'}];
-% rois={'Indiv40'};
+% rois = {'pSTS_OR', 'aSTS_OR05', 'aSTS_OR01', 'aSTS_OR005', 'aSTS_OR001'};
+% rois = [rois {'Pir_new05', 'Pir_new01', 'Pir_new005', 'Pir_new001'}];
+rois = {'FFV_CA_max2v', 'FFV_CA_max3v', 'FFV_CA_max4v', 'FFV_CA_max5v', 'FFV_CA_max6v'};
 parfor i = 3:29
     sub=sprintf('S%02d',i);
     for con_i = 1:length(con)
@@ -48,7 +48,7 @@ end
 %% lesion
 rois={'Amy8_align','OFC_AAL'};
 prefix={'face_vis','face_inv','odor_all'};
-suffix={'p1','p2','l0','l1','l2'};
+suffix={'p1','p2','l1','l2'};
 % combine prefix and suffix
 condition=cell(1,length(prefix)*length(suffix));
 for i = 1:length(prefix)

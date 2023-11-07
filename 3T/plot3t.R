@@ -132,7 +132,7 @@ boxplotd <- function(data, select, colors=rep("black",each=length(select))){
       aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = colors),
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity", show.legend = F) +
-    geom_text(aes(label = id, x = con+0.25, y = Score), size = 3.5)+
+    # geom_text(aes(label = id, x = con+0.25, y = Score), size = 3.5)+
     geom_point(aes(x = con, y = Score, group = id), size = 0.5, color = "gray", show.legend = F) +
     scale_color_manual(values = colors)+
     geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
@@ -383,6 +383,7 @@ translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
                 "Odor\nInvisible Face","Odor\nVisible Face",
                 "Invisible Face\nOdor","Visible Face\nOdor")
 rois <- c("Amy8_align","OFC_AAL","FFV_CA005","Pir_new005")
+rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 # decoding results
 for (roi in rois) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)

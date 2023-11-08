@@ -28,6 +28,7 @@ else
 fi
 
 # for each pvalue
+orad=8mm
 for p in 0.001 #0.05  
 do
     for brick in face_vis face_inv odor_all
@@ -35,7 +36,9 @@ do
             # if $3 exist
             if [ -n "$3" ]; then
                   # group level masks
-                  cd "${datafolder}" || exit
+                  cd "${datafolder}" || exit                  
+                  old=group/mvpa/lesion/${orad}
+                  mkdir ${old}
                   # convert to short data first if not exist
                   if [ ! -f group/mvpa/lesion/${pre}${roi}_${brick}_t+tlrc.HEAD ]; then
                         3dcalc \
@@ -46,22 +49,25 @@ do
                   fi
                   # find maxima in RAI coordinate
                   # use -dset_coords to convert to LPI      
-                  rm group/mvpa/lesion/${pre}${roi}_${brick}_max*
+                  mv group/mvpa/lesion/${pre}${roi}_${brick}_max* ${old}/
+                  # rm group/mvpa/lesion/${pre}${roi}_${brick}_max*
                   3dmaxima \
                   -input group/mvpa/lesion/${pre}${roi}_${brick}_t+tlrc \
-                  -spheres_1toN -out_rad 8 -prefix group/mvpa/lesion/${pre}${roi}_${brick}_max \
-                  -min_dist 16 -thresh 1.65 -coords_only > group/mvpa/lesion/${pre}${roi}_${brick}.txt
+                  -spheres_1toN -out_rad 10 -prefix group/mvpa/lesion/${pre}${roi}_${brick}_max \
+                  -min_dist 20 -thresh 1.65 -coords_only > group/mvpa/lesion/${pre}${roi}_${brick}.txt
                   # find the first two sphere
                   for i in 1 2
                   do
                         # sphere masks
-                        rm group/mvpa/lesion/${pre}${roi}_${brick}_p${i}*
+                        mv group/mvpa/lesion/${pre}${roi}_${brick}_p${i}* ${old}/
+                        # rm group/mvpa/lesion/${pre}${roi}_${brick}_p${i}*
                         3dcalc \
                         -a group/mvpa/lesion/${pre}${roi}_${brick}_max+tlrc \
                         -expr "equals(a,$i)" \
                         -prefix group/mvpa/lesion/${pre}${roi}_${brick}_p${i}
                         # generate mask with out the cluster
-                        rm group/mvpa/lesion/${pre}${roi}_${brick}_l${i}*
+                        mv group/mvpa/lesion/${pre}${roi}_${brick}_l${i}* ${old}/
+                        # rm group/mvpa/lesion/${pre}${roi}_${brick}_l${i}*
                         3dcalc \
                         -a group/mvpa/lesion/${pre}${roi}_${brick}_p${i}+tlrc \
                         -b group/mvpa/${pre}${roi}_${brick}_${p}+tlrc \
@@ -99,7 +105,12 @@ do
                         indmask=${roi}_${brick}_${m}
                         # if mask exsist then remove it
                         if [ -e "../mask/${indmask}+orig.HEAD" ]; then
-                              rm ../mask/${indmask}+orig*
+                              # make dir if not exsit
+                              if [ ! -d "../mask/lesion${orad}" ]; then                              
+                                    mkdir ../mask/lesion${orad}
+                              fi
+                              mv ../mask/${indmask}+orig* ../mask/lesion${orad}/
+                              # rm ../mask/${indmask}+orig*
                         fi   
                         # map group level masks to individual space
                         if [ ! -e "../mask/${indmask}+orig.HEAD" ]; then

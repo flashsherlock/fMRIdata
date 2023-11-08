@@ -423,7 +423,7 @@ for (roi in rois[1:3]) {
 }
 # lesion decoding results
 prefix <- c('face_vis','face_inv','odor_all');
-suffix <- c('p1','p2','l0','l1','l2');
+suffix <- c('p1','p2','l1','l2');
 # combine each prefix with each suffix
 lecons <- c()
 for (p in prefix) {
@@ -435,7 +435,7 @@ for (roi in rois[1:2]) {
   for (p in prefix) {
     # lecons start with p
     lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_lesion_shift6",lecon,roi)
+    test <- readacc("roi_roilesion10_shift6",lecon,roi)
     # decast test
     test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
     cat("*********",roi,"*********")

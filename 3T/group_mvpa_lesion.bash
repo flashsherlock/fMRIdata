@@ -6,18 +6,15 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # roi
 for roi in Amy OFC_AAL
 do
-if [ "$roi" = "whole" ]; then
-      mask=group/mask/bmask.nii
-      out=whole
-elif [ "$roi" = "OFC_AAL" ]; then
+if [ "$roi" = "OFC_AAL" ]; then
       mask=group/mask/OFC_AAL+tlrc
-      out=OFC_AAL
+      imask=../mask/OFC_AAL+orig
 elif [ "$roi" = "Amy" ]; then
       mask=group/mask/Amy8_align.freesurfer+tlrc
-      out=Amy
+      imask=../mask/Amy8_align.freesurfer+orig
 else
       mask=group/mask/$roi+tlrc
-      out=$roi
+      imask=../mask/$roi+orig
 fi
 
 # if the first input exist and is sm
@@ -52,25 +49,25 @@ do
                   fi
                   # find maxima in RAI coordinate
                   # use -dset_coords to convert to LPI      
-                  # mv group/mvpa/lesion/${pre}${roi}_${brick}_max* ${old}/
+                  mv group/mvpa/lesion/${pre}${roi}_${brick}_max* ${old}/
                   # rm group/mvpa/lesion/${pre}${roi}_${brick}_max*
                   3dmaxima \
                   -input group/mvpa/lesion/${pre}${roi}_${brick}_t+tlrc \
-                  -spheres_1toN -out_rad 8 -prefix group/mvpa/lesion/${pre}${roi}_${brick}_max \
-                  -min_dist 16 -thresh 1.65 -coords_only > group/mvpa/lesion/${pre}${roi}_${brick}.txt
+                  -spheres_1toN -out_rad 10 -prefix group/mvpa/lesion/${pre}${roi}_${brick}_max \
+                  -min_dist 20 -thresh 1.65 -coords_only > group/mvpa/lesion/${pre}${roi}_${brick}.txt
                   # find the first two sphere
                   for i in 1 2
                   do
                         # sphere masks
-                        # mv group/mvpa/lesion/${pre}${roi}_${brick}_p${i}* ${old}/
-                        rm group/mvpa/lesion/${pre}${roi}_${brick}_p${i}*
+                        mv group/mvpa/lesion/${pre}${roi}_${brick}_p${i}* ${old}/
+                        # rm group/mvpa/lesion/${pre}${roi}_${brick}_p${i}*
                         3dcalc \
                         -a group/mvpa/lesion/${pre}${roi}_${brick}_max+tlrc \
                         -expr "equals(a,$i)" \
                         -prefix group/mvpa/lesion/${pre}${roi}_${brick}_p${i}
-                        generate mask with out the cluster
-                        # mv group/mvpa/lesion/${pre}${roi}_${brick}_l${i}* ${old}/
-                        rm group/mvpa/lesion/${pre}${roi}_${brick}_l${i}*
+                        # generate mask with out the cluster
+                        mv group/mvpa/lesion/${pre}${roi}_${brick}_l${i}* ${old}/
+                        # rm group/mvpa/lesion/${pre}${roi}_${brick}_l${i}*
                         # 3dcalc \
                         # -a group/mvpa/lesion/${pre}${roi}_${brick}_p${i}+tlrc \
                         # -b ${mask} \
@@ -106,7 +103,9 @@ do
                   fi
                   # cd to results folder
                   cd "${datafolder}/${subdir}" || exit 
-                  for m in l1 l2 p1 p2 l0
+
+                  # create individual masks
+                  for m in l1 l2 p1 p2 #l0
                   do
                         # define group mask
                         gmask=group/mvpa/lesion/${pre}${roi}_${brick}_${m}+tlrc
@@ -117,8 +116,8 @@ do
                               if [ ! -d "../mask/lesion${orad}" ]; then                              
                                     mkdir ../mask/lesion${orad}
                               fi
-                              # mv ../mask/${indmask}+orig* ../mask/lesion${orad}/
-                              rm ../mask/${indmask}+orig*
+                              mv ../mask/${indmask}+orig* ../mask/lesion${orad}/
+                              # rm ../mask/${indmask}+orig*
                         fi   
                         # map group level masks to individual space
                         if [ ! -e "../mask/${indmask}+orig.HEAD" ]; then
@@ -128,6 +127,15 @@ do
                                     -prefix ../mask/${indmask}
                         fi   
                   done
+
+                  # lesion sig clusters
+                  if [ ! -e "../mask/${roi}_${brick}_l00+orig.HEAD" ]; then
+                        3dcalc \
+                        -a ../mask/${roi}_${brick}_l0+orig \
+                        -b ${imask} \
+                        -expr 'step(bool(b)-a)'\
+                        -prefix ../mask/${roi}_${brick}_l00
+                  fi
             done
 
       done    

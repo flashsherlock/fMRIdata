@@ -4,7 +4,7 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 
 # roi
-for roi in Amy #OFC_AAL
+for roi in Amy OFC_AAL
 do
 if [ "$roi" = "OFC_AAL" ]; then
       mask=group/mask/OFC_AAL+tlrc
@@ -30,7 +30,7 @@ rad=8
 rad2=$(echo "$rad*$rad" | bc)
 for p in 0.001 #0.05  
 do
-    for brick in face_vis #face_inv odor_all
+    for brick in face_vis face_inv odor_all
     do              
             # group level masks
             cd "${datafolder}" || exit
@@ -67,7 +67,7 @@ do
                   # create individual masks                  
                   # warp coord to orig space                  
                   cords=$(3dNwarpXYZ -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D  INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-                                    ${datafolder}/group/mvpa/lesion/${pre}${roi}_${brick}.1d)
+                                    -iwarp ${datafolder}/group/mvpa/lesion/${pre}${roi}_${brick}.1d)
                   # echo the elements of cords
                   x1=$(echo $cords | awk '{print $1}')
                   y1=$(echo $cords | awk '{print $2}')
@@ -75,8 +75,50 @@ do
                   x2=$(echo $cords | awk '{print $4}')
                   y2=$(echo $cords | awk '{print $5}')
                   z2=$(echo $cords | awk '{print $6}')
-                  echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
+                  # echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
                   # printf "%s %s %s\n%s %s %s\n" "${x1}" "${y1}" "${z1}" "${x2}" "${y2}" "${z2}"
+
+                  # draw spheres                  
+                  # remove old data
+                  # rm ../mask/${roi}_${brick}_*ind${rad}+orig*
+                  indmask=${roi}_${brick}_p1_ind${rad}
+                  for i in x1 y1 z1 x2 y2 z2
+                  do
+                  # check if the first charactor of the variable is - or not
+                  # if true then change - to +
+                  # if not the add - to the front
+                  if [ "${!i:0:1}" = "-" ]; then
+                        eval "${i}=+${!i:1}"
+                  else
+                        eval "${i}=-${!i}"
+                  fi
+                  done
+                  echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
+                  
+                  3dcalc \
+                  -a "${imask}" \
+                  -expr "step(${rad2}-(x${x1})*(x${x1})-(y${y1})*(y${y1})-(z${z1})*(z${z1}))" \
+                  -prefix ../mask/${indmask}
+                  # the seconde sphere
+                  indmask=${roi}_${brick}_p2_ind${rad}
+                  3dcalc \
+                  -a "${imask}" \
+                  -expr "step(${rad2}-(x${x2})*(x${x2})-(y${y2})*(y${y2})-(z${z2})*(z${z2}))" \
+                  -prefix ../mask/${indmask}
+                  # the lesion mask
+                  indmask=${roi}_${brick}_l1_ind${rad}
+                  3dcalc \
+                  -a "${imask}" \
+                  -b ../mask/${roi}_${brick}_p1_ind${rad}+orig \
+                  -expr "step(a-b)" \
+                  -prefix ../mask/${indmask}
+                  # the lesion mask
+                  indmask=${roi}_${brick}_l2_ind${rad}
+                  3dcalc \
+                  -a "${imask}" \
+                  -b ../mask/${roi}_${brick}_p2_ind${rad}+orig \
+                  -expr "step(a-b)" \
+                  -prefix ../mask/${indmask}
 
             done
       done    

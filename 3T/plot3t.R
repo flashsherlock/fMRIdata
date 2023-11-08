@@ -385,6 +385,7 @@ translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
 rois <- c("Amy8_align","OFC_AAL","FFV_CA005","Pir_new005")
 rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 # decoding results
+dresults <- list()
 for (roi in rois) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
@@ -392,6 +393,8 @@ for (roi in rois) {
   # testodor$con <- paste0("odor_",testodor$con)
   # decast test
   test <- reshape2::dcast(rbind(testface,testodor), id ~ con, value.var = "acc")
+  # save test to dresults
+  dresults[[roi]][['normal']] <- test
   cat("*********",roi,"*********")
   bruceR::TTEST(test,facecon,test.value=0.5)
   
@@ -408,6 +411,8 @@ for (roi in rois[1:3]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
+  # save test to dresults
+  dresults[[roi]][['trans']] <- test
   cat("*********",roi,"*********")
   bruceR::TTEST(test,transcon,test.value=0.5)
   
@@ -419,6 +424,30 @@ for (roi in rois[1:3]) {
                                 "InvFace\nOdor","VisFace\nOdor"))
   print(acc)
   ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acc, width = 4, height = 3,
+         device = cairo_pdf)
+}
+# lesion cluster decoding results
+prefix <- c('face_vis','face_inv','odor_all');
+for (roi in rois[1:2]) {
+  # lecons start with p
+  lecon <- c(paste0(prefix,'_','l0'),paste0(prefix,'_','l00'))
+  # sort lecon
+  lecon <- lecon[c(1,4,2,5,3,6)]
+  test <- readacc("roi_lesion_shift6",lecon,roi)
+  # decast test
+  test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+  # save test to dresults
+  dresults[[roi]][['cluster']] <- test
+  cat("*********",roi,"*********")
+  bruceR::TTEST(test,lecon,test.value=0.5)
+  bruceR::TTEST(test,lecon,paired = T)
+  
+  acc <- boxplotd(test,lecon)+
+    coord_cartesian(ylim = c(0.2,0.8))+
+    scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+    scale_x_discrete(labels = lecon)
+  print(acc)
+  ggsave(paste0(figure_dir,"mvpa_clusterlesion_",roi, ".pdf"), acc, width = 4, height = 3,
          device = cairo_pdf)
 }
 # lesion decoding results
@@ -435,11 +464,18 @@ for (roi in rois[1:2]) {
   for (p in prefix) {
     # lecons start with p
     lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_roilesion10_shift6",lecon,roi)
+    test <- readacc("roi_lesion10_shift6",lecon,roi)
     # decast test
     test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+    # save test to dresults
+    dresults[[roi]][['lesion10']] <- test
+    # merge l0 results
+    testl0 <- dresults[[roi]][['cluster']]
+    test <- merge(test,testl0)
+    lecon <- c(lecon,paste0(p,"_l0"))
     cat("*********",roi,"*********")
     bruceR::TTEST(test,lecon,test.value=0.5)
+    bruceR::TTEST(test,lecon[c(5,3,5,4)],paired = T)
     
     acc <- boxplotd(test,lecon)+
       coord_cartesian(ylim = c(0.2,0.8))+

@@ -26,13 +26,16 @@ if ( -d "${datafolder}" ) then
     # rm pb0${blurvol}*
     # rm errts*
     # rm fitts*
-    rm *cross*
-    rm *odorfix*
-    rm *11s*
+    # rm *cross*
+    # rm *odorfix*
+    # rm *11s*
     # rm errts.${subj}.new+tlrc*
     # rm *frame*
     # rm stats.${subj}+*
     # rm -r mvpa
+    # ls -r mvpa/roi_roilesion8_shift6
+    echo ${subj}
+    ls ../mask/*ind10+orig.HEAD | wc -l
     # rm *_16*
     # 3dcopy anat_final.${subj}+orig ../../roi/${sub}.nii
     # 3dcopy ../mask/Amy8_align.freesurfer+orig ../../roi/${sub}_amy.nii

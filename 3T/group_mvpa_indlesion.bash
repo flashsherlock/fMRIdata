@@ -59,7 +59,7 @@ do
                   fi
                   # cd to results folder
                   cd "${datafolder}/${subdir}" || exit 
-                  rm -r ../mask/lesion8mm
+                  # rm -r ../mask/lesion8mm
                   # create individual masks                  
                   # warp coord to orig space                  
                   cords=$(3dNwarpXYZ -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D  INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
@@ -74,6 +74,19 @@ do
                   # echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
                   # printf "%s %s %s\n%s %s %s\n" "${x1}" "${y1}" "${z1}" "${x2}" "${y2}" "${z2}"
 
+                  # check if the first charactor of the variable is - or not
+                  # if true then change - to +
+                  # if not the add - to the front
+                  for i in x1 y1 z1 x2 y2 z2
+                  do
+                        if [ "${!i:0:1}" = "-" ]; then
+                              eval "${i}=+${!i:1}"
+                        else
+                              eval "${i}=-${!i}"
+                        fi
+                  done
+                  echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
+
                   # for each rad
                   for rad in 8 10
                   do
@@ -81,21 +94,8 @@ do
                         rad2=$(echo "$rad*$rad" | bc)
                         # draw spheres                  
                         # remove old data
-                        # rm ../mask/${roi}_${brick}_*ind${rad}+orig*
-                        
-                        # check if the first charactor of the variable is - or not
-                        # if true then change - to +
-                        # if not the add - to the front
-                        for i in x1 y1 z1 x2 y2 z2
-                        do
-                              if [ "${!i:0:1}" = "-" ]; then
-                                    eval "${i}=+${!i:1}"
-                              else
-                                    eval "${i}=-${!i}"
-                              fi
-                        done
-                        echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
-                        
+                        rm ../mask/${roi}_${brick}_*ind${rad}+orig*
+                                                
                         indmask=${roi}_${brick}_p1_ind${rad}
                         # if file not exist
                         if [ ! -f ../mask/${indmask}+orig.HEAD ]; then

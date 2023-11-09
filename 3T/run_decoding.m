@@ -53,7 +53,8 @@ suffix={'p1','p2','l1','l2'};
 condition=cell(1,length(prefix)*length(suffix));
 for i = 1:length(prefix)
     for j = 1:length(suffix)
-        condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j}];
+        % condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j}];
+        condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j} '_ind8'];
     end
 end
 parfor i = 3:29

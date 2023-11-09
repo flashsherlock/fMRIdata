@@ -25,6 +25,7 @@ for i=1:length(rois)
         c=strsplit(c,'_');
         decode=c{1};
         con=c{2};
+        suf=c{3};
         % file name for amy
         if strcmp(roi,'Amy8_align')
             mask=get_filenames_afni([datafolder sub '/mask/' 'Amy' '_' condition{con_i} '+orig.HEAD']);
@@ -39,10 +40,10 @@ for i=1:length(rois)
 
         % Set the analysis that should be performed (default is 'searchlight')
         cfg.analysis = 'roi';        
-        test=[condition{con_i} '_' roi];
+        test=[decode '_' con '_' suf '_' roi];
 
         % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-        cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesion10_shift' strrep(num2str(shift), ' ', '') '/' test];
+        cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesion8_shift' strrep(num2str(shift), ' ', '') '/' test];
         if ~exist(cfg.results.dir,'dir')
             mkdir(cfg.results.dir)
         end

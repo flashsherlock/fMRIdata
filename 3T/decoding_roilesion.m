@@ -43,7 +43,7 @@ for i=1:length(rois)
         test=[decode '_' con '_' suf '_' roi];
 
         % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-        cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesion10_shift' strrep(num2str(shift), ' ', '') '/' test];
+        cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesion14_shift' strrep(num2str(shift), ' ', '') '/' test];
         if ~exist(cfg.results.dir,'dir')
             mkdir(cfg.results.dir)
         end

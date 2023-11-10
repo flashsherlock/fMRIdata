@@ -88,7 +88,7 @@ do
                   echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
 
                   # for each rad
-                  for rad in 8 10
+                  for rad in 12 14 16 #8 10
                   do
                         # calculate rad*rad
                         rad2=$(echo "$rad*$rad" | bc)

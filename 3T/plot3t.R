@@ -486,6 +486,34 @@ for (roi in rois[1:2]) {
     #        device = cairo_pdf)
   }
 }
+# roi lesion
+for (roi in rois[1:2]) {
+  for (p in prefix) {
+    # lecons start with p
+    lecon <- lecons[str_detect(lecons,p)]
+    test <- readacc("roi_roilesion16_shift6",lecon,roi)
+    # decast test
+    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+    # save test to dresults
+    dresults[[roi]][['roilesion16']] <- test
+    # merge l0 results
+    testl0 <- dresults[[roi]][['normal']]
+    test <- merge(test,testl0)
+    # split p with "_"
+    lecon <- c(lecon,strsplit(p,"_")[[1]][2])
+    cat("*********",roi,"*********")
+    bruceR::TTEST(test,lecon,test.value=0.5)
+    bruceR::TTEST(test,lecon[c(5,3,5,4)],paired = T)
+    
+    acc <- boxplotd(test,lecon)+
+      coord_cartesian(ylim = c(0.2,0.8))+
+      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+      scale_x_discrete(labels = lecon)
+    print(acc)
+    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
+    #        device = cairo_pdf)
+  }
+}
 
 # # 4 stats number of voxels -------------------------------------------------------------------
 # expected threshold

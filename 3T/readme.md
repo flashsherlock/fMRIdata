@@ -94,6 +94,12 @@ Group level cluster analysis. Run `3dClustSim` and add results to header.
 ## group_mvpa_cluster.bash
 Generate group level cluster thresholds for searchlight.
 
+## group_mvpa_lesion.bash
+Generate group level lesion masks for decoding.
+
+## group_mvpa_indlesion.bash
+Generate individual level lesion masks for decoding.
+
 ## group_interaction.bash
 Group level ANOVA.
 
@@ -132,6 +138,12 @@ Decoding analysis for Amy. Train on one condition and test on another.
 
 ## decoding_search.m
 Searchlight decoding analysis for Amy.
+
+## decoding_roilesion.m
+Decoding analysis using lesion masks.
+
+## decoding_roilesiontest.m
+Decoding analysis using lesion masks. Only modify test data.
 
 ## check_3t_decoding.m
 Check searchlight results for 3T and generate `result_avg3t.bash`.

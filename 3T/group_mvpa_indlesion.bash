@@ -62,39 +62,39 @@ do
                   # rm -r ../mask/lesion8mm
                   # create individual masks                  
                   # warp coord to orig space                  
-                  cords=$(3dNwarpXYZ -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D  INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-                                    -iwarp ${datafolder}/group/mvpa/lesion/${pre}${roi}_${brick}.1d)
-                  # echo the elements of cords
-                  x1=$(echo $cords | awk '{print $1}')
-                  y1=$(echo $cords | awk '{print $2}')
-                  z1=$(echo $cords | awk '{print $3}')
-                  x2=$(echo $cords | awk '{print $4}')
-                  y2=$(echo $cords | awk '{print $5}')
-                  z2=$(echo $cords | awk '{print $6}')
-                  # echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
-                  # printf "%s %s %s\n%s %s %s\n" "${x1}" "${y1}" "${z1}" "${x2}" "${y2}" "${z2}"
+                  # cords=$(3dNwarpXYZ -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D  INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+                  #                   -iwarp ${datafolder}/group/mvpa/lesion/${pre}${roi}_${brick}.1d)
+                  # # echo the elements of cords
+                  # x1=$(echo $cords | awk '{print $1}')
+                  # y1=$(echo $cords | awk '{print $2}')
+                  # z1=$(echo $cords | awk '{print $3}')
+                  # x2=$(echo $cords | awk '{print $4}')
+                  # y2=$(echo $cords | awk '{print $5}')
+                  # z2=$(echo $cords | awk '{print $6}')
+                  # # echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
+                  # # printf "%s %s %s\n%s %s %s\n" "${x1}" "${y1}" "${z1}" "${x2}" "${y2}" "${z2}"
 
-                  # check if the first charactor of the variable is - or not
-                  # if true then change - to +
-                  # if not the add - to the front
-                  for i in x1 y1 z1 x2 y2 z2
-                  do
-                        if [ "${!i:0:1}" = "-" ]; then
-                              eval "${i}=+${!i:1}"
-                        else
-                              eval "${i}=-${!i}"
-                        fi
-                  done
-                  echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
+                  # # check if the first charactor of the variable is - or not
+                  # # if true then change - to +
+                  # # if not the add - to the front
+                  # for i in x1 y1 z1 x2 y2 z2
+                  # do
+                  #       if [ "${!i:0:1}" = "-" ]; then
+                  #             eval "${i}=+${!i:1}"
+                  #       else
+                  #             eval "${i}=-${!i}"
+                  #       fi
+                  # done
+                  # echo "${x1} ${y1} ${z1} ${x2} ${y2} ${z2}"
 
                   # for each rad
-                  for rad in 12 14 16 #8 10
+                  for rad in 12 14 16 8 10
                   do
                         # calculate rad*rad
                         rad2=$(echo "$rad*$rad" | bc)
                         # draw spheres                  
                         # remove old data
-                        rm ../mask/${roi}_${brick}_*ind${rad}+orig*
+                        # rm ../mask/${roi}_${brick}_*ind${rad}+orig*
                                                 
                         indmask=${roi}_${brick}_p1_ind${rad}
                         # if file not exist
@@ -110,6 +110,27 @@ do
                               3dcalc \
                               -a "${imask}" \
                               -expr "step(${rad2}-(x${x2})*(x${x2})-(y${y2})*(y${y2})-(z${z2})*(z${z2}))" \
+                              -prefix ../mask/${indmask}
+                        fi
+                        # calculate intersection p1
+                        # rm ../mask/${roi}_${brick}_*inter${rad}+orig*
+                        indmask=${roi}_${brick}_p1_inter${rad}
+                        # if file not exist
+                        if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+                              3dcalc \
+                              -a "${imask}" \
+                              -b "../mask/${roi}_${brick}_p1_ind${rad}+orig" \
+                              -expr "a*b" \
+                              -prefix ../mask/${indmask}
+                        fi
+                        # calculate intersection p2
+                        indmask=${roi}_${brick}_p2_inter${rad}
+                        # if file not exist
+                        if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+                              3dcalc \
+                              -a "${imask}" \
+                              -b "../mask/${roi}_${brick}_p2_ind${rad}+orig" \
+                              -expr "a*b" \
                               -prefix ../mask/${indmask}
                         fi
                         # the lesion mask
@@ -129,7 +150,7 @@ do
                               -b ../mask/${roi}_${brick}_p2_ind${rad}+orig \
                               -expr "step(a-b)" \
                               -prefix ../mask/${indmask}
-                        fi
+                        fi                        
                   done
             done
       done    

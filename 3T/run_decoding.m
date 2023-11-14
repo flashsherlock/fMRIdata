@@ -63,3 +63,23 @@ parfor i = 3:29
     % close figures
     close all
 end
+
+%% lesion in test data
+rois={'Amy8_align','OFC_AAL'};
+prefix={'face_vis','face_inv','odor_all'};
+suffix={'p1','p2','l1','l2'};
+condition=cell(1,length(prefix)*length(suffix));
+for rad = 16:2:16
+    for i = 1:length(prefix)
+        for j = 1:length(suffix)
+            % condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j}];
+            condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j} '_inter' num2str(rad)];
+        end
+    end
+    parfor i = 3:29
+        sub=sprintf('S%02d',i);
+        decoding_roilesiontest(sub,analysis_all,rois,shift,condition);
+        % close figures
+        close all
+    end
+end

@@ -30,10 +30,10 @@ for i=1:length(rois)
         % file name for amy
         if strcmp(roi,'Amy8_align')
             maskinter=get_filenames_afni([datafolder sub '/mask/' 'Amy' '_' strrep(condition{con_i},'_l','_p') '+orig.HEAD']);
-            maskroi=get_filenames_afni([datafolder sub '/mask/' roi '.freesurfer+orig']);
+            maskroi=get_filenames_afni([datafolder sub '/mask/' roi '*freesurfer+orig.HEAD']);
         else
             maskinter=get_filenames_afni([datafolder sub '/mask/' roi '_' strrep(condition{con_i},'_l','_p') '+orig.HEAD']);
-            maskroi=get_filenames_afni([datafolder sub '/mask/' roi '*orig.HEAD']);
+            maskroi=get_filenames_afni([datafolder sub '/mask/' roi '+orig.HEAD']);
         end
     % Set defaults
     cfg = decoding_defaults;

@@ -81,7 +81,7 @@ do
                         fi
                         # cd to results folder
                         cd "${datafolder}/${subdir}" || exit 
-                        rm ../mask/${roi}_${brick}_*ind${rad}+orig*
+                        # rm ../mask/${roi}_${brick}_*ind${rad}+orig*
                         # create individual masks
                         for m in p1 p2
                         do
@@ -89,9 +89,9 @@ do
                               gmask=group/mvpa/lesion/${pre}${roi}_${brick}_${m}_${orad}+tlrc
                               indmask=${roi}_${brick}_${m}_map${rad}
                               # if mask exsist then remove it
-                              if [ -e "../mask/${indmask}+orig.HEAD" ]; then                        
-                                    rm ../mask/${indmask}+orig*
-                              fi   
+                              # if [ -e "../mask/${indmask}+orig.HEAD" ]; then                        
+                              #       rm ../mask/${indmask}+orig*
+                              # fi   
                               # map group level masks to individual space
                               if [ ! -e "../mask/${indmask}+orig.HEAD" ]; then
                                     3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D  INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
@@ -102,7 +102,7 @@ do
                               
                         done
                         # calculate intersection p1
-                        rm ../mask/${roi}_${brick}_*inter${rad}+orig*
+                        # rm ../mask/${roi}_${brick}_*inter${rad}+orig*
                         indmask=${roi}_${brick}_p1_inter${rad}
                         # if file not exist
                         if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
@@ -122,6 +122,20 @@ do
                               -expr "a*b" \
                               -prefix ../mask/${indmask}
                         fi            
+                        # lesion masks
+                        for i in 1 2
+                        do
+                              indmask=${roi}_${brick}_l${i}_map${rad}
+                              # rm ../mask/${indmask}+orig*
+                              # if file not exist
+                              if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+                                    3dcalc \
+                                    -a "${imask}" \
+                                    -b ../mask/${roi}_${brick}_p${i}_map${rad}+orig \
+                                    -expr "step(a-b)" \
+                                    -prefix ../mask/${indmask}
+                              fi
+                        done
                   done
 
             done    

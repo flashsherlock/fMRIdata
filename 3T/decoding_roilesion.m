@@ -26,6 +26,7 @@ for i=1:length(rois)
         decode=c{1};
         con=c{2};
         suf=c{3};
+        rad=c{4};
         % file name for amy
         if strcmp(roi,'Amy8_align')
             mask=get_filenames_afni([datafolder sub '/mask/' 'Amy' '_' condition{con_i} '+orig.HEAD']);
@@ -43,7 +44,7 @@ for i=1:length(rois)
         test=[decode '_' con '_' suf '_' roi];
 
         % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-        cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesion14_shift' strrep(num2str(shift), ' ', '') '/' test];
+        cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesion' rad '_shift' strrep(num2str(shift), ' ', '') '/' test];
         if ~exist(cfg.results.dir,'dir')
             mkdir(cfg.results.dir)
         end

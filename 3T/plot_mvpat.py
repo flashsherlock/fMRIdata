@@ -20,7 +20,7 @@ for name in namelist:
 
     # Set overlay display parameters; 1 indicates 1st overlay
     gl.colorname(1,"4hot")
-    gl.minmax(1, 3.7, 6)
+    gl.minmax(1, 2.5, 6.5)
     gl.opacity(1, 100)
 
     # Set the color bar options
@@ -45,7 +45,7 @@ for name in namelist:
 
     # Set overlay display parameters; 1 indicates 1st overlay
     gl.colorname(1, "4hot")
-    gl.minmax(1, 3.7, 6)
+    gl.minmax(1, 2.5, 6.5)
     gl.opacity(1, 100)
 
     # Set the color bar options

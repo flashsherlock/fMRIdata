@@ -65,6 +65,17 @@
 # -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
 # -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/A37mlv \
 # -input /Volumes/WD_D/allsub/BN_atlas/nonresample/A37mlv+tlrc
+
+# FFA mask from AAL
+# 3dcalc \
+# -a /Volumes/WD_F/gufei/3T_cw/aal/aal.nii.gz \
+# -expr 'amongst(a,55,56)' \
+# -prefix /Volumes/WD_F/gufei/3T_cw/aal/ffa_aal
+# 3dresample \
+# -master /Volumes/WD_F/gufei/3T_cw/group/MNI152_T1_2009c+tlrc \
+# -prefix /Volumes/WD_F/gufei/3T_cw/group/mask/FusiformAAL \
+# -input /Volumes/WD_F/gufei/3T_cw/aal/ffa_aal+tlrc
+
 # generate roi for each subject
 foreach ub (`count -dig 2 $1 $2`)
 set sub=S${ub}
@@ -83,22 +94,22 @@ cd ${sub}.${analysis}.results
 
 # calculate t for fusiform
 # rm ../mask/FFV_CA_t+orig*
-# if data not exist
-if (! -e ../mask/FFV_CA_t+orig.HEAD) then
-    3dcalc \
-        -a "stats.${sub}.de.new+orig[52]" \
-        -b ../mask/FusiformCA+orig \
-        -expr 'a*b' \
-        -prefix ../mask/FFV_CA_t \
-        -datum short
-endif
-# draw sphere for difference radius
-foreach r (2 3 4 5 6)
-    3dmaxima \
-    -input "../mask/FFV_CA_t+orig" \
-    -spheres_1toN -out_rad ${r} -prefix ../mask/FFV_CA_max${r}v \
-    -min_dist 100 -thresh 1.65 -coords_only
-end
+# # if data not exist
+# if (! -e ../mask/FFV_CA_t+orig.HEAD) then
+#     3dcalc \
+#         -a "stats.${sub}.de.new+orig[52]" \
+#         -b ../mask/FusiformCA+orig \
+#         -expr 'a*b' \
+#         -prefix ../mask/FFV_CA_t \
+#         -datum short
+# endif
+# # draw sphere for difference radius
+# foreach r (2 3 4 5 6)
+#     3dmaxima \
+#     -input "../mask/FFV_CA_t+orig" \
+#     -spheres_1toN -out_rad ${r} -prefix ../mask/FFV_CA_max${r}v \
+#     -min_dist 100 -thresh 1.65 -coords_only
+# end
 
 # # transform FFA mask
 # set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FFA_CA+tlrc
@@ -116,4 +127,30 @@ end
 #              -interp NN                                                               \
 #              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
 #              -prefix ../mask/FusiformCA
+
+# Fusiform AAL
+set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/FusiformAAL+tlrc
+# nonlinear warp
+3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+             -source ${mask}                                                                      \
+             -interp NN                                                               \
+             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+             -prefix ../mask/FusiformAAL
+# if data not exist
+if (! -e ../mask/FFV_AAL_t+orig.HEAD) then
+    3dcalc \
+        -a "stats.${sub}.de.new+orig[52]" \
+        -b ../mask/FusiformAAL+orig \
+        -expr 'a*b' \
+        -prefix ../mask/FFV_AAL_t \
+        -datum short
+endif
+# draw sphere for difference radius
+foreach r (2 3 4 5 6)
+    3dmaxima \
+    -input "../mask/FFV_AAL_t+orig" \
+    -spheres_1toN -out_rad ${r} -prefix ../mask/FFV_AAL_max${r}v \
+    -min_dist 100 -thresh 1.65 -coords_only
+end
+
 end

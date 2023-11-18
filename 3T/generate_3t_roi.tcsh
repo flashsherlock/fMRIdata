@@ -148,15 +148,15 @@ endif
 # transform FFA mask
 # foreach roi (Fusiform FFA FusiformCA FFA_CA)
 # foreach roi (insulaCA OFC6mm aSTS_OR)
-foreach roi (pSTS_OR pcSTS_OR)
-set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/${roi}+tlrc
-# nonlinear warp
-3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
-             -source ${mask}                                                                      \
-             -interp NN                                                               \
-             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-             -prefix ../mask/${roi}
-end
+# foreach roi (pSTS_OR pcSTS_OR)
+# set mask=/Volumes/WD_F/gufei/3T_cw/group/mask/${roi}+tlrc
+# # nonlinear warp
+# 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+#              -source ${mask}                                                                      \
+#              -interp NN                                                               \
+#              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+#              -prefix ../mask/${roi}
+# end
 
 # FFV masks
 # 3dcalc \
@@ -226,6 +226,26 @@ end
 # -b ../mask/FusiformCA+orig \
 # -expr 'step(a-3.30)*b' \
 # -prefix ../mask/FFV_CA001
+3dcalc \
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformAAL+orig \
+-expr 'step(a-1.96)*b' \
+-prefix ../mask/FFV_AAL05
+3dcalc \
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformAAL+orig \
+-expr 'step(a-2.58)*b' \
+-prefix ../mask/FFV_AAL01
+3dcalc \
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformAAL+orig \
+-expr 'step(a-2.81)*b' \
+-prefix ../mask/FFV_AAL005
+3dcalc \
+-a "stats.${sub}.de.new+orig[52]" \
+-b ../mask/FusiformAAL+orig \
+-expr 'step(a-3.30)*b' \
+-prefix ../mask/FFV_AAL001
 # foreach dec (_at165 _at165_p)
 #     3dcalc \
 #         -a "stats.${sub}.de.new+orig[52]" \

@@ -68,13 +68,14 @@ end
 %% lesion in test data
 rois={'Amy8_align','OFC_AAL'};
 prefix={'face_vis','face_inv','odor_all'};
-suffix={'p1','p2','l1','l2'};
+% suffix={'p1','p2','l1','l2'};
+suffix={'p0','l0'};
 condition=cell(1,length(prefix)*length(suffix));
-for rad = 10:2:16
+% for rad = 10:2:16
     for i = 1:length(prefix)
         for j = 1:length(suffix)
             % condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j}];
-            condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j} '_inter' num2str(rad)];
+            condition{(i-1)*length(suffix)+j}=[prefix{i} '_' suffix{j} '_inter'];
         end
     end
     parfor i = 3:29
@@ -83,4 +84,4 @@ for rad = 10:2:16
         % close figures
         close all
     end
-end
+% end

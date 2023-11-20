@@ -1,13 +1,16 @@
 data_dir = '/Volumes/WD_F/gufei/blind/';
 [num,txt,raw]=xlsread([data_dir 'question.xlsx'],'Sheet1');
 % sort by id
-[subs, idx]= sort(txt(2:end,7));
+subseq=txt(2:end,7);
+% remove first character of subseq
+subseq = cellfun(@(x) x(2:end),subseq,'UniformOutput',false);
+[subs, idx]= sort(subseq);
 num = num(idx,:);
 txt = txt(1+idx,:);
 raw = raw(1+idx,:);
 % select sub
-select_sub = 1:length(subs);
-% select_sub = [2:4,6:length(subs)];
+% select_sub = 1:length(subs);
+select_sub = [2:4,6:14 16:17 19:25 27 28:59];
 subs = subs(select_sub);
 % calculate age from date of birth
 t1 = cellfun(@(x) datetime(x,'InputFormat','yyyy/MM/dd HH:mm:ss'),txt(select_sub,2),'UniformOutput',false);

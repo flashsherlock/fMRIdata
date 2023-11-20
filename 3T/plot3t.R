@@ -6,6 +6,7 @@ library(ggpubr)
 library(ggprism)
 library(patchwork)
 library(Rmisc)
+library(R.matlab)
 theme_set(theme_prism(base_line_size = 0.5))
 showtext::showtext_auto(enable = F)
 sysfonts::font_add("Helvetica","Helvetica.ttc")
@@ -491,11 +492,49 @@ for (roi in rois[1:2]) {
   for (p in prefix) {
     # lecons start with p
     lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_roilesion16_shift6",lecon,roi)
+    test <- readacc("roi_roilesioninter16_shift6",lecon,roi)
     # decast test
     test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
     # save test to dresults
-    dresults[[roi]][['roilesion16']] <- test
+    dresults[[roi]][['roilesioninter16']] <- test
+    # merge l0 results
+    testl0 <- dresults[[roi]][['normal']]
+    test <- merge(test,testl0)
+    # split p with "_"
+    lecon <- c(lecon,strsplit(p,"_")[[1]][2])
+    cat("*********",roi,"*********")
+    bruceR::TTEST(test,lecon,test.value=0.5)
+    bruceR::TTEST(test,lecon[c(5,3,5,4)],paired = T)
+    
+    acc <- boxplotd(test,lecon)+
+      coord_cartesian(ylim = c(0.2,0.8))+
+      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+      scale_x_discrete(labels = lecon)
+    print(acc)
+    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
+    #        device = cairo_pdf)
+  }
+}
+# whole roi lesion on test
+# lesion decoding results
+prefix <- c('face_vis','face_inv','odor_all');
+suffix <- c('p0','l0');
+# combine each prefix with each suffix
+lecons <- c()
+for (p in prefix) {
+  for (s in suffix) {
+    lecons <- c(lecons,paste0(p,'_',s))
+  }
+}
+for (roi in rois[1:2]) {
+  for (p in prefix) {
+    # lecons start with p
+    lecon <- lecons[str_detect(lecons,p)]
+    test <- readacc("roi_roilesioninter_shift6",lecon,roi)
+    # decast test
+    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+    # save test to dresults
+    dresults[[roi]][['roilesioninter']] <- test
     # merge l0 results
     testl0 <- dresults[[roi]][['normal']]
     test <- merge(test,testl0)

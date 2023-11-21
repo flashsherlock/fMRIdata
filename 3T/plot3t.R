@@ -139,6 +139,32 @@ boxplotd <- function(data, select, colors=rep("black",each=length(select))){
     geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
     theme(axis.title.x = element_blank())
 }
+# default boxplot with txt
+boxplotdt <- function(data, select, colors=rep("black",each=length(select))){
+  # select data
+  Violin_data <- subset(data, select = c("id", select))
+  Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "parameter", value.name = "Score")
+  # summarise data 5% and 90% quantile
+  df <- ddply(Violin_data, .(parameter), boxset)
+  pd <- 0.6# boxplot
+  # jitter
+  set.seed(111)
+  Violin_data <- transform(Violin_data, con = jitter(as.numeric(parameter), amount = 0.05))
+  ggplot(data = Violin_data, aes(x = parameter)) +
+    geom_errorbar(
+      data = df, position = position_dodge(0.6), show.legend = F,
+      aes(ymin = y0, ymax = y100, color = colors), linetype = 1, width = 0.15) + # add line to whisker
+    geom_boxplot(
+      data = df,
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = colors),
+      outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
+      stat = "identity", show.legend = F) +
+    geom_text(aes(label = id, x = con+0.5, y = Score), size = 3.5,position=position_jitter(width=0.2,height=0.01))+
+    geom_point(aes(x = con, y = Score, group = id), size = 0.5, color = "gray", show.legend = F) +
+    scale_color_manual(values = colors)+
+    geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
+    theme(axis.title.x = element_blank())
+}
 
 boxplot <- function(data, con, select, hx=0){
   # select data
@@ -385,9 +411,10 @@ translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
                 "Invisible Face\nOdor","Visible Face\nOdor")
 rois <- c("Amy8_align","OFC_AAL","FFV_CA005","Pir_new005")
 rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
+rois <- c("FFV_CA_max2v")
 # decoding results
 dresults <- list()
-for (roi in rois) {
+for (roi in ffvs[3:5]) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
   testodor <- readacc("roi_odor_shift6",facecon[3],roi)
@@ -396,19 +423,23 @@ for (roi in rois) {
   test <- reshape2::dcast(rbind(testface,testodor), id ~ con, value.var = "acc")
   # save test to dresults
   dresults[[roi]][['normal']] <- test
+  # remove sub S15
+  test <- test[-which(test$id%in%c("S15")),]  
   cat("*********",roi,"*********")
   bruceR::TTEST(test,facecon,test.value=0.5)
+  # bruceR::TTEST(dresults[[roi]][['normal']],c("vis","inv"),paired = T)
   
-  acc <- boxplotd(test,facecon)+
+  acc <- boxplotdt(test,facecon)+
     coord_cartesian(ylim = c(0.2,1))+
     scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
     scale_x_discrete(labels=c('VisFace', 'InvFace', 'Odor'))
   print(acc)
-  ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 3, height = 3,
-         device = cairo_pdf)
+  # ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 3, height = 3,
+  #        device = cairo_pdf)
 }
+ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 # trans decoding results
-for (roi in rois[1:3]) {
+for (roi in ffvs[1:4]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
@@ -417,15 +448,15 @@ for (roi in rois[1:3]) {
   cat("*********",roi,"*********")
   bruceR::TTEST(test,transcon,test.value=0.5)
   
-  acc <- boxplotd(test,transcon)+
+  acc <- boxplotdt(test,transcon)+
     coord_cartesian(ylim = c(0.2,0.8))+
     scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
     scale_x_discrete(labels = c("InvFace\nVisFace","VisFace\nInvFace",
                                 "Odor\nInvFace","Odor\nVisFace",
                                 "InvFace\nOdor","VisFace\nOdor"))
   print(acc)
-  ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acc, width = 4, height = 3,
-         device = cairo_pdf)
+  # ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acc, width = 4, height = 3,
+  #        device = cairo_pdf)
 }
 # lesion cluster decoding results
 prefix <- c('face_vis','face_inv','odor_all');
@@ -542,7 +573,7 @@ for (roi in rois[1:2]) {
     lecon <- c(lecon,strsplit(p,"_")[[1]][2])
     cat("*********",roi,"*********")
     bruceR::TTEST(test,lecon,test.value=0.5)
-    bruceR::TTEST(test,lecon[c(5,3,5,4)],paired = T)
+    bruceR::TTEST(test,lecon[c(3,1,3,2)],paired = T)
     
     acc <- boxplotd(test,lecon)+
       coord_cartesian(ylim = c(0.2,0.8))+

@@ -29,8 +29,8 @@ parfor i = 3:29
 end
 %% decoding trans
 % con = {'con','inc','vis','inv'};
-rois={'Amy8_align','OFC_AAL'};
-% rois={'FFV_CA005'};
+% rois={'Amy8_align','OFC_AAL'};
+rois={'FFV_CA001','FFV_CA01','FFV_CA05','FFV_CA_max3v', 'FFV_CA_max4v', 'FFV_CA_max5v', 'FFV_CA_max6v'};
 parfor i = 3:29
     sub=sprintf('S%02d',i);
 %     for con_i = 1:length(con)

@@ -2,13 +2,13 @@
 datafolder='/Volumes/WD_F/gufei/3T_cw/';
 subs=3:29;
 subnum=length(subs);
-rois={'epi_anat'};
+rois={'BoxROIsext'};
 shift=[6];
 check = 'face'; 
 if strcmp(check,'odor')
     comb={'all'};
 else
-    comb={'all';'inv';'vis'};
+    comb={'inv';'vis'};
 end
 combn=size(comb,1);
 decode=[reshape(repmat(subs,combn,1),[],1) repmat([1:combn]',subnum,1)];
@@ -26,14 +26,14 @@ for i=1:size(decode,1)
         % align results to standard space
         cd(result);
         % check if aligned
-        if ~exist([result '/res_accuracy_minus_chance+tlrc.BRIK'],'file')
+        if ~exist([result '/res_accuracy_minus_chance+tlrc.HEAD'],'file')
             nw = ['../../../anatQQ.' sub '_WARP.nii ../../../anatQQ.' sub '.aff12.1D INV(../../../anatSS.' sub '_al_keep_mat.aff12.1D)'];
             nm = 'res_accuracy_minus_chance';
             cmd = ['3dNwarpApply -nwarp ' ['"' nw '"'] ' -source ' nm  '+orig -master ../../../anatQQ.' sub '+tlrc -prefix ' nm];
             unix(cmd);
         end
         % smooth results
-        if ~exist([result '/res_accuracy_minus_chance_sm+tlrc.BRIK'],'file')
+        if ~exist([result '/res_accuracy_minus_chance_sm+tlrc.HEAD'],'file')
             cmd = ['3dmerge -1blur_fwhm 3.6 -doall -prefix ' 'res_accuracy_minus_chance_sm ' 'res_accuracy_minus_chance+tlrc'];
             unix(cmd);
         end
@@ -59,7 +59,7 @@ fprintf(f, ['\n' 'statsn="' check '"' '\n\n']);
 % 3dtest++
 for con_i=1:combn
     con = comb{con_i};
-    outname = ['${statsn}_' con '_${out}4r'];
+    outname = ['${statsn}_' con '_${out}3r'];
     fprintf(f, ['3dttest++ -prefix group/mvpa/' outname ' -mask ${mask} -resid group/mvpa/errs_' outname ' -setA ' con ' \\\n']);
     for sub_i=1:subnum
         sub=sprintf('S%02d',subs(sub_i));

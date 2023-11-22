@@ -19,7 +19,20 @@ parfor i = 3:29
     for con_i = 1:length(con)
 %         try
             decoding_roi(sub,analysis_all,rois,shift,decode,con{con_i});
-%         decoding_search(sub,analysis_all,rois,shift,decode,con{con_i});
+%         catch
+%             disp(sub)
+%         end
+    end
+    % close figures
+    close all
+end
+%% searchlight
+rois = {'BoxROIsext'};
+parfor i = 3:29
+    sub=sprintf('S%02d',i);
+    for con_i = 1:length(con)
+%         try
+        decoding_search(sub,analysis_all,rois,shift,decode,con{con_i});
 %         catch
 %             disp(sub)
 %         end

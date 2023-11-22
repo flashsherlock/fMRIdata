@@ -41,14 +41,39 @@ do
       cd "${datafolder}/${subdir}" || exit
       for brick in face_vis face_inv odor_all
       do 
-            indmask=${roi}_${brick}_p0_inter
+            # all the sig cluster that intercect with ROI
+            # indmask=${roi}_${brick}_p0_inter
+            # # rm ../mask/${indmask}+orig*
+            # # if file not exist
+            # if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+            #       3dcalc \
+            #       -a "${imask}" \
+            #       -b ../mask/${roi}_${brick}_l0+orig \
+            #       -expr "a*b" \
+            #       -prefix ../mask/${indmask}
+            # fi
+            # all acc>0 that intercect with ROI
+            indmask=${roi}_${brick}_p0_interacc0
             # rm ../mask/${indmask}+orig*
+            # get first 4 char of brick
+            # b4=${brick:0:4}
+            # get last 3 char of brick
+            # l3=${brick: -3}
             # if file not exist
             if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
                   3dcalc \
                   -a "${imask}" \
-                  -b ../mask/${roi}_${brick}_l0+orig \
-                  -expr "a*b" \
+                  -b mvpa/searchlight_${brick:0:4}_shift6/${brick: -3}_epi_anat/res_accuracy_minus_chance+orig \
+                  -expr "a*step(b)" \
+                  -prefix ../mask/${indmask}
+            fi
+            indmask=${roi}_${brick}_l0_interacc0
+            # rm ../mask/${indmask}+orig*
+            if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+                  3dcalc \
+                  -a "${imask}" \
+                  -b ../mask/${roi}_${brick}_p0_interacc0+orig \
+                  -expr "a-b" \
                   -prefix ../mask/${indmask}
             fi
       done

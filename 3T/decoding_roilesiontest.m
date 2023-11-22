@@ -46,7 +46,7 @@ for i=1:length(rois)
     test=[decode '_' con '_' suf '_' roi];
     
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesionall' rad '_shift' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_roilesion' rad '_shift' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -145,9 +145,9 @@ for i=1:length(rois)
        passed_data.files.name = passed_data.files.name(1:nsample/length(shift));
     end
     % This creates the leave-one-run-out cross validation design:
-%     cfg.design = make_design_cv(cfg);     
-    cfg.design = make_design_alldata(cfg);     
-    cfg.design.nonindependence = 'ok'
+    cfg.design = make_design_cv(cfg);     
+%     cfg.design = make_design_alldata(cfg);     
+%     cfg.design.nonindependence = 'ok';
     invisible = kron([1;1],reshape(repmat([0 1 0 1 0 1 0 1], [15 1]), [numtr 1]));
     % define train and test trials
     traintrial = kron([1;0],reshape(repmat([1 1 1 1 1 1 1 1], [15 1]), [numtr 1]));
@@ -170,6 +170,8 @@ for i=1:length(rois)
     end 
     inter=ismember(passed_data.mask_index,lesion);
     passed_data.data(traintrial==0,inter)=0;
+    % remove all voxels for testing
+    % passed_data.data(traintrial==0,:)=0;
     % overwrite existing results
     cfg.results.overwrite = 1;
     cfg.basic_checks.DoubleFilenameEntriesOk = 1;

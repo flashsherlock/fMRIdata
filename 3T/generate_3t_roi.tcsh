@@ -226,26 +226,26 @@ endif
 # -b ../mask/FusiformCA+orig \
 # -expr 'step(a-3.30)*b' \
 # -prefix ../mask/FFV_CA001
-3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformAAL+orig \
--expr 'step(a-1.96)*b' \
--prefix ../mask/FFV_AAL05
-3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformAAL+orig \
--expr 'step(a-2.58)*b' \
--prefix ../mask/FFV_AAL01
-3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformAAL+orig \
--expr 'step(a-2.81)*b' \
--prefix ../mask/FFV_AAL005
-3dcalc \
--a "stats.${sub}.de.new+orig[52]" \
--b ../mask/FusiformAAL+orig \
--expr 'step(a-3.30)*b' \
--prefix ../mask/FFV_AAL001
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformAAL+orig \
+# -expr 'step(a-1.96)*b' \
+# -prefix ../mask/FFV_AAL05
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformAAL+orig \
+# -expr 'step(a-2.58)*b' \
+# -prefix ../mask/FFV_AAL01
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformAAL+orig \
+# -expr 'step(a-2.81)*b' \
+# -prefix ../mask/FFV_AAL005
+# 3dcalc \
+# -a "stats.${sub}.de.new+orig[52]" \
+# -b ../mask/FusiformAAL+orig \
+# -expr 'step(a-3.30)*b' \
+# -prefix ../mask/FFV_AAL001
 # foreach dec (_at165 _at165_p)
 #     3dcalc \
 #         -a "stats.${sub}.de.new+orig[52]" \
@@ -265,5 +265,26 @@ endif
 # 3dcalc -a ../mask/Amy8_align.freesurfer+orig \
 # -prefix ../mask/BoxROI \
 # -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# generate extended box ROI 3 voxels
+set ijk=(`3dAutobox -npad 3 -extent_ijk -noclust ../mask/OFC_AAL+orig`)
+3dcalc -a ../mask/OFC_AAL+orig \
+-prefix ../mask/BoxOFCext \
+-expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# nopad
+set ijk=(`3dAutobox -extent_ijk -noclust ../mask/OFC_AAL+orig`)
+3dcalc -a ../mask/OFC_AAL+orig \
+-prefix ../mask/BoxOFC \
+-expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# combine boxroi and boxofc
+3dcalc \
+-a ../mask/BoxOFC+orig \
+-b ../mask/BoxROI+orig \
+-expr 'bool(a+b)' \
+-prefix ../mask/BoxROIs
+3dcalc \
+-a ../mask/BoxOFCext+orig \
+-b ../mask/BoxROIext+orig \
+-expr 'bool(a+b)' \
+-prefix ../mask/BoxROIsext
 
 end

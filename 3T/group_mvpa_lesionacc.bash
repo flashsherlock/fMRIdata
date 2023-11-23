@@ -62,6 +62,28 @@ do
                   -b ../mask/${imask} \
                   -expr "b-bool(a)" \
                   -prefix ../mask/${indmask}
+            fi       
+            # ensure connectivity     
+            indmask=${roi}_${brick}_p2_interacc
+            # rm ../mask/${indmask}+orig*
+            if [ ! -f ../mask/${indmask}_GM+orig.HEAD ]; then
+                  3dROIMaker                     \
+                  -inset mvpa/searchlight_${brick:0:4}_shift6/${brick: -3}_epi_anat/res_accuracy_minus_chance+orig \
+                  -thresh 0                 \
+                  -prefix ../mask/${indmask}  \
+                  -only_conn_top ${vox}                \
+                  -inflate 2                  \
+                  -mask "${imask}"              \
+                  -dump_no_labtab                  
+            fi
+            indmask=${roi}_${brick}_l2_interacc
+            # rm ../mask/${indmask}+orig*
+            if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+                  3dcalc \
+                  -a ../mask/${roi}_${brick}_p2_interacc_GM+orig \
+                  -b ../mask/${imask} \
+                  -expr "b-bool(a)" \
+                  -prefix ../mask/${indmask}
             fi            
       done
 done

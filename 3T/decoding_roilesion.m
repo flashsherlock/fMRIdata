@@ -28,11 +28,10 @@ for i=1:length(rois)
         suf=c{3};
         rad=c{4};        
         % if suf start with p, add _GM
-        if strcmp(suf(1),'p')
-            maskdec = [condition{con_i} '_GM'];
-        else
-            maskdec = condition{con_i};
-        end
+        maskdec = condition{con_i};
+%         if strcmp(suf(1),'p')
+%             maskdec = [condition{con_i} '_GM'];
+%         end
         % file name for amy
         if strcmp(roi,'Amy8_align')
             mask=get_filenames_afni([datafolder sub '/mask/' 'Amy' '_' maskdec '+orig.HEAD']);

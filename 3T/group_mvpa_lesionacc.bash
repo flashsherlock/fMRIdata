@@ -54,6 +54,12 @@ do
                   -mask "${imask}"              \
                   -dump_no_labtab                  
             fi
+            if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+                  3dcalc                     \
+                  -a ../mask/${indmask}_GM+orig \
+                  -expr "bool(a)" \
+                  -prefix ../mask/${indmask}            
+            fi
             indmask=${roi}_${brick}_l1_interacc
             # rm ../mask/${indmask}+orig*
             if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
@@ -75,6 +81,12 @@ do
                   -inflate 2                  \
                   -mask "${imask}"              \
                   -dump_no_labtab                  
+            fi
+            if [ ! -f ../mask/${indmask}+orig.HEAD ]; then
+                  3dcalc                     \
+                  -a ../mask/${indmask}_GM+orig \
+                  -expr "bool(a)" \
+                  -prefix ../mask/${indmask}            
             fi
             indmask=${roi}_${brick}_l2_interacc
             # rm ../mask/${indmask}+orig*

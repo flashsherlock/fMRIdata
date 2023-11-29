@@ -99,3 +99,11 @@ condition=cell(1,length(prefix)*length(suffix));
         close all
     end
 % end
+%% lesion permutation
+rois={'Amy8_align','OFC_AAL'};
+prefix={'face_vis','face_inv','odor_all'};
+parfor i = 3:29
+    sub=sprintf('S%02d',i);
+    decoding_roilesionperm(sub,analysis_all,rois,shift,prefix);
+    close all
+end

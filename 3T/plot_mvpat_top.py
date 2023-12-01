@@ -39,7 +39,7 @@ for n in range(namelen):
 
     # Set mosaic slices 
     gl.mosaic("C H 0 V 0 -5")
-
+    gl.view(16)
     # Save the image 
     gl.savebmp(data_dir + 'aplottop'+ name +'.png')
 # Open overlay
@@ -47,7 +47,7 @@ namelist = ['OFC_AAL_odor_all_t', 'OFC_AAL_face_inv_t', 'OFC_AAL_face_vis_t']
 # get length of namelist
 namelen=len(namelist)
 gl.overlaycloseall()
-cutoff = 8
+cutoff = 5
 # for n from 1 to length of namelist
 for n in range(namelen):
     print(n)
@@ -71,6 +71,9 @@ for n in range(namelen):
 
     # Set mosaic slices
     gl.mosaic("A H 0 V 0 -15")
-
+    gl.view(16)
+    # change coordinate
+    gl.orthoviewmm(-20, 0.5, 0.5)
+    # gl.gui_input('a','b','5')
     # Save the image
     gl.savebmp(data_dir + 'aplottop' + name + '.png')

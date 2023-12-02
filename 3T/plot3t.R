@@ -439,7 +439,7 @@ for (roi in ffvs[3:5]) {
 }
 ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 # trans decoding results
-for (roi in ffvs[1:4]) {
+for (roi in ffvs[5:8]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
@@ -549,7 +549,7 @@ for (roi in rois[1:2]) {
 # whole roi lesion on test
 # lesion decoding results
 prefix <- c('face_vis','face_inv','odor_all');
-suffix <- c('p0','l0');
+suffix <- c('p2','l2');
 # combine each prefix with each suffix
 lecons <- c()
 for (p in prefix) {
@@ -561,19 +561,61 @@ for (roi in rois[1:2]) {
   for (p in prefix) {
     # lecons start with p
     lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_roilesioninter_shift6",lecon,roi)
+    test <- readacc("roi_roilesiontraininteracc_shift6",lecon,roi)
     # decast test
     test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
     # save test to dresults
-    dresults[[roi]][['roilesioninter']] <- test
+    dresults[[roi]][['roilesiontraininteracc']] <- test
     # merge l0 results
     testl0 <- dresults[[roi]][['normal']]
     test <- merge(test,testl0)
     # split p with "_"
     lecon <- c(lecon,strsplit(p,"_")[[1]][2])
     cat("*********",roi,"*********")
+    # print(mean(test[,2]))
     bruceR::TTEST(test,lecon,test.value=0.5)
+    # bruceR::TTEST(test,lecon[c(1,2)],paired = T)
     bruceR::TTEST(test,lecon[c(3,1,3,2)],paired = T)
+    
+    acc <- boxplotd(test,lecon)+
+      coord_cartesian(ylim = c(0.2,0.8))+
+      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+      scale_x_discrete(labels = lecon)
+    print(acc)
+    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
+    #        device = cairo_pdf)
+  }
+}
+# lesion permutation
+prefix <- c('face_vis','face_inv','odor_all');
+suffix <- c('p1');
+# combine each prefix with each suffix
+lecons <- c()
+for (p in prefix) {
+  for (s in suffix) {
+    lecons <- c(lecons,paste0(p,'_',s))
+  }
+}
+for (roi in rois[1:2]) {
+  for (p in prefix) {
+    # lecons start with p
+    lecon <- lecons[str_detect(lecons,p)]
+    test <- readacc("roi_roimeanperm_shift6",lecon,roi)
+    # decast test
+    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+    # save test to dresults
+    dresults[[roi]][['roimeanperm']] <- test
+    # merge l0 results
+    testl0 <- readacc("roi_roilesiontraininteracc_shift6",str_replace(lecon,"p1","l2"),roi)
+    # decast test
+    testl0 <- reshape2::dcast(testl0, id ~ con, value.var = "acc", fun.aggregate = mean)
+    test <- merge(test,testl0)
+    # split p with "_"
+    lecon <- c(lecon,str_replace(lecon,"p1","l2"))
+    cat("*********",roi,"*********")
+    # print(mean(test[,2]))
+    bruceR::TTEST(test,lecon,test.value=0.5)
+    bruceR::TTEST(test,lecon[c(1,2)],paired = T)
     
     acc <- boxplotd(test,lecon)+
       coord_cartesian(ylim = c(0.2,0.8))+

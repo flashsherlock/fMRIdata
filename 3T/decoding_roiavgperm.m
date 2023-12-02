@@ -1,13 +1,14 @@
 % average permutation results
+% rois={'OFC_AAL'};
 rois={'Amy8_align','OFC_AAL'};
 prefix={'face_vis','face_inv','odor_all'};
 datafolder='/Volumes/WD_F/gufei/3t_cw/';
 nper=1000;
-for i = 3%:29
+for i = 3:29
     sub=sprintf('S%02d',i);
-    for roi_i = 1%:length(rois)
+    for roi_i = 1:length(rois)
         roi = rois{roi_i};
-        for con_i = 1%:length(prefix)            
+        for con_i = 1:length(prefix)            
             c=prefix{con_i};
             result=zeros(2,2,nper);
             disp([sub ' : ' roi ' : ' c]);

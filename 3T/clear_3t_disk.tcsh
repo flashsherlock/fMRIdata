@@ -34,8 +34,9 @@ if ( -d "${datafolder}" ) then
     # rm stats.${subj}+*
     # rm -r mvpa
     # ls -r mvpa/roi_roilesion8_shift6
-    echo ${subj}
-    ls ../mask/*ind10+orig.HEAD | wc -l
+    rm errts.${subj}.new+tlrc*
+    # echo ${subj}
+    # ls ../mask/*ind10+orig.HEAD | wc -l
     # rm *_16*
     # 3dcopy anat_final.${subj}+orig ../../roi/${sub}.nii
     # 3dcopy ../mask/Amy8_align.freesurfer+orig ../../roi/${sub}_amy.nii

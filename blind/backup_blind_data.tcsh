@@ -9,12 +9,27 @@ set backfolder="/Volumes/Promise Disk/gf/data/blind"
 # if datafolder exist
 if ( -d "${datafolder}" ) then
     cd "${datafolder}"
-    # make dir to save data
-    mkdir "${backfolder}/${sub}"
+    # make dir to save data if not exist
+    if ( ! -d "${backfolder}/${sub}" ) then
+        mkdir "${backfolder}/${sub}"
+    endif
     # copy files
-    cp *.nii "${backfolder}/${sub}"
-    cp -r mask "${backfolder}/${sub}"
-    cp -r ${sub}_anat_warped "${backfolder}/${sub}"
+    # if nii file not exist
+    if ( ! -f "${backfolder}/${sub}/${sub}.str.nii" ) then
+        echo ${sub}: backup nii files
+        cp *.nii "${backfolder}/${sub}"
+    endif
+    # if mask folder not exist
+    # if ( ! -f "${backfolder}/${sub}/mask/voxels.txt" ) then
+    if ( ! -f "${backfolder}/${sub}/mask/Piriform.seg+orig.HEAD" ) then
+        echo ${sub}: backup masks
+        cp -r mask "${backfolder}/${sub}"
+    endif
+    # if folder not exist
+    if ( ! -d "${backfolder}/${sub}/${sub}_anat_warped" ) then
+        echo ${sub}: backup freesurfer files
+        cp -r ${sub}_anat_warped "${backfolder}/${sub}"
+    endif
 
 else
     echo "${datafolder} not exsist"

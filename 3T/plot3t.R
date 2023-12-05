@@ -7,6 +7,7 @@ library(ggprism)
 library(patchwork)
 library(Rmisc)
 library(R.matlab)
+library(Hmisc)
 theme_set(theme_prism(base_line_size = 0.5))
 showtext::showtext_auto(enable = F)
 sysfonts::font_add("Helvetica","Helvetica.ttc")
@@ -195,7 +196,7 @@ boxplot <- function(data, con, select, hx=0){
     theme(axis.title.x = element_blank())
 }
 # box plot for comparision
-boxcp <- function(data, con, select){
+boxcp <- function(data, con, select, colors=rep("black",each=length(select))){
   # select data
   Violin_data <- subset(data,select = c("id",select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "Task", value.name = "Score")
@@ -212,12 +213,13 @@ boxcp <- function(data, con, select){
   ggplot(data=Violin_data, aes(x=condition)) + 
     # geom_boxplot(aes(y=Score,color=test),
     #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
-    geom_errorbar(data=df, position = position_dodge(0.6),
-                  aes(ymin=y0,ymax=y100),linetype = 1,width = 0.15)+ # add line to whisker
-    geom_boxplot(data=df,
-                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+    geom_errorbar(data=df, position = position_dodge(0.6), show.legend = F,
+                  aes(ymin=y0,ymax=y100,color = condition),linetype = 1,width = 0.15)+ # add line to whisker
+    geom_boxplot(data=df, show.legend = F,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = condition),
                  outlier.shape = NA, fill="white", width=0.25, position = position_dodge(0.6),
                  stat = "identity") +
+    scale_color_manual(values = colors)+
     # geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
     geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8")+
     theme(axis.title.x=element_blank())
@@ -403,7 +405,26 @@ amy <- wrap_plots(line_hfinv,line_hfvis,coinbox,box_convin,ncol = 2)
 print(amy)
 ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiamy","amy"), ".pdf"), amy, width = 8, height = 6)
 
-# 4 mvpa results -------------------------------------------------------------------
+# 5 rating results -------------------------------------------------------------------
+# load data
+rating <- spss.get(paste0(data_dir,"../Rose_Fish_rating.sav"))
+# rename subject to id
+rating <- dplyr::rename(rating, id = Subject)
+# Intensity
+bruceR::TTEST(rating,c("Intensity.Rose","Intensity.Fish"),paired = T)
+ratein <- boxcp(rating,c("Rose","Fish"),c("Intensity.Rose", "Intensity.Fish"),c("#faa61e","#5067b0"))+
+  coord_cartesian(ylim = c(1,7))+
+  scale_y_continuous(name = "Odor intensity",breaks = c(1,seq(from=2, to=7, by=1)))
+# Valence
+bruceR::TTEST(rating,c("Valence.Rose","Valence.Fish"),paired = T)
+rateva <- boxcp(rating,c("Rose","Fish"),c("Valence.Rose", "Valence.Fish"),c("#faa61e","#5067b0"))+
+  coord_cartesian(ylim = c(1,7))+
+  scale_y_continuous(name = "Odor pleasantness",breaks = c(1,seq(from=2, to=7, by=1)))
+ratemri <-  wrap_plots(ratein,rateva,ncol = 2)
+print(ratemri)
+ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 6, height = 3,
+       device = cairo_pdf)
+# 6 mvpa results -------------------------------------------------------------------
 facecon <- c("vis","inv","all")
 transcon <- c("inv_vis","vis_inv","test_inv","test_vis","train_inv","train_vis")
 translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",

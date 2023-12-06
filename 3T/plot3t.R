@@ -347,10 +347,13 @@ print(box)
 ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppibox_","box_"), data_name, ".pdf"), box, width = 8, height = 4,
        device = cairo_pdf)
 # visible invisble compare
+laby <- ifelse(str_detect(prefix,"ppi"),paste0("Connectivity with ",strsplit(data_names,"_")[[1]][1]),"Mean Beta")
 box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"))+
-  labs(y="Mean Beta")+
+  labs(y=laby)+
+  # coord_cartesian(ylim = c(-0.2,0.4))+
+  geom_hline(yintercept = 0, size = 0.5, linetype = "dashed", color = "black")+
   scale_x_discrete(labels=c("Visible","Invisible"))
-ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_"), data_name, ".pdf"), box_vin, width = 3, height = 2,
+ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_"), data_name, ".pdf"), box_vin, width = 3, height = 3,
        device = cairo_pdf)
 }
 
@@ -394,13 +397,13 @@ coinbox <- boxplot(betas,"Amy_invis_inter","coininv",0)+
   coord_cartesian(ylim = c(-0.18,0.25))+
   scale_y_continuous(name = "Mean Beta Difference",expand = expansion(add = c(0,0)),breaks = c(seq(from=-0.2, to=0.2, by=0.1)))
 # boxcp for visible and invisible
-box_convin <- boxcp(betas,c("coininv","coinvis"),c("coininv","coinvis"))+
+box_convin <- boxcp(betas,c("coinvis","coininv"),c("coininv","coinvis"))+
   labs(y="Mean Beta Difference")+
   geom_hline(yintercept = 0, size = 0.5, linetype = "dashed", color = "black")+
-  coord_cartesian(ylim = c(-0.18,0.25))+
-  scale_x_discrete(labels=c("Invisible","Visible"))
+  coord_cartesian(ylim = c(-0.2,0.3))+
+  scale_x_discrete(labels=c("Visible","Invisible"))
 print(box_convin)
-ggsave(paste0(figure_dir,"amy_convin.pdf"), box_convin, width = 4, height = 3,
+ggsave(paste0(figure_dir,"amy_convin.pdf"), box_convin, width = 3, height = 3,
        device = cairo_pdf)
 # save
 amy <- wrap_plots(line_hfinv,line_hfvis,coinbox,box_convin,ncol = 2)

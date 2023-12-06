@@ -25,9 +25,9 @@ for n in range(namelen):
     if n==0:
         cname = '3blue'
     elif n==1:
-        cname='2green'
-    elif n==2:
         cname='1red'
+    elif n==2:
+        cname='2green'
     # Set overlay display parameters; 1 indicates 1st overlay
     gl.colorname(n+1,cname)
     # gl.minmax(n+1, 0, 1)
@@ -38,7 +38,7 @@ gl.colorbarposition(0)
 gl.colorbarsize(0.05)
 
 # Set mosaic slices 
-gl.mosaic("A H 0 V 0 0.33")
+gl.mosaic("A H 0 V 0 -15")
 # Save the image 
 gl.savebmp(data_dir + '../plotmask/ROIs.png')
 
@@ -111,9 +111,9 @@ for n in range(namelen):
     if n==0:
         cname = '3blue'
     elif n==1:
-        cname='2red'
+        cname='1red'
     elif n==2:
-        cname='1green'
+        cname='2green'
     # Set overlay display parameters; 1 indicates 1st overlay
     gl.colorname(n+1,cname)
     # gl.minmax(n+1, 0, 1)

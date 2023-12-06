@@ -377,6 +377,7 @@ betas <- mutate(betas,inconinv = rowMeans(betas[,c(3,9)]),coninv = rowMeans(beta
 betas <- mutate(betas,coininv = -(coninv-inconinv))
 # ttest
 bruceR::TTEST(betas,c("coin","coinvis","coininv"))
+bruceR::TTEST(betas,c("coinvis","coininv"),paired = T)
 
 # invisible
 line_hfinv <- lineplot(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
@@ -395,6 +396,7 @@ coinbox <- boxplot(betas,"Amy_invis_inter","coininv",0)+
 # boxcp for visible and invisible
 box_convin <- boxcp(betas,c("coininv","coinvis"),c("coininv","coinvis"))+
   labs(y="Mean Beta Difference")+
+  geom_hline(yintercept = 0, size = 0.5, linetype = "dashed", color = "black")+
   coord_cartesian(ylim = c(-0.18,0.25))+
   scale_x_discrete(labels=c("Invisible","Visible"))
 print(box_convin)
@@ -435,7 +437,7 @@ rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_C
 rois <- c("FFV_CA_max2v")
 # decoding results
 dresults <- list()
-for (roi in ffvs[3:5]) {
+for (roi in rois[1:3]) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
   testodor <- readacc("roi_odor_shift6",facecon[3],roi)
@@ -445,13 +447,13 @@ for (roi in ffvs[3:5]) {
   # save test to dresults
   dresults[[roi]][['normal']] <- test
   # remove sub S15
-  test <- test[-which(test$id%in%c("S15")),]  
+  test <- test[-which(test$id%in%c("S15")),]
   cat("*********",roi,"*********")
   bruceR::TTEST(test,facecon,test.value=0.5)
   # bruceR::TTEST(dresults[[roi]][['normal']],c("vis","inv"),paired = T)
   
   acc <- boxplotdt(test,facecon)+
-    coord_cartesian(ylim = c(0.2,1))+
+    coord_cartesian(ylim = c(0.2,0.8))+
     scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
     scale_x_discrete(labels=c('VisFace', 'InvFace', 'Odor'))
   print(acc)

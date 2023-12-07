@@ -39,6 +39,7 @@ ci90 <- function(x){
 
 boxset <- function(data){
   summarise(data,
+            m = mean(Score),
             y0 = quantile(Score, 0.05), 
             #y0 = mean(Score)-ci90(Score),
             y25 = quantile(Score, 0.25), 
@@ -508,110 +509,7 @@ for (roi in rois[1:2]) {
   ggsave(paste0(figure_dir,"mvpa_clusterlesion_",roi, ".pdf"), acc, width = 4, height = 3,
          device = cairo_pdf)
 }
-# lesion decoding results
-prefix <- c('face_vis','face_inv','odor_all');
-suffix <- c('p1','p2','l1','l2');
-# combine each prefix with each suffix
-lecons <- c()
-for (p in prefix) {
-  for (s in suffix) {
-    lecons <- c(lecons,paste0(p,'_',s))
-  }
-}
-for (roi in rois[1:2]) {
-  for (p in prefix) {
-    # lecons start with p
-    lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_lesion10_shift6",lecon,roi)
-    # decast test
-    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
-    # save test to dresults
-    dresults[[roi]][['lesion10']] <- test
-    # merge l0 results
-    testl0 <- dresults[[roi]][['cluster']]
-    test <- merge(test,testl0)
-    lecon <- c(lecon,paste0(p,"_l0"))
-    cat("*********",roi,"*********")
-    bruceR::TTEST(test,lecon,test.value=0.5)
-    bruceR::TTEST(test,lecon[c(5,3,5,4)],paired = T)
-    
-    acc <- boxplotd(test,lecon)+
-      coord_cartesian(ylim = c(0.2,0.8))+
-      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
-      scale_x_discrete(labels = lecon)
-    print(acc)
-    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
-    #        device = cairo_pdf)
-  }
-}
-# roi lesion
-for (roi in rois[1:2]) {
-  for (p in prefix) {
-    # lecons start with p
-    lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_roilesioninter16_shift6",lecon,roi)
-    # decast test
-    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
-    # save test to dresults
-    dresults[[roi]][['roilesioninter16']] <- test
-    # merge l0 results
-    testl0 <- dresults[[roi]][['normal']]
-    test <- merge(test,testl0)
-    # split p with "_"
-    lecon <- c(lecon,strsplit(p,"_")[[1]][2])
-    cat("*********",roi,"*********")
-    bruceR::TTEST(test,lecon,test.value=0.5)
-    bruceR::TTEST(test,lecon[c(5,3,5,4)],paired = T)
-    
-    acc <- boxplotd(test,lecon)+
-      coord_cartesian(ylim = c(0.2,0.8))+
-      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
-      scale_x_discrete(labels = lecon)
-    print(acc)
-    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
-    #        device = cairo_pdf)
-  }
-}
-# whole roi lesion on test
-# lesion decoding results
-prefix <- c('face_vis','face_inv','odor_all');
-suffix <- c('p2','l2');
-# combine each prefix with each suffix
-lecons <- c()
-for (p in prefix) {
-  for (s in suffix) {
-    lecons <- c(lecons,paste0(p,'_',s))
-  }
-}
-for (roi in rois[1:2]) {
-  for (p in prefix) {
-    # lecons start with p
-    lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_roilesiontraininteracc_shift6",lecon,roi)
-    # decast test
-    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
-    # save test to dresults
-    dresults[[roi]][['roilesiontraininteracc']] <- test
-    # merge l0 results
-    testl0 <- dresults[[roi]][['normal']]
-    test <- merge(test,testl0)
-    # split p with "_"
-    lecon <- c(lecon,strsplit(p,"_")[[1]][2])
-    cat("*********",roi,"*********")
-    # print(mean(test[,2]))
-    bruceR::TTEST(test,lecon,test.value=0.5)
-    # bruceR::TTEST(test,lecon[c(1,2)],paired = T)
-    bruceR::TTEST(test,lecon[c(3,1,3,2)],paired = T)
-    
-    acc <- boxplotd(test,lecon)+
-      coord_cartesian(ylim = c(0.2,0.8))+
-      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
-      scale_x_discrete(labels = lecon)
-    print(acc)
-    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
-    #        device = cairo_pdf)
-  }
-}
+
 # lesion permutation
 prefix <- c('face_vis','face_inv','odor_all');
 suffix <- c('p1');
@@ -623,34 +521,63 @@ for (p in prefix) {
   }
 }
 for (roi in rois[1:2]) {
-  for (p in prefix) {
-    # lecons start with p
-    lecon <- lecons[str_detect(lecons,p)]
-    test <- readacc("roi_roimeanperm_shift6",lecon,roi)
-    # decast test
-    test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
-    # save test to dresults
-    dresults[[roi]][['roimeanperm']] <- test
-    # merge l0 results
-    testl0 <- readacc("roi_roilesiontraininteracc_shift6",str_replace(lecon,"p1","l2"),roi)
-    # decast test
-    testl0 <- reshape2::dcast(testl0, id ~ con, value.var = "acc", fun.aggregate = mean)
-    test <- merge(test,testl0)
-    # split p with "_"
-    lecon <- c(lecon,str_replace(lecon,"p1","l2"))
-    cat("*********",roi,"*********")
-    # print(mean(test[,2]))
-    bruceR::TTEST(test,lecon,test.value=0.5)
-    bruceR::TTEST(test,lecon[c(1,2)],paired = T)
-    
-    acc <- boxplotd(test,lecon)+
-      coord_cartesian(ylim = c(0.2,0.8))+
-      scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
-      scale_x_discrete(labels = lecon)
-    print(acc)
-    # ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), acc, width = 4, height = 3,
-    #        device = cairo_pdf)
-  }
+  test <- readacc("roi_roimeanperm_shift6",lecons,roi)
+  # decast test
+  test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+  # merge lesion connective individual top clusters
+  testl2 <- readacc("roi_roilesiontraininteracc_shift6",str_replace(lecons,"p1","l2"),roi)
+  # decast test
+  testl2 <- reshape2::dcast(testl2, id ~ con, value.var = "acc", fun.aggregate = mean)
+  # merge connective individual top clusters
+  testp2 <- readacc("roi_roilesiontraininteracc_shift6",str_replace(lecons,"p1","p2"),roi)
+  # decast test
+  testp2 <- reshape2::dcast(testp2, id ~ con, value.var = "acc", fun.aggregate = mean)
+  testl0 <- dresults[[roi]][['normal']]
+  names(testl0)[-1] <- paste0(names(testl0)[-1],"_l0")
+  test <- merge(merge(merge(test,testl2),testp2),testl0)
+  names(test) <- str_replace(names(test),"(face_)?(odor_)?","")
+  # save test to dresults
+  dresults[[roi]][['roimeanperm']] <- test
+  # split p with "_"
+  cat("*********",roi,"*********")
+  # print(mean(test[,2]))
+  bruceR::TTEST(test,names(test)[-1],test.value=0.5)
+  cp <- c("inv_p1","inv_l2","vis_p1","vis_l2","all_p1","all_l2",
+          "inv_l0","inv_l2","vis_l0","vis_l2","all_l0","all_l2",
+          "inv_l0","inv_p2","vis_l0","vis_p2","all_l0","all_p2")
+  bruceR::TTEST(test,cp,paired = T)
+  # melt test and split into two variables
+  test <- reshape2::melt(test, id.vars = "id")
+  test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
+  # convert con and lesion into factor
+  test$condition <- factor(test$condition, levels = c("vis","inv","all"), labels = c("VisFace","InvFace","Odor"))
+  test$lesion <- factor(test$lesion, levels = c("l0","l2","p1","p2"), labels = c("Intact","Lesion","Random","Clusters"))
+  # summarise data 5% and 90% quantile
+  names(test) <- str_replace(names(test),"value","Score")
+  df <- ddply(test, .(condition,lesion), boxset)
+  # jitter
+  set.seed(111)
+  n <- length(unique(test$lesion))
+  dg <- 0.8
+  test <- transform(test, con = jitter(as.numeric(condition)+(as.numeric(lesion)-n/2-0.5)*(dg/n), 0.3))
+  
+  accl <- ggplot(data=df, aes(x=condition,color=condition,linetype = lesion)) + 
+    geom_errorbar(position = position_dodge(dg),
+                  aes(ymin=y0,ymax=y100),width = 0.4)+ # add line to whisker
+    geom_boxplot(stat = "identity",
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+                 outlier.shape = NA, fill="white", width=0.5, position = position_dodge(dg)) +
+    scale_color_manual(values=c("#f8766d","#00ba38","#619cff"))+
+    scale_linetype_manual(values = c(1,3,6,5))+
+    geom_point(data=test,aes(x=con, y=Score, group = interaction(id,condition)), size = 0.5, color = "gray",show.legend = F)+
+    # geom_line(data=test, aes(x=con, y=Score, group = interaction(id,condition)), color = "#e8e8e8",linetype = 1)+
+    coord_cartesian(ylim = c(0.2,1))+
+    guides(color="none")+
+    geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
+    scale_y_continuous(expand = expansion(add = c(0,0)),name = "Decoding Accuracy",breaks = seq(from=0.2, to=1, by=0.1))+
+    theme(axis.title.x=element_blank())
+  ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), accl, width = 5, height = 3,
+         device = cairo_pdf)
 }
 
 # # 4 stats number of voxels -------------------------------------------------------------------

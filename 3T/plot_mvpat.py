@@ -31,7 +31,7 @@ for name in namelist:
     gl.colorbarsize(0.05)
 
     # Set mosaic slices 
-    gl.mosaic("C H 0 V 0 -5")
+    gl.mosaic("C H 0 V 0 -4")
 
     # Save the image 
     gl.savebmp(data_dir + 'aplot'+ name +'.png')

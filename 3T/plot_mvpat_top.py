@@ -15,7 +15,7 @@ namelist=['Amy_odor_all_t','Amy_face_inv_t','Amy_face_vis_t']
 # get length of namelist
 namelen=len(namelist)
 gl.overlaycloseall()
-cutoff = 8
+cutoff = 4.5
 # for n from 1 to length of namelist
 for n in range(namelen):
     print(n)
@@ -36,18 +36,35 @@ for n in range(namelen):
     gl.opacity(n+1, 80)
     gl.zerointensityinvisible(n+1, 1)
     gl.colorbarposition(0)
-
-    # Set mosaic slices 
-    gl.mosaic("C H 0 V 0 -5")
-    gl.view(16)
-    # Save the image 
-    gl.savebmp(data_dir + 'aplottop'+ name +'.png')
+# Set the color bar options 
+gl.colorbarposition(0)
+gl.colorbarsize(0.05)
+# Set mosaic slices 
+gl.mosaic("C H 0 V 0 -4")
+# Save the image 
+gl.savebmp(data_dir + 'aplottop'+ name +'.png')
+# add interaction
+gl.overlayload(data_dir + 'Amy_inter_inv.nii')
+gl.colorname(4, 'Plasma')
+gl.minmax(n, 0, 1)
+gl.opacity(n, 80)
+gl.zerointensityinvisible(n, 1)
+gl.view(16)
+gl.orthoviewmm(27, -4, -22)
+gl.savebmp(data_dir + 'aplottop_inter.png')
+gl.view(32)
+gl.mosaic("C H 0 V 0 -4")
+gl.savebmp(data_dir + 'aplottop_interC.png')
+gl.mosaic("A H 0 V 0 -22")
+gl.savebmp(data_dir + 'aplottop_interA.png')
+gl.mosaic("S H 0 V 0 27")
+gl.savebmp(data_dir + 'aplottop_interS.png')
 # Open overlay
 namelist = ['OFC_AAL_odor_all_t', 'OFC_AAL_face_inv_t', 'OFC_AAL_face_vis_t']
 # get length of namelist
 namelen=len(namelist)
 gl.overlaycloseall()
-cutoff = 5
+cutoff = 4.5
 # for n from 1 to length of namelist
 for n in range(namelen):
     print(n)
@@ -71,9 +88,9 @@ for n in range(namelen):
 
     # Set mosaic slices
     gl.mosaic("A H 0 V 0 -15")
-    gl.view(16)
+    # gl.view(16)
     # change coordinate
-    gl.orthoviewmm(-20, 0.5, 0.5)
+    # gl.orthoviewmm(-20, 0.5, 0.5)
     # gl.gui_input('a','b','5')
     # Save the image
-    gl.savebmp(data_dir + 'aplottop' + name + '.png')
+gl.savebmp(data_dir + 'aplottop' + name + '.png')

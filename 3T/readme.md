@@ -116,10 +116,10 @@ Group level ttest for PPI analysis.
 Dump betas from group level mask and individual masks.
 
 ## group_masks.bash
-Get level masks for main effects of face and odor. Get masks for significant clusters using `3dClusterize`.
+Get masks for main effects of face and odor. Get masks for significant clusters using `3dClusterize`.
 
-## group_masks.bash
-Get masks for significant clusters using `3dClusterize`.
+## group_masks_plot.bash
+Combine and convert searchlight results for plotting.
 
 ## group_anysig.tcsh
 Get group level masks of significant voxels for any condition.
@@ -145,6 +145,12 @@ Decoding analysis using lesion masks.
 ## decoding_roilesiontest.m
 Decoding analysis using lesion masks. Only modify test data.
 
+## decoding_roilesionperm.m
+Decoding analysis using randomly lesioned masks.
+
+## decoding_roiavgperm.m
+Average permutated lesion results.
+
 ## check_3t_decoding.m
 Check searchlight results for 3T and generate `result_avg3t.bash`.
 
@@ -166,5 +172,28 @@ Render mvpa results.
 ## roistatas3t.Rmd
 Plot time courses for each roi.
 
+# plots
+
 ## plot3t.r
 Plot results for 3T betas data.
+
+## plot_mask.py
+Plot significant clusters.
+
+## plot_mask_peak.py
+Plot each peak as a sphere.
+
+## plot_mvpat.py
+Plot t values for searchlight.
+
+## plot_mvpat_top.py
+Restrict t values for plotting.
+
+## plot_roi.py
+Plot ROI for mvpa.
+
+## GenerateDynamicCFS_UMNVAL.m
+Generate dynamic noise.
+
+## exp_pics.m
+Generate pictures for experiment.

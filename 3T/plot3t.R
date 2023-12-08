@@ -413,7 +413,7 @@ ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiamy","amy"), ".pdf"
 
 # 5 rating results -------------------------------------------------------------------
 # load data
-rating <- spss.get(paste0(data_dir,"../Rose_Fish_rating.sav"))
+rating <- Hmisc::spss.get(paste0(data_dir,"../Rose_Fish_rating.sav"))
 # rename subject to id
 rating <- dplyr::rename(rating, id = Subject)
 # Intensity
@@ -439,6 +439,8 @@ translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
 rois <- c("Amy8_align","OFC_AAL","FFV_CA005","Pir_new005")
 rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 rois <- c("FFV_CA_max2v")
+ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
+
 # decoding results
 dresults <- list()
 for (roi in rois[1:3]) {
@@ -464,9 +466,10 @@ for (roi in rois[1:3]) {
   # ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 3, height = 3,
   #        device = cairo_pdf)
 }
-ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
+
 # trans decoding results
-for (roi in ffvs[5:8]) {
+acct <- list()
+for (roi in rois[1:2]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
@@ -475,16 +478,17 @@ for (roi in ffvs[5:8]) {
   cat("*********",roi,"*********")
   bruceR::TTEST(test,transcon,test.value=0.5)
   
-  acc <- boxplotdt(test,transcon)+
+  acct[[roi]] <- boxplotd(test,transcon)+
     coord_cartesian(ylim = c(0.2,0.8))+
     scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
     scale_x_discrete(labels = c("InvFace\nVisFace","VisFace\nInvFace",
                                 "Odor\nInvFace","Odor\nVisFace",
                                 "InvFace\nOdor","VisFace\nOdor"))
-  print(acc)
-  # ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acc, width = 4, height = 3,
+  print(acct[[roi]])
+  # ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
   #        device = cairo_pdf)
 }
+
 # lesion cluster decoding results
 prefix <- c('face_vis','face_inv','odor_all');
 for (roi in rois[1:2]) {
@@ -520,6 +524,7 @@ for (p in prefix) {
     lecons <- c(lecons,paste0(p,'_',s))
   }
 }
+accl <- list()
 for (roi in rois[1:2]) {
   test <- readacc("roi_roimeanperm_shift6",lecons,roi)
   # decast test
@@ -561,7 +566,7 @@ for (roi in rois[1:2]) {
   dg <- 0.8
   test <- transform(test, con = jitter(as.numeric(condition)+(as.numeric(lesion)-n/2-0.5)*(dg/n), 0.3))
   
-  accl <- ggplot(data=df, aes(x=condition,color=condition,linetype = lesion)) + 
+  accl[[roi]] <- ggplot(data=df, aes(x=condition,color=condition,linetype = lesion)) + 
     geom_errorbar(position = position_dodge(dg),
                   aes(ymin=y0,ymax=y100),width = 0.4)+ # add line to whisker
     geom_boxplot(stat = "identity",
@@ -576,10 +581,13 @@ for (roi in rois[1:2]) {
     geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
     scale_y_continuous(expand = expansion(add = c(0,0)),name = "Decoding Accuracy",breaks = seq(from=0.2, to=1, by=0.1))+
     theme(axis.title.x=element_blank())
-  ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), accl, width = 5, height = 3,
+  print(accl[[roi]])
+  ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), accl[[roi]], width = 5, height = 3,
          device = cairo_pdf)
 }
-
+accs <- wrap_plots(accl[[1]],acct[[1]],accl[[2]],acct[[2]],ncol = 2, guides = 'collect')
+ggsave(paste0(figure_dir,"mvpa_all.pdf"), accs, width = 12, height = 8,
+       device = cairo_pdf)
 # # 4 stats number of voxels -------------------------------------------------------------------
 # expected threshold
 # trials <- 27

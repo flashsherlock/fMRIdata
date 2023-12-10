@@ -8,6 +8,7 @@ library(patchwork)
 library(Rmisc)
 library(R.matlab)
 library(Hmisc)
+library(dataPreparation)
 theme_set(theme_prism(base_line_size = 0.5))
 showtext::showtext_auto(enable = F)
 sysfonts::font_add("Helvetica","Helvetica.ttc")
@@ -38,6 +39,7 @@ ci90 <- function(x){
 }
 
 boxset <- function(data){
+  data <- na.omit(data)
   summarise(data,
             m = mean(Score),
             y0 = quantile(Score, 0.05), 
@@ -120,19 +122,23 @@ boxplotd <- function(data, select, colors=rep("black",each=length(select))){
   # select data
   Violin_data <- subset(data, select = c("id", select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "parameter", value.name = "Score")
+  # convert parameter into factor
+  # Violin_data$parameter <- factor(Violin_data$parameter,levels = select)
   # summarise data 5% and 90% quantile
   df <- ddply(Violin_data, .(parameter), boxset)
   pd <- 0.6# boxplot
   # jitter
   set.seed(111)
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(parameter), amount = 0.05))
+  # replace NA values with 99
+  Violin_data <- replace(Violin_data,is.na(Violin_data),99)
   ggplot(data = Violin_data, aes(x = parameter)) +
     geom_errorbar(
       data = df, position = position_dodge(0.6), show.legend = F,
-      aes(ymin = y0, ymax = y100, color = colors), linetype = 1, width = 0.15) + # add line to whisker
+      aes(ymin = y0, ymax = y100, color = parameter), linetype = 1, width = 0.15) + # add line to whisker
     geom_boxplot(
       data = df,
-      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = colors),
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = parameter),
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity", show.legend = F) +
     # geom_text(aes(label = id, x = con+0.25, y = Score), size = 3.5)+
@@ -146,19 +152,23 @@ boxplotdt <- function(data, select, colors=rep("black",each=length(select))){
   # select data
   Violin_data <- subset(data, select = c("id", select))
   Violin_data <- reshape2::melt(Violin_data, c("id"),variable.name = "parameter", value.name = "Score")
+  # convert parameter into factor
+  # Violin_data$parameter <- factor(Violin_data$parameter,levels = select)
   # summarise data 5% and 90% quantile
   df <- ddply(Violin_data, .(parameter), boxset)
   pd <- 0.6# boxplot
   # jitter
   set.seed(111)
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(parameter), amount = 0.05))
+  # replace NA values with 99
+  Violin_data <- replace(Violin_data,is.na(Violin_data),99)
   ggplot(data = Violin_data, aes(x = parameter)) +
     geom_errorbar(
       data = df, position = position_dodge(0.6), show.legend = F,
-      aes(ymin = y0, ymax = y100, color = colors), linetype = 1, width = 0.15) + # add line to whisker
+      aes(ymin = y0, ymax = y100, color = parameter), linetype = 1, width = 0.15) + # add line to whisker
     geom_boxplot(
       data = df,
-      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = colors),
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = parameter),
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity", show.legend = F) +
     geom_text(aes(label = id, x = con+0.5, y = Score), size = 3.5,position=position_jitter(width=0.2,height=0.01))+
@@ -182,6 +192,8 @@ boxplot <- function(data, con, select, hx=0){
   # jitter
   set.seed(111)
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(condition), amount = 0.05))
+  # replace NA values with 99
+  Violin_data <- replace(Violin_data,is.na(Violin_data),99)
   # boxplot
   ggplot(data = Violin_data, aes(x = condition)) +
     geom_errorbar(
@@ -253,6 +265,14 @@ readacc <- function(mvpa_pattern,con,roi_order) {
   data[,4] <- as.numeric(data[,4])
   data <- mutate(data, roi=factor(roi,levels = roi_order))
   return(data)
+}
+# function to remove outliers
+FindOutliers <- function(data,nsigma=2) {
+  mean_data <- mean(data, na.rm = TRUE)
+  sd_data <- sd(data, na.rm = TRUE)
+  upper = nsigma*sd_data + mean_data
+  lower = mean_data - nsigma*sd_data
+  replace(data, data > upper | data < lower, NA)
 }
 # 2 Main -------------------------------------------------------------
 # load data
@@ -380,9 +400,12 @@ betas <- mutate(betas,coinvis = -(convis-inconvis))
 betas <- mutate(betas,inconinv = rowMeans(betas[,c(3,9)]),coninv = rowMeans(betas[,c(5,7)]))
 betas <- mutate(betas,coininv = -(coninv-inconinv))
 # ttest
-bruceR::TTEST(betas,c("coin","coinvis","coininv"))
+# bruceR::TTEST(betas,c("coin","coinvis","coininv"))
+# bruceR::TTEST(betas,c("coinvis","coininv"),paired = T)
+# betas <- remove_sd_outlier(betas,c("coinvis","coininv"),n_sigmas = 2)
+betas <- dplyr::mutate_if(betas,is.numeric, FindOutliers)
+bruceR::TTEST(betas,c("coinvis","coininv"))
 bruceR::TTEST(betas,c("coinvis","coininv"),paired = T)
-
 # invisible
 line_hfinv <- lineplot(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
   labs(y="Mean Beta",title = "Invisible")+
@@ -436,7 +459,7 @@ transcon <- c("inv_vis","vis_inv","test_inv","test_vis","train_inv","train_vis")
 translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
                 "Odor\nInvisible Face","Odor\nVisible Face",
                 "Invisible Face\nOdor","Visible Face\nOdor")
-rois <- c("Amy8_align","OFC_AAL","FFV_CA005","Pir_new005")
+rois <- c("Amy8_align","OFC_AAL","FFV_CA_max3v","Pir_new005")
 rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 rois <- c("FFV_CA_max2v")
 ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
@@ -453,18 +476,24 @@ for (roi in rois[1:3]) {
   # save test to dresults
   dresults[[roi]][['normal']] <- test
   # remove sub S15
-  test <- test[-which(test$id%in%c("S15")),]
+  # test <- test[-which(test$id%in%c("S15")),]
+  # remove 2sd
+  # test <- remove_sd_outlier(test,n_sigmas = 2)
+  test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
   cat("*********",roi,"*********")
   bruceR::TTEST(test,facecon,test.value=0.5)
   # bruceR::TTEST(dresults[[roi]][['normal']],c("vis","inv"),paired = T)
-  
-  acc <- boxplotdt(test,facecon)+
-    coord_cartesian(ylim = c(0.2,0.8))+
+  if (roi=="OFC_AAL")
+    yrange <- c(0.2,1)
+  else
+    yrange <- c(0.2,0.8)
+  acc <- boxplotd(test,facecon,c("#f8766d","#00ba38","#619cff"))+
+    coord_cartesian(ylim = yrange)+
     scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
     scale_x_discrete(labels=c('VisFace', 'InvFace', 'Odor'))
   print(acc)
-  # ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 3, height = 3,
-  #        device = cairo_pdf)
+  ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 4, height = 3,
+         device = cairo_pdf)
 }
 
 # trans decoding results

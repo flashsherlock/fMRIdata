@@ -4,7 +4,7 @@ subs=3:29;
 subnum=length(subs);
 rois={'BoxROIsext'};
 shift=[6];
-check = 'face'; 
+check = 'odor'; 
 if strcmp(check,'odor')
     comb={'all'};
 else

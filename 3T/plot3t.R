@@ -9,7 +9,8 @@ library(Rmisc)
 library(R.matlab)
 library(Hmisc)
 library(dataPreparation)
-theme_set(theme_prism(base_line_size = 0.5))
+# set to 0.5 will results in 32/30
+theme_set(theme_prism(base_line_size = 15/64, base_rect_size = 15/64))
 showtext::showtext_auto(enable = F)
 sysfonts::font_add("Helvetica","Helvetica.ttc")
 theme_update(text=element_text(family="Helvetica",face = "plain"))
@@ -79,15 +80,15 @@ boxplotv <- function(data, con, select){
   ggplot(data=Violin_data, aes(x=condition)) + 
     # geom_boxplot(aes(y=Score,color=test),
     #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
-    geom_errorbar(data=df, position = position_dodge(0.6),
+    geom_errorbar(data=df, position = position_dodge(0.6), size=15/64,
                   aes(ymin=y0,ymax=y100,color=test),linetype = 1,width = 0.3)+ # add line to whisker
-    geom_boxplot(data=df,
+    geom_boxplot(data=df, size=15/64,
                  aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=test),
                  outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6),
                  stat = "identity") +
     scale_color_manual(values=c("#faa61e","#5067b0"))+
     # geom_point(aes(x=con, y=Score,fill=test), size = 0.5, color = "gray",show.legend = F)+
-    geom_line(aes(x=con,y=Score,group = interaction(id,condition)), color = "#e8e8e8")+
+    geom_line(aes(x=con,y=Score,group = interaction(id,condition)), size=15/64, color = "#e8e8e8")+
     theme(axis.title.x=element_blank())
 }
 
@@ -104,14 +105,14 @@ lineplot <- function(data, con, select){
   Violin_data$test <- factor(Violin_data$test, levels = tests,ordered = TRUE)
   Violin_data$condition <- factor(Violin_data$condition, levels = con, labels = str_to_title(con), ordered = F)
   
-  df <- summarySEwithin(Violin_data,measurevar = "Score",withinvars = c("condition","test"),idvar = "id")
+  df <- summarySEwithin(Violin_data,measurevar = "Score",withinvars = c("condition","test"),idvar = "id",na.rm = T)
   
   # lineplot
   pd <- position_dodge(0.15)
   ggplot(data=df, aes(x=condition,y=Score,color=test)) + 
     geom_point(size = 0.5, show.legend = F)+
-    geom_line(aes(group=test),stat = "identity")+
-    geom_errorbar(aes(ymin=Score-se, ymax=Score+se),width=.15)+
+    geom_line(aes(group=test), size=15/64,stat = "identity")+
+    geom_errorbar(aes(ymin=Score-se, ymax=Score+se), size=15/64, width=.15)+
     scale_color_manual(values=c("#faa61e","#5067b0"))+
     scale_fill_manual(values = c("#faa61e","#5067b0")) +
     theme(axis.title.x=element_blank())
@@ -134,17 +135,17 @@ boxplotd <- function(data, select, colors=rep("black",each=length(select))){
   Violin_data <- replace(Violin_data,is.na(Violin_data),99)
   ggplot(data = Violin_data, aes(x = parameter)) +
     geom_errorbar(
-      data = df, position = position_dodge(0.6), show.legend = F,
+      data = df, position = position_dodge(0.6), show.legend = F, size=15/64,
       aes(ymin = y0, ymax = y100, color = parameter), linetype = 1, width = 0.15) + # add line to whisker
     geom_boxplot(
       data = df,
-      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = parameter),
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = parameter), size=15/64,
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity", show.legend = F) +
     # geom_text(aes(label = id, x = con+0.25, y = Score), size = 3.5)+
     geom_point(aes(x = con, y = Score, group = id), size = 0.5, color = "gray", show.legend = F) +
     scale_color_manual(values = colors)+
-    geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
+    geom_hline(yintercept = 0.5, size=15/64, linetype = "dashed", color = "black")+
     theme(axis.title.x = element_blank())
 }
 # default boxplot with txt
@@ -164,17 +165,17 @@ boxplotdt <- function(data, select, colors=rep("black",each=length(select))){
   Violin_data <- replace(Violin_data,is.na(Violin_data),99)
   ggplot(data = Violin_data, aes(x = parameter)) +
     geom_errorbar(
-      data = df, position = position_dodge(0.6), show.legend = F,
+      data = df, position = position_dodge(0.6), show.legend = F, size=15/64,
       aes(ymin = y0, ymax = y100, color = parameter), linetype = 1, width = 0.15) + # add line to whisker
     geom_boxplot(
       data = df,
-      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = parameter),
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = parameter), size=15/64,
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity", show.legend = F) +
     geom_text(aes(label = id, x = con+0.5, y = Score), size = 3.5,position=position_jitter(width=0.2,height=0.01))+
     geom_point(aes(x = con, y = Score, group = id), size = 0.5, color = "gray", show.legend = F) +
     scale_color_manual(values = colors)+
-    geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
+    geom_hline(yintercept = 0.5, size=15/64, linetype = "dashed", color = "black")+
     theme(axis.title.x = element_blank())
 }
 
@@ -197,15 +198,15 @@ boxplot <- function(data, con, select, hx=0){
   # boxplot
   ggplot(data = Violin_data, aes(x = condition)) +
     geom_errorbar(
-      data = df, position = position_dodge(0.6), color = '#50acdf',
+      data = df, position = position_dodge(0.6), color = '#50acdf', size=15/64,
       aes(ymin = y0, ymax = y100), linetype = 1, width = 0.15) + # add line to whisker
     geom_boxplot(
       data = df,
-      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100), size=15/64,
       outlier.shape = NA, fill = "white", width = 0.25, position = position_dodge(0.6),
       stat = "identity", color = '#50acdf') +
     geom_point(aes(x = con, y = Score), size = 0.5, color = "gray", show.legend = F) +
-    geom_hline(yintercept = hx, size = 0.5, linetype = "dashed", color = "black")+
+    geom_hline(yintercept = hx, size=15/64, linetype = "dashed", color = "black")+
     theme(axis.title.x = element_blank())
 }
 # box plot for comparision
@@ -226,15 +227,15 @@ boxcp <- function(data, con, select, colors=rep("black",each=length(select))){
   ggplot(data=Violin_data, aes(x=condition)) + 
     # geom_boxplot(aes(y=Score,color=test),
     #              outlier.shape = NA, fill="white", width=0.5, position = position_dodge(0.6))+
-    geom_errorbar(data=df, position = position_dodge(0.6), show.legend = F,
+    geom_errorbar(data=df, position = position_dodge(0.6), show.legend = F, size=15/64,
                   aes(ymin=y0,ymax=y100,color = condition),linetype = 1,width = 0.15)+ # add line to whisker
     geom_boxplot(data=df, show.legend = F,
                  aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = condition),
                  outlier.shape = NA, fill="white", width=0.25, position = position_dodge(0.6),
-                 stat = "identity") +
+                 stat = "identity", size=15/64) +
     scale_color_manual(values = colors)+
     # geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
-    geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8")+
+    geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8", size = 0.15*0.15/0.32)+
     theme(axis.title.x=element_blank())
 }
 # function for loading mvpa acc
@@ -372,7 +373,7 @@ laby <- ifelse(str_detect(prefix,"ppi"),paste0("Connectivity with ",strsplit(dat
 box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"))+
   labs(y=laby)+
   # coord_cartesian(ylim = c(-0.2,0.4))+
-  geom_hline(yintercept = 0, size = 0.5, linetype = "dashed", color = "black")+
+  geom_hline(yintercept = 0, size = 15/64, linetype = "dashed", color = "black")+
   scale_x_discrete(labels=c("Visible","Invisible"))
 ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_"), data_name, ".pdf"), box_vin, width = 3, height = 3,
        device = cairo_pdf)
@@ -422,8 +423,8 @@ coinbox <- boxplot(betas,"Amy_invis_inter","coininv",0)+
   scale_y_continuous(name = "Mean Beta Difference",expand = expansion(add = c(0,0)),breaks = c(seq(from=-0.2, to=0.2, by=0.1)))
 # boxcp for visible and invisible
 box_convin <- boxcp(betas,c("coinvis","coininv"),c("coininv","coinvis"))+
-  labs(y="Mean Beta Difference")+
-  geom_hline(yintercept = 0, size = 0.5, linetype = "dashed", color = "black")+
+  labs(y="Beta Difference\n(congruent & incongruent)")+
+  geom_hline(yintercept = 0, size = 15/64, linetype = "dashed", color = "black")+
   coord_cartesian(ylim = c(-0.2,0.3))+
   scale_x_discrete(labels=c("Visible","Invisible"))
 print(box_convin)
@@ -433,6 +434,44 @@ ggsave(paste0(figure_dir,"amy_convin.pdf"), box_convin, width = 3, height = 3,
 amy <- wrap_plots(line_hfinv,line_hfvis,coinbox,box_convin,ncol = 2)
 print(amy)
 ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiamy","amy"), ".pdf"), amy, width = 8, height = 6)
+
+# ppi with OFC
+data_name <- "OFC_AAL"
+prefix <- 'indi8conppi_'
+# for each data_name
+txtname <- paste0(data_dir,prefix,data_name,'.txt')
+betas <- extractdata(txtname)
+names <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
+           'HappPleaVis','HappPleaInv','HappUnpleaVis','HappUnpleaInv')
+# convert betas$condition to factors
+betas$condition <- factor(betas$condition, levels = c(1:8), labels = names, ordered = F)
+# reshape data to wide format
+betas <- reshape2::dcast(betas, id ~ condition, value.var = "NZmean")
+# add con-incon columns
+betas <- mutate(betas,incon = rowMeans(betas[,c(2,3,8,9)]),con = rowMeans(betas[4:7]))
+betas <- mutate(betas,vis = rowMeans(betas[,c(2,4,6,8)]),inv = rowMeans(betas[,c(3,5,7,9)]))
+betas <- mutate(betas,coin = con-incon)
+betas <- mutate(betas,vin = vis-inv)
+# ttest
+cat("*********",data_name,"ttest","*********")
+betas <- dplyr::mutate_if(betas,is.numeric, FindOutliers)
+bruceR::TTEST(betas, names)
+# average names in betas
+bruceR::TTEST(betas,c("vis","inv","vin"))
+bruceR::TTEST(betas,c("vis","inv"),paired = T)
+# visible invisble compare
+laby <- ifelse(str_detect(prefix,"ppi"),paste0("Connectivity with ",strsplit(data_names,"_")[[1]][1]),"Mean Beta")
+box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"))+
+  labs(y=laby)+
+  # coord_cartesian(ylim = c(-0.2,0.4))+
+  geom_hline(yintercept = 0, size = 15/64, linetype = "dashed", color = "black")+
+  scale_x_discrete(labels=c("Visible","Invisible"))
+ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_"), data_name, ".pdf"), box_vin, width = 3, height = 3,
+       device = cairo_pdf)
+# save
+amyinter <- wrap_plots(box_convin,box_vin,ncol = 2)
+print(amyinter)
+ggsave(paste0(figure_dir,"Amy_inter", ".pdf"), amyinter, width = 7, height = 3)
 
 # 5 rating results -------------------------------------------------------------------
 # load data
@@ -451,7 +490,7 @@ rateva <- boxcp(rating,c("Rose","Fish"),c("Valence.Rose", "Valence.Fish"),c("#fa
   scale_y_continuous(name = "Odor pleasantness",breaks = c(1,seq(from=2, to=7, by=1)))
 ratemri <-  wrap_plots(ratein,rateva,ncol = 2)
 print(ratemri)
-ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 6, height = 3,
+ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 5, height = 3,
        device = cairo_pdf)
 # 6 mvpa results -------------------------------------------------------------------
 facecon <- c("vis","inv","all")
@@ -505,8 +544,9 @@ for (roi in rois[1:2]) {
   # save test to dresults
   dresults[[roi]][['trans']] <- test
   cat("*********",roi,"*********")
+  # remove outliers
+  test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
   bruceR::TTEST(test,transcon,test.value=0.5)
-  
   acct[[roi]] <- boxplotd(test,transcon)+
     coord_cartesian(ylim = c(0.2,0.8))+
     scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
@@ -514,8 +554,8 @@ for (roi in rois[1:2]) {
                                 "Odor\nInvFace","Odor\nVisFace",
                                 "InvFace\nOdor","VisFace\nOdor"))
   print(acct[[roi]])
-  # ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
-  #        device = cairo_pdf)
+  ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
+         device = cairo_pdf)
 }
 
 # lesion cluster decoding results
@@ -575,10 +615,13 @@ for (roi in rois[1:2]) {
   # split p with "_"
   cat("*********",roi,"*********")
   # print(mean(test[,2]))
+  # remove outliers
+  test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
   bruceR::TTEST(test,names(test)[-1],test.value=0.5)
   cp <- c("inv_p1","inv_l2","vis_p1","vis_l2","all_p1","all_l2",
           "inv_l0","inv_l2","vis_l0","vis_l2","all_l0","all_l2",
           "inv_l0","inv_p2","vis_l0","vis_p2","all_l0","all_p2")
+  # paired t-test
   bruceR::TTEST(test,cp,paired = T)
   # melt test and split into two variables
   test <- reshape2::melt(test, id.vars = "id")
@@ -594,7 +637,8 @@ for (roi in rois[1:2]) {
   n <- length(unique(test$lesion))
   dg <- 0.8
   test <- transform(test, con = jitter(as.numeric(condition)+(as.numeric(lesion)-n/2-0.5)*(dg/n), 0.3))
-  
+  # replace NA values with 99
+  test <- replace(test,is.na(test),99)
   accl[[roi]] <- ggplot(data=df, aes(x=condition,color=condition,linetype = lesion)) + 
     geom_errorbar(position = position_dodge(dg),
                   aes(ymin=y0,ymax=y100),width = 0.4)+ # add line to whisker
@@ -607,14 +651,14 @@ for (roi in rois[1:2]) {
     # geom_line(data=test, aes(x=con, y=Score, group = interaction(id,condition)), color = "#e8e8e8",linetype = 1)+
     coord_cartesian(ylim = c(0.2,1))+
     guides(color="none")+
-    geom_hline(yintercept = 0.5, size = 0.5, linetype = "dashed", color = "black")+
+    geom_hline(yintercept = 0.5, size = 15/64, linetype = "dashed", color = "black")+
     scale_y_continuous(expand = expansion(add = c(0,0)),name = "Decoding Accuracy",breaks = seq(from=0.2, to=1, by=0.1))+
     theme(axis.title.x=element_blank())
   print(accl[[roi]])
   ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), accl[[roi]], width = 5, height = 3,
          device = cairo_pdf)
 }
-accs <- wrap_plots(accl[[1]],acct[[1]],accl[[2]],acct[[2]],ncol = 2, guides = 'collect')
+accs <- wrap_plots(accl[[2]],acct[[2]],accl[[1]],acct[[1]],ncol = 2, guides = 'collect')
 ggsave(paste0(figure_dir,"mvpa_all.pdf"), accs, width = 12, height = 8,
        device = cairo_pdf)
 # # 4 stats number of voxels -------------------------------------------------------------------

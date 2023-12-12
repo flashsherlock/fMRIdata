@@ -422,7 +422,7 @@ coinbox <- boxplot(betas,"Amy_invis_inter","coininv",0)+
   coord_cartesian(ylim = c(-0.18,0.25))+
   scale_y_continuous(name = "Mean Beta Difference",expand = expansion(add = c(0,0)),breaks = c(seq(from=-0.2, to=0.2, by=0.1)))
 # boxcp for visible and invisible
-box_convin <- boxcp(betas,c("coinvis","coininv"),c("coininv","coinvis"))+
+box_convin <- boxcp(betas,c("coinvis","coininv"),c("coininv","coinvis"),c("#f8766d","#00ba38"))+
   labs(y="Beta Difference\n(congruent & incongruent)")+
   geom_hline(yintercept = 0, size = 15/64, linetype = "dashed", color = "black")+
   coord_cartesian(ylim = c(-0.2,0.3))+
@@ -461,7 +461,7 @@ bruceR::TTEST(betas,c("vis","inv","vin"))
 bruceR::TTEST(betas,c("vis","inv"),paired = T)
 # visible invisble compare
 laby <- ifelse(str_detect(prefix,"ppi"),paste0("Connectivity with ",strsplit(data_names,"_")[[1]][1]),"Mean Beta")
-box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"))+
+box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"),c("#f8766d","#00ba38"))+
   labs(y=laby)+
   # coord_cartesian(ylim = c(-0.2,0.4))+
   geom_hline(yintercept = 0, size = 15/64, linetype = "dashed", color = "black")+
@@ -490,7 +490,7 @@ rateva <- boxcp(rating,c("Rose","Fish"),c("Valence.Rose", "Valence.Fish"),c("#fa
   scale_y_continuous(name = "Odor pleasantness",breaks = c(1,seq(from=2, to=7, by=1)))
 ratemri <-  wrap_plots(ratein,rateva,ncol = 2)
 print(ratemri)
-ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 5, height = 3,
+ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 4, height = 3,
        device = cairo_pdf)
 # 6 mvpa results -------------------------------------------------------------------
 facecon <- c("vis","inv","all")
@@ -509,7 +509,7 @@ ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV
 
 # decoding results
 dresults <- list()
-for (roi in rois[1:3]) {
+for (roi in ffvs[1]) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
   testodor <- readacc("roi_odor_shift6",facecon[3],roi)
@@ -539,6 +539,51 @@ for (roi in rois[1:3]) {
          device = cairo_pdf)
 }
 
+# combine decoding results
+test <- dresults[[rois[1]]][['normal']]
+names(test)[-1] <- paste0(names(test[-1]),"_",str_sub(rois[1],1,3))
+for (roi in rois[2:3]) {
+  test0 <- dresults[[roi]][['normal']]
+  names(test0)[-1] <- paste0(names(test0[-1]),"_",str_sub(roi,1,3))
+  test <- merge(test,test0)
+}
+# remove outliers
+test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
+bruceR::TTEST(test,names(test)[-1],test.value=0.5)
+# melt test and split into two variables
+test <- reshape2::melt(test, id.vars = "id")
+test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
+# convert con and lesion into factor
+test$condition <- factor(test$condition, levels = c("vis","inv","all"), labels = c("VisFace","InvFace","Odor"))
+test$lesion <- factor(test$lesion, levels = c("OFC","Amy","FFV"), labels = c("OFC","Amygdala","Fusiform"))
+# summarise data 5% and 90% quantile
+names(test) <- str_replace(names(test),"value","Score")
+df <- ddply(test, .(condition,lesion), boxset)
+# jitter
+set.seed(111)
+n <- length(unique(test$condition))
+dg <- 0.8
+test <- transform(test, con = jitter(as.numeric(lesion)+(as.numeric(condition)-n/2-0.5)*(dg/n), 0.3))
+# replace NA values with 99
+test <- replace(test,is.na(test),99)
+accs <- ggplot(data=df, aes(x=lesion,color=condition)) + 
+  geom_errorbar(position = position_dodge(dg), size = 15/64,
+                aes(ymin=y0,ymax=y100),width = 0.3)+ # add line to whisker
+  geom_boxplot(stat = "identity", size = 15/64,
+               aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+               outlier.shape = NA, fill="white", width=0.5, position = position_dodge(dg)) +
+  scale_color_manual(values=c("#f8766d","#00ba38","#619cff"))+
+  scale_linetype_manual(values = c(1,6,3,5))+
+  geom_point(data=test,aes(x=con, y=Score, group = interaction(id,condition)), size = 0.5, color = "gray",show.legend = F)+
+  # geom_line(data=test, aes(x=con, y=Score, group = interaction(id,condition)), color = "#e8e8e8",linetype = 1)+
+  coord_cartesian(ylim = c(0.3,0.91))+
+  geom_hline(yintercept = 0.5, size = 15/64, linetype = "dashed", color = "black")+
+  scale_y_continuous(expand = expansion(add = c(0,0)),name = "Decoding Accuracy",breaks = seq(from=0.2, to=1, by=0.1))+
+  theme(axis.title.x=element_blank())
+print(accs)
+ggsave(paste0(figure_dir,"mvpa_all.pdf"), accs, width = 6, height = 3,
+       device = cairo_pdf)
+
 # trans decoding results
 acct <- list()
 for (roi in rois[1:2]) {
@@ -560,31 +605,7 @@ for (roi in rois[1:2]) {
          device = cairo_pdf)
 }
 ggsave(paste0(figure_dir,"mvpa_transall.pdf"), wrap_plots(acct[[2]],acct[[1]],ncol = 1),
-       width = 7, height = 6, device = cairo_pdf)
-# lesion cluster decoding results
-prefix <- c('face_vis','face_inv','odor_all');
-for (roi in rois[1:2]) {
-  # lecons start with p
-  lecon <- c(paste0(prefix,'_','l0'),paste0(prefix,'_','l00'))
-  # sort lecon
-  lecon <- lecon[c(1,4,2,5,3,6)]
-  test <- readacc("roi_lesion_shift6",lecon,roi)
-  # decast test
-  test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
-  # save test to dresults
-  dresults[[roi]][['cluster']] <- test
-  cat("*********",roi,"*********")
-  bruceR::TTEST(test,lecon,test.value=0.5)
-  bruceR::TTEST(test,lecon,paired = T)
-  
-  acc <- boxplotd(test,lecon)+
-    coord_cartesian(ylim = c(0.2,0.8))+
-    scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
-    scale_x_discrete(labels = lecon)
-  print(acc)
-  ggsave(paste0(figure_dir,"mvpa_clusterlesion_",roi, ".pdf"), acc, width = 4, height = 3,
-         device = cairo_pdf)
-}
+       width = 6, height = 6, device = cairo_pdf)
 
 # lesion permutation
 prefix <- c('face_vis','face_inv','odor_all');
@@ -669,6 +690,32 @@ for (roi in rois[1:2]) {
 accs <- wrap_plots(accl[[2]],accl[[1]],ncol = 1, guides = 'collect')
 ggsave(paste0(figure_dir,"mvpa_lesionall.pdf"), accs, width = 7, height = 6,
        device = cairo_pdf)
+
+# # lesion cluster decoding results
+# prefix <- c('face_vis','face_inv','odor_all');
+# for (roi in rois[1:2]) {
+#   # lecons start with p
+#   lecon <- c(paste0(prefix,'_','l0'),paste0(prefix,'_','l00'))
+#   # sort lecon
+#   lecon <- lecon[c(1,4,2,5,3,6)]
+#   test <- readacc("roi_lesion_shift6",lecon,roi)
+#   # decast test
+#   test <- reshape2::dcast(test, id ~ con, value.var = "acc", fun.aggregate = mean)
+#   # save test to dresults
+#   dresults[[roi]][['cluster']] <- test
+#   cat("*********",roi,"*********")
+#   bruceR::TTEST(test,lecon,test.value=0.5)
+#   bruceR::TTEST(test,lecon,paired = T)
+#   
+#   acc <- boxplotd(test,lecon)+
+#     coord_cartesian(ylim = c(0.2,0.8))+
+#     scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
+#     scale_x_discrete(labels = lecon)
+#   print(acc)
+#   ggsave(paste0(figure_dir,"mvpa_clusterlesion_",roi, ".pdf"), acc, width = 4, height = 3,
+#          device = cairo_pdf)
+# }
+
 # # 4 stats number of voxels -------------------------------------------------------------------
 # expected threshold
 # trials <- 27

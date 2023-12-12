@@ -494,10 +494,14 @@ ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 5, height = 3,
        device = cairo_pdf)
 # 6 mvpa results -------------------------------------------------------------------
 facecon <- c("vis","inv","all")
-transcon <- c("inv_vis","vis_inv","test_inv","test_vis","train_inv","train_vis")
-translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
-                "Odor\nInvisible Face","Odor\nVisible Face",
-                "Invisible Face\nOdor","Visible Face\nOdor")
+# transcon <- c("inv_vis","vis_inv","test_inv","test_vis","train_inv","train_vis")
+# translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
+#                 "Odor\nInvisible Face","Odor\nVisible Face",
+#                 "Invisible Face\nOdor","Visible Face\nOdor")
+transcon <- c("vis_inv","inv_vis","train_vis","test_vis","train_inv","test_inv")
+translabel <- c("VisFace\nInvFace","InvFace\nVisFace",
+                "VisFace\nOdor","Odor\nVisFace",
+                "InvFace\nOdor","Odor\nInvFace")
 rois <- c("Amy8_align","OFC_AAL","FFV_CA_max3v","Pir_new005")
 rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 rois <- c("FFV_CA_max2v")
@@ -548,16 +552,15 @@ for (roi in rois[1:2]) {
   test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
   bruceR::TTEST(test,transcon,test.value=0.5)
   acct[[roi]] <- boxplotd(test,transcon)+
-    coord_cartesian(ylim = c(0.2,0.8))+
+    coord_cartesian(ylim = c(0.3,0.71))+
     scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
-    scale_x_discrete(labels = c("InvFace\nVisFace","VisFace\nInvFace",
-                                "Odor\nInvFace","Odor\nVisFace",
-                                "InvFace\nOdor","VisFace\nOdor"))
+    scale_x_discrete(labels = translabel)
   print(acct[[roi]])
   ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
          device = cairo_pdf)
 }
-
+ggsave(paste0(figure_dir,"mvpa_transall.pdf"), wrap_plots(acct[[2]],acct[[1]],ncol = 1),
+       width = 7, height = 6, device = cairo_pdf)
 # lesion cluster decoding results
 prefix <- c('face_vis','face_inv','odor_all');
 for (roi in rois[1:2]) {
@@ -628,7 +631,8 @@ for (roi in rois[1:2]) {
   test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
   # convert con and lesion into factor
   test$condition <- factor(test$condition, levels = c("vis","inv","all"), labels = c("VisFace","InvFace","Odor"))
-  test$lesion <- factor(test$lesion, levels = c("l0","l2","p1","p2"), labels = c("Intact","Lesion","Random","Clusters"))
+  test$lesion <- factor(test$lesion, levels = c("l0","p2","l2","p1"), labels = c("Intact","Clusters","Lesion","Random"))
+  test <- subset(test,lesion%in%c("Clusters","Lesion","Random"))
   # summarise data 5% and 90% quantile
   names(test) <- str_replace(names(test),"value","Score")
   df <- ddply(test, .(condition,lesion), boxset)
@@ -636,20 +640,24 @@ for (roi in rois[1:2]) {
   set.seed(111)
   n <- length(unique(test$lesion))
   dg <- 0.8
-  test <- transform(test, con = jitter(as.numeric(condition)+(as.numeric(lesion)-n/2-0.5)*(dg/n), 0.3))
+  if (n==4){
+    test <- transform(test, con = jitter(as.numeric(condition)+(as.numeric(lesion)-n/2-0.5)*(dg/n), 0.3))
+  } else{
+    test <- transform(test, con = jitter(as.numeric(condition)+(as.numeric(lesion)-n/2-1.5)*(dg/n), 0.3))
+  }
   # replace NA values with 99
   test <- replace(test,is.na(test),99)
   accl[[roi]] <- ggplot(data=df, aes(x=condition,color=condition,linetype = lesion)) + 
-    geom_errorbar(position = position_dodge(dg),
-                  aes(ymin=y0,ymax=y100),width = 0.4)+ # add line to whisker
-    geom_boxplot(stat = "identity",
+    geom_errorbar(position = position_dodge(dg), size = 15/64,
+                  aes(ymin=y0,ymax=y100),width = 0.3)+ # add line to whisker
+    geom_boxplot(stat = "identity", size = 15/64,
                  aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
                  outlier.shape = NA, fill="white", width=0.5, position = position_dodge(dg)) +
     scale_color_manual(values=c("#f8766d","#00ba38","#619cff"))+
-    scale_linetype_manual(values = c(1,3,6,5))+
+    scale_linetype_manual(values = c(1,6,3,5))+
     geom_point(data=test,aes(x=con, y=Score, group = interaction(id,condition)), size = 0.5, color = "gray",show.legend = F)+
     # geom_line(data=test, aes(x=con, y=Score, group = interaction(id,condition)), color = "#e8e8e8",linetype = 1)+
-    coord_cartesian(ylim = c(0.2,1))+
+    coord_cartesian(ylim = c(0.3,0.95))+
     guides(color="none")+
     geom_hline(yintercept = 0.5, size = 15/64, linetype = "dashed", color = "black")+
     scale_y_continuous(expand = expansion(add = c(0,0)),name = "Decoding Accuracy",breaks = seq(from=0.2, to=1, by=0.1))+
@@ -658,8 +666,8 @@ for (roi in rois[1:2]) {
   ggsave(paste0(figure_dir,"mvpa_lesion_",roi, ".pdf"), accl[[roi]], width = 5, height = 3,
          device = cairo_pdf)
 }
-accs <- wrap_plots(accl[[2]],acct[[2]],accl[[1]],acct[[1]],ncol = 2, guides = 'collect')
-ggsave(paste0(figure_dir,"mvpa_all.pdf"), accs, width = 12, height = 8,
+accs <- wrap_plots(accl[[2]],accl[[1]],ncol = 1, guides = 'collect')
+ggsave(paste0(figure_dir,"mvpa_lesionall.pdf"), accs, width = 7, height = 6,
        device = cairo_pdf)
 # # 4 stats number of voxels -------------------------------------------------------------------
 # expected threshold

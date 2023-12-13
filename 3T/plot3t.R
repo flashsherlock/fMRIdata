@@ -380,6 +380,7 @@ ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_")
 }
 
 # 4 boxplot for con-incon -------------------------------------------------------------------
+alldata <- list()
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
@@ -400,6 +401,7 @@ betas <- mutate(betas,inconvis = rowMeans(betas[,c(2,8)]),convis = rowMeans(beta
 betas <- mutate(betas,coinvis = -(convis-inconvis))
 betas <- mutate(betas,inconinv = rowMeans(betas[,c(3,9)]),coninv = rowMeans(betas[,c(5,7)]))
 betas <- mutate(betas,coininv = -(coninv-inconinv))
+alldata[["betainter"]] <- betas
 # ttest
 # bruceR::TTEST(betas,c("coin","coinvis","coininv"))
 # bruceR::TTEST(betas,c("coinvis","coininv"),paired = T)
@@ -452,6 +454,7 @@ betas <- mutate(betas,incon = rowMeans(betas[,c(2,3,8,9)]),con = rowMeans(betas[
 betas <- mutate(betas,vis = rowMeans(betas[,c(2,4,6,8)]),inv = rowMeans(betas[,c(3,5,7,9)]))
 betas <- mutate(betas,coin = con-incon)
 betas <- mutate(betas,vin = vis-inv)
+alldata[["betappi"]] <- betas
 # ttest
 cat("*********",data_name,"ttest","*********")
 betas <- dplyr::mutate_if(betas,is.numeric, FindOutliers)
@@ -476,8 +479,11 @@ ggsave(paste0(figure_dir,"Amy_inter", ".pdf"), amyinter, width = 7, height = 3)
 # 5 rating results -------------------------------------------------------------------
 # load data
 rating <- Hmisc::spss.get(paste0(data_dir,"../Rose_Fish_rating.sav"))
-# rename subject to id
-rating <- dplyr::rename(rating, id = Subject)
+info <- Hmisc::spss.get(paste0(data_dir,"../info.sav"))
+info$id <- str_remove(info$id," ")
+info <- subset(info,!id%in%c("S01","S02"))
+describe(info$age)
+table(info$gender)
 # Intensity
 bruceR::TTEST(rating,c("Intensity.Rose","Intensity.Fish"),paired = T)
 ratein <- boxcp(rating,c("Rose","Fish"),c("Intensity.Rose", "Intensity.Fish"),c("#faa61e","#5067b0"))+
@@ -492,6 +498,8 @@ ratemri <-  wrap_plots(ratein,rateva,ncol = 2)
 print(ratemri)
 ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 4, height = 3,
        device = cairo_pdf)
+alldata[["rating"]] <- merge(info,rating,all=T)
+
 # 6 mvpa results -------------------------------------------------------------------
 facecon <- c("vis","inv","all")
 # transcon <- c("inv_vis","vis_inv","test_inv","test_vis","train_inv","train_vis")
@@ -547,6 +555,7 @@ for (roi in rois[2:3]) {
   names(test0)[-1] <- paste0(names(test0[-1]),"_",str_sub(roi,1,3))
   test <- merge(test,test0)
 }
+alldata[["mvparoi"]] <- test
 # remove outliers
 test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
 bruceR::TTEST(test,names(test)[-1],test.value=0.5)
@@ -592,6 +601,7 @@ for (roi in rois[1:2]) {
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
   # save test to dresults
   dresults[[roi]][['trans']] <- test
+  alldata[[paste0("mvpatrans_",str_sub(roi,1,3))]] <- test
   cat("*********",roi,"*********")
   # remove outliers
   test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
@@ -636,6 +646,7 @@ for (roi in rois[1:2]) {
   names(test) <- str_replace(names(test),"(face_)?(odor_)?","")
   # save test to dresults
   dresults[[roi]][['roimeanperm']] <- test
+  alldata[[paste0("mvpalesion_",str_sub(roi,1,3))]] <- test
   # split p with "_"
   cat("*********",roi,"*********")
   # print(mean(test[,2]))
@@ -690,6 +701,10 @@ for (roi in rois[1:2]) {
 accs <- wrap_plots(accl[[2]],accl[[1]],ncol = 1, guides = 'collect')
 ggsave(paste0(figure_dir,"mvpa_lesionall.pdf"), accs, width = 7, height = 6,
        device = cairo_pdf)
+# save alldata into Rdata
+saveRDS(alldata, paste0(data_dir,'../alldata.Rdata'))
+alldata <- readRDS(paste0(data_dir,'../alldata.Rdata'))
+# lapply(alldata, function(x) write.table(data.frame(x), paste0(data_dir,'../data.csv'), append= T, sep=',' ))
 
 # # lesion cluster decoding results
 # prefix <- c('face_vis','face_inv','odor_all');

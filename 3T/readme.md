@@ -100,6 +100,12 @@ Generate group level lesion masks for decoding.
 ## group_mvpa_indlesion.bash
 Generate individual level lesion masks for decoding.
 
+## group_mvpa_lesionmap.bash
+Generate individual level lesion masks from group level masks and ensure they are located in the individual ROI.
+
+## group_mvpa_lesionacc.bash
+Generate individual level lesion masks according to the proportion of voxels of significant clusters in each ROI at group level.
+
 ## group_interaction.bash
 Group level ANOVA.
 
@@ -191,6 +197,9 @@ Restrict t values for plotting.
 
 ## plot_roi.py
 Plot ROI for mvpa.
+
+## plot_roisub.py
+Plot individual ROI.
 
 ## GenerateDynamicCFS_UMNVAL.m
 Generate dynamic noise.

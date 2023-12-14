@@ -507,9 +507,11 @@ facecon <- c("vis","inv","all")
 #                 "Odor\nInvisible Face","Odor\nVisible Face",
 #                 "Invisible Face\nOdor","Visible Face\nOdor")
 transcon <- c("vis_inv","inv_vis","train_vis","test_vis","train_inv","test_inv")
+transconnew <- c("train_visinv","test_visinv","train_visodo","test_visodo","train_invodo","test_invodo")
 translabel <- c("VisFace\nInvFace","InvFace\nVisFace",
-"VisFace\nOdor","Odor\nVisFace",
-"InvFace\nOdor","Odor\nInvFace")
+                "VisFace\nOdor","Odor\nVisFace",
+                "InvFace\nOdor","Odor\nInvFace")
+translabelnew <- c("Visible\nInvisible","Visible\nOlfactory","Invisible\nOlfactory")
 rois <- c("Amy8_align","OFC_AAL","FFV_CA_max3v","Pir_new005")
 rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 rois <- c("FFV_CA_max2v")
@@ -585,9 +587,7 @@ accs <- ggplot(data=df, aes(x=lesion,color=condition)) +
                aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
                outlier.shape = NA, fill="white", width=0.5, position = position_dodge(dg)) +
   scale_color_manual(values=c("#f8766d","#00ba38","#619cff"))+
-  scale_linetype_manual(values = c(1,6,3,5))+
   geom_point(data=test,aes(x=con, y=Score, group = interaction(id,condition)), size = 0.5, color = "gray",show.legend = F)+
-  # geom_line(data=test, aes(x=con, y=Score, group = interaction(id,condition)), color = "#e8e8e8",linetype = 1)+
   coord_cartesian(ylim = c(0.3,0.91))+
   geom_hline(yintercept = 0.5, size = 15/64, linetype = "dashed", color = "black")+
   scale_y_continuous(expand = expansion(add = c(0,0)),name = "Decoding Accuracy",breaks = seq(from=0.2, to=1, by=0.1))+
@@ -609,16 +609,48 @@ for (roi in rois[1:2]) {
   # remove outliers
   test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
   bruceR::TTEST(test,transcon,test.value=0.5)
-  acct[[roi]] <- boxplotd(test,transcon)+
-  coord_cartesian(ylim = c(0.3,0.71))+
-  scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
-  scale_x_discrete(labels = translabel)
-  print(acct[[roi]])
-    ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
+  # acct[[roi]] <- boxplotd(test,transcon)+
+  #   coord_cartesian(ylim = c(0.3,0.71))+
+  #   scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
+  #   scale_x_discrete(labels = translabel)
+  # print(acct[[roi]])
+  
+  # group into three conditions
+  # melt test and split into two variables
+  test <- reshape2::melt(test, id.vars = "id")
+  test$variable <- factor(test$variable, levels = transcon, labels = transconnew)
+  test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
+  # convert con and lesion into factor
+  test$condition <- factor(test$condition, levels = c("train", "test"), labels = c("train", "test"))
+  test$lesion <- factor(test$lesion, levels = c("visinv", "visodo", "invodo"), labels = c("visinv", "visodo", "invodo"))
+  # summarise data 5% and 90% quantile
+  names(test) <- str_replace(names(test),"value","Score")
+  df <- ddply(test, .(condition,lesion), boxset)
+  # jitter
+  set.seed(111)
+  n <- length(unique(test$condition))
+  dg <- 0.8
+  test <- transform(test, con = jitter(as.numeric(lesion)+(as.numeric(condition)-n/2-0.5)*(dg/n), 0.3))
+  # replace NA values with 99
+  test <- replace(test,is.na(test),99)
+  acct[[roi]] <- ggplot(data=df, aes(x=lesion,color=condition)) + 
+    geom_errorbar(position = position_dodge(dg), size = 15/64,
+                  aes(ymin=y0,ymax=y100),width = 0.3)+ # add line to whisker
+    geom_boxplot(stat = "identity", size = 15/64,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100),
+                 outlier.shape = NA, fill="white", width=0.5, position = position_dodge(dg)) +
+    scale_color_manual(values=c("#000000","#666666"),labels = c("a-b","b-a"))+
+    geom_point(data=test,aes(x=con, y=Score, group = interaction(id,condition)), size = 0.5, color = "gray",show.legend = F)+
+    coord_cartesian(ylim = c(0.3,0.71))+
+    geom_hline(yintercept = 0.5, size = 15/64, linetype = "dashed", color = "black")+
+    scale_y_continuous(expand = expansion(add = c(0,0)),name = "Cross Decoding Accuracy",breaks = seq(from=0.2, to=1, by=0.1))+
+    scale_x_discrete(labels = translabelnew)+
+    theme(axis.title.x=element_blank())
+  ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
          device = cairo_pdf)
 }
-ggsave(paste0(figure_dir,"mvpa_transall.pdf"), wrap_plots(acct[[2]],acct[[1]],ncol = 1),
-       width = 6, height = 6, device = cairo_pdf)
+ggsave(paste0(figure_dir,"mvpa_transall.pdf"), wrap_plots(acct[[2]],acct[[1]],ncol = 1,guides = 'collect'),
+       width = 5, height = 6, device = cairo_pdf)
 
 # lesion permutation
 prefix <- c('face_vis','face_inv','odor_all');

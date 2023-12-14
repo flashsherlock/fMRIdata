@@ -508,8 +508,8 @@ facecon <- c("vis","inv","all")
 #                 "Invisible Face\nOdor","Visible Face\nOdor")
 transcon <- c("vis_inv","inv_vis","train_vis","test_vis","train_inv","test_inv")
 translabel <- c("VisFace\nInvFace","InvFace\nVisFace",
-                "VisFace\nOdor","Odor\nVisFace",
-                "InvFace\nOdor","Odor\nInvFace")
+"VisFace\nOdor","Odor\nVisFace",
+"InvFace\nOdor","Odor\nInvFace")
 rois <- c("Amy8_align","OFC_AAL","FFV_CA_max3v","Pir_new005")
 rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 rois <- c("FFV_CA_max2v")
@@ -517,7 +517,7 @@ ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV
 
 # decoding results
 dresults <- list()
-for (roi in ffvs[1]) {
+for (roi in rois[1:3]) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
   testodor <- readacc("roi_odor_shift6",facecon[3],roi)
@@ -535,17 +535,20 @@ for (roi in ffvs[1]) {
   bruceR::TTEST(test,facecon,test.value=0.5)
   # bruceR::TTEST(dresults[[roi]][['normal']],c("vis","inv"),paired = T)
   if (roi=="OFC_AAL")
-    yrange <- c(0.2,1)
+    yrange <- c(0.4,0.9)
   else
-    yrange <- c(0.2,0.8)
-  acc <- boxplotd(test,facecon,c("#f8766d","#00ba38","#619cff"))+
+    yrange <- c(0.3,0.8)
+  acc[[roi]] <- boxplotd(test,facecon,c("#f8766d","#00ba38","#619cff"))+
     coord_cartesian(ylim = yrange)+
-    scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)))+
-    scale_x_discrete(labels=c('VisFace', 'InvFace', 'Odor'))
-  print(acc)
-  ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc, width = 4, height = 3,
+    scale_y_continuous(name = "Decoding Accuracy",expand = expansion(add = c(0,0)),breaks = c(seq(from=yrange[1], to=yrange[2], by=0.1)))+
+    scale_x_discrete(labels=c("Visible","Invisible","Olfactory"))
+  print(acc[[roi]])
+  ggsave(paste0(figure_dir,"mvpa_",roi, ".pdf"), acc[[roi]], width = 4, height = 3,
          device = cairo_pdf)
 }
+acc_all <- wrap_plots(acc[[rois[2]]],acc[[rois[1]]],acc[[rois[3]]],ncol =1)
+ggsave(paste0(figure_dir,"mvpa_3con.pdf"), acc_all, width = 4, height = 8,
+       device = cairo_pdf)
 
 # combine decoding results
 test <- dresults[[rois[1]]][['normal']]
@@ -563,7 +566,7 @@ bruceR::TTEST(test,names(test)[-1],test.value=0.5)
 test <- reshape2::melt(test, id.vars = "id")
 test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
 # convert con and lesion into factor
-test$condition <- factor(test$condition, levels = c("vis","inv","all"), labels = c("VisFace","InvFace","Odor"))
+test$condition <- factor(test$condition, levels = c("vis","inv","all"), labels = c("Visible","Invisible","Olfactory"))
 test$lesion <- factor(test$lesion, levels = c("OFC","Amy","FFV"), labels = c("OFC","Amygdala","Fusiform"))
 # summarise data 5% and 90% quantile
 names(test) <- str_replace(names(test),"value","Score")
@@ -607,11 +610,11 @@ for (roi in rois[1:2]) {
   test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
   bruceR::TTEST(test,transcon,test.value=0.5)
   acct[[roi]] <- boxplotd(test,transcon)+
-    coord_cartesian(ylim = c(0.3,0.71))+
-    scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
-    scale_x_discrete(labels = translabel)
+  coord_cartesian(ylim = c(0.3,0.71))+
+  scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
+  scale_x_discrete(labels = translabel)
   print(acct[[roi]])
-  ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
+    ggsave(paste0(figure_dir,"mvpa_trans",roi, ".pdf"), acct[[roi]], width = 4, height = 3,
          device = cairo_pdf)
 }
 ggsave(paste0(figure_dir,"mvpa_transall.pdf"), wrap_plots(acct[[2]],acct[[1]],ncol = 1),
@@ -662,7 +665,7 @@ for (roi in rois[1:2]) {
   test <- reshape2::melt(test, id.vars = "id")
   test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
   # convert con and lesion into factor
-  test$condition <- factor(test$condition, levels = c("vis","inv","all"), labels = c("VisFace","InvFace","Odor"))
+  test$condition <- factor(test$condition, levels = c("vis","inv","all"), labels = c("Visible","Invisible","Olfactory"))
   test$lesion <- factor(test$lesion, levels = c("l0","p2","l2","p1"), labels = c("Intact","Clusters","Lesion","Random"))
   test <- subset(test,lesion%in%c("Clusters","Lesion","Random"))
   # summarise data 5% and 90% quantile

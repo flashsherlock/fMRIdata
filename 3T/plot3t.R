@@ -279,6 +279,8 @@ FindOutliers <- function(data,nsigma=2) {
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
+dresults <- list()
+alldata <- list()
 data_names <- c("Amy8_align","Pir_new","fusiformCA","FFA_CA",
                 "FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR","OFC_AAL")
 data_names <- c("Amy8_at165","Pir_new_at165","fusiformCA_at165","FFA_CA_at165",
@@ -380,7 +382,6 @@ ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_")
 }
 
 # 4 boxplot for con-incon -------------------------------------------------------------------
-alldata <- list()
 # load data
 data_dir <- "/Volumes/WD_F/gufei/3T_cw/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/3T_cw/results_labels_r/"
@@ -507,6 +508,7 @@ facecon <- c("vis","inv","all")
 #                 "Odor\nInvisible Face","Odor\nVisible Face",
 #                 "Invisible Face\nOdor","Visible Face\nOdor")
 transcon <- c("vis_inv","inv_vis","train_vis","test_vis","train_inv","test_inv")
+trans3con <- c("avg_visinv", "avg_visodo", "avg_invodo")
 transconnew <- c("train_visinv","test_visinv","train_visodo","test_visodo","train_invodo","test_invodo")
 translabel <- c("VisFace\nInvFace","InvFace\nVisFace",
                 "VisFace\nOdor","Odor\nVisFace",
@@ -518,7 +520,6 @@ rois <- c("FFV_CA_max2v")
 ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 
 # decoding results
-dresults <- list()
 for (roi in rois[1:3]) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
@@ -598,10 +599,15 @@ ggsave(paste0(figure_dir,"mvpa_all.pdf"), accs, width = 6, height = 3,
 
 # trans decoding results
 acct <- list()
+acctv <- list()
 for (roi in rois[1:2]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
+  # average into three conditions
+  test <- mutate(test,avg_visinv = (vis_inv+inv_vis)/2,
+                 avg_visodo = (test_vis+train_vis)/2,
+                 avg_invodo = (test_inv+train_inv)/2)
   # save test to dresults
   dresults[[roi]][['trans']] <- test
   alldata[[paste0("mvpatrans_",str_sub(roi,1,3))]] <- test
@@ -609,6 +615,15 @@ for (roi in rois[1:2]) {
   # remove outliers
   test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
   bruceR::TTEST(test,transcon,test.value=0.5)
+  # avgeraged 3 conditions
+  bruceR::TTEST(test,trans3con,test.value=0.5)
+  acctv[[roi]] <- boxplotd(test,trans3con)+
+    coord_cartesian(ylim = c(0.3,0.71))+
+    scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
+    scale_x_discrete(labels = translabelnew)
+  print(acctv[[roi]])
+  ggsave(paste0(figure_dir, "mvpa_avgtrans", roi, ".pdf"), acctv[[roi]],
+    width = 4, height = 3, device = cairo_pdf)
   # acct[[roi]] <- boxplotd(test,transcon)+
   #   coord_cartesian(ylim = c(0.3,0.71))+
   #   scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+
@@ -617,7 +632,7 @@ for (roi in rois[1:2]) {
   
   # group into three conditions
   # melt test and split into two variables
-  test <- reshape2::melt(test, id.vars = "id")
+  test <- reshape2::melt(subset(test,select = c("id",transcon)), id.vars = "id")
   test$variable <- factor(test$variable, levels = transcon, labels = transconnew)
   test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
   # convert con and lesion into factor
@@ -651,6 +666,11 @@ for (roi in rois[1:2]) {
 }
 ggsave(paste0(figure_dir,"mvpa_transall.pdf"), wrap_plots(acct[[2]],acct[[1]],ncol = 1,guides = 'collect'),
        width = 5, height = 6, device = cairo_pdf)
+# average into three conditions
+ggsave(paste0(figure_dir,"mvpa_avgtransall.pdf"), wrap_plots(acctv[[2]],acctv[[1]],ncol = 1,guides = 'collect'),
+       width = 4, height = 6, device = cairo_pdf)
+ggsave(paste0(figure_dir,"mvpa_trans.pdf"), wrap_plots(acctv[[2]],acct[[2]],acctv[[1]],acct[[1]],ncol = 2,guides = 'collect'),
+       width = 9, height = 6, device = cairo_pdf)
 
 # lesion permutation
 prefix <- c('face_vis','face_inv','odor_all');

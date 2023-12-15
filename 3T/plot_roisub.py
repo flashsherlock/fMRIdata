@@ -15,9 +15,9 @@ gl.overlayloadsmooth(0)
 gl.smooth(0)
 # Open overlay
 # FFV is deobliqued by 3drefit -deoblique
-# 3dcopy FFV_CA_max2v+orig FFV_CA_max2vdo
-# 3drefit -deoblique FFV_CA_max2vdo+orig
-namelist = ['OFC_AAL', 'Amy8_align.freesurfer', 'FFV_CA_max2vdo']
+# 3dcopy FFV_CA_max3v+orig FFV_CA_max3vdo
+# 3drefit -deoblique FFV_CA_max3vdo+orig
+namelist = ['OFC_AAL', 'Amy8_align.freesurfer', 'FFV_CA_max3vdo']
 # get length of namelist
 namelen=len(namelist)
 # for n from 1 to length of namelist

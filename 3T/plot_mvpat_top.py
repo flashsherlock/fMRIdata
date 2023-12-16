@@ -4,7 +4,8 @@ gl.resetdefaults()
 # set data directory
 data_dir = '/Volumes/WD_F/gufei/3T_cw/group/plotmask/'
 # Open background image
-bgimage = 'MNI152_T1_2009c+tlrc'
+# bgimage = 'MNI152_T1_2009c+tlrc'
+bgimage = '../colin27.nii'
 # combine data_dir and background image name
 gl.loadimage(data_dir + bgimage)
 # Jagged (0) or smooth (1) interpolation of overlay  
@@ -42,7 +43,7 @@ gl.colorbarsize(0.05)
 # Set mosaic slices 
 gl.mosaic("C H 0 V 0 -4")
 # Save the image 
-gl.savebmp(data_dir + 'aplottop'+ name +'.png')
+gl.savebmp(data_dir + 'cplottop'+ name +'.png')
 # add interaction
 gl.overlayload(data_dir + 'Amy_inter_inv.nii')
 gl.colorname(4, 'Plasma')
@@ -51,14 +52,14 @@ gl.opacity(n, 80)
 gl.zerointensityinvisible(n, 1)
 gl.view(16)
 gl.orthoviewmm(27, -4, -22)
-gl.savebmp(data_dir + 'aplottop_inter.png')
+# gl.savebmp(data_dir + 'cplottop_inter.png')
 gl.view(32)
 gl.mosaic("C H 0 V 0 -4")
-gl.savebmp(data_dir + 'aplottop_interC.png')
+gl.savebmp(data_dir + 'cplottop_interC.png')
 gl.mosaic("A H 0 V 0 -22")
-gl.savebmp(data_dir + 'aplottop_interA.png')
+gl.savebmp(data_dir + 'cplottop_interA.png')
 gl.mosaic("S H 0 V 0 27")
-gl.savebmp(data_dir + 'aplottop_interS.png')
+gl.savebmp(data_dir + 'cplottop_interS.png')
 # Open overlay
 namelist = ['OFC_AAL_odor_all_t', 'OFC_AAL_face_inv_t', 'OFC_AAL_face_vis_t']
 # get length of namelist
@@ -93,4 +94,4 @@ for n in range(namelen):
     # gl.orthoviewmm(-20, 0.5, 0.5)
     # gl.gui_input('a','b','5')
     # Save the image
-gl.savebmp(data_dir + 'aplottop' + name + '.png')
+gl.savebmp(data_dir + 'cplottop' + name + '.png')

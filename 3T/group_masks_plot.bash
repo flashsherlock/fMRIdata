@@ -60,3 +60,28 @@ done
       -b group/findmask/Cluster11_0.001_fointer_inv_Amy+tlrc\
       -expr 'a+60*bool(b)'\
       -prefix group/plotmask/${pre}all_masks_inter.nii
+# show the intersection of 3 conditions in Amy and OFC
+for roi in Amy OFC_AAL
+do
+      3dcalc \
+            -a group/mvpa/${pre}${roi}_face_vis_${p}+tlrc \
+            -b group/mvpa/${pre}${roi}_face_inv_${p}+tlrc \
+            -c group/mvpa/${pre}${roi}_odor_all_${p}+tlrc \
+            -expr 'bool(a*b*c)'\
+            -prefix group/plotmask/${pre}${roi}_inter3.nii
+      3dcalc \
+            -a group/mvpa/${pre}${roi}_face_vis_${p}+tlrc \
+            -b group/mvpa/${pre}${roi}_face_inv_${p}+tlrc \
+            -expr 'bool(a*b)'\
+            -prefix group/plotmask/${pre}${roi}_visinv.nii
+      3dcalc \
+            -a group/mvpa/${pre}${roi}_face_vis_${p}+tlrc \
+            -b group/mvpa/${pre}${roi}_odor_all_${p}+tlrc \
+            -expr 'bool(a*b)'\
+            -prefix group/plotmask/${pre}${roi}_visodo.nii
+      3dcalc \
+            -a group/mvpa/${pre}${roi}_face_inv_${p}+tlrc \
+            -b group/mvpa/${pre}${roi}_odor_all_${p}+tlrc \
+            -expr 'bool(a*b)'\
+            -prefix group/plotmask/${pre}${roi}_invodo.nii
+done

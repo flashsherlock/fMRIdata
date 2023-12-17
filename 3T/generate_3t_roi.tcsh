@@ -158,6 +158,20 @@ endif
 #              -prefix ../mask/${roi}
 # end
 
+# map the intersection of 3 conditions in Amy and OFC into individual space
+set pre="sm_"
+foreach roi (Amy OFC_AAL)
+    foreach con (inter3 visinv visodo invodo)
+    set mask=/Volumes/WD_F/gufei/3T_cw/group/plotmask/${pre}${roi}_${con}.nii
+    # nonlinear warp
+    3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+                -source ${mask}                                                                      \
+                -interp NN                                                               \
+                -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+                -prefix ../mask/${pre}${roi}_${con}
+    end
+end
+
 # FFV masks
 # 3dcalc \
 #     -a "stats.${sub}.de.new+orig[52]" \
@@ -266,25 +280,25 @@ endif
 # -prefix ../mask/BoxROI \
 # -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
 # generate extended box ROI 3 voxels
-set ijk=(`3dAutobox -npad 3 -extent_ijk -noclust ../mask/OFC_AAL+orig`)
-3dcalc -a ../mask/OFC_AAL+orig \
--prefix ../mask/BoxOFCext \
--expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
-# nopad
-set ijk=(`3dAutobox -extent_ijk -noclust ../mask/OFC_AAL+orig`)
-3dcalc -a ../mask/OFC_AAL+orig \
--prefix ../mask/BoxOFC \
--expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
-# combine boxroi and boxofc
-3dcalc \
--a ../mask/BoxOFC+orig \
--b ../mask/BoxROI+orig \
--expr 'bool(a+b)' \
--prefix ../mask/BoxROIs
-3dcalc \
--a ../mask/BoxOFCext+orig \
--b ../mask/BoxROIext+orig \
--expr 'bool(a+b)' \
--prefix ../mask/BoxROIsext
+# set ijk=(`3dAutobox -npad 3 -extent_ijk -noclust ../mask/OFC_AAL+orig`)
+# 3dcalc -a ../mask/OFC_AAL+orig \
+# -prefix ../mask/BoxOFCext \
+# -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# # nopad
+# set ijk=(`3dAutobox -extent_ijk -noclust ../mask/OFC_AAL+orig`)
+# 3dcalc -a ../mask/OFC_AAL+orig \
+# -prefix ../mask/BoxOFC \
+# -expr "or(a,within(i,${ijk[1]},${ijk[2]})*within(j,${ijk[3]},${ijk[4]})*within(k,${ijk[5]},${ijk[6]}))"
+# # combine boxroi and boxofc
+# 3dcalc \
+# -a ../mask/BoxOFC+orig \
+# -b ../mask/BoxROI+orig \
+# -expr 'bool(a+b)' \
+# -prefix ../mask/BoxROIs
+# 3dcalc \
+# -a ../mask/BoxOFCext+orig \
+# -b ../mask/BoxROIext+orig \
+# -expr 'bool(a+b)' \
+# -prefix ../mask/BoxROIsext
 
 end

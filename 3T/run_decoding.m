@@ -43,7 +43,18 @@ end
 %% decoding trans
 % con = {'con','inc','vis','inv'};
 % rois={'Amy8_align','OFC_AAL'};
-rois={'FFV_CA001','FFV_CA01','FFV_CA05','FFV_CA_max3v', 'FFV_CA_max4v', 'FFV_CA_max5v', 'FFV_CA_max6v'};
+% rois={'FFV_CA001','FFV_CA01','FFV_CA05','FFV_CA_max3v', 'FFV_CA_max4v', 'FFV_CA_max5v', 'FFV_CA_max6v'};
+level={'p2acc_','sm_'};
+region={'Amy','OFC_AAL'};
+cons={'inter3','visinv','invodo','visodo'};
+rois = cell(1, length(level) * length(region)*length(cons));
+for i = 1:length(level)
+    for j = 1:length(region)
+        for k = 1:length(cons)
+            rois{(i-1)*length(region)*length(cons)+(j-1)*length(cons)+k}=[level{i} region{j} '_' cons{k}];
+        end
+    end
+end
 parfor i = 3:29
     sub=sprintf('S%02d',i);
 %     for con_i = 1:length(con)

@@ -672,6 +672,35 @@ ggsave(paste0(figure_dir,"mvpa_avgtransall.pdf"), wrap_plots(acctv[[2]],acctv[[1
 ggsave(paste0(figure_dir,"mvpa_trans.pdf"), wrap_plots(acctv[[2]],acct[[2]],acctv[[1]],acct[[1]],ncol = 2,guides = 'collect'),
        width = 9, height = 6, device = cairo_pdf)
 
+# trans decoding results for intersection
+level <- c('p2acc','sm');
+region <- c('Amy','OFC_AAL');
+cons <- c('inter3','visinv','invodo','visodo');
+# combine each prefix with each suffix
+interroi <- c()
+for (l in level) {
+  for (r in region) {
+    for (c in cons) {
+      interroi <- c(interroi,paste(l,r,c,sep = "_"))
+    }
+  }
+}
+for (roi in interroi) {
+  test <- readacc("roi_newtrans_shift6",transcon,roi)
+  # decast test
+  test <- reshape2::dcast(test, id ~ con, value.var = "acc")
+  # average into three conditions
+  test <- mutate(test,avg_visinv = (vis_inv+inv_vis)/2,
+                 avg_visodo = (test_vis+train_vis)/2,
+                 avg_invodo = (test_inv+train_inv)/2)
+  cat("*********",roi,"*********")
+  # remove outliers
+  test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
+  bruceR::TTEST(test,transcon,test.value=0.5)
+  # avgeraged 3 conditions
+  bruceR::TTEST(test,trans3con,test.value=0.5)
+}
+
 # lesion permutation
 prefix <- c('face_vis','face_inv','odor_all');
 suffix <- c('p1');

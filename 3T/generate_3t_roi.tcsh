@@ -171,7 +171,31 @@ foreach roi (Amy OFC_AAL)
                 -prefix ../mask/${pre}${roi}_${con}
     end
 end
-
+# indvidual level masks for intersection of p2_interacc
+# rm ../mask/p2acc*
+foreach roi (Amy OFC_AAL)
+    3dcalc \
+        -a ../mask/${roi}_face_vis_p2_interacc+orig \
+        -b ../mask/${roi}_face_inv_p2_interacc+orig \
+        -c ../mask/${roi}_odor_all_p2_interacc+orig \
+        -expr 'bool(a*b*c)'\
+        -prefix ../mask/p2acc_${roi}_inter3
+    3dcalc \
+        -a ../mask/${roi}_face_vis_p2_interacc+orig \
+        -b ../mask/${roi}_face_inv_p2_interacc+orig \
+        -expr 'bool(a*b)'\
+        -prefix ../mask/p2acc_${roi}_visinv
+    3dcalc \
+        -a ../mask/${roi}_face_vis_p2_interacc+orig \
+        -b ../mask/${roi}_odor_all_p2_interacc+orig \
+        -expr 'bool(a*b)'\
+        -prefix ../mask/p2acc_${roi}_visodo
+    3dcalc \
+        -a ../mask/${roi}_face_inv_p2_interacc+orig \
+        -b ../mask/${roi}_odor_all_p2_interacc+orig \
+        -expr 'bool(a*b)'\
+        -prefix ../mask/p2acc_${roi}_invodo
+end
 # FFV masks
 # 3dcalc \
 #     -a "stats.${sub}.de.new+orig[52]" \

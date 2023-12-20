@@ -672,7 +672,7 @@ ggsave(paste0(figure_dir,"mvpa_avgtransall.pdf"), wrap_plots(acctv[[2]],acctv[[1
 ggsave(paste0(figure_dir,"mvpa_trans.pdf"), wrap_plots(acctv[[2]],acct[[2]],acctv[[1]],acct[[1]],ncol = 2,guides = 'collect'),
        width = 9, height = 6, device = cairo_pdf)
 
-# trans decoding results for intersection
+# results for intersection
 level <- c('p2acc','sm');
 region <- c('Amy','OFC_AAL');
 cons <- c('inter3','visinv','invodo','visodo');
@@ -685,6 +685,17 @@ for (l in level) {
     }
   }
 }
+# decoding results
+for (roi in interroi) {
+  testface <- readacc("roi_face_shift6",facecon[1:2],roi)
+  testodor <- readacc("roi_odor_shift6",facecon[3],roi)
+  # decast test
+  test <- reshape2::dcast(rbind(testface,testodor), id ~ con, value.var = "acc")
+  test <- dplyr::mutate_if(test,is.numeric, FindOutliers)
+  cat("*********",roi,"*********")
+  bruceR::TTEST(test,facecon,test.value=0.5)
+}
+# trans decoding results
 for (roi in interroi) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test

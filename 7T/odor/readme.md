@@ -6,6 +6,9 @@ Gernerate data files, including images, timing files, and phy files.
 ## order_data.tcsh
 Make folders and move files.
 
+## backup_data.tcsh
+Backup data to another disk.
+
 ## analyze_timing.m
 Generate timing files for each run and a file including all runs.
 

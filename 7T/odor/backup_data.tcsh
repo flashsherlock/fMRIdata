@@ -27,6 +27,14 @@ if ( -d "${datafolder}" ) then
         end
     endif
 
+    # all behavior data
+    # if ( ! -d "./behavior" ) then
+    #     mkdir "./behavior"
+    # endif
+    # echo ${sub}: backup mat files
+    # # make folder
+    # cp ${datafolder}/behavior/*.mat "./behavior"
+
     # # mask files
     # if ( ! -f "./${sub}/mask/Amy_seg.nii" ) then
     #     echo ${sub}: backup masks        

@@ -137,13 +137,16 @@ Get individual level interaction mask and dump tent data.
 Find TRs for each condition.
 
 ## decoding_roi.m
-Decoding analysis for Amy. Train on visible and test on invisible.
+Decoding analysis. Train on visible and test on invisible.
 
 ## decoding_roitrans.m
-Decoding analysis for Amy. Train on one condition and test on another.
+Decoding analysis. Train on one condition and test on another.
+
+## decoding_searchtrans.m
+Searchlight trans-decoding analysis.
 
 ## decoding_search.m
-Searchlight decoding analysis for Amy.
+Searchlight decoding analysis.
 
 ## decoding_roilesion.m
 Decoding analysis using lesion masks.
@@ -184,7 +187,7 @@ Plot time courses for each roi.
 Plot results for 3T betas data.
 
 ## plot_mask.py
-Plot significant clusters.
+Plot intersection area between significant clusters.
 
 ## plot_mask_peak.py
 Plot each peak as a sphere.

@@ -69,6 +69,13 @@ parfor i = 3:29
     % close figures
     close all
 end
+%% searchlight trans
+for i = 4:29
+    sub=sprintf('S%02d',i);
+    decoding_searchtrans(sub,analysis_all,rois,shift,'of','test_inv')
+    decoding_searchtrans(sub,analysis_all,rois,shift,'fo','train_inv')
+    close all
+end
 %% lesion
 rois={'Amy8_align','OFC_AAL'};
 prefix={'face_vis','face_inv','odor_all'};

@@ -285,15 +285,13 @@ data_names <- c("Amy8_align","Pir_new","fusiformCA","FFA_CA",
                 "FFV_CA", "insulaCA", "OFC6mm", "aSTS_OR","OFC_AAL")
 data_names <- c("Amy8_at165","Pir_new_at165","fusiformCA_at165","FFA_CA_at165",
                 "FFV_CA_at165", "insulaCA_at165", "OFC6mm_at165", "aSTS_OR_at165")
-data_names <- c("Indiv40_0.001_odor_Pir",
-                "Indiv40_0.001_odor_Amy",
-                "Indiv4_0.001_odor_OFC",
-                "Indiv40_0.001_face_vis_fusiform",
-                "Indiv40_0.001_fointer_inv_Amy")
-data_names <- c("Indiv40_0.001_odor_Pir",
-                "Indiv4_0.001_odor_OFC",
-                "Indiv40_0.001_face_vis_fusiform")
-prefix <- 'indi8conppi_'
+data_names <- c("p2acc_OFC_AAL_inter3",
+                "sm_OFC_AAL_inter3")
+data_names <- c("p2acc_OFC_AAL_inter3",
+                "sm_OFC_AAL_inter3",
+                "p2acc_Amy_inter3",
+                "sm_Amy_inter3")
+prefix <- 'indi8con_'
 # for each data_name
 for (data_name in data_names) {
 txtname <- paste0(data_dir,prefix,data_name,'.txt')
@@ -304,81 +302,97 @@ names <- c('FearPleaVis','FearPleaInv','FearUnpleaVis','FearUnpleaInv',
 betas$condition <- factor(betas$condition, levels = c(1:8), labels = names, ordered = F)
 # reshape data to wide format
 betas <- reshape2::dcast(betas, id ~ condition, value.var = "NZmean")
-# add con-incon columns
-betas <- mutate(betas,incon = rowMeans(betas[,c(2,3,8,9)]),con = rowMeans(betas[4:7]))
+if (str_detect(prefix,"ppi")) {
+# add vis-inv columns
 betas <- mutate(betas,vis = rowMeans(betas[,c(2,4,6,8)]),inv = rowMeans(betas[,c(3,5,7,9)]))
-betas <- mutate(betas,coin = con-incon)
 betas <- mutate(betas,vin = vis-inv)
 # ttest
 cat("*********",data_name,"ttest","*********")
+betas <- dplyr::mutate_if(betas,is.numeric, FindOutliers)
 bruceR::TTEST(betas, names)
 # average names in betas
-bruceR::TTEST(betas,c("con","incon","coin","vis","inv","vin"))
-bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[-1])),"x"),"x")
+bruceR::TTEST(betas,c("vis","inv","vin"))
+bruceR::TTEST(betas,c("vis","inv"),paired = T)
+} else {
+  # add con-incon columns
+  betas <- mutate(betas,incon = rowMeans(betas[,c(2,3,8,9)]),con = rowMeans(betas[4:7]))
+  betas <- mutate(betas,coin = con-incon)
+  betas <- mutate(betas,inconvis = rowMeans(betas[,c(2,8)]),convis = rowMeans(betas[,c(4,6)]))
+  betas <- mutate(betas,coinvis = -(convis-inconvis))
+  betas <- mutate(betas,inconinv = rowMeans(betas[,c(3,9)]),coninv = rowMeans(betas[,c(5,7)]))
+  betas <- mutate(betas,coininv = -(coninv-inconinv))
+  cat("*********",data_name,"congrency ttest","*********")
+  betas <- dplyr::mutate_if(betas,is.numeric, FindOutliers)
+  bruceR::TTEST(betas,c("coinvis","coininv"))
+  bruceR::TTEST(betas,c("coinvis","coininv"),paired = T)
+}
+# # average names in betas
+# bruceR::TTEST(betas,c("con","incon","coin","vis","inv","vin"))
+# bruceR::TTEST(`names<-`(as.data.frame(rowMeans(betas[-1])),"x"),"x")
 
-# ANOVA
-cat("*********",data_name,"Invisible","*********")
-bruceR::MANOVA(betas, dvs=c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'), dvs.pattern="(Happ|Fear)(PleaInv|UnpleaInv)",
-               within=c("face", "odor"))
-
-cat("*********",data_name,"Visible","*********")
-bruceR::MANOVA(betas, dvs=c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'), dvs.pattern="(Happ|Fear)(PleaVis|UnpleaVis)",
-               within=c("face", "odor"))
-
-cat("*********",data_name,"ALL","*********")
-bruceR::MANOVA(betas, dvs=c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv',
-                            'FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'),
-               dvs.pattern="(Happ|Fear)(Plea|Unplea)(Inv|Vis)",
-               within=c("face", "odor", "visibility"))
-# # 3 lineplots -------------------------------------------------------------------
-# invisible
-line_hfinv <- lineplot(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
-  # coord_cartesian(ylim = c(-0.2,0))+
-  # scale_y_continuous(expand = c(0,0),
-  #                    breaks = seq(from=-0.2, to=0, by=0.1))+
-  labs(y="Mean Beta",title = "Invisible")+
-  scale_x_discrete(labels=c("Happy","Fearful"))
-# visible
-line_hfvis <- lineplot(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'))+
-  # coord_cartesian(ylim = c(-0.2,0))+
-  # scale_y_continuous(expand = c(0,0),
-  #                    breaks = seq(from=-0.2, to=0, by=0.1))+
-  labs(y="Mean Beta",title = "Visible")+
-  scale_x_discrete(labels=c("Happy","Fearful"))
-# save
-line <- wrap_plots(line_hfinv,line_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
-print(line)
-ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiline_","line_"), data_name, ".pdf"), line, width = 8, height = 4,
-       device = cairo_pdf)
-# 3 boxplots -------------------------------------------------------------------
-# invisible
-box_hfinv <- boxplotv(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
-  # coord_cartesian(ylim = c(-0.7,0.5))+
-  # scale_y_continuous(expand = c(0,0),
-  #                    breaks = seq(from=-0.65, to=0.4, by=0.2))+
-  labs(y="Mean Beta",title = "Invisible")+
-  scale_x_discrete(labels=c("Happy","Fearful"))
-# visible
-box_hfvis <- boxplotv(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'))+
-  # coord_cartesian(ylim = c(-0.7,0.5))+
-  # scale_y_continuous(expand = c(0,0),
-  #                    breaks = seq(from=-0.65, to=0.4, by=0.2))+
-  labs(y="Mean Beta",title = "Visible")+
-  scale_x_discrete(labels=c("Happy","Fearful"))
-# save
-box <- wrap_plots(box_hfinv,box_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
-print(box)
-ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppibox_","box_"), data_name, ".pdf"), box, width = 8, height = 4,
-       device = cairo_pdf)
+# # ANOVA
+# cat("*********",data_name,"Invisible","*********")
+# bruceR::MANOVA(betas, dvs=c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'), dvs.pattern="(Happ|Fear)(PleaInv|UnpleaInv)",
+#                within=c("face", "odor"))
+# 
+# cat("*********",data_name,"Visible","*********")
+# bruceR::MANOVA(betas, dvs=c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'), dvs.pattern="(Happ|Fear)(PleaVis|UnpleaVis)",
+#                within=c("face", "odor"))
+# 
+# cat("*********",data_name,"ALL","*********")
+# bruceR::MANOVA(betas, dvs=c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv',
+#                             'FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'),
+#                dvs.pattern="(Happ|Fear)(Plea|Unplea)(Inv|Vis)",
+#                within=c("face", "odor", "visibility"))
+# # # 3 lineplots -------------------------------------------------------------------
+# # invisible
+# line_hfinv <- lineplot(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
+#   # coord_cartesian(ylim = c(-0.2,0))+
+#   # scale_y_continuous(expand = c(0,0),
+#   #                    breaks = seq(from=-0.2, to=0, by=0.1))+
+#   labs(y="Mean Beta",title = "Invisible")+
+#   scale_x_discrete(labels=c("Happy","Fearful"))
+# # visible
+# line_hfvis <- lineplot(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'))+
+#   # coord_cartesian(ylim = c(-0.2,0))+
+#   # scale_y_continuous(expand = c(0,0),
+#   #                    breaks = seq(from=-0.2, to=0, by=0.1))+
+#   labs(y="Mean Beta",title = "Visible")+
+#   scale_x_discrete(labels=c("Happy","Fearful"))
+# # save
+# line <- wrap_plots(line_hfinv,line_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
+# print(line)
+# ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiline_","line_"), data_name, ".pdf"), line, width = 8, height = 4,
+#        device = cairo_pdf)
+# # 3 boxplots -------------------------------------------------------------------
+# # invisible
+# box_hfinv <- boxplotv(betas,c("Happ","Fear"),c('FearPleaInv','FearUnpleaInv','HappPleaInv','HappUnpleaInv'))+
+#   # coord_cartesian(ylim = c(-0.7,0.5))+
+#   # scale_y_continuous(expand = c(0,0),
+#   #                    breaks = seq(from=-0.65, to=0.4, by=0.2))+
+#   labs(y="Mean Beta",title = "Invisible")+
+#   scale_x_discrete(labels=c("Happy","Fearful"))
+# # visible
+# box_hfvis <- boxplotv(betas,c("Happ","Fear"),c('FearPleaVis','FearUnpleaVis','HappPleaVis','HappUnpleaVis'))+
+#   # coord_cartesian(ylim = c(-0.7,0.5))+
+#   # scale_y_continuous(expand = c(0,0),
+#   #                    breaks = seq(from=-0.65, to=0.4, by=0.2))+
+#   labs(y="Mean Beta",title = "Visible")+
+#   scale_x_discrete(labels=c("Happy","Fearful"))
+# # save
+# box <- wrap_plots(box_hfinv,box_hfvis,ncol = 2,guides = 'collect')+plot_annotation(tag_levels = "A")
+# print(box)
+# ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppibox_","box_"), data_name, ".pdf"), box, width = 8, height = 4,
+#        device = cairo_pdf)
 # visible invisble compare
-laby <- ifelse(str_detect(prefix,"ppi"),paste0("Connectivity with ",strsplit(data_names,"_")[[1]][1]),"Mean Beta")
-box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"))+
-  labs(y=laby)+
-  # coord_cartesian(ylim = c(-0.2,0.4))+
-  geom_hline(yintercept = 0, size = 15/64, linetype = "dashed", color = "black")+
-  scale_x_discrete(labels=c("Visible","Invisible"))
-ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_"), data_name, ".pdf"), box_vin, width = 3, height = 3,
-       device = cairo_pdf)
+# laby <- ifelse(str_detect(prefix,"ppi"),paste0("Connectivity with ",strsplit(data_names,"_")[[1]][1]),"Mean Beta")
+# box_vin <- boxcp(betas,c("vis","inv"),c("vis","inv"))+
+#   labs(y=laby)+
+#   # coord_cartesian(ylim = c(-0.2,0.4))+
+#   geom_hline(yintercept = 0, size = 15/64, linetype = "dashed", color = "black")+
+#   scale_x_discrete(labels=c("Visible","Invisible"))
+# ggsave(paste0(figure_dir,ifelse(str_detect(prefix,"ppi"),"ppiboxvin_","boxvin_"), data_name, ".pdf"), box_vin, width = 3, height = 3,
+#        device = cairo_pdf)
 }
 
 # 4 boxplot for con-incon -------------------------------------------------------------------
@@ -617,6 +631,7 @@ for (roi in rois[1:2]) {
   bruceR::TTEST(test,transcon,test.value=0.5)
   # avgeraged 3 conditions
   bruceR::TTEST(test,trans3con,test.value=0.5)
+  # bruceR::TTEST(test,trans3con[c(2,3)],paired = T)
   acctv[[roi]] <- boxplotd(test,trans3con)+
     coord_cartesian(ylim = c(0.3,0.71))+
     scale_y_continuous(name = "Cross Decoding Accuracy",expand = expansion(add = c(0,0)))+

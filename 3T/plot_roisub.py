@@ -34,12 +34,12 @@ for n in range(namelen):
     #     cname='2green'
     # elif n==2:
     #     cname='1red'
-    cname='1red'
+    cname='3blue'
     # Set overlay display parameters; 1 indicates 1st overlay
-    gl.colorname(n+1,cname)
-    # gl.minmax(n+1, 0, 1)
-    # gl.opacity(n+1, 80)
-    gl.zerointensityinvisible(n+1, 1)
+    gl.colorname(1,cname)
+    # gl.minmax(1, 0, 1)
+    # gl.opacity(1, 70)
+    gl.zerointensityinvisible(1, 1)
     # Set the color bar options 
     gl.colorbarposition(0)
     gl.colorbarsize(0.05)
@@ -49,6 +49,6 @@ for n in range(namelen):
     elif n==1:
         gl.mosaic("C H 0 V 0 33")
     elif n==2:
-        gl.mosaic("A H 0 V 0 5")  
+        gl.mosaic("S H 0 V 0 -34")
     # cut the name to get the first 3 letters
     gl.savebmp(fig_dir + 'indiv_' + name[:3] + '.png')

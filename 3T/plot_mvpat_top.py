@@ -8,6 +8,8 @@ data_dir = '/Volumes/WD_F/gufei/3T_cw/group/plotmask/'
 bgimage = '../colin27.nii'
 # combine data_dir and background image name
 gl.loadimage(data_dir + bgimage)
+# subject = 'S26'
+# gl.loadimage('/Volumes/WD_F/gufei/3T_cw/'+subject+'/'+subject+'.de.results/anatQQ.'+subject+'+tlrc')
 # Jagged (0) or smooth (1) interpolation of overlay  
 gl.overlayloadsmooth(0)
 gl.smooth(0)
@@ -16,14 +18,16 @@ namelist=['Amy_odor_all_t','Amy_face_inv_t','Amy_face_vis_t']
 # get length of namelist
 namelen=len(namelist)
 gl.overlaycloseall()
-cutoff = 4.5
+# array for cutoff
+cutoff = [4.5, 4.5, 4.5]
 # for n from 1 to length of namelist
 for n in range(namelen):
     print(n)
+    print(cutoff[n])
     name=namelist[n]
     ovimage = 'sm_'+name+'+tlrc'
     gl.overlayload(data_dir + ovimage)
-    gl.generateclusters(n+1, cutoff, 1, 2, 0)
+    gl.generateclusters(n+1, cutoff[n], 1, 2, 0)
     # set cname according to n
     if n==0:
         cname = '3blue'
@@ -33,7 +37,7 @@ for n in range(namelen):
         cname='1red'
     # Set overlay display parameters; 1 indicates 1st overlay
     gl.colorname(n+1,cname)
-    gl.minmax(n+1, 1, cutoff)
+    gl.minmax(n+1, 1, cutoff[n])
     gl.opacity(n+1, 80)
     gl.zerointensityinvisible(n+1, 1)
     gl.colorbarposition(0)
@@ -43,7 +47,7 @@ gl.colorbarsize(0.05)
 # Set mosaic slices 
 gl.mosaic("C H 0 V 0 -4")
 # Save the image 
-gl.savebmp(data_dir + 'cplottop'+ name +'.png')
+# gl.savebmp(data_dir + 'cplottop'+ name +'.png')
 # add interaction
 gl.overlayload(data_dir + 'Amy_inter_inv.nii')
 gl.colorname(4, 'Plasma')

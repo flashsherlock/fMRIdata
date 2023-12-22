@@ -70,7 +70,7 @@ parfor i = 3:29
     close all
 end
 %% searchlight trans
-for i = 4:29
+parfor i = 3:29
     sub=sprintf('S%02d',i);
     decoding_searchtrans(sub,analysis_all,rois,shift,'of','test_inv')
     decoding_searchtrans(sub,analysis_all,rois,shift,'fo','train_inv')

@@ -87,22 +87,6 @@ for i=1:length(rois)
 
     %% apply mask
     cfg.files.mask = mask;
-    %% Add additional output measures if you like
-    % See help decoding_transform_results for possible measures
-
-    % cfg.results.output = {'accuracy_minus_chance', 'AUC'}; % 'accuracy_minus_chance' by default
-    % TDT allows you to run multiclass searchlight analysis. I assume you
-    % use decoding_template as a template (see decoding_tutorial for a more
-    % detailed version of it). Then you set:
-
-    % cfg = decoding_describe_data(cfg, {labelname1 labelname2 labelname3 labelname4}, [1 2 3 4], regressor_names, beta_loc);
-    cfg.results.output = {'confusion_matrix','predicted_labels','true_labels'};
-
-    % You can also use all methods that start with "transres_", e.g. use
-    %   cfg.results.output = {'SVM_pattern'};
-    % will use the function transres_SVM_pattern.m to get the pattern from 
-    % linear svm weights (see Haufe et al, 2015, Neuroimage)
-
     %% Nothing needs to be changed below for a standard leave-one-run out cross    
     % load data the standard way
     [passed_data, ~, cfg] = decoding_load_data(cfg);

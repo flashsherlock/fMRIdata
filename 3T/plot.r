@@ -509,8 +509,17 @@ pair_sep_line <- function(data,var){
     scale_y_continuous(expand = expansion(add = c(0,0)),name = "Valence",breaks = seq(from=30, to=60, by=5))+
     theme(axis.title.x=element_blank())
 }
-# 2 EXP1 analysis --------------------------------------------------------------
 
+# function to remove outliers
+FindOutliers <- function(data,nsigma=2) {
+  mean_data <- mean(data, na.rm = TRUE)
+  sd_data <- sd(data, na.rm = TRUE)
+  upper = nsigma*sd_data + mean_data
+  lower = mean_data - nsigma*sd_data
+  replace(data, data > upper | data < lower, NA)
+}
+
+# 2 EXP1 analysis --------------------------------------------------------------
 # Load Data
 # data_dir <- "C:/Users/GuFei/zhuom/yanqihu/result100.sav"
 data_dir <- "/Volumes/WD_D/gufei/writing/"
@@ -533,6 +542,9 @@ data_exp1 <- mutate(data_exp1,absvadif=abs(va.dif))
 data_exp1 <- mutate(data_exp1,abslearndif=abs(learn.dif))
 # improvement of discrimination
 data_exp1 <- mutate(data_exp1,accdif=after.acc-pre.acc)
+# remove outliers
+data_exp1sd <- dplyr::mutate_if(data_exp1,is.numeric, FindOutliers)
+
 # correlations
 cor(data_exp1$va.dif,data_exp1$after.acc)
 cor(data_exp1$prevadif,data_exp1$pre.acc)
@@ -551,6 +563,7 @@ bruceR::TTEST(data_exp1, y=c("acc.h", "acc.f"), paired=TRUE)
 bruceR::TTEST(data_exp1, y=c("hitrate.h", "hitrate.f"), paired=TRUE)
 # remove attributes to avoid errors
 data_exp1rmatt <- lapply(data_exp1, function(x) {attributes(x) <- NULL;x})
+data_exp1sdrmatt <- lapply(data_exp1sd, function(x) {attributes(x) <- NULL;x})
 # ANOVA
 bruceR::MANOVA(data_exp1rmatt, dvs=c("prehappy.va","prefear.va", "afterhappy.va", "afterfear.va"), dvs.pattern="(pre|after)(happy|fear).va",
                within=c("learn", "emotion"))%>%
@@ -739,7 +752,8 @@ data_dir <- "/Volumes/WD_D/gufei/writing/"
 data_exp2 <- spss.get(paste0(data_dir,"result_exp2.sav"))
 # select data
 data_exp2 <- subset(data_exp2, id!=35)
-
+# remove outliers
+data_exp2sd <- dplyr::mutate_if(data_exp2,is.numeric, FindOutliers)
 # paired t test with cohen's d
 bruceR::TTEST(data_exp2, y=c("con", "incon"), paired=TRUE)
 # 1-back acc
@@ -751,6 +765,7 @@ bruceR::TTEST(data_exp2, y=c("preplus.va", "preminus.va"), paired=TRUE)
 bruceR::TTEST(data_exp2, y=c("rate"), test.value = 1/3)
 # remove attributes to avoid errors
 data_exp2rmatt <- lapply(data_exp2, function(x) {attributes(x) <- NULL;x})
+data_exp2sdrmatt <- lapply(data_exp2sd, function(x) {attributes(x) <- NULL;x})
 # ANOVA
 bruceR::MANOVA(data_exp2rmatt, dvs=c("acc.Fear.F","acc.Fear.H", "acc.Happy.F", "acc.Happy.H"), dvs.pattern="acc.(Happy|Fear).(F|H)",
                within=c("odor", "face"))
@@ -934,7 +949,12 @@ data_expv2 <- spss.get(paste0(data_dir,"result_expv2.sav"))
 data_expv3 <- spss.get(paste0(data_dir,"result_expv3.sav"))
 exp_con <- c("Happy","Fearful")
 # 4.1 boxplots -------------------------------------------------------------------
-
+# remove outliers
+data_expv2sd <- dplyr::mutate_if(data_expv2,is.numeric, FindOutliers)
+data_expv3sd <- dplyr::mutate_if(data_expv3,is.numeric, FindOutliers)
+# con-incon
+bruceR::TTEST(data_expv2, y=c("con", "incon"), paired=TRUE)
+bruceR::TTEST(data_expv3, y=c("con", "incon"), paired=TRUE)
 # valence
 bruceR::TTEST(data_expv2, y=c("valence.Citral", "valence.Indole"), paired=TRUE)
 bruceR::TTEST(data_expv3, y=c("valence.Citral", "valence.Indole"), paired=TRUE)

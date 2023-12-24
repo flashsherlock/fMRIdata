@@ -2,11 +2,15 @@
 datafolder='/Volumes/WD_F/gufei/3T_cw/';
 subs=3:29;
 subnum=length(subs);
-rois={'BoxROIsext'};
+% rois={'BoxROIsext'};
+rois={'epi_anat'};
 shift=[6];
 check = 'odor'; 
+check = 'trans';
 if strcmp(check,'odor')
     comb={'all'};
+elseif strcmp(check,'trans')
+    comb={'test_inv';'train_inv'};
 else
     comb={'inv';'vis'};
 end
@@ -74,4 +78,4 @@ for con_i=1:combn
     end
 end    
 fclose(f);
-unix(['bash ' filename]);
+% unix(['bash ' filename]);

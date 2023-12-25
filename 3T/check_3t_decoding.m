@@ -41,6 +41,19 @@ for i=1:size(decode,1)
             cmd = ['3dmerge -1blur_fwhm 3.6 -doall -prefix ' 'res_accuracy_minus_chance_sm ' 'res_accuracy_minus_chance+tlrc'];
             unix(cmd);
         end
+        % if check is trans
+        if strcmp(check, 'trans') && decode(i,2)==2
+            if ~exist([result '/../res_accuracy_minus_chance_avg+tlrc.HEAD'],'file')
+                cmd = ['3dcalc -a res_accuracy_minus_chance+tlrc -b ../test_inv_epi_anat/res_accuracy_minus_chance+tlrc -expr ''(a+b)/2'' -prefix ../res_accuracy_minus_chance_avg'];
+                unix(cmd);
+            end
+            % smooth results
+            if ~exist([result '/../res_accuracy_minus_chance_avgsm+tlrc.HEAD'],'file')
+                cmd = ['3dcalc -a res_accuracy_minus_chance_sm+tlrc -b ../test_inv_epi_anat/res_accuracy_minus_chance_sm+tlrc -expr ''(a+b)/2'' -prefix ../res_accuracy_minus_chance_avgsm'];
+                unix(cmd);
+            end
+            
+        end
     end
 end
 %% generate commands
@@ -63,7 +76,7 @@ fprintf(f, ['\n' 'statsn="' check '"' '\n\n']);
 % 3dtest++
 for con_i=1:combn
     con = comb{con_i};
-    outname = ['${statsn}_' con '_${out}3r'];
+    outname = ['${statsn}_' con '_${out}4r'];
     fprintf(f, ['3dttest++ -prefix group/mvpa/' outname ' -mask ${mask} -resid group/mvpa/errs_' outname ' -setA ' con ' \\\n']);
     for sub_i=1:subnum
         sub=sprintf('S%02d',subs(sub_i));

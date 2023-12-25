@@ -5,12 +5,12 @@ datafolder=/Volumes/WD_F/gufei/3t_cw
 cd "${datafolder}" || exit
 
 mask=group/mask/bmask.nii
-sm=""
+sm="_sm"
 out=whole${sm}
 stats="trans_shift6"
 statsn="trans"
 
-3dttest++ -prefix group/mvpa/${statsn}_test_inv_${out}3r -mask ${mask} -resid group/mvpa/errs_${statsn}_test_inv_${out}3r -setA test_inv \
+3dttest++ -prefix group/mvpa/${statsn}_test_inv_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_test_inv_${out}4r -setA test_inv \
 01 "S03/S03.de.results/mvpa/searchlight_${stats}/test_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 02 "S04/S04.de.results/mvpa/searchlight_${stats}/test_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 03 "S05/S05.de.results/mvpa/searchlight_${stats}/test_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
@@ -39,7 +39,7 @@ statsn="trans"
 26 "S28/S28.de.results/mvpa/searchlight_${stats}/test_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 27 "S29/S29.de.results/mvpa/searchlight_${stats}/test_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" 
 
-3dttest++ -prefix group/mvpa/${statsn}_train_inv_${out}3r -mask ${mask} -resid group/mvpa/errs_${statsn}_train_inv_${out}3r -setA train_inv \
+3dttest++ -prefix group/mvpa/${statsn}_train_inv_${out}4r -mask ${mask} -resid group/mvpa/errs_${statsn}_train_inv_${out}4r -setA train_inv \
 01 "S03/S03.de.results/mvpa/searchlight_${stats}/train_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 02 "S04/S04.de.results/mvpa/searchlight_${stats}/train_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \
 03 "S05/S05.de.results/mvpa/searchlight_${stats}/train_inv_epi_anat/res_accuracy_minus_chance${sm}+tlrc" \

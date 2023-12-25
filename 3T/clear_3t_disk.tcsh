@@ -1,6 +1,7 @@
 #! /bin/csh
 # foreach ub (`count -dig 2 17 19`)
 # from the first to the second input
+@ censor = 0
 foreach ub (`count -dig 2 $1 $2`)
 
 set sub = S${ub}
@@ -20,6 +21,11 @@ if ( -d "${datafolder}" ) then
     # @ pbvol = `ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1 | cut -c3-4` - 1
     # @ blurvol = `ls pb0?.*.r01.blur+orig.HEAD | cut -d . -f1 | cut -c3-4`
 
+    # count lines of zeros in motion_${subj}_censor.1D
+    cat motion_${subj}_censor.1D | grep -o 0 | wc -l
+    # add number of lines to censor
+    @ censor = ${censor} + `cat motion_${subj}_censor.1D | grep -o 0 | wc -l`
+
     # remove files
     # rm all_runs*
     # rm pb0[0-${pbvol}]*
@@ -34,7 +40,7 @@ if ( -d "${datafolder}" ) then
     # rm stats.${subj}+*
     # rm -r mvpa
     # ls -r mvpa/roi_roilesion8_shift6
-    rm errts.${subj}.new+tlrc*
+    # rm errts.${subj}.new+tlrc*
     # echo ${subj}
     # ls ../mask/*ind10+orig.HEAD | wc -l
     # rm *_16*
@@ -44,4 +50,5 @@ else
     echo "${datafolder} not exsist"
 endif
 
+echo total censored: ${censor}
 end

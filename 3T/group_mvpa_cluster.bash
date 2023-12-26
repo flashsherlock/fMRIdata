@@ -28,36 +28,63 @@ else
 fi
 
 # if $2 esists and is sm
-if [ -n "$2" ] && [ "$2" = "sm" ]; then
-      # for each condition
-      for brick in face_all face_vis face_inv odor_all
-      do
-            outsuffix=sm_${out}_${brick}
-            # acf parameters
-            zork=($(3dFWHMx -acf group/mvpa/threshold/3dFWHMx_${outsuffix} -mask ${mask} group/mvpa/errs_${brick}_whole_sm4r+tlrc))
-            # cluster simulation
-            3dClustSim -mask ${mask} -both \
-            -acf ${zork[4]} ${zork[5]} ${zork[6]} \
-            -athr 0.10 0.05 0.02 0.01 \
-            -pthr 0.05 0.01 0.005 0.001 \
-            -iter 10000 -nodec \
-            -cmd group/mvpa/threshold/3dClustSim_${outsuffix}.cmd \
-            -prefix group/mvpa/threshold/${outsuffix}
-      done
-else
-      # for each condition
-      for brick in face_all face_vis face_inv odor_all
-      do
-            outsuffix=${out}_${brick}
-            # acf parameters
-            zork=($(3dFWHMx -acf group/mvpa/threshold/3dFWHMx_${outsuffix} -mask ${mask} group/mvpa/errs_${brick}_whole4r+tlrc))
-            # cluster simulation
-            3dClustSim -mask ${mask} -both \
-            -acf ${zork[4]} ${zork[5]} ${zork[6]} \
-            -athr 0.10 0.05 0.02 0.01 \
-            -pthr 0.05 0.01 0.005 0.001 \
-            -iter 10000 -nodec \
-            -cmd group/mvpa/threshold/3dClustSim_${outsuffix}.cmd \
-            -prefix group/mvpa/threshold/${outsuffix}
-      done
-fi
+# if [ -n "$2" ] && [ "$2" = "sm" ]; then
+#       # for each condition
+#       for brick in face_all face_vis face_inv odor_all
+#       do
+#             outsuffix=sm_${out}_${brick}
+#             # acf parameters
+#             zork=($(3dFWHMx -acf group/mvpa/threshold/3dFWHMx_${outsuffix} -mask ${mask} group/mvpa/errs_${brick}_whole_sm4r+tlrc))
+#             # cluster simulation
+#             3dClustSim -mask ${mask} -both \
+#             -acf ${zork[4]} ${zork[5]} ${zork[6]} \
+#             -athr 0.10 0.05 0.02 0.01 \
+#             -pthr 0.05 0.01 0.005 0.001 \
+#             -iter 10000 -nodec \
+#             -cmd group/mvpa/threshold/3dClustSim_${outsuffix}.cmd \
+#             -prefix group/mvpa/threshold/${outsuffix}
+#       done
+# else
+#       # for each condition
+#       for brick in face_all face_vis face_inv odor_all
+#       do
+#             outsuffix=${out}_${brick}
+#             # acf parameters
+#             zork=($(3dFWHMx -acf group/mvpa/threshold/3dFWHMx_${outsuffix} -mask ${mask} group/mvpa/errs_${brick}_whole4r+tlrc))
+#             # cluster simulation
+#             3dClustSim -mask ${mask} -both \
+#             -acf ${zork[4]} ${zork[5]} ${zork[6]} \
+#             -athr 0.10 0.05 0.02 0.01 \
+#             -pthr 0.05 0.01 0.005 0.001 \
+#             -iter 10000 -nodec \
+#             -cmd group/mvpa/threshold/3dClustSim_${outsuffix}.cmd \
+#             -prefix group/mvpa/threshold/${outsuffix}
+#       done
+# fi
+# trans-searchlight results
+# for each condition
+for brick in trans_visinv trans_test_inv trans_train_inv
+do
+      outsuffix=sm_${out}_${brick}
+      # acf parameters
+      avg=""
+      # if brick is trans_visinv, set avg
+      if [ ${brick} = "trans_visinv" ]; then
+            avg="avg"
+      fi
+      zork=($(3dFWHMx -acf group/mvpa/threshold/3dFWHMx_${outsuffix} -mask ${mask} group/mvpa/errs_${brick}_whole_${avg}sm4r+tlrc))
+      # cluster simulation
+      3dClustSim -mask ${mask} -both \
+      -acf ${zork[4]} ${zork[5]} ${zork[6]} \
+      -athr 0.10 0.05 0.02 0.01 \
+      -pthr 0.05 0.01 0.005 0.001 \
+      -iter 10000 -nodec \
+      -cmd group/mvpa/threshold/3dClustSim_${outsuffix}.cmd \
+      -prefix group/mvpa/threshold/${outsuffix}
+      # rename each file containing outsuffix=
+      # for file in group/mvpa/threshold/*outsuffix=*
+      # do
+      #       # remove outsuffix= from file name
+      #       mv "${file}" "${file/outsuffix=/}"
+      # done
+done

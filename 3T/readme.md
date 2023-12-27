@@ -127,6 +127,9 @@ Get masks for main effects of face and odor. Get masks for significant clusters 
 ## group_masks_plot.bash
 Combine and convert searchlight results for plotting.
 
+## group_percent.bash
+Get percent of significant subjects in each voxel.
+
 ## group_anysig.tcsh
 Get group level masks of significant voxels for any condition.
 
@@ -168,6 +171,12 @@ Normalize and average searchlight results for decoding odors.
 
 ## result_avg3t_face.bash
 Normalize and average searchlight results for decoding faces.
+
+## result_avg3t_trans.bash
+Normalize and average searchlight results for trans decoding.
+
+## result_avg3t_transavg.bash
+Normalize and average searchlight results for trans decoding. Average vis to inv and inv to vis.
 
 ## run_decoding.tcsh
 Run decoding analysis for Amy.

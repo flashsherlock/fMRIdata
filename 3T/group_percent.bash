@@ -4,21 +4,43 @@
 datafolder=/Volumes/WD_F/gufei/3T_cw/
 cd "${datafolder}" || exit
 
-for roi in Amy OFC_AAL
+# for roi in Amy OFC_AAL
+# do
+      # # calculate percentage of intersection 
+      # if [ ${roi} = "Amy" ]; then
+      #       mask=group/mask/Amy8_align.freesurfer+tlrc
+      # else
+      #       mask=group/mask/${roi}+tlrc
+      # fi
+      # 3dROIstats -nzvoxels -mask ${mask} ${mask}
+      # 3dROIstats -nzvoxels -mask ${mask} group/plotmask/sm_all_masks.nii
+      # 3dROIstats -nzvoxels -mask group/plotmask/sm_${roi}_inter3.nii group/plotmask/sm_${roi}_inter3.nii
+      # for brick in  face_vis face_inv odor_all
+      # do
+      #     3dROIstats -nzvoxels -mask group/mvpa/sm_${roi}_${brick}_0.001+tlrc group/mvpa/sm_${roi}_${brick}_0.001+tlrc
+# done
+
+# count voxels for each subject
+for ub in $(count -dig 2 03 29)
 do
-# calculate percentage of intersection 
-if [ ${roi} = "Amy" ]; then
-      mask=group/mask/Amy8_align.freesurfer+tlrc
-else
-      mask=group/mask/${roi}+tlrc
-fi
-3dROIstats -nzvoxels -mask ${mask} ${mask}
-3dROIstats -nzvoxels -mask ${mask} group/plotmask/sm_all_masks.nii
-3dROIstats -nzvoxels -mask group/plotmask/sm_${roi}_inter3.nii group/plotmask/sm_${roi}_inter3.nii
-for brick in  face_vis face_inv odor_all
-do
-    3dROIstats -nzvoxels -mask group/mvpa/sm_${roi}_${brick}_0.001+tlrc group/mvpa/sm_${roi}_${brick}_0.001+tlrc
-done
+      sub=S${ub}
+      fd=${sub}/mask/
+      for roi in Amy OFC_AAL
+      do
+            indmask=p2acc_${roi}_inter3+orig
+            if [ ${roi} = "Amy" ]; then
+                  mask=${fd}Amy8_align.freesurfer+orig
+            else
+                  mask=${fd}${roi}+orig
+            fi
+            # get the last number of the output and print to a file
+            3dROIstats -nzvoxels -mask ${fd}${indmask} ${fd}${indmask}  | tail -n 1 | awk '{print $NF}'>> group/mvpa/voxels.txt
+            indmask=${roi}_odor_all_p2_interacc+orig
+            3dROIstats -nzvoxels -mask ${fd}${indmask} ${fd}${indmask}  | tail -n 1 | awk '{print $NF}'>> group/mvpa/voxels.txt
+      done
+done  
+
+
 # calculate expression 1580+762
 # echo "1580+762" | bc
 # echo "783+222+138+52" | bc
@@ -70,4 +92,4 @@ done
 #       "S27/mask/${indmask}+tlrc" \
 #       "S28/mask/${indmask}+tlrc" \
 #       "S29/mask/${indmask}+tlrc"
-done
+# done

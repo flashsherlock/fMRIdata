@@ -158,44 +158,57 @@ endif
 #              -prefix ../mask/${roi}
 # end
 
-# map the intersection of 3 conditions in Amy and OFC into individual space
-set pre="sm_"
+# map clusters of the intersection of 3 conditions in Amy and OFC into individual space
 foreach roi (Amy OFC_AAL)
-    foreach con (inter3 visinv visodo invodo)
-    set mask=/Volumes/WD_F/gufei/3T_cw/group/plotmask/${pre}${roi}_${con}.nii
+    foreach con (cluster1 cluster2)
+    set mask=/Volumes/WD_F/gufei/3T_cw/group/plotmask/${roi}${con}+tlrc
     # nonlinear warp
     3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
                 -source ${mask}                                                                      \
                 -interp NN                                                               \
                 -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-                -prefix ../mask/${pre}${roi}_${con}
+                -prefix ../mask/${roi}${con}
     end
 end
-# indvidual level masks for intersection of p2_interacc
-# rm ../mask/p2acc*
-foreach roi (Amy OFC_AAL)
-    3dcalc \
-        -a ../mask/${roi}_face_vis_p2_interacc+orig \
-        -b ../mask/${roi}_face_inv_p2_interacc+orig \
-        -c ../mask/${roi}_odor_all_p2_interacc+orig \
-        -expr 'bool(a*b*c)'\
-        -prefix ../mask/p2acc_${roi}_inter3
-    3dcalc \
-        -a ../mask/${roi}_face_vis_p2_interacc+orig \
-        -b ../mask/${roi}_face_inv_p2_interacc+orig \
-        -expr 'bool(a*b)'\
-        -prefix ../mask/p2acc_${roi}_visinv
-    3dcalc \
-        -a ../mask/${roi}_face_vis_p2_interacc+orig \
-        -b ../mask/${roi}_odor_all_p2_interacc+orig \
-        -expr 'bool(a*b)'\
-        -prefix ../mask/p2acc_${roi}_visodo
-    3dcalc \
-        -a ../mask/${roi}_face_inv_p2_interacc+orig \
-        -b ../mask/${roi}_odor_all_p2_interacc+orig \
-        -expr 'bool(a*b)'\
-        -prefix ../mask/p2acc_${roi}_invodo
-end
+
+# map the intersection of 3 conditions in Amy and OFC into individual space
+# set pre="sm_"
+# foreach roi (Amy OFC_AAL)
+#     foreach con (inter3 visinv visodo invodo)
+#     set mask=/Volumes/WD_F/gufei/3T_cw/group/plotmask/${pre}${roi}_${con}.nii
+#     # nonlinear warp
+#     3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+#                 -source ${mask}                                                                      \
+#                 -interp NN                                                               \
+#                 -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+#                 -prefix ../mask/${pre}${roi}_${con}
+#     end
+# end
+# # indvidual level masks for intersection of p2_interacc
+# # rm ../mask/p2acc*
+# foreach roi (Amy OFC_AAL)
+#     3dcalc \
+#         -a ../mask/${roi}_face_vis_p2_interacc+orig \
+#         -b ../mask/${roi}_face_inv_p2_interacc+orig \
+#         -c ../mask/${roi}_odor_all_p2_interacc+orig \
+#         -expr 'bool(a*b*c)'\
+#         -prefix ../mask/p2acc_${roi}_inter3
+#     3dcalc \
+#         -a ../mask/${roi}_face_vis_p2_interacc+orig \
+#         -b ../mask/${roi}_face_inv_p2_interacc+orig \
+#         -expr 'bool(a*b)'\
+#         -prefix ../mask/p2acc_${roi}_visinv
+#     3dcalc \
+#         -a ../mask/${roi}_face_vis_p2_interacc+orig \
+#         -b ../mask/${roi}_odor_all_p2_interacc+orig \
+#         -expr 'bool(a*b)'\
+#         -prefix ../mask/p2acc_${roi}_visodo
+#     3dcalc \
+#         -a ../mask/${roi}_face_inv_p2_interacc+orig \
+#         -b ../mask/${roi}_odor_all_p2_interacc+orig \
+#         -expr 'bool(a*b)'\
+#         -prefix ../mask/p2acc_${roi}_invodo
+# end
 # FFV masks
 # 3dcalc \
 #     -a "stats.${sub}.de.new+orig[52]" \

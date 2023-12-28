@@ -528,13 +528,11 @@ translabel <- c("VisFace\nInvFace","InvFace\nVisFace",
                 "VisFace\nOdor","Odor\nVisFace",
                 "InvFace\nOdor","Odor\nInvFace")
 translabelnew <- c("Visible\nInvisible","Visible\nOlfactory","Invisible\nOlfactory")
-rois <- c("Amy8_align","OFC_AAL","FFV_CA_max3v","Pir_new005")
-rois <- c("FFV_CA_max2v", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
-rois <- c("FFV_CA_max2v")
-ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001", "FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
+rois <- c("Amy8_align","OFC_AAL","FFV_CA_max3v","p2acc_Amy_inter3","p2acc_OFC_AAL_inter3")
+ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001","FFV_CA_max2v","FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 
 # decoding results
-for (roi in rois[1:3]) {
+for (roi in rois[4:5]) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)
   # testface$con <- paste0("face_",testface$con)
   testodor <- readacc("roi_odor_shift6",facecon[3],roi)
@@ -551,7 +549,7 @@ for (roi in rois[1:3]) {
   cat("*********",roi,"*********")
   bruceR::TTEST(test,facecon,test.value=0.5)
   # bruceR::TTEST(dresults[[roi]][['normal']],c("vis","inv"),paired = T)
-  if (roi=="OFC_AAL")
+  if (roi=="OFC_AAL" || roi=="p2acc_OFC_AAL_inter3" )
     yrange <- c(0.4,0.9)
   else
     yrange <- c(0.3,0.8)

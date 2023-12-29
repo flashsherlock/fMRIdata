@@ -14,14 +14,15 @@ con = {'all'};
 % rois = {'pSTS_OR', 'aSTS_OR05', 'aSTS_OR01', 'aSTS_OR005', 'aSTS_OR001'};
 % rois = [rois {'Pir_new05', 'Pir_new01', 'Pir_new005', 'Pir_new001'}];
 rois = {'FFV_CA_max2v', 'FFV_CA_max3v', 'FFV_CA_max4v', 'FFV_CA_max5v', 'FFV_CA_max6v'};
+rois = {'Amycluster1','Amycluster2','OFC_AALcluster1','OFC_AALcluster2'};
 parfor i = 3:29
     sub=sprintf('S%02d',i);
     for con_i = 1:length(con)
-%         try
+        %         try
             decoding_roi(sub,analysis_all,rois,shift,decode,con{con_i});
-%         catch
-%             disp(sub)
-%         end
+        %         catch
+            %             disp(sub)
+        %         end
     end
     % close figures
     close all
@@ -125,3 +126,10 @@ parfor i = 3:29
     decoding_roilesionperm(sub,analysis_all,rois,shift,prefix);
     close all
 end
+%% calculate voxels
+number=load('/Volumes/WD_F/gufei/3T_cw/group/mvpa/voxels.txt');
+number=reshape(number,4,[])';
+% Amy inter odor OFC inter odor
+number(:,5)=number(:,1)./number(:,2);
+number(:,6)=number(:,3)./number(:,4);
+[h,p,ci,stats]=ttest(number(:,6)-number(:,5));

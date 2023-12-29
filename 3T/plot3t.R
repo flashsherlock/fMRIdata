@@ -612,7 +612,7 @@ ggsave(paste0(figure_dir,"mvpa_all.pdf"), accs, width = 6, height = 3,
 # trans decoding results
 acct <- list()
 acctv <- list()
-for (roi in rois[1:2]) {
+for (roi in rois[4:5]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
@@ -698,6 +698,7 @@ for (l in level) {
     }
   }
 }
+interroi <- c('Amycluster1','Amycluster2','OFC_AALcluster1','OFC_AALcluster2')
 # decoding results
 for (roi in interroi) {
   testface <- readacc("roi_face_shift6",facecon[1:2],roi)

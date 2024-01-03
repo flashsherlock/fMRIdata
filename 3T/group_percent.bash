@@ -6,18 +6,19 @@ cd "${datafolder}" || exit
 
 # for roi in Amy OFC_AAL
 # do
-      # # calculate percentage of intersection 
-      # if [ ${roi} = "Amy" ]; then
-      #       mask=group/mask/Amy8_align.freesurfer+tlrc
-      # else
-      #       mask=group/mask/${roi}+tlrc
-      # fi
-      # 3dROIstats -nzvoxels -mask ${mask} ${mask}
-      # 3dROIstats -nzvoxels -mask ${mask} group/plotmask/sm_all_masks.nii
-      # 3dROIstats -nzvoxels -mask group/plotmask/sm_${roi}_inter3.nii group/plotmask/sm_${roi}_inter3.nii
-      # for brick in  face_vis face_inv odor_all
-      # do
-      #     3dROIstats -nzvoxels -mask group/mvpa/sm_${roi}_${brick}_0.001+tlrc group/mvpa/sm_${roi}_${brick}_0.001+tlrc
+#       # calculate percentage of intersection 
+#       if [ ${roi} = "Amy" ]; then
+#             mask=group/mask/Amy8_align.freesurfer+tlrc
+#       else
+#             mask=group/mask/${roi}+tlrc
+#       fi
+#       3dROIstats -nzvoxels -mask ${mask} ${mask}
+#       3dROIstats -nzvoxels -mask ${mask} group/plotmask/sm_all_masks.nii
+#       3dROIstats -nzvoxels -mask group/plotmask/sm_${roi}_inter3.nii group/plotmask/sm_${roi}_inter3.nii
+#       for brick in  face_vis face_inv odor_all
+#       do
+#           3dROIstats -nzvoxels -mask group/mvpa/sm_${roi}_${brick}_0.001+tlrc group/mvpa/sm_${roi}_${brick}_0.001+tlrc
+#       done
 # done
 
 # count voxels for each subject
@@ -52,24 +53,28 @@ cd "${datafolder}" || exit
 # echo "5181/(64319+34312+14649)" | bc -l
 
 # intersection mask
+sm=sm_
 for roi in Amy OFC_AAL
 do
       indmask=p2acc_${roi}_inter3
-      rm group/mvpa/percent_${roi}+tlrc*
+      # rm group/mvpa/percent_${roi}+tlrc*
       # normalize each sub mask to MNI space
       for ub in $(count -dig 2 03 29)
       do
-      sub=S${ub}
-      fd=${sub}/${sub}.de.results/
-      rm ${sub}/mask/${indmask}+tlrc*
-      3dNwarpApply -nwarp "${fd}anatQQ.${sub}_WARP.nii ${fd}anatQQ.${sub}.aff12.1D INV(${fd}anatSS.${sub}_al_keep_mat.aff12.1D)"   \
-                  -source ${sub}/mask/${indmask}+orig   \
-                  -interp NN                            \
-                  -master ${fd}anatQQ.${sub}+tlrc    \
-                  -prefix ${sub}/mask/${indmask}
-      done   
+            sub=S${ub}
+            fd=${sub}/${sub}.de.results/
+            # rm ${sub}/mask/${indmask}+tlrc*
+            # 3dNwarpApply -nwarp "${fd}anatQQ.${sub}_WARP.nii ${fd}anatQQ.${sub}.aff12.1D INV(${fd}anatSS.${sub}_al_keep_mat.aff12.1D)"   \
+            #             -source ${sub}/mask/${indmask}+orig   \
+            #             -interp NN                            \
+            #             -master ${fd}anatQQ.${sub}+tlrc    \
+            #             -prefix ${sub}/mask/${indmask}
+            # smooth
+            3dmerge -1blur_fwhm 3.6 -doall -prefix ${sub}/mask/${sm}${indmask} ${sub}/mask/${indmask}+tlrc
+      done
+      indmask=${sm}${indmask}
       # calculate percentage for 27 subjects
-      3dMean -prefix group/mvpa/percent_${roi}  \
+      3dMean -prefix group/mvpa/${sm}percent_${roi}  \
             "S03/mask/${indmask}+tlrc" \
             "S04/mask/${indmask}+tlrc" \
             "S05/mask/${indmask}+tlrc" \

@@ -60,7 +60,7 @@ gl.smooth(0)
 # Open overlay
 namelist = ['Amy', 'OFC_AAL']
 # array for cutoff
-cutoff = [0.25, 0.18]
+cutoff = [0.15, 0.15]
 # get length of namelist
 namelen=len(namelist)
 # for n from 1 to length of namelist
@@ -68,22 +68,23 @@ for n in range(namelen):
     gl.overlaycloseall()
     print(n)
     name=namelist[n]
-    ovimage = '../mvpa/'+'percent_'+name+'+tlrc'
+    ovimage = '../mvpa/'+'sm_percent_'+name+'+tlrc'
     gl.overlayload(data_dir + ovimage)      
     gl.generateclusters(1, cutoff[n], 1, 2, 0)      
     cname='4hot'
     # Set overlay display parameters; 1 indicates 1st overlay
     gl.colorname(1,cname)
-    gl.minmax(1, cutoff[n], cutoff[n]+0.1)
+    gl.minmax(1, 0.1, cutoff[n]+0.05)
     gl.opacity(1, 80)
     gl.zerointensityinvisible(1, 1)
     # Set the color bar options 
-    gl.colorbarposition(2)
     gl.colorbarsize(0.05)
     # Set mosaic slices 
     if name == 'Amy':
+        gl.colorbarposition(2)
         gl.mosaic("C H 0 V 0 -5")
     elif name == 'OFC_AAL':
+        gl.colorbarposition(0)
         gl.mosaic("A H 0 V 0 -15")
 
     # Save the image 

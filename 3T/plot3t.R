@@ -612,7 +612,7 @@ ggsave(paste0(figure_dir,"mvpa_all.pdf"), accs, width = 6, height = 3,
 # trans decoding results
 acct <- list()
 acctv <- list()
-for (roi in rois[4:5]) {
+for (roi in rois[c(1,2,5)]) {
   test <- readacc("roi_newtrans_shift6",transcon,roi)
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
@@ -814,6 +814,35 @@ ggsave(paste0(figure_dir,"mvpa_lesionall.pdf"), accs, width = 7, height = 6,
 saveRDS(alldata, paste0(data_dir,'../alldata.Rdata'))
 alldata <- readRDS(paste0(data_dir,'../alldata.Rdata'))
 # lapply(alldata, function(x) write.table(data.frame(x), paste0(data_dir,'../data.csv'), append= T, sep=',' ))
+# merge used data to spss
+names(alldata$rating)[c(4:7)] <- c("int_Rose","int_Fish","val_Rose","val_Fish")
+names(alldata$mvpatrans_Amy)[-1]<- paste0("Amy_",names(alldata$mvpatrans_Amy)[-1])
+names(alldata$mvpatrans_OFC)[-1]<- paste0("OFC_",names(alldata$mvpatrans_OFC)[-1])
+names(alldata$mvpatrans_p2a)[-1]<- paste0("OFC3inter_",names(alldata$mvpatrans_p2a)[-1])
+dataspss <- merge(alldata$rating,alldata$mvparoi)
+dataspss <- merge(dataspss,alldata$mvpatrans_Amy)
+dataspss <- merge(dataspss,alldata$mvpatrans_OFC)
+dataspss <- merge(dataspss,alldata$mvpatrans_p2a)
+names(alldata$mvpalesion_Amy)[-1]<- paste0("Amy_",names(alldata$mvpalesion_Amy)[-1])
+names(alldata$mvpalesion_OFC)[-1]<- paste0("OFC_",names(alldata$mvpalesion_OFC)[-1])
+dataspss <- merge(dataspss,alldata$mvpalesion_Amy[c(-11,-12,-13)])
+dataspss <- merge(dataspss,alldata$mvpalesion_OFC[c(-11,-12,-13)])
+# replace column names . with _, all with olf
+r1 <- c("all","p1","l2","p2")
+re <- c("odo","randomle","clusterle","cluster")
+for (r in 1:length(r1)) {
+  names(dataspss) <- str_replace_all(names(dataspss),r1[r],re[r])
+}
+dataspss <- merge(dataspss,alldata$betainter[c("id","coinvis","coininv")])
+dataspss <- merge(dataspss,alldata$betappi[c("id","vis","inv")])
+# remove outlier
+dataspss_rm <- dplyr::mutate_if(dataspss,is.numeric, FindOutliers)
+# save data to spss
+haven::write_sav(dataspss_rm, paste0(data_dir,"../datarm.sav"))
+haven::write_sav(dataspss, paste0(data_dir,"../data.sav"))
+# save data to csv
+write.table(data.frame(dataspss_rm), paste0(data_dir,'../datarm.csv'), sep=',', row.names = F)
+write.table(data.frame(dataspss), paste0(data_dir,'../data.csv'), sep=',', row.names = F)
 
 # # lesion cluster decoding results
 # prefix <- c('face_vis','face_inv','odor_all');

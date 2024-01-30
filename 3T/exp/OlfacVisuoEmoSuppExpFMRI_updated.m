@@ -2,7 +2,7 @@ function OlfacVisuoEmoSuppExpFMRI_updated
 % nblock = 16, Scan = 264s, TR = 2s, 132 TRss
 % nblock = 24, Scan = 392s, TR = 2s, 196 TR
 [subject, runnum, order, NoiseColor] = inputsubinfo;
-% Screen('Preference', 'SkipSyncTests', 1);
+Screen('Preference', 'SkipSyncTests', 1);
 % NoiseColor: Red(1),BlueGreen(2)
 
 %% Prepare stimuli
@@ -136,20 +136,21 @@ Air=bin2dec(num2str(AirChamber(end:-1:1)));
 % WaitSecs(0.004);
 % lptwrite(port,Air);
 
-Screen(windowPtr,'FillRect',backcolor);
-msg=sprintf('Waiting for the trigger to start...');
-errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, white);
-    if errinfo==1
-		Screen('CloseAll');
-        return
-    end
+% Screen(windowPtr,'FillRect',backcolor);
+% msg=sprintf('Waiting for the trigger to start...');
+% errinfo=ShowInstructionSE_UMNVAL(windowPtr, rect, msg, triggerKey, backcolor, white);
+%     if errinfo==1
+% 		Screen('CloseAll');
+%         return
+%     end
 
     
 StartPoint=GetSecs;
 oldPriority=Priority(MaxPriority(windowPtr));
 Screen('DrawTexture',windowPtr,defaultwin);
 vbl=Screen('Flip',windowPtr);
-WaitSecs(7);
+% WaitSecs(7);
+WaitSecs(1);
 Nf=0;
 Nh=0;
 for block=1:nblock

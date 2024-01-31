@@ -1,6 +1,6 @@
 %% set path
-% monkeys = {'RM035','RM033'};
-monkeys = {'RM033'};
+monkeys = {'RM035','RM033'};
+% monkeys = {'RM033'};
 if length(monkeys)>1
     m = '2monkey';
 else
@@ -13,6 +13,7 @@ if ~exist(pic_dir,'dir')
 end
 %% load data
 trl=[];
+resp_monkey=cell(1,length(monkeys));
 for monkey_i = 1:length(monkeys)
     monkey = monkeys{monkey_i};
     file_dir = ['/Volumes/WD_D/gufei/monkey_data/yuanliu/' ...
@@ -50,5 +51,13 @@ for monkey_i = 1:length(monkeys)
     % remove trials containing nan values
     idx=~(cellfun(@(x) any(any(isnan(x),2)),resp.trial));
     trl=[trl;trl_date(idx,:)]; 
-    end    
+    cfg.trials=idx;
+    data_resp{i_date}=ft_selectdata(cfg,resp);
+    end
+    % for checking trial length
+    resp_monkey{monkey_i} = ft_appenddata(cfg,data_resp{:});   
+    % length(trl)
+    % length(resp_monkey{monkey_i}.trial)
+    % length(resp_monkey{1}.trial)+length(resp_monkey{2}.trial)
 end
+save([pic_dir 'respoints.mat'],'trl')

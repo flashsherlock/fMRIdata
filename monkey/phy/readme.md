@@ -89,6 +89,9 @@
 ### respiration_odor
 分析不同气味条件下的呼吸是否存在差异。
 
+### respiration_cycle
+分析不同气味条件下的呼吸周期的分布。
+
 ### roi_coherence
 计算呼吸和LFP之间的相幅锁定关系。
 

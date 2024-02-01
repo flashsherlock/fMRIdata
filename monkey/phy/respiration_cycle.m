@@ -60,4 +60,9 @@ for monkey_i = 1:length(monkeys)
     % length(resp_monkey{monkey_i}.trial)
     % length(resp_monkey{1}.trial)+length(resp_monkey{2}.trial)
 end
+% add monkey id
+if length(monkeys)>1
+    trl(1:length(resp_monkey{1}.trial),5)=str2num(monkeys{1}(4:5));
+    trl(length(resp_monkey{1}.trial)+1:end,5)=str2num(monkeys{2}(4:5));
+end
 save([pic_dir 'respoints.mat'],'trl')

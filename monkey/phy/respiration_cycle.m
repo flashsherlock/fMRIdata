@@ -66,3 +66,16 @@ if length(monkeys)>1
     trl(length(resp_monkey{1}.trial)+1:end,5)=str2num(monkeys{2}(4:5));
 end
 save([pic_dir 'respoints.mat'],'trl')
+%% analyze trl
+load([data_dir 'pic/respiration_odor/' '2monkey' '/' 'respoints.mat'])
+for time_i=2:3
+    figure
+    subplot(2, 2, 1)
+    hist(trl(trl(:,4)~=6,time_i))
+    subplot(2, 2, 2)
+    hist(trl(trl(:,4)==6,time_i))
+    subplot(2, 2, 3)
+    hist(trl(trl(:,5)==35,time_i))
+    subplot(2, 2, 4)
+    hist(trl(trl(:,5)==33,time_i))
+end

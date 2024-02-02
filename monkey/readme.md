@@ -9,6 +9,9 @@ Fieldtrip tutorials for analyzing spike and LFP data.
 ## phy
 Analysis of electrophysiological experiments.
 
+## rating
+Analysis of human ratings and descriptions.
+
 ## repiration
 A matlab GUI that can mark respiration stages.
 

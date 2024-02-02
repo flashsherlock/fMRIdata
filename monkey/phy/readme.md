@@ -130,6 +130,9 @@
 ### pca_data_sep
 得到用于分类的每个记录位点PCA之后的时频数据。
 
+### rsa_power_sep
+使用时频分析的距离与气味的评分和描述词的距离做相关分析。
+
 ## Time-frequency analysis
 
 ### lfp_odortry

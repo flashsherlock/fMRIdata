@@ -68,14 +68,36 @@ end
 save([pic_dir 'respoints.mat'],'trl')
 %% analyze trl
 load([data_dir 'pic/respiration_odor/' '2monkey' '/' 'respoints.mat'])
-for time_i=2:3
-    figure
-    subplot(2, 2, 1)
-    hist(trl(trl(:,4)~=6,time_i))
-    subplot(2, 2, 2)
-    hist(trl(trl(:,4)==6,time_i))
-    subplot(2, 2, 3)
-    hist(trl(trl(:,5)==35,time_i))
-    subplot(2, 2, 4)
-    hist(trl(trl(:,5)==33,time_i))
+% bins=0:0.5:6;
+bins=20;
+% trl(:,1:3)=trl(:,1:3)/1000;
+for time_i=2:3    
+    figure('position',[20,450,800,1000])
+    subplot(4, 2, 1)
+    hist(trl(trl(:,4)~=6,time_i),bins)
+    title('odor')
+    subplot(4, 2, 2)
+    hist(trl(trl(:,4)==6,time_i),bins)
+    title('air')
+    subplot(4, 2, 3)
+    hist(trl(trl(:,5)==35,time_i),bins)
+    title('RM035')
+    subplot(4, 2, 4)
+    hist(trl(trl(:,5)==33,time_i),bins)
+    title('RM033')
+    subplot(4, 2, 5)
+    hist(trl(trl(:,5)==35&trl(:,4)==6,time_i),bins)
+    title('RM035air')
+    subplot(4, 2, 6)
+    hist(trl(trl(:,5)==33&trl(:,4)==6,time_i),bins)
+    title('RM033air')
+    subplot(4, 2, 7)
+    hist(trl(trl(:,5)==35&trl(:,4)~=6,time_i),bins)
+    title('RM035odor')
+    subplot(4, 2, 8)
+    hist(trl(trl(:,5)==33&trl(:,4)~=6,time_i),bins) 
+    title('RM033odor')
+    % percentage of trials less than 3s
+    disp(sum(trl(:,time_i)<3000)/length(trl(:,time_i)));
+    disp(sum(trl(trl(:,4)~=6,time_i)<3000)/length(trl(trl(:,4)~=6,time_i)));
 end

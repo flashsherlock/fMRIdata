@@ -54,6 +54,7 @@ if exist([pic_dir 'dis_sep_rsa.mat'],'file')
     load([pic_dir 'dis_sep_rsa.mat'])
 else
     dis_mean = zeros(roi_num,10,3);
+    pca_data = cell(roi_num,3);
     % 1-no pca, 2 and 3 pca dimension
     for dim_i=1:3
         for roi_i=1:roi_num
@@ -89,6 +90,8 @@ else
             else
                 dis_data = reshape(data,length(unique(label)),[]);
             end
+            % store to pca_data
+            pca_data{roi_i,dim_i} = dis_data;
             % remove air
             dis_data = dis_data(1:end-1,:);
             % distance matrix
@@ -98,7 +101,7 @@ else
             dis_mean(roi_i,:,dim_i) = cur_dis(triu(true(size(cur_dis)), 1));
         end
     end
-    save([pic_dir 'dis_sep_rsa.mat'],'dis_mean','cur_level_roi')
+    save([pic_dir 'dis_sep_rsa.mat'],'dis_mean','cur_level_roi','pca_data')
 end
 %% correlation with ratings
 % load human rating

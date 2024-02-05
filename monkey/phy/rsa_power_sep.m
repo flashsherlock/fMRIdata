@@ -110,8 +110,20 @@ load('/Volumes/WD_D/gufei/monkey_data/description/rating_inva.mat')
 % get field names from stuct rating
 fn = fieldnames(rating);
 nrate = 5;
-fn = fn(1+nrate:end);
+% get ratings
+orate = zeros(5,nrate+1);
+orate(:,1) = 1:5;
+for i = 1:nrate
+    orate(:,i+1) = mean(rating.(fn{i}));
+end
+% remove air
+dim = 2;
+pca_dim = cellfun(@(x) x(1:end-1,:),pca_data(:,dim),'UniformOutput',false);
+% select roi
+pca_select = cell2mat(pca_dim(~ismember(cur_level_roi(:,2),{'Hi','S'}),:));
+pca_select = [pca_select,kron(ones(size(pca_select,1)/5,1),orate)];
 % extract rdm data to a matrix
+fn = fn(1+nrate:end);
 rate = zeros(nrate,10);
 for i = 1:nrate
     cur_dis = rating.(fn{i});

@@ -121,7 +121,13 @@ dim = 2;
 pca_dim = cellfun(@(x) x(1:end-1,:),pca_data(:,dim),'UniformOutput',false);
 % select roi
 pca_select = cell2mat(pca_dim(~ismember(cur_level_roi(:,2),{'Hi','S'}),:));
-pca_select = [pca_select,kron(ones(size(pca_select,1)/5,1),orate)];
+% resid
+for power_i=1:size(pca_select,2)
+    [~,~,stat{power_i}] = glmfit(kron(ones(size(pca_select,1)/5,1),orate(:,2:3)),pca_select(:,power_i),'normal');
+    resid(:,power_i) = stat{power_i}.resid;
+end
+pca_resid = [resid,kron(ones(size(pca_select,1)/5,1),orate)];
+pca_orig = [pca_select,kron(ones(size(pca_select,1)/5,1),orate)];
 % extract rdm data to a matrix
 fn = fn(1+nrate:end);
 rate = zeros(nrate,10);

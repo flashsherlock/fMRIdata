@@ -1,5 +1,5 @@
 % the filename should not contain '-',so change to '_'
-for subi = 16
+for subi = 17
 sub		   = sprintf('s%02d',subi);
 fshome     = '/Applications/freesurfer/7.1.1/';
 subdir     = ['/Volumes/WD_D/gufei/consciousness/electrode/use/' sub];

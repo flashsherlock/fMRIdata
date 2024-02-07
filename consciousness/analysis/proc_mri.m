@@ -1,5 +1,5 @@
 %% load mri image
-subjID = 's16';
+subjID = 's17';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 mri = ft_read_mri([filepath '/' subjID '_MRI.nii']);
 %% determine left and right

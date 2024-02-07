@@ -1,7 +1,7 @@
 %% use spm to reorient CT image
 % spm will clear workspace if quit
 % workdir = pwd;
-subjID = 's16';
+subjID = 's17';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 cd(filepath);
 copy = ['cp ' subjID '_CT.nii ' subjID '_CT_acpc.nii'];
@@ -10,12 +10,12 @@ spm fmri
 % mfilename('fullpath')
 % cd(workdir);
 %% set path
-subjID = 's16';
+subjID = 's17';
 filepath=['/Volumes/WD_D/gufei/consciousness/electrode/use/' subjID];
 %% load CT image
-ct = ft_read_mri([filepath '/' subjID '_CT.nii']);
+% ct = ft_read_mri([filepath '/' subjID '_CT.nii']);
 %% determine left and right
-ft_determine_coordsys(ct);
+% ft_determine_coordsys(ct);
 %% Align the anatomical CT to the CTF head surface coordinate system
 % cfg           = [];
 % cfg.method    = 'interactive';

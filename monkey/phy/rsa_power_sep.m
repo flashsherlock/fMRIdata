@@ -123,6 +123,7 @@ pca_dim = cellfun(@(x) x(1:end-1,:),pca_data(:,dim),'UniformOutput',false);
 pca_select = cell2mat(pca_dim(~ismember(cur_level_roi(:,2),{'Hi','S'}),:));
 % resid
 for power_i=1:size(pca_select,2)
+%     [~,~,stat{power_i}] = glmfit(kron(ones(size(pca_select,1)/5,1),orate(:,4:6)),pca_select(:,power_i),'normal');
     [~,~,stat{power_i}] = glmfit(kron(ones(size(pca_select,1)/5,1),orate(:,2:3)),pca_select(:,power_i),'normal');
     resid(:,power_i) = stat{power_i}.resid;
 end

@@ -18,6 +18,9 @@ Edit `nc_trialdel` to delete trials and then use `nc_trialfun` to identify marke
 ## generate_img.tcsh
 Convert DICOM files to nii.
 
+## generate_nkt.tcsh
+Remove file lock of nkt files by `chflags`.
+
 ## raw2mat.m
 Convert edf file to mat format.
 

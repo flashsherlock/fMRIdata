@@ -1,0 +1,59 @@
+---
+title: CV
+name: Fei
+surname: Gu
+position: "Ph.D Student"
+address: "School of Physics & Chemistry, École Normale Supérieure"
+pronouns: he/him/his
+www: https://flashsherlock.github.io/
+email: "guf@psych.ac.cn"
+github: https://github.com/flashsherlock
+date: "`r format(Sys.time(), '%B %Y')`"
+output:
+  vitae::markdowncv:
+    theme: kjhealy
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(vitae)
+```
+
+## Education
+
+```{r}
+library(tibble)
+tribble(
+  ~ Degree, ~ Year, ~ Institution, ~ Where,
+  "Informal studies", "1889-91", "Flying University", "Warsaw, Poland",
+  "Master of Physics", "1893", "Sorbonne Université", "Paris, France",
+  "Master of Mathematics", "1894", "Sorbonne Université", "Paris, France"
+) %>%
+  detailed_entries(Degree, Year, Institution, Where)
+```
+
+## Nobel Prizes
+
+```{r}
+tribble(
+  ~Year, ~Type, ~Desc,
+  1903, "Physics", "Awarded for her work on radioactivity with Pierre Curie and Henri Becquerel",
+  1911, "Chemistry", "Awarded for the discovery of radium and polonium"
+) %>%
+  brief_entries(
+    glue::glue("Nobel Prize in {Type}"),
+    Year,
+    Desc
+  )
+```
+
+## Publications
+
+```{r}
+library(dplyr)
+knitr::write_bib(c("vitae", "tibble"), "packages.bib")
+
+bibliography_entries("packages.bib") %>%
+  arrange(desc(author$family), issued)
+```

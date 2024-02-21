@@ -3,48 +3,48 @@ title: CV
 name: Fei
 surname: Gu
 position: "Ph.D Student"
-address: "School of Physics & Chemistry, École Normale Supérieure"
-pronouns: he/him/his
-www: https://flashsherlock.github.io/
+address: "Institute of Psychology, Chinese Academy of Sciences"
+www: flashsherlock.github.io
 email: "guf@psych.ac.cn"
-github: https://github.com/flashsherlock
+github: flashsherlock
+googlescholar: iMfym1QAAAAJ
+headcolor: 414141 # use black color
 date: "`r format(Sys.time(), '%B %Y')`"
-output:
-  vitae::markdowncv:
-    theme: kjhealy
-    
+csl: apa-cv.csl # change this if you want to use other citation styles
+output: 
+  vitae::awesomecv:
+    keep_tex: true
+    pandoc_args: ["--lua-filter=lua/strong.lua"]
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(vitae)
+library(tibble)
 ```
 
 ## Education
 
 ```{r}
-library(tibble)
 tribble(
-  ~ Degree, ~ Year, ~ Institution, ~ Where,
-  "Informal studies", "1889-91", "Flying University", "Warsaw, Poland",
-  "Master of Physics", "1893", "Sorbonne Université", "Paris, France",
-  "Master of Mathematics", "1894", "Sorbonne Université", "Paris, France"
+  ~ Degree,
+  ~ Year,
+  ~ Institution,
+  ~ Where,
+  "PhD Student, Cognitive Neuroscience",
+  "09/2019-present",
+  "Institute of Psychology, CAS",
+  "Beijing, China",
+  "Bachelor of Science, Psychology",
+  "09/2015-07/2019",
+  "Beijing Normal University",
+  "Beijing, China",
 ) %>%
-  detailed_entries(Degree, Year, Institution, Where)
-```
-
-## Nobel Prizes
-
-```{r}
-tribble(
-  ~Year, ~Type, ~Desc,
-  1903, "Physics", "Awarded for her work on radioactivity with Pierre Curie and Henri Becquerel",
-  1911, "Chemistry", "Awarded for the discovery of radium and polonium"
-) %>%
-  brief_entries(
-    glue::glue("Nobel Prize in {Type}"),
-    Year,
-    Desc
+  detailed_entries(
+    what = Degree,
+    when = Year,
+    with = Institution,
+    where = Where
   )
 ```
 

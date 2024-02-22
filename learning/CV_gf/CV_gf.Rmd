@@ -23,7 +23,11 @@ library(vitae)
 library(tibble)
 ```
 
-## Education
+# Research Interests
+
+Olfaction; Odor representation; Amygdala; fMRI
+
+# Education
 
 ```{r}
 tribble(
@@ -48,12 +52,8 @@ tribble(
   )
 ```
 
-## Publications
+# Publications
 
 ```{r}
-library(dplyr)
-knitr::write_bib(c("vitae", "tibble"), "packages.bib")
-
-bibliography_entries("packages.bib") %>%
-  arrange(desc(author$family), issued)
+bibliography_entries("Publication.bib")
 ```

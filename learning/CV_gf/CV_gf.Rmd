@@ -9,7 +9,7 @@ email: "guf@psych.ac.cn"
 github: flashsherlock
 googlescholar: iMfym1QAAAAJ
 headcolor: 414141 # use black color
-date: "`r format(Sys.time(), '%B %Y')`"
+date: "`r format(Sys.time(), '%m-%d-%Y')`"
 csl: apa-cv.csl # change this if you want to use other citation styles
 output: 
   vitae::awesomecv:
@@ -50,6 +50,27 @@ tribble(
     with = Institution,
     where = Where
   )
+```
+
+# Awards and Grants
+
+```{r}
+tribble(
+  ~ Year,
+  ~ Name,
+  ~ Institution,
+  ~ Supp,
+  ~ Amount,
+  '2019', "The Academic Scholarship","Faculty of Psychology, Beijing Normal University",NA,'$700',
+  '2016', "Beijing Student Research and Entrepreneurial Action Plan","Beijing Municipal Commission of Education",NA,'$1500',
+) %>%
+  detailed_entries(
+    where = Year,
+    with = Name,
+    what = Institution,
+    why = Supp,
+    when = Amount
+  ) 
 ```
 
 # Publications

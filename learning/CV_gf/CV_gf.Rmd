@@ -6,6 +6,7 @@ position: "Ph.D Student"
 address: "Institute of Psychology, Chinese Academy of Sciences"
 www: flashsherlock.github.io
 email: "guf@psych.ac.cn"
+orcid: 0000-0001-7253-9097
 github: flashsherlock
 googlescholar: iMfym1QAAAAJ
 headcolor: 414141 # use black color
@@ -73,8 +74,16 @@ tribble(
   ) 
 ```
 
-# Publications
+# Research output
+
+## Articles
 
 ```{r}
 bibliography_entries("Publication.bib")
+```
+
+## Presentations
+
+```{r}
+bibliography_entries("Presentations.bib")
 ```

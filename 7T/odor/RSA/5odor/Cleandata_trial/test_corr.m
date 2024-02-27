@@ -8,8 +8,6 @@ end
 load([datafolder 'ImageData/Cleandata_responsePatterns_' mask '.mat']);
 % load([modelfolder 'ImageData/Cleandata_responsePatterns.mat']);
 load([modelfolder 'RDMs/Cleandata_Models.mat']);
-% fields and subs
-fields = fieldnames(responsePatterns);
 subn = [4:11 13 14 16:18 19:29 31:34];
 subs = cell(1,length(subn));
 for sub_i = 1:length(subn)
@@ -17,6 +15,16 @@ for sub_i = 1:length(subn)
 end
 useavg = 0;
 plotrdm = 0;
+%% combine cortical and CeMe
+responsePatterns.superAmy = responsePatterns.CeMeAmy_align;
+responsePatterns.deepAmy = responsePatterns.BaLaAmy_align;
+% for each field in superAmy
+subfields = fieldnames(responsePatterns.superAmy);
+for field_i = 1:length(subfields)
+    responsePatterns.superAmy.(subfields{field_i}) = cat(1,responsePatterns.CeMeAmy_align.(subfields{field_i}),responsePatterns.corticalAmy_align.(subfields{field_i}));
+end
+% fields and subs
+fields = fieldnames(responsePatterns);
 %% plot the response pattern
 % for field_i = 1:length(fields)    
 %     % for each sub
@@ -40,13 +48,13 @@ colms = [];
 cormat = [];
 betas = [];
 % reshape to ncon, if not 180
-ncon = 30;
+ncon = 180;
 perw = cell(length(subn),length(fields));
 for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
         % select voxels
-        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,50,0,0);
+        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,20,0,0);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average
@@ -89,7 +97,7 @@ for sub_i = 1:length(subn)
     cormat(:, :, sub_i) = corr(colms, 'type', 'Spearman');
     % glmfit
     for field_i = 1:length(fields)
-        % the first bet is constant term if not set 'constant','off'
+        % the first beta is constant term if not set 'constant','off'
         models = [5,4,1,6];
         labels = {'APairs' 'Haddad' 'Odorspace' 'valence' 'intensity' 'similarity' 'random'};
         betas(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';        
@@ -111,9 +119,11 @@ strsimr = cormat(length(fields) + chosen(1),length(fields) + chosen(2),:);
 s={[1:size(represent,3)],[1:size(represent,3)/2],[size(represent,3)/2+1:size(represent,3)]};
 % split odd and even
 % s={[1:size(represent,3)],1:2:size(represent,3),2:2:size(represent,3)};
-for sub_i=1:3
+select_rep = [1:length(fields)];
+% select_rep = [1 5:length(fields)];
+for sub_i=1%:3
     % average across subs
-    repm = squeeze(mean(represent(:,:,s{sub_i}), 3));    
+    repm = squeeze(mean(represent(:,select_rep,s{sub_i}), 3));    
     % plot mean and stand error
     figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
     h = bar(repm');
@@ -121,7 +131,7 @@ for sub_i=1:3
     h(1).FaceColor = hex2rgb('#f0803b');
     h(2).FaceColor = hex2rgb('#56a2d4');
     set(gca,'TicklabelInterpreter','none')
-    xl = strrep(strrep(fields,['_' mask],''),'Amy','');
+    xl = strrep(strrep(fields(select_rep),['_' mask],''),'Amy','');
     xl = strrep(xl,'8','Amy');
     set(gca, 'XTickLabel', xl);
     set(gca, 'FontSize',18)
@@ -129,7 +139,7 @@ for sub_i=1:3
     legend({'Struture', 'Similarity'});
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
     % save svg figure to data folder
-    saveas(gcf, [datafolder 'Figures/' mask '_' num2str(chosen(1)) '&' num2str(chosen(2)) '_' num2str(ncon) '_' num2str(sub_i) '.svg']);
+    %saveas(gcf, [datafolder 'Figures/' mask '_' num2str(chosen(1)) '&' num2str(chosen(2)) '_' num2str(ncon) '_' num2str(sub_i) '.svg']);
 end
 %close all
 %% betas

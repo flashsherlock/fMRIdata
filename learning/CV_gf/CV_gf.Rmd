@@ -12,8 +12,10 @@ googlescholar: iMfym1QAAAAJ
 headcolor: 414141 # use black color
 date: "`r format(Sys.time(), '%m-%d-%Y')`"
 csl: apa-cv.csl # change this if you want to use other citation styles
+# biblio-style: apa
 output: 
   vitae::awesomecv:
+    # citation_package: biblatex
     keep_tex: true
     pandoc_args: ["--lua-filter=lua/strong.lua"]
 ---
@@ -26,7 +28,7 @@ library(tibble)
 
 # Research Interests
 
-Olfaction; Odor representation; Amygdala; fMRI
+Olfaction; amygdala; odor representation; fMRI
 
 # Education
 
@@ -74,16 +76,16 @@ tribble(
   ) 
 ```
 
-# Research output
+# Research outputs
 
 ## Articles
 
 ```{r}
-bibliography_entries("Publication.bib")
+bibliography_entries("Publication.bib") %>% dplyr::arrange(desc(issued))
 ```
 
 ## Presentations
 
 ```{r}
-bibliography_entries("Presentations.bib")
+bibliography_entries("Presentations.bib") %>% dplyr::arrange(desc(issued))
 ```

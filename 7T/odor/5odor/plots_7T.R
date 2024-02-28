@@ -80,7 +80,9 @@ calmean <- function(results){
 # load data
 data_dir <- "/Volumes/WD_D/gufei/shiny/apps/7T/"
 figure_dir <- "/Volumes/WD_F/gufei/7T_odor/figures/"
-load(paste0(data_dir,"search_rmbase.RData"))
+prefix <- "results"
+prefix <- "search_rmbase"
+load(paste0(data_dir,prefix,".RData"))
 # compute strnorm
 if (ncol(results)<20){
   results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
@@ -92,8 +94,9 @@ results_select <- results[abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,]
 results_select <- calmean(results_select)
 strbox <- boxplot(results_select,c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
   coord_cartesian(ylim = c(-1,1))
-ggsave(paste0(figure_dir,paste0('strnorm_search.pdf')), strbox, width = 4, height = 3,
-       device = cairo_pdf)
+# save according to input name
+ggsave(paste0(figure_dir,paste0('strnorm', ifelse(str_detect(prefix,"search"),"_search",""), '.pdf')),
+       strbox, width = 4, height = 3, device = cairo_pdf)
 # ttest
 bruceR::TTEST(results_select[roi%in%c("Superficial","Deep"),],x="roi",y=c("strnorm"))
 bruceR::TTEST(results_select[roi%in%c("APC","PPC"),],x="roi",y=c("strnorm"))

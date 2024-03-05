@@ -47,6 +47,7 @@ end
 colms = [];
 cormat = [];
 betas = [];
+neur = [];
 % reshape to ncon, if not 180
 ncon = 180;
 perw = cell(length(subn),length(fields));
@@ -84,7 +85,7 @@ for sub_i = 1:length(subn)
         % select upper triangle
         colms(:, field_i) = cur_res(triu(true(size(cur_res)), 1));
     end    
-    
+    % calculate RSA
     for m_i = 1:size(Models,1)
         cur_res = Models(m_i, sub_i).RDM;
         % select according to the size of response        
@@ -95,6 +96,14 @@ for sub_i = 1:length(subn)
         colms(:, length(fields)+m_i) = cur_res(triu(true(size(cur_res)), 1));
     end
     cormat(:, :, sub_i) = corr(colms, 'type', 'Spearman');
+    % extract lim-car lim-cit
+    select_r = [0.3871 0.7013];
+    for sr_i = 1:length(select_r)
+        idx = colms(:, length(fields)+1)==select_r(sr_i);
+        neur(sr_i,:,sub_i)=mean(colms(idx, 1:length(fields)));
+        % fisherz
+%         neur(sr_i,:,sub_i)=mean(atanh(1-colms(idx, 1:length(fields))));
+    end
     % glmfit
     for field_i = 1:length(fields)
         % the first beta is constant term if not set 'constant','off'
@@ -103,7 +112,6 @@ for sub_i = 1:length(subn)
         betas(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';        
     end
 end
-
 %% extract the correlation between rois and strut & sim
 represent = zeros(2,length(fields),length(subn));
 chosen = [1 6];
@@ -140,6 +148,26 @@ for sub_i=1%:3
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
     % save svg figure to data folder
     %saveas(gcf, [datafolder 'Figures/' mask '_' num2str(chosen(1)) '&' num2str(chosen(2)) '_' num2str(ncon) '_' num2str(sub_i) '.svg']);
+    
+    % plot distances between lim-car lim-cit
+    % average across subs
+    repm = squeeze(mean(neur(:,select_rep,s{sub_i}), 3));    
+    % plot mean and stand error
+    figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
+    h = bar(repm');
+    % set face colors to red and blue
+    h(1).FaceColor = hex2rgb('#f0803b');
+    h(2).FaceColor = hex2rgb('#56a2d4');
+    set(gca,'TicklabelInterpreter','none')
+    xl = strrep(strrep(fields(select_rep),['_' mask],''),'Amy','');
+    xl = strrep(xl,'8','Amy');
+    set(gca, 'XTickLabel', xl);
+    set(gca, 'FontSize',18)
+    ylabel('1-r');
+    legend({'lim-car', 'lim-cit'});
+    title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
+    % save svg figure to data folder
+    %saveas(gcf, [datafolder 'Figures/' mask '_' num2str(ncon) '.svg']);
 end
 %close all
 %% betas

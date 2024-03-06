@@ -96,8 +96,8 @@ for sub_i = 1:length(subn)
         colms(:, length(fields)+m_i) = cur_res(triu(true(size(cur_res)), 1));
     end
     cormat(:, :, sub_i) = corr(colms, 'type', 'Spearman');
-    % extract lim-car lim-cit
-    select_r = [0.3871 0.7013];
+    % extract lim-car lim-cit lim-tra lim-ind
+    select_r = [0.3871 0.7013 0.9583 0.9747];
     for sr_i = 1:length(select_r)
         idx = colms(:, length(fields)+1)==select_r(sr_i);
         neur(sr_i,:,sub_i)=mean(colms(idx, 1:length(fields)));
@@ -107,9 +107,17 @@ for sub_i = 1:length(subn)
     % glmfit
     for field_i = 1:length(fields)
         % the first beta is constant term if not set 'constant','off'
-        models = [5,4,1,6];
+        colms = zscore(colms,0,1);
+%         models = [5,4,1,6];        
         labels = {'APairs' 'Haddad' 'Odorspace' 'valence' 'intensity' 'similarity' 'random'};
-        betas(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';        
+        models = [4,5];
+        betas1(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')'; 
+        models = [4,5,1];
+        betas2(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';  
+        models = [4,5,6];
+        betas3(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';
+        models = [4,5,7];
+        betas4(field_i,:,sub_i) = glmfit(colms(:,length(fields)+models),colms(:,field_i),'normal')';
     end
 end
 %% extract the correlation between rois and strut & sim
@@ -148,31 +156,38 @@ for sub_i=1%:3
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
     % save svg figure to data folder
     %saveas(gcf, [datafolder 'Figures/' mask '_' num2str(chosen(1)) '&' num2str(chosen(2)) '_' num2str(ncon) '_' num2str(sub_i) '.svg']);
-    
-    % plot distances between lim-car lim-cit
-    % average across subs
-    repm = squeeze(mean(neur(:,select_rep,s{sub_i}), 3));    
-    % plot mean and stand error
-    figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
-    h = bar(repm');
-    % set face colors to red and blue
-    h(1).FaceColor = hex2rgb('#f0803b');
-    h(2).FaceColor = hex2rgb('#56a2d4');
-    set(gca,'TicklabelInterpreter','none')
-    xl = strrep(strrep(fields(select_rep),['_' mask],''),'Amy','');
-    xl = strrep(xl,'8','Amy');
-    set(gca, 'XTickLabel', xl);
-    set(gca, 'FontSize',18)
-    ylabel('1-r');
-    legend({'lim-car', 'lim-cit'});
-    title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
-    % save svg figure to data folder
-    %saveas(gcf, [datafolder 'Figures/' mask '_' num2str(ncon) '.svg']);
 end
+% plot distances between lim-car lim-cit
+% for sub_i=1%:3    
+%     % average across subs
+%     repm = squeeze(mean(neur(1:2,select_rep,s{sub_i}), 3));    
+%     % plot mean and stand error
+%     figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
+%     h = bar(repm');
+%     % set face colors to red and blue
+%     h(1).FaceColor = hex2rgb('#f0803b');
+%     h(2).FaceColor = hex2rgb('#56a2d4');
+%     set(gca,'TicklabelInterpreter','none')
+%     xl = strrep(strrep(fields(select_rep),['_' mask],''),'Amy','');
+%     xl = strrep(xl,'8','Amy');
+%     set(gca, 'XTickLabel', xl);
+%     set(gca, 'FontSize',18)
+%     ylabel('1-r');
+%     legend({'lim-car', 'lim-cit'});
+%     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])
+%     % save svg figure to data folder
+%     %saveas(gcf, [datafolder 'Figures/' mask '_' num2str(ncon) '.svg']);
+% end
 %close all
 %% betas
 % remove constant term
-betas(:, 1, :) = [];
+betas(:, 1:2, :) = betas1(:,2:3,:);
+% structure
+betas(:, 3, :) = betas2(:,4,:);
+% simlarity
+betas(:, 4, :) = betas3(:,4,:);
+% random
+betas(:, 5, :) = betas4(:,4,:);
 for sub_i=1:3    
     b = squeeze(mean(betas(:,:,s{sub_i}), 3));
     figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
@@ -184,6 +199,7 @@ for sub_i=1:3
     set(gca, 'XTickLabel', xl);
     set(gca, 'FontSize',18)
     ylabel('Beta');
+    models = [4,5,1,6,7];
     legend(labels(models));
     title(['Conditions: ' num2str(ncon),' Sub: ' num2str(sub_i)])    
 end

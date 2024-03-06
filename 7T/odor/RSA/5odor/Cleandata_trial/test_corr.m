@@ -188,7 +188,7 @@ betas(:, 3, :) = betas2(:,4,:);
 betas(:, 4, :) = betas3(:,4,:);
 % random
 betas(:, 5, :) = betas4(:,4,:);
-for sub_i=1:3    
+for sub_i=1%:3    
     b = squeeze(mean(betas(:,:,s{sub_i}), 3));
     figure('position', [20, 0, 1000, 300], 'Renderer', 'Painters');
     h = bar(b);
@@ -213,3 +213,9 @@ repwide = permute(represent,[3 1 2]);
 repwide = reshape(repwide,length(subn),[]);
 names = reshape([strcat(fields,'_str') strcat(fields,'_sim')]',[],1);
 repwide = repwide(idx,:);
+% test interaction
+for roi_i =[15 19]    
+    [h,p,ci,t] = ttest((repwide(:,roi_i)-repwide(:,roi_i+1))-(repwide(:,roi_i+2)-repwide(:,roi_i+3)));
+    disp(names(roi_i))
+    disp(p)
+end

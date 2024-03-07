@@ -12,7 +12,8 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, run, zrun )
     % if voxel_num<=1, treat it as percentage
     voxn = size(cur_res,1);
     if voxel_num<=1
-        voxel_num = ceil(voxel_num*voxn);
+        % add minimum number
+        voxel_num = min(30,ceil(voxel_num*voxn));
     end
     conn = size(cur_res,2);
     runn = 6;

@@ -1,5 +1,5 @@
 %% load response patterns
-mask = 'align';
+mask = 'at165';
 modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
 datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
 if ~exist([datafolder 'Figures'],'dir')
@@ -16,12 +16,12 @@ end
 useavg = 0;
 plotrdm = 0;
 %% combine cortical and CeMe
-responsePatterns.superAmy = responsePatterns.CeMeAmy_align;
-responsePatterns.deepAmy = responsePatterns.BaLaAmy_align;
+responsePatterns.superAmy = responsePatterns.(['CeMeAmy_' mask]);
+responsePatterns.deepAmy = responsePatterns.(['BaLaAmy_' mask]);
 % for each field in superAmy
 subfields = fieldnames(responsePatterns.superAmy);
 for field_i = 1:length(subfields)
-    responsePatterns.superAmy.(subfields{field_i}) = cat(1,responsePatterns.CeMeAmy_align.(subfields{field_i}),responsePatterns.corticalAmy_align.(subfields{field_i}));
+    responsePatterns.superAmy.(subfields{field_i}) = cat(1,responsePatterns.(['CeMeAmy_' mask]).(subfields{field_i}),responsePatterns.(['corticalAmy_' mask]).(subfields{field_i}));
 end
 % fields and subs
 fields = fieldnames(responsePatterns);
@@ -55,7 +55,7 @@ for sub_i = 1:length(subn)
     for field_i = 1:length(fields)
         cur_res = responsePatterns.(fields{field_i}).(subs{sub_i});
         % select voxels
-        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,20,0,0);
+        [cur_res,perw{sub_i,field_i}] = select_voxel(cur_res,0.05,0,0);
         % only reshape        
 %         cur_res = reshape(cur_res,[],ncon);
         % average
@@ -212,8 +212,11 @@ disp(subn(idx))
 repwide = permute(represent,[3 1 2]);
 repwide = reshape(repwide,length(subn),[]);
 names = reshape([strcat(fields,'_str') strcat(fields,'_sim')]',[],1);
-repwide = repwide(idx,:);
+% repwide = repwide(idx,:);
 % test interaction
+[h,p,ci,t] = ttest((repwide(:,13)-repwide(:,14))-(repwide(:,17)-repwide(:,18)));
+disp(names(13))
+disp(p)
 for roi_i =[15 19]    
     [h,p,ci,t] = ttest((repwide(:,roi_i)-repwide(:,roi_i+1))-(repwide(:,roi_i+2)-repwide(:,roi_i+3)));
     disp(names(roi_i))

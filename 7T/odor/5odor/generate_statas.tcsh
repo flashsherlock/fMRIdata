@@ -110,14 +110,15 @@ set data_beta=stats.${subjva}+orig
 foreach region (Pir_new Pir_old APC_new APC_old PPC)
     # generate t threshold masks
     # different regions of amygdala
-    # rm ../mask/${region}_${maskdec_t2}.draw*
+    rm ../mask/${region}_${maskdec_t2}.draw*
+    rm ../mask/${region}_${maskdec_t}.draw*
     3dcalc  -a ${data_beta}'[2]' \
             -b ${data_beta}'[5]' \
             -c ${data_beta}'[8]' \
             -d ${data_beta}'[11]' \
             -e ${data_beta}'[14]' \
             -f ../mask/${region}.draw+orig \
-            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
+            -expr 'or(astep(a,1.96),astep(b,1.96),astep(c,1.96),astep(d,1.96),astep(e,1.96))*f' \
             -prefix ../mask/${region}_${maskdec_t2}.draw
 
     3dcalc  -a ${data_beta}'[2]' \
@@ -126,7 +127,7 @@ foreach region (Pir_new Pir_old APC_new APC_old PPC)
             -d ${data_beta}'[11]' \
             -e ${data_beta}'[14]' \
             -f ../mask/${region}.draw+orig \
-            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
+            -expr 'or(step(a-1.96),step(b-1.96),step(c-1.96),step(d-1.96),step(e-1.96))*f' \
             -prefix ../mask/${region}_${maskdec_t}.draw
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.draw+orig \
@@ -138,14 +139,15 @@ foreach region (Pir_new Pir_old APC_new APC_old PPC)
 end
 
 foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
-    # rm ../mask/${region}_${maskdec_t2}.freesurfer*
+    rm ../mask/${region}_${maskdec_t2}.freesurfer*
+    rm ../mask/${region}_${maskdec_t}.freesurfer*
     3dcalc  -a ${data_beta}'[2]' \
             -b ${data_beta}'[5]' \
             -c ${data_beta}'[8]' \
             -d ${data_beta}'[11]' \
             -e ${data_beta}'[14]' \
             -f ../mask/${region}_${maskdec}.freesurfer+orig \
-            -expr 'or(astep(a,1.65),astep(b,1.65),astep(c,1.65),astep(d,1.65),astep(e,1.65))*f' \
+            -expr 'or(astep(a,1.96),astep(b,1.96),astep(c,1.96),astep(d,1.96),astep(e,1.96))*f' \
             -prefix ../mask/${region}_${maskdec_t2}.freesurfer
     
     3dcalc  -a ${data_beta}'[2]' \
@@ -154,7 +156,7 @@ foreach region (Amy9 Amy8 corticalAmy CeMeAmy BaLaAmy)
             -d ${data_beta}'[11]' \
             -e ${data_beta}'[14]' \
             -f ../mask/${region}_${maskdec}.freesurfer+orig \
-            -expr 'or(step(a-1.65),step(b-1.65),step(c-1.65),step(d-1.65),step(e-1.65))*f' \
+            -expr 'or(step(a-1.96),step(b-1.96),step(c-1.96),step(d-1.96),step(e-1.96))*f' \
             -prefix ../mask/${region}_${maskdec_t}.freesurfer
 
     3dROIstats -mask ../mask/${region}_${maskdec_t}.freesurfer+orig \

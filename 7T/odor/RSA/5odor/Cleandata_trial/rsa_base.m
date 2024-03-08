@@ -22,11 +22,11 @@ userOptions.subjectNames = userOptions.subn';
 userOptions.getSPMData = false;
 userOptions.afni.software = 'AFNI';
 userOptions.maskPath = [datafolder filesep '[[subjectName]]' '/mask/[[maskName]].*orig.HEAD'];
-% userOptions.maskNames={'Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align','Pir_new','Pir_old','APC_new','APC_old','PPC'};
-userOptions.maskNames={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165'};
+userOptions.maskNames={'Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy_align','Pir_new','Pir_old','APC_new','APC_old','PPC'};
+% userOptions.maskNames={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165'};
 % prefix and suffix
 userOptions.filename={'allrun.volreg.','+orig.BRIK,'};
 %% Data preparation
-fullBrainVols = fMRIDataPreparation_afni(betaCorrespondence, userOptions);
-binaryMasks_nS = fMRIMaskPreparation_afni(userOptions);
-responsePatterns = rsa.fmri.fMRIDataMasking(fullBrainVols, binaryMasks_nS, betaCorrespondence, userOptions);
+% fullBrainVols = fMRIDataPreparation_afni(betaCorrespondence, userOptions);
+% binaryMasks_nS = fMRIMaskPreparation_afni(userOptions);
+% responsePatterns = rsa.fmri.fMRIDataMasking(fullBrainVols, binaryMasks_nS, betaCorrespondence, userOptions);

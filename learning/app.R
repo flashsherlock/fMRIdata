@@ -85,6 +85,7 @@ ui <- fluidPage(
                   tabPanel("XYZ", plotOutput(outputId = "xyz")),
                   tabPanel("XYZ_m", plotOutput(outputId = "xyz_mean")),
                   tabPanel("Prob", plotOutput(outputId = "prob")),
+                  tabPanel("QuaVal", plotOutput(outputId = "quaval")),
                   tabPanel("Table", DTOutput("table"))
       #             tabPanel("lim-cit",plotlyOutput(outputId = "p1")),
       #             tabPanel("lim-car",plotlyOutput(outputId = "p2")),
@@ -382,6 +383,10 @@ server <- function(input, output, ...) {
   
   output$prob <- renderPlot({
     plot_scatter(data$results,"prob","strnorm")
+  })
+
+  output$quaval <- renderPlot({
+    plot_scatter(data$results,"val","strnorm")
   })
   
   output$table <- renderDT({

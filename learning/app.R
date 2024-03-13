@@ -80,6 +80,7 @@ ui <- fluidPage(
       # plotlyOutput(outputId = "p5"),
       tabsetPanel(type = "tabs",
                   tabPanel("StrQua", plotlyOutput(outputId = "p5", width = "auto")),
+                  tabPanel("Val", plotlyOutput(outputId = "p6", width = "auto")),
                   tabPanel("ROI", plotOutput(outputId = "mean")),
                   tabPanel("XYZ", plotOutput(outputId = "xyz")),
                   tabPanel("XYZ_m", plotOutput(outputId = "xyz_mean")),
@@ -186,8 +187,12 @@ server <- function(input, output, ...) {
     # compute strnorm
     if (ncol(results)<20){
       results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
+      results[,val:=(abs(`m_lim-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/2]
+      # comparation between pleasant and unpleasant
+      # results[,val:=((`m_lim-tra`)+(`m_lim-ind`-`m_lim-cit`)+(`m_lim-ind`)+(`m_lim-tra`-`m_lim-cit`))/2]
     } else{
       results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
+      results[,val:=(`m_lim-tra`+`m_lim-ind`+`m_tra-cit`+`m_cit-ind`)/2]
     }
     if (input$roi == "amy"){
       results <- results[roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"),]
@@ -277,6 +282,20 @@ server <- function(input, output, ...) {
     # plot
     p5 <- plot_ly(data$results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
                   color=~strnorm,colors=data$colorp,size = I(30),symbol = I("square"),
+                  hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'),
+                  width = max(1,data$wid,data$hei), height = min(1,data$wid,data$hei),
+                  source = "p5")%>%
+      # colorbar(title = "struc-quality_n")%>%
+      layout(scene = list(aspectmode = "data",
+                          camera = list(eye = list(x = data$cam$x, y = data$cam$y, z = data$cam$z))
+                          ))
+      # layout(scene = list(aspectmode = "manual", aspectratio = list(x=2, y=1, z=1)))
+  })
+
+  output$p6<- renderPlotly({
+    # plot
+    p6 <- plot_ly(data$results,x=~x, y=~y, z=~z, split=~roi,type="scatter3d", mode="markers", 
+                  color=~val,colors=colorRampPalette(c("white", "red"))(10),size = I(30),symbol = I("square"),
                   hovertemplate = paste('%{x} %{y} %{z}<br>','%{marker.color:.2f}'),
                   width = max(1,data$wid,data$hei), height = min(1,data$wid,data$hei),
                   source = "p5")%>%

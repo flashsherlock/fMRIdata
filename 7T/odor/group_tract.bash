@@ -23,4 +23,5 @@ cd "${datafolder}" || exit
 -mask all.seg+tlrc        \
 all.seg+tlrc              \
 tract_resample+tlrc       \
+"../stats_val+tlrc[0]"       \
 > ../tract.txt

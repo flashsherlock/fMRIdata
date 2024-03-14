@@ -20,7 +20,7 @@ gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 
 # read tract xyz is in RAI (diff from results)
 tract <- read.table("tract.txt")
-names(tract) <- c("y","x","z","roi","prob")
+names(tract) <- c("y","x","z","roi","prob","betaval")
 tract <- as.data.table(tract)
 # roi name
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
@@ -185,6 +185,7 @@ server <- function(input, output, ...) {
   observe({
     load(paste0(input$data,".RData"))
     results <- cbind(results,tract[,5])
+    results <- cbind(results,abs(tract[,6]))
     # compute strnorm
     if (ncol(results)<20){
       results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
@@ -386,7 +387,9 @@ server <- function(input, output, ...) {
   })
 
   output$quaval <- renderPlot({
-    plot_scatter(data$results,"val","strnorm")
+    p1 <- plot_scatter(data$results,"val","strnorm")
+    p2 <- plot_scatter(data$results,"betaval","strnorm")
+    return(wrap_plots(p1,p2,nrow = 1))
   })
   
   output$table <- renderDT({

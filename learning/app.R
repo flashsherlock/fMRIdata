@@ -20,7 +20,7 @@ gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 
 # read tract xyz is in RAI (diff from results)
 tract <- read.table("tract.txt")
-names(tract) <- c("y","x","z","roi","prob","betaval")
+names(tract) <- c("y","x","z","roi","prob","betaval","betaint")
 tract <- as.data.table(tract)
 # roi name
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
@@ -185,9 +185,10 @@ server <- function(input, output, ...) {
   observe({
     load(paste0(input$data,".RData"))
     results <- cbind(results,tract[,5])
-    results <- cbind(results,abs(tract[,6]))
+    # beta value for valence and intensity
+    results <- cbind(results,abs(tract[,c(6,7)]))
     # compute strnorm
-    if (ncol(results)<20){
+    if (!str_detect(input$data,"search")){
       results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
       results[,val:=(abs(`m_lim-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/2]
       # comparation between pleasant and unpleasant
@@ -389,8 +390,10 @@ server <- function(input, output, ...) {
   output$quaval <- renderPlot({
     p1 <- plot_scatter(data$results,"val","strnorm")
     p2 <- plot_scatter(data$results,"betaval","strnorm")
-    return(wrap_plots(p1,p2,nrow = 1))
-  })
+    p3 <- plot_scatter(data$results,"betaint","strnorm")
+    p4 <- plot_scatter(data$results,"betaval","betaint")
+    return(wrap_plots(p1,p2,p3,p4,nrow = 2))
+  },height = function(){data$wid*1})
   
   output$table <- renderDT({
     out <- data$results[,lapply(.SD, function(x) if (is.numeric(x)) round(x, 2) else x)]

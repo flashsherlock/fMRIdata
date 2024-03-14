@@ -23,5 +23,9 @@ cd "${datafolder}" || exit
 -mask all.seg+tlrc        \
 all.seg+tlrc              \
 tract_resample+tlrc       \
-"../stats_val+tlrc[0]"       \
+"../stats_val+tlrc[0]"    \
+"../stats_int+tlrc[0]"    \
 > ../tract.txt
+
+# copy tract.txt to shiny folder
+cp ../tract.txt /Volumes/WD_D/gufei/shiny/apps/7T/tract.txt

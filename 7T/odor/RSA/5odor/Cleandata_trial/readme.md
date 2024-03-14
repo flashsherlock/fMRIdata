@@ -29,3 +29,12 @@ Try to compute correlation between model and neuro RDMs without functions from r
 
 ## rsa_base.m
 Use data the same as MVPA (remove 2 TRs before onset).
+
+## maskfullvol.m
+Function to use data the same as MVPA (input mask name).
+
+## select_voxel.m
+Function to select voxels in RSA.
+
+## rating_corr.m
+Write images of rating-beta correlation.

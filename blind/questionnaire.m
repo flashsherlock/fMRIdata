@@ -1,5 +1,5 @@
 clear all;clc;
-data_dir = 'Z:\gufei\blind\';
+data_dir = '/Volumes/WD_F/gufei/blind/'; %mac:/Volumes/WD_F/gufei/blind/  win:Z:\gufei\blind\
 [num,txt,raw]=xlsread([data_dir 'question.xlsx'],'Sheet1');
 [congen,~,~]=xlsread([data_dir 'questioninfo.xlsx'],'Sheet1','E:F');
 % sort by id

@@ -1,4 +1,5 @@
-data_dir = '/Volumes/WD_F/gufei/blind/';
+clear all;clc;
+data_dir = 'Z:\gufei\blind\';
 [num,txt,raw]=xlsread([data_dir 'question.xlsx'],'Sheet1');
 [congen,~,~]=xlsread([data_dir 'questioninfo.xlsx'],'Sheet1','E:F');
 % sort by id
@@ -42,14 +43,15 @@ disp(ranovatbl)
 % odor awareness 14-43 46
 num(8:10,44:47) = 6-num(8:10,44:47);% fix mistakes
 % recode importance
+num(:,43) = 5-num(:,43);
 num(:,44:47) = 6-num(:,44:47);
 aware = sum(num(select_sub,[14:43 46]),2);
 results = [subinfo aware num(select_sub,48:65)];
 % add vividness in mri (another selection for subs)
 for sub_i = mrisub
     rate = blind_rate(sub_i);
-    results(results(:,1)==sub_i,23:30)=rate.vivid;
-    results(results(:,1)==sub_i,31:78)=reshape(rate.vividrun,1,[]);
+    results(results(:,1)==sub_i,25:32)=rate.vivid;
+    results(results(:,1)==sub_i,33:80)=reshape(rate.vividrun,1,[]);
 end
 mriresults=results(:,:);
 save([data_dir,'rating_mri.mat'],'mriresults');

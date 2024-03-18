@@ -18,6 +18,7 @@ for sub_i = 1:length(subn)
 end
 useavg = 0;
 plotrdm = 0;
+use30 = 0;
 %% combine cortical and CeMe
 responsePatterns.superAmy = responsePatterns.(['CeMeAmy_' mask]);
 responsePatterns.deepAmy = responsePatterns.(['BaLaAmy_' mask]);
@@ -44,6 +45,12 @@ if useavg == 1
     simavg = mean(cat(3,Models(6, :).RDM),3);
     for sub_i = 1:length(subn)
         Models(6, sub_i).RDM = simavg;
+    end
+end
+%% use 30*30 valence and intensity
+if use30 == 1
+    for sub_i = 1:length(subn)
+        [Models(4, sub_i).RDM Models(5, sub_i).RDM] = mrivi(subn(sub_i));
     end
 end
 %% pariwise correlation for all subjects
@@ -100,13 +107,13 @@ for sub_i = 1:length(subn)
     end
     cormat(:, :, sub_i) = corr(colms, 'type', 'Spearman');
     % extract lim-car lim-cit lim-tra lim-ind
-    select_r = [0.3871 0.7013 0.9583 0.9747];
-    for sr_i = 1:length(select_r)
-        idx = colms(:, length(fields)+1)==select_r(sr_i);
-        neur(sr_i,:,sub_i)=mean(colms(idx, 1:length(fields)));
-        % fisherz
+%     select_r = [0.3871 0.7013 0.9583 0.9747];
+%     for sr_i = 1:length(select_r)
+%         idx = colms(:, length(fields)+1)==select_r(sr_i);
+%         neur(sr_i,:,sub_i)=mean(colms(idx, 1:length(fields)));
+%         % fisherz
 %         neur(sr_i,:,sub_i)=mean(atanh(1-colms(idx, 1:length(fields))));
-    end
+%     end
     % glmfit
 %     for field_i = 1:length(fields)
 %         % the first beta is constant term if not set 'constant','off'

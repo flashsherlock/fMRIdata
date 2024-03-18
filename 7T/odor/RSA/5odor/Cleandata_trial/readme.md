@@ -38,3 +38,6 @@ Function to select voxels in RSA.
 
 ## rating_corr.m
 Write images of rating-beta correlation.
+
+## mrivi.m
+Get valence and intensity ratings in MRI, then calculate runwise RDMs.

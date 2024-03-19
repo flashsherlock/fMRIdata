@@ -8,7 +8,7 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, actper)
     end
     % number of voxels
     voxn = size(cur_res,1);
-    minnum = 30;
+    minnum = 10;
     % number of conditions
     conn = size(cur_res,2);
     runn = 6;
@@ -20,6 +20,8 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, actper)
     end
     % calculate z activity
     act = zscore(reshape(cur_res',[],voxn),0,1);
+%     act = zscore(reshape(cur_res',[],odorn,voxn),0,1);
+%     act = reshape(act,[],voxn);
     outindex = all(abs(act)<=3);
     cur_res = cur_res(outindex,:);
     voxn = size(cur_res,1);

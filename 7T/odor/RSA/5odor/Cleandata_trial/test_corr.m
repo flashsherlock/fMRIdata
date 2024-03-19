@@ -1,7 +1,9 @@
-function [repwide, p]= test_corr(mask, voxelnum)
+function [repwide, p]= test_corr(mask, voxelnum, ncon)
 %% load response patterns
 % mask = 'at165';
 % voxelnum = 0.05;
+% reshape to ncon, if not 180
+% ncon = 180;
 chosen = [1 6];
 modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
 datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
@@ -58,8 +60,6 @@ colms = [];
 cormat = [];
 betas = [];
 neur = [];
-% reshape to ncon, if not 180
-ncon = 180;
 perw = cell(length(subn),length(fields));
 for sub_i = 1:length(subn)
     for field_i = 1:length(fields)

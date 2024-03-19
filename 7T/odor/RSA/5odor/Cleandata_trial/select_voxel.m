@@ -8,7 +8,7 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, actper)
     end
     % number of voxels
     voxn = size(cur_res,1);
-    minnum = 10;
+    minnum = 30;
     % number of conditions
     conn = size(cur_res,2);
     runn = 6;
@@ -75,7 +75,7 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, actper)
 %     act = act(:,index(1:min(voxel_num,voxn)));
 %     % remove outliers
 %     outindex = all(abs(act)<=5);
-% %     if sum(outindex)>=minnum
+%     if sum(outindex)>=minnum
 %         res_select = res_select(outindex,:);
 %     end
 %     act = mean(abs(act(:,outindex)));

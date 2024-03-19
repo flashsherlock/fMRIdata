@@ -1,14 +1,32 @@
 function [res_select,perw] = select_voxel( cur_res, voxel_num, actper)
 % select voxels that has minimum within condition variance
     if nargin<3
-        actper = 0.90;
+        actper = 0.85;
     end
     if nargin<2
         voxel_num = 0.05;
     end
-    % calculate mean activity
-    voxn = size(cur_res,1);    
+    % number of voxels
+    voxn = size(cur_res,1);
     minnum = 10;
+    % number of conditions
+    conn = size(cur_res,2);
+    runn = 6;
+    repeat = 6;
+    odorn = conn/runn/repeat;
+    if actper<=1
+        % add minimum number
+        actper = max(minnum,ceil(actper*voxn));
+    end
+%     act = mean(cur_res,2);    
+    % calculate mean z activity
+    act = zscore(squeeze(mean(reshape(cur_res',[],odorn,voxn),1)),0,2);
+    act = mean(abs(act));
+%     [~,actindex]=sort(abs(act),'descend');
+%     cur_res = cur_res(actindex(1:min(actper,voxn)),:);
+    cur_res = cur_res(act<=2&act>=0.45,:);
+    % calculate new voxel number
+    voxn = size(cur_res,1);        
 %     maximum = 100;
     % if voxel_num<=1, treat it as percentage    
     if voxel_num<=1
@@ -16,18 +34,6 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, actper)
         voxel_num = max(minnum,ceil(voxel_num*voxn));
 %         voxel_num = min(maximum,ceil(voxel_num*voxn));
     end
-%     if actper<=1
-%         % add minimum number
-%         actper = max(minnum,ceil(actper*voxn));
-%     end
-%     act = mean(cur_res,2);
-%     [~,actindex]=sort(abs(act),'descend');
-%     cur_res = cur_res(actindex(1:min(actper,voxn)),:);
-    voxn = size(cur_res,1);
-    conn = size(cur_res,2);
-    runn = 6;
-    repeat = 6;
-    odorn = conn/runn/repeat;
     % all variance
     ssa=var(cur_res,0,2)*(conn-1);
     % within condition variance

@@ -326,7 +326,9 @@ print(pfigure)
 
 ```{r eval=FALSE, include=FALSE}
 # plots for selected ROI
-select <- c(1:5,7,9)
+# select <- c(1:5,7,9)
+# old piriform
+select <- c(1:4,6,8,9)
 concolor <-  c("#33A02C", "#1F78B4", "#A6CEE3", "#B2DF8A", "#E31A1C","#FDBF6F", "#FF7F00")
 figure_roi <- ggplot(subset(roi_tent,roi%in%params$roiname[select]), aes(x=time, y=mean,group=roi,color=roi)) + 
   labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
@@ -345,6 +347,8 @@ figure_roi <- ggplot(subset(roi_tent,roi%in%params$roiname[select]), aes(x=time,
 # print(figure_4)
 pfigure <- figure_roi + theme_prism(base_line_size = 0.5)
 print(pfigure)
-ggsave(paste0(params$path,paste0('figures/time_course.pdf')), pfigure, width = 6, height = 4,
-         device = cairo_pdf)
+# ggsave(paste0(params$path,paste0('figures/time_course.pdf')), pfigure, width = 6, height = 4,
+#          device = cairo_pdf)
+# save data_tent and roi_tent
+save(data_tent,roi_tent,figure_roi,file = paste0(params$path, "figures/tent.RData"))
 ```

@@ -1,6 +1,6 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 4 11` 13 14 `count -dig 2 16 34`)
+foreach ub (`count -dig 2 4 11` 13 14 `count -dig 2 16 29` 31 32 33 34)
 # set sub=S01_yyt
 set sub=S${ub}
 set analysis=pabiode
@@ -9,6 +9,14 @@ set analysis=pabiode
 set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 cd mask
+
+# all roi with labels (exclude AA)
+3dcalc -a Piriform.seg+orig \
+-b sAmy.freesurfer+orig \
+-c Amy8_align.freesurfer+orig \
+-expr 'a*iszero(b)+b*c' \
+-prefix all.seg
+
 # cd ${sub}.${analysis}.results
 # rm BoxROI*
 

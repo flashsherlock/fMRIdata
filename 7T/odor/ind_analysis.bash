@@ -26,8 +26,8 @@ do
             # dumpvalues car-lim cit-lim lim-tra ind-lim val int
             3dmaskdump                                      \
             -noijk -xyz                                     \
-            -mask ${mask}                   \
-            ${seg}                         \
+            -mask ${mask}               \
+            ${seg}                      \
             ${betafile}"[31]"           \
             ${betafile}"[34]"           \
             ${betafile}"[22]"           \
@@ -40,7 +40,7 @@ do
             ${betafile}"[41]"           \
             ${betafile}"[17]"           \
             ${betafile}"[20]"           \
-            ${mvpafile}/2odors_lim_tra/${mvpaname}          \
+            ${mvpafile}/2odors_lim_tra/${mvpaname}           \
             ${mvpafile}/2odors_lim_car/${mvpaname}           \
             ${mvpafile}/2odors_lim_cit/${mvpaname}           \
             ${mvpafile}/2odors_lim_ind/${mvpaname}           \
@@ -50,6 +50,8 @@ do
             ${mvpafile}/2odors_car_cit/${mvpaname}           \
             ${mvpafile}/2odors_car_ind/${mvpaname}           \
             ${mvpafile}/2odors_cit_ind/${mvpaname}           \
+            ${sub}/mask/allsig165+${filedec}                 \
+            ${sub}/mask/allsig196+${filedec}                 \
             > ${outfile}
       done
 done

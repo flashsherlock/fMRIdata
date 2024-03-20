@@ -5,7 +5,7 @@ params:
     sub: !r c(sprintf('S%02d', c(4:11,13,14,16:29,31:34)))
     analysis: "pabiode"
     mvpa_pattern: "roi_ARodor_l1_labelbase_-6-36"
-    roi: !r c('Amy8_align','corticalAmy','CeMeAmy','BaLaAmy','Pir_new','Pir_old','APC_new','APC_old','PPC')
+    roi: !r c('Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165')
     roiname: !r c("Amy","Cortical","CeMe","BaLa","Pir_new","Pir_old","APC_new","APC_old","PPC")
     set_title: "Amygdala_decoding_mean"
 title: "`r params$set_title`"
@@ -247,6 +247,7 @@ plotly_fig
 ```{r eval=FALSE, include=FALSE}
 # box plot for Amy and Pir
 concolor <-  c("#33A02C", "#1F78B4", "#A6CEE3", "#B2DF8A", "#E31A1C","#FDBF6F", "#FF7F00")
+roi_select <- params$roi[c(1,6)]
 boxset <- function(data){
       summarise(data,
                 y0 = quantile(acc, 0.05, na.rm = T), 
@@ -264,13 +265,11 @@ boxplot <- function(data, select, colors){
   Violin_data$roi <- factor(Violin_data$roi,levels = select,labels = select)
   # ttest
   # bruceR::TTEST(reshape2::dcast(Violin_data,sub~roi,value.var = "acc"),
-  #               y=c("Amy8_align","Pir_new"),paired = T)
-  # detach(package:plyr)    
+  #               y=roi_select,paired = T)
+  # detach(package:plyr)
   # library(plyr)
   # summarise data 5% and 90% quantile
-  df <- Violin_data %>%
-    group_by(roi) %>%
-    boxset()
+  df <- ddply(Violin_data, .(roi), boxset)
   # jitter
   set.seed(111)
   nodor <- length(unique(Violin_data$roi))
@@ -291,11 +290,13 @@ boxplot <- function(data, select, colors){
     scale_color_manual(values = colors)+
     scale_y_continuous(name = "Accuracy", expand = expansion(add = c(0, 0)))
 }
-accbox <- boxplot(acc4odor,c("Amy8_align","Pir_new"),concolor[c(1,5)])+
-  coord_cartesian(ylim = c(10,40))
+accbox <- boxplot(acc4odor,roi_select,concolor[c(1,5)])+
+  coord_cartesian(ylim = c(10,40))+
+  scale_x_discrete(labels=c("Amygdala","Piriform"))
 ggsave(paste0(params$path,paste0('figures/acc.pdf')), accbox, width = 4, height = 3,
          device = cairo_pdf)
-
+# save acc_run and acc4odor
+save(acc_run,acc4odor,accbox,file = paste0(params$path, "figures/mvpa_roi.RData"))
 ```
 
 ```{r}

@@ -75,11 +75,46 @@ calmean <- function(results){
   names(avg) <- c("sub","strnorm","roi")
   return(avg)
 }
-
+# function to load txt file
+extractdata <- function(path,sub,txtname){
+  data <- read.table(file.path(path,sub,txtname))
+  # add subject name to the first column
+  data <- cbind(rep(sub,times=nrow(data)),data)
+  return(data)
+}
 # 2 Main -------------------------------------------------------------
-# load data
+# 2.1 load data -------------
 data_dir <- "/Volumes/WD_D/gufei/shiny/apps/7T/"
+stats_dir <- "/Volumes/WD_F/gufei/7T_odor/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/7T_odor/figures/"
+txtname <- "allvalue_orig.txt"
+# load txt files
+subs <- c(sprintf('S%02d',c(4:11,13,14,16:29,31:34)))
+odors <- c("lim", "tra", "car", "cit", "ind")
+betas <- c("car-lim","cit-lim","lim-tra","ind-lim","val","int")
+pairs <- apply(combn(odors, 2), 2, function(x) paste(x[1], x[2], sep = "-"))
+cnames <- c("sub","x","y","z","roi",paste("m",betas,sep = "_"),paste("t",betas,sep = "_"),
+                    paste("a",pairs,sep = "_"),"sig165","sig196")
+results <- data.frame(matrix(ncol = length(cnames), nrow = 0))
+# extract results
+for (sub in subs) {
+  results <- rbind(results,extractdata(stats_dir,sub,txtname))
+}
+names(results) <- cnames
+results <- as.data.table(results)
+# add labels to roi
+roilabels <- c("La","Ba","Ce","Me","Co","BM","CoT","Para","APc","PPc","APn")
+results[,roi:=factor(roi,levels = sort(unique(results$roi)),labels=roilabels)]
+# reverse xy
+results$x <- -results$x
+results$y <- -results$y
+# save results to Rdata
+save(results,file = paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
+# 2.2 calculate new values ----------------------------------------------
+# load data
+load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
+
+# 3 group level results ----------------------------------------------
 prefix <- "results"
 prefix <- "search_rmbase"
 load(paste0(data_dir,prefix,".RData"))
@@ -100,3 +135,7 @@ ggsave(paste0(figure_dir,paste0('strnorm', ifelse(str_detect(prefix,"search"),"_
 # ttest
 bruceR::TTEST(results_select[roi%in%c("Superficial","Deep"),],x="roi",y=c("strnorm"))
 bruceR::TTEST(results_select[roi%in%c("APC","PPC"),],x="roi",y=c("strnorm"))
+
+# tent
+load(paste0(figure_dir, "tent.RData"))
+load(paste0(figure_dir, "mvpa_roi.RData"))

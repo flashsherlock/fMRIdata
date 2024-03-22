@@ -149,7 +149,12 @@ avg_results165 <- results[roinew != "APn" & (str==1 | qua==1) & sig165==1,
                          valacc = mean(valacc),
                          valbet = mean(valbet)), 
                        by = list(sub,roinew)]
-
+# 2.3 load rsa data -------------
+rsadata <- extractdata(figure_dir,'./','rsa_30_at165.txt')
+rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APCo','PPC','Super','Deep')
+names(rsadata) <- c("sub",paste(rep(rsa_names,each=2),rep(c("str","qua"),length(rsa_names)),sep = "_"))
+rsadata$sub <- subs
+rsadata <- as.data.table(rsadata)
 # 3 group level results ----------------------------------------------
 prefix <- "results"
 prefix <- "search_rmbase"

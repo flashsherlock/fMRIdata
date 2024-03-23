@@ -174,6 +174,19 @@ dataspss165<- merge(dcast.data.table(avg_results165,sub ~ roinew,
          rsadata[,c(1,16:23)])
 # save to spss
 bruceR::export(dataspss165, file = paste0(figure_dir,"allvalue165.sav"))
+# 2.5 ttest
+bruceR::TTEST(dataspss,c("strnbet_APC","strnbet_PPC","strnbet_Super","strnbet_Deep",
+                            "strnacc_APC","strnacc_PPC","strnacc_Super","strnacc_Deep",
+                            "valbet_APC","valbet_PPC","valbet_Super","valbet_Deep",
+                            "valacc_APC","valacc_PPC","valacc_Super","valacc_Deep",
+                            "val_APC","val_PPC","val_Super","val_Deep",
+                            "int_APC","int_PPC","int_Super","int_Deep"),paired = T)
+bruceR::TTEST(dataspss165,c("strnbet_APC","strnbet_PPC","strnbet_Super","strnbet_Deep",
+                            "strnacc_APC","strnacc_PPC","strnacc_Super","strnacc_Deep",
+                            "valbet_APC","valbet_PPC","valbet_Super","valbet_Deep",
+                            "valacc_APC","valacc_PPC","valacc_Super","valacc_Deep",
+                            "val_APC","val_PPC","val_Super","val_Deep",
+                            "int_APC","int_PPC","int_Super","int_Deep"),paired = T)
 # 3 group level results ----------------------------------------------
 prefix <- "results"
 prefix <- "search_rmbase"

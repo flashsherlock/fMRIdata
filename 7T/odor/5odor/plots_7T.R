@@ -27,9 +27,7 @@ boxplot <- function(data, select, colors){
   Violin_data <- subset(data, roi%in%select)
   Violin_data$roi <- factor(Violin_data$roi,levels = select,labels = select)
   # summarise data 5% and 90% quantile
-  df <- Violin_data %>%
-    group_by(roi) %>%
-    boxset()
+  df <- ddply(Violin_data, .(roi), boxset)
   # jitter
   set.seed(111)
   nodor <- length(unique(Violin_data$roi))
@@ -87,7 +85,7 @@ extractdata <- function(path,sub,txtname){
 data_dir <- "/Volumes/WD_D/gufei/shiny/apps/7T/"
 stats_dir <- "/Volumes/WD_F/gufei/7T_odor/stats/"
 figure_dir <- "/Volumes/WD_F/gufei/7T_odor/figures/"
-txtname <- "allvalue_orig.txt"
+txtname <- "allvalue_tlrc.txt"
 # load txt files
 subs <- c(sprintf('S%02d',c(4:11,13,14,16:29,31:34)))
 odors <- c("lim", "tra", "car", "cit", "ind")
@@ -111,23 +109,38 @@ results$y <- -results$y
 # save results to Rdata
 save(results,file = paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
 # 2.2 calculate new values ----------------------------------------------
-# load data
-load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
+# join group level results
+if (txtname=="allvalue_tlrc.txt"){
+  t1 <- min(round(qt(1-(0.05/2),27),6),100)
+  load(paste0(data_dir,"results.RData"))
+  betaresults <- results
+  betaresults[,betaany:=ifelse(abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,1,0)]
+  betaresults[,betaall:=ifelse(abs(`t_lim-car`)>t1 & abs(`t_lim-cit`)>t1,1,0)]
+  load(paste0(data_dir,"search_rmbase.RData"))
+  searchresults <- results
+  searchresults[,mvpaany:=ifelse(`t_lim-car`>t1 | `t_lim-cit`>t1,1,0)]
+  searchresults[,mvpaall:=ifelse(`t_lim-car`>t1 & `t_lim-cit`>t1,1,0)]
+  selectv <- merge(betaresults[,c("x","y","z","betaany","betaall")],
+                    searchresults[,c("x","y","z","mvpaany","mvpaall")])
+  # load data
+  load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
+  results <- merge(results,selectv)
+} else {
+  # load data
+  load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
+}
+# acc below 0 is 0
+results[,`a_lim-tra`:=ifelse(`a_lim-tra`<=0, 0, `a_lim-tra`)]
+results[,`a_lim-car`:=ifelse(`a_lim-car`<=0, 0, `a_lim-car`)]
+results[,`a_lim-cit`:=ifelse(`a_lim-cit`<=0, 0, `a_lim-cit`)]
+results[,`a_lim-ind`:=ifelse(`a_lim-ind`<=0, 0, `a_lim-ind`)]
+results[,`a_tra-car`:=ifelse(`a_tra-car`<=0, 0, `a_tra-car`)]
+results[,`a_tra-cit`:=ifelse(`a_tra-cit`<=0, 0, `a_tra-cit`)]
+results[,`a_tra-ind`:=ifelse(`a_tra-ind`<=0, 0, `a_tra-ind`)]
+results[,`a_cit-ind`:=ifelse(`a_cit-ind`<=0, 0, `a_cit-ind`)]
 # compute strnorm
 results[,strnbet:=(abs(`m_cit-lim`)-abs(`m_car-lim`))/(abs(`m_cit-lim`)+abs(`m_car-lim`))]
-# acc below 0 is 0
-results[,`a_lim-tra`:=ifelse(`a_lim-tra`<=0,50,`a_lim-tra`+50)]
-results[,`a_lim-car`:=ifelse(`a_lim-car`<=0,50,`a_lim-car`+50)]
-results[,`a_lim-cit`:=ifelse(`a_lim-cit`<=0,50,`a_lim-cit`+50)]
-results[,`a_lim-ind`:=ifelse(`a_lim-ind`<=0,50,`a_lim-ind`+50)]
-results[,`a_tra-car`:=ifelse(`a_tra-car`<=0,50,`a_tra-car`+50)]
-results[,`a_tra-cit`:=ifelse(`a_tra-cit`<=0,50,`a_tra-cit`+50)]
-results[,`a_tra-ind`:=ifelse(`a_tra-ind`<=0,50,`a_tra-ind`+50)]
-results[,`a_cit-ind`:=ifelse(`a_cit-ind`<=0,50,`a_cit-ind`+50)]
 results[,strnacc:=(`a_lim-cit`-`a_lim-car`)/(`a_lim-cit`+`a_lim-car`)]
-# absolute value of val and int
-results[, m_val:=abs(m_val)]
-results[, m_int:=abs(m_int)]
 # valence index
 results[,valacc:=(`a_lim-tra`+`a_lim-ind`+`a_tra-cit`+`a_cit-ind`)/2]
 results[,valbet:=(abs(`m_lim-tra`)+abs(`m_ind-lim`-`m_cit-lim`)+abs(`m_ind-lim`)+abs(`m_lim-tra`+`m_cit-lim`))/2]
@@ -140,15 +153,19 @@ results[,str:=ifelse(abs(`t_cit-lim`)>tvalue,1,0)]
 results[,qua:=ifelse(abs(`t_car-lim`)>tvalue,1,0)]
 # average stnbet when sign165==1 for each sub
 # avg_results <- results[roinew != "APn" & sig165==1, .(sig = sum(sig165),valacc = mean(valacc),valbet = mean(valbet)), by = list(sub,roinew)]
-avg_results <- results[roinew != "APn" & (str==1 | qua==1), 
+avg_results <- results[roinew != "APn" & betaany==1, 
                        .(strnbet=mean(strnbet),
-                         strnacc=mean(strnacc),
+                         strnacc=mean(strnacc,na.rm=T),
                          valacc = mean(valacc),
                          valbet = mean(valbet),
-                         int = mean(m_int), 
-                         val = mean(m_val)), 
+                         mstrbet = abs(mean(abs(`m_cit-lim`))),
+                         mquabet = abs(mean(abs(`m_car-lim`))),
+                         mstracc = abs(mean(abs(`a_lim-cit`))),
+                         mquaacc = abs(mean(abs(`a_lim-car`))),
+                         int = abs(mean(abs(m_int))), 
+                         val = abs(mean(abs(m_val)))), 
                        by = list(sub,roinew)]
-avg_results165 <- results[roinew != "APn" & (str==1 | qua==1) & sig165==1, 
+avg_results165 <- results[roinew != "APn" & (str==1 & qua==1) & sig165==1, 
                        .(strnbet=mean(strnbet),
                          strnacc=mean(strnacc),
                          valacc = mean(valacc),
@@ -164,17 +181,21 @@ rsadata$sub <- subs
 rsadata <- as.data.table(rsadata)
 # 2.4 decast and export avgresults -------------
 dataspss<- merge(dcast.data.table(avg_results,sub ~ roinew, 
-                          value.var = c("strnbet","strnacc","valacc","valbet","val","int")),
+                          value.var = names(avg_results)[c(-1,-2)]),
          rsadata[,c(1,16:23)])
 # save to spss
 bruceR::export(dataspss, file = paste0(figure_dir,"allvalue.sav"))
 # at165
 dataspss165<- merge(dcast.data.table(avg_results165,sub ~ roinew, 
-                          value.var = c("strnbet","strnacc","valacc","valbet","val","int")),
+                          value.var = names(avg_results)[c(-1,-2)]),
          rsadata[,c(1,16:23)])
 # save to spss
 bruceR::export(dataspss165, file = paste0(figure_dir,"allvalue165.sav"))
 # 2.5 ttest
+bruceR::TTEST(dataspss,c("mstrbet_APC","mstrbet_PPC","mstrbet_Super","mstrbet_Deep",
+                         "mquabet_APC","mquabet_PPC","mquabet_Super","mquabet_Deep",
+                         "mstracc_APC","mstracc_PPC","mstracc_Super","mstracc_Deep",
+                         "mquaacc_APC","mquaacc_PPC","mquaacc_Super","mquaacc_Deep"),paired = T)
 bruceR::TTEST(dataspss,c("strnbet_APC","strnbet_PPC","strnbet_Super","strnbet_Deep",
                             "strnacc_APC","strnacc_PPC","strnacc_Super","strnacc_Deep",
                             "valbet_APC","valbet_PPC","valbet_Super","valbet_Deep",
@@ -197,7 +218,7 @@ if (ncol(results)<20){
 } else{
   results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
 }
-t1 <- min(round(qt(1-(0.05/2),input$df),6),100)
+t1 <- min(round(qt(1-(0.05/2),27),6),100)
 results_select <- results[abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,]
 results_select <- calmean(results_select)
 strbox <- boxplot(results_select,c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+

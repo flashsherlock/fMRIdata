@@ -165,6 +165,10 @@ avg_results <- results[roinew != "APn" & betaany==1,
                          int = abs(mean(abs(m_int))), 
                          val = abs(mean(abs(m_val)))), 
                        by = list(sub,roinew)]
+# check data
+# test <- results[, .(`m_car-lim` = mean(`m_car-lim`)), 
+#                        by = list(x,y,z)]
+# betaresults[x==-46&y==7&z==-22,`m_lim-car`]
 avg_results165 <- results[roinew != "APn" & (str==1 & qua==1) & sig165==1, 
                        .(strnbet=mean(strnbet),
                          strnacc=mean(strnacc),

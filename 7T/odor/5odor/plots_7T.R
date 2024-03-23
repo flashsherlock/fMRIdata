@@ -125,6 +125,9 @@ results[,`a_tra-cit`:=ifelse(`a_tra-cit`<=0,50,`a_tra-cit`+50)]
 results[,`a_tra-ind`:=ifelse(`a_tra-ind`<=0,50,`a_tra-ind`+50)]
 results[,`a_cit-ind`:=ifelse(`a_cit-ind`<=0,50,`a_cit-ind`+50)]
 results[,strnacc:=(`a_lim-cit`-`a_lim-car`)/(`a_lim-cit`+`a_lim-car`)]
+# absolute value of val and int
+results[, m_val:=abs(m_val)]
+results[, m_int:=abs(m_int)]
 # valence index
 results[,valacc:=(`a_lim-tra`+`a_lim-ind`+`a_tra-cit`+`a_cit-ind`)/2]
 results[,valbet:=(abs(`m_lim-tra`)+abs(`m_ind-lim`-`m_cit-lim`)+abs(`m_ind-lim`)+abs(`m_lim-tra`+`m_cit-lim`))/2]
@@ -141,20 +144,36 @@ avg_results <- results[roinew != "APn" & (str==1 | qua==1),
                        .(strnbet=mean(strnbet),
                          strnacc=mean(strnacc),
                          valacc = mean(valacc),
-                         valbet = mean(valbet)), 
+                         valbet = mean(valbet),
+                         int = mean(m_int), 
+                         val = mean(m_val)), 
                        by = list(sub,roinew)]
 avg_results165 <- results[roinew != "APn" & (str==1 | qua==1) & sig165==1, 
                        .(strnbet=mean(strnbet),
                          strnacc=mean(strnacc),
                          valacc = mean(valacc),
-                         valbet = mean(valbet)), 
+                         valbet = mean(valbet),
+                         int = mean(m_int), 
+                         val = mean(m_val)), 
                        by = list(sub,roinew)]
 # 2.3 load rsa data -------------
 rsadata <- extractdata(figure_dir,'./','rsa_30_at165.txt')
-rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APCo','PPC','Super','Deep')
-names(rsadata) <- c("sub",paste(rep(rsa_names,each=2),rep(c("str","qua"),length(rsa_names)),sep = "_"))
+rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APC','PPC','Super','Deep')
+names(rsadata) <- c("sub",paste(rep(c("str","qua"),length(rsa_names)),rep(rsa_names,each=2),sep = "_"))
 rsadata$sub <- subs
 rsadata <- as.data.table(rsadata)
+# 2.4 decast and export avgresults -------------
+dataspss<- merge(dcast.data.table(avg_results,sub ~ roinew, 
+                          value.var = c("strnbet","strnacc","valacc","valbet","val","int")),
+         rsadata[,c(1,16:23)])
+# save to spss
+bruceR::export(dataspss, file = paste0(figure_dir,"allvalue.sav"))
+# at165
+dataspss165<- merge(dcast.data.table(avg_results165,sub ~ roinew, 
+                          value.var = c("strnbet","strnacc","valacc","valbet","val","int")),
+         rsadata[,c(1,16:23)])
+# save to spss
+bruceR::export(dataspss165, file = paste0(figure_dir,"allvalue165.sav"))
 # 3 group level results ----------------------------------------------
 prefix <- "results"
 prefix <- "search_rmbase"

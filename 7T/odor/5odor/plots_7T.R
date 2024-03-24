@@ -169,14 +169,22 @@ avg_results <- results[roinew != "APn" & betaany==1,
 # test <- results[, .(`m_car-lim` = mean(`m_car-lim`)), 
 #                        by = list(x,y,z)]
 # betaresults[x==-46&y==7&z==-22,`m_lim-car`]
-avg_results165 <- results[roinew != "APn" & (str==1 & qua==1) & sig165==1, 
+avg_results <- results[roinew != "APn" & mvpaall==1, 
                        .(strnbet=mean(strnbet),
-                         strnacc=mean(strnacc),
+                         strnacc=mean(strnacc,na.rm=T),
                          valacc = mean(valacc),
                          valbet = mean(valbet),
-                         int = mean(m_int), 
-                         val = mean(m_val)), 
+                         mstrbet = abs(mean(abs(`m_cit-lim`))),
+                         mquabet = abs(mean(abs(`m_car-lim`))),
+                         mstracc = abs(mean(abs(`a_lim-cit`))),
+                         mquaacc = abs(mean(abs(`a_lim-car`))),
+                         int = abs(mean(abs(m_int))), 
+                         val = abs(mean(abs(m_val)))), 
                        by = list(sub,roinew)]
+
+# compute strnorm
+avg_results[,mstrnbet:=(mstrbet-mquabet)/(mstrbet+mquabet)]
+avg_results[,mstrnacc:=(mstracc-mquaacc)/(mstracc+mquaacc)]
 # 2.3 load rsa data -------------
 rsadata <- extractdata(figure_dir,'./','rsa_30_at165.txt')
 rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APC','PPC','Super','Deep')
@@ -189,24 +197,14 @@ dataspss<- merge(dcast.data.table(avg_results,sub ~ roinew,
          rsadata[,c(1,16:23)])
 # save to spss
 bruceR::export(dataspss, file = paste0(figure_dir,"allvalue.sav"))
-# at165
-dataspss165<- merge(dcast.data.table(avg_results165,sub ~ roinew, 
-                          value.var = names(avg_results)[c(-1,-2)]),
-         rsadata[,c(1,16:23)])
-# save to spss
-bruceR::export(dataspss165, file = paste0(figure_dir,"allvalue165.sav"))
 # 2.5 ttest
-bruceR::TTEST(dataspss,c("mstrbet_APC","mstrbet_PPC","mstrbet_Super","mstrbet_Deep",
+bruceR::TTEST(dataspss,c("mstrnbet_APC","mstrnbet_PPC","mstrnbet_Super","mstrnbet_Deep",
+                         "mstrnacc_APC","mstrnacc_PPC","mstrnacc_Super","mstrnacc_Deep",
+                         "mstrbet_APC","mstrbet_PPC","mstrbet_Super","mstrbet_Deep",
                          "mquabet_APC","mquabet_PPC","mquabet_Super","mquabet_Deep",
                          "mstracc_APC","mstracc_PPC","mstracc_Super","mstracc_Deep",
                          "mquaacc_APC","mquaacc_PPC","mquaacc_Super","mquaacc_Deep"),paired = T)
 bruceR::TTEST(dataspss,c("strnbet_APC","strnbet_PPC","strnbet_Super","strnbet_Deep",
-                            "strnacc_APC","strnacc_PPC","strnacc_Super","strnacc_Deep",
-                            "valbet_APC","valbet_PPC","valbet_Super","valbet_Deep",
-                            "valacc_APC","valacc_PPC","valacc_Super","valacc_Deep",
-                            "val_APC","val_PPC","val_Super","val_Deep",
-                            "int_APC","int_PPC","int_Super","int_Deep"),paired = T)
-bruceR::TTEST(dataspss165,c("strnbet_APC","strnbet_PPC","strnbet_Super","strnbet_Deep",
                             "strnacc_APC","strnacc_PPC","strnacc_Super","strnacc_Deep",
                             "valbet_APC","valbet_PPC","valbet_Super","valbet_Deep",
                             "valacc_APC","valacc_PPC","valacc_Super","valacc_Deep",

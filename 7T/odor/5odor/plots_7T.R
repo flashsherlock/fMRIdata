@@ -12,20 +12,49 @@ theme_update(text=element_text(family="Helvetica",face = "plain"))
 concolor <-  c("#33A02C", "#1F78B4", "#A6CEE3", "#B2DF8A", "#E31A1C","#FDBF6F", "#FF7F00")
 # 1 functions -------------------------------------------------------------
 boxset <- function(data){
+  data <- na.omit(data)
   summarise(data,
-            y0 = quantile(strnorm, 0.05, na.rm = T), 
-            #y0 = mean(strnorm, na.rm = T)-ci90(strnorm),
-            y25 = quantile(strnorm, 0.25, na.rm = T), 
-            # y50 = median(strnorm, na.rm = T),
-            y50 = mean(strnorm, na.rm = T),
-            y75 = quantile(strnorm, 0.75, na.rm = T), 
-            #y100 = mean(strnorm, na.rm = T)+ci90(strnorm))
-            y100 = quantile(strnorm, 0.95, na.rm = T))
+            m = mean(Score),
+            y0 = quantile(Score, 0.05), 
+            #y0 = mean(Score)-ci90(Score),
+            y25 = quantile(Score, 0.25), 
+            y50 = median(Score), 
+            # y50 = mean(Score), 
+            y75 = quantile(Score, 0.75), 
+            #y100 = mean(Score)+ci90(Score))
+            y100 = quantile(Score, 0.95))
 }
-boxplot <- function(data, select, colors){
+boxplot <- function(data, roiselect, dataselect,colors){
+  # select data
+  Violin_data <- subset(data, roi%in%roiselect,select = c("sub","roi",dataselect))
+  Violin_data$roi <- factor(Violin_data$roi,levels = roiselect,labels = roiselect)
+  Violin_data <- reshape2::melt(Violin_data, c("sub","roi"),variable.name = "parameter", value.name = "Score")
+  # summarise data 5% and 90% quantile
+  df <- ddply(Violin_data, .(roi), boxset)
+  # jitter
+  set.seed(111)
+  pd <- 0.6
+  Violin_data <- transform(Violin_data, con = jitter(as.numeric(roi), amount = 0.01))
+  # boxplot
+  ggplot(data = Violin_data, aes(x = roi)) +
+    geom_hline(yintercept = 20, linetype="dashed", color = "black")+
+    geom_errorbar(
+      data = df, position = position_dodge(pd),
+      aes(ymin = y0, ymax = y100, color = roi), linetype = 1, width = 0.2) + # add line to whisker
+    geom_boxplot(
+      data = df,
+      aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = roi),
+      outlier.shape = NA, fill = "white",width = 0.3, position = position_dodge(pd),
+      stat = "identity") +
+    geom_line(aes(x = con, y = Score, group = sub),color = "gray", show.legend = F) +
+    scale_color_manual(values = colors)+
+    scale_y_continuous(name = "Accuracy", expand = expansion(add = c(0, 0)))
+}
+boxplot4 <- function(data, select, colors){
   # select data
   Violin_data <- subset(data, roi%in%select)
   Violin_data$roi <- factor(Violin_data$roi,levels = select,labels = select)
+  Violin_data <- reshape2::melt(Violin_data, c("sub","roi"),variable.name = "parameter", value.name = "Score")
   # summarise data 5% and 90% quantile
   df <- ddply(Violin_data, .(roi), boxset)
   # jitter
@@ -109,25 +138,21 @@ results$y <- -results$y
 # save results to Rdata
 save(results,file = paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
 # 2.2 calculate new values ----------------------------------------------
-# join group level results
+t1 <- min(round(qt(1-(0.05/2),27),6),100)
+load(paste0(data_dir,"results.RData"))
+betaresults <- results
+betaresults[,betaany:=ifelse(abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,1,0)]
+betaresults[,betaall:=ifelse(abs(`t_lim-car`)>t1 & abs(`t_lim-cit`)>t1,1,0)]
+load(paste0(data_dir,"search_rmbase.RData"))
+searchresults <- results
+searchresults[,mvpaany:=ifelse(`t_lim-car`>t1 | `t_lim-cit`>t1,1,0)]
+searchresults[,mvpaall:=ifelse(`t_lim-car`>t1 & `t_lim-cit`>t1,1,0)]
+selectv <- merge(betaresults[,c("x","y","z","betaany","betaall")],
+                  searchresults[,c("x","y","z","mvpaany","mvpaall")])
+# load data
+load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
 if (txtname=="allvalue_tlrc.txt"){
-  t1 <- min(round(qt(1-(0.05/2),27),6),100)
-  load(paste0(data_dir,"results.RData"))
-  betaresults <- results
-  betaresults[,betaany:=ifelse(abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,1,0)]
-  betaresults[,betaall:=ifelse(abs(`t_lim-car`)>t1 & abs(`t_lim-cit`)>t1,1,0)]
-  load(paste0(data_dir,"search_rmbase.RData"))
-  searchresults <- results
-  searchresults[,mvpaany:=ifelse(`t_lim-car`>t1 | `t_lim-cit`>t1,1,0)]
-  searchresults[,mvpaall:=ifelse(`t_lim-car`>t1 & `t_lim-cit`>t1,1,0)]
-  selectv <- merge(betaresults[,c("x","y","z","betaany","betaall")],
-                    searchresults[,c("x","y","z","mvpaany","mvpaall")])
-  # load data
-  load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
   results <- merge(results,selectv)
-} else {
-  # load data
-  load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
 }
 # acc below 0 is 0
 results[,`a_lim-tra`:=ifelse(`a_lim-tra`<=0, 0, `a_lim-tra`)]
@@ -194,7 +219,7 @@ rsadata <- as.data.table(rsadata)
 # 2.4 decast and export avgresults -------------
 dataspss<- merge(dcast.data.table(avg_results,sub ~ roinew, 
                           value.var = names(avg_results)[c(-1,-2)]),
-         rsadata[,c(1,16:23)])
+         rsadata[,c(1,14:23)])
 # save to spss
 bruceR::export(dataspss, file = paste0(figure_dir,"allvalue.sav"))
 # 2.5 ttest
@@ -222,8 +247,11 @@ if (ncol(results)<20){
 }
 t1 <- min(round(qt(1-(0.05/2),27),6),100)
 results_select <- results[abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,]
+# check data
+# results_select[.(roi = roilabels, to = newlables),on = "roi", roinew := i.to]
+# test <- results_select[roinew != "APn", .(strnorm=mean(strnorm)),by = list(roinew)]
 results_select <- calmean(results_select)
-strbox <- boxplot(results_select,c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+strbox <- boxplot4(results_select,c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
   coord_cartesian(ylim = c(-1,1))
 # save according to input name
 ggsave(paste0(figure_dir,paste0('strnorm', ifelse(str_detect(prefix,"search"),"_search",""), '.pdf')),
@@ -232,6 +260,36 @@ ggsave(paste0(figure_dir,paste0('strnorm', ifelse(str_detect(prefix,"search"),"_
 bruceR::TTEST(results_select[roi%in%c("Superficial","Deep"),],x="roi",y=c("strnorm"))
 bruceR::TTEST(results_select[roi%in%c("APC","PPC"),],x="roi",y=c("strnorm"))
 
-# tent
+# 4 tent and mvpa results ----------------------------------------------
+# tent results
 load(paste0(figure_dir, "tent.RData"))
+select <- c(1:4,5,7,9)
+figure_roi <- ggplot(subset(roi_tent,roi%in%unique(roi_tent$roi)[select]), aes(x=time, y=mean,group=roi,color=roi)) + 
+  labs(x='Time(s)',y='Percent of signal change (%)')+
+  scale_y_continuous(expand = c(0,0))+
+  coord_cartesian(ylim=c(min(roi_tent$mean)-0.1,max(roi_tent$mean+0.1)),
+                  clip = 'off') + 
+  scale_color_manual(values=concolor)+
+  scale_fill_manual(values=concolor)+ 
+  scale_x_discrete(expand = c(0,0))+
+  geom_line(position = position_dodge(0.1)) +
+  geom_hline(yintercept=0, linetype="dotted")+
+  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+  geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = roi),
+              alpha = 0.2,linetype=0)+
+  geom_point(position = position_dodge(0.1))
+ggsave(paste0(figure_dir,paste0('time_course.pdf')), accbox, width = 6, height = 4,
+       device = cairo_pdf)
+
+# mvpa results
 load(paste0(figure_dir, "mvpa_roi.RData"))
+# 5-new piriform
+roi_select <- as.character(unique(acc4odor$roi)[c(1,5)])
+accbox <- boxplot(acc4odor,roi_select,"acc",concolor[c(1,5)])+
+  coord_cartesian(ylim = c(10,40))+
+  scale_x_discrete(labels=c("Amygdala","Piriform"))
+# ttest
+bruceR::TTEST(reshape2::dcast(acc4odor,sub~roi,value.var = "acc"),
+              roi_select,paired = T)
+ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 4, height = 3,
+       device = cairo_pdf)

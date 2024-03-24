@@ -321,34 +321,5 @@ figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) +
 # print(figure_4)
 pfigure <- figure_roi + theme_prism(base_line_size = 0.5)
 print(pfigure)
-```
-
-
-```{r eval=FALSE, include=FALSE}
-# plots for selected ROI
-# select <- c(1:5,7,9)
-# old piriform
-select <- c(1:4,6,8,9)
-concolor <-  c("#33A02C", "#1F78B4", "#A6CEE3", "#B2DF8A", "#E31A1C","#FDBF6F", "#FF7F00")
-figure_roi <- ggplot(subset(roi_tent,roi%in%params$roiname[select]), aes(x=time, y=mean,group=roi,color=roi)) + 
-  labs(x='Time(s)',y='Percent of signal change (%)')+#设置坐标轴
-  scale_y_continuous(expand = c(0,0))+
-  coord_cartesian(ylim=c(min(roi_tent$mean)-0.1,max(roi_tent$mean+0.1)),
-                  clip = 'off') + 
-  scale_color_manual(values=concolor)+ #自选颜色
-  scale_fill_manual(values=concolor)+ #自选颜色
-  scale_x_discrete(expand = c(0,0))+
-  geom_line(position = pd) +
-  geom_hline(yintercept=0, linetype="dotted")+
-  # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
-  geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = roi),
-              alpha = 0.2,linetype=0)+
-  geom_point(position = pd)
-# print(figure_4)
-pfigure <- figure_roi + theme_prism(base_line_size = 0.5)
-print(pfigure)
-# ggsave(paste0(params$path,paste0('figures/time_course.pdf')), pfigure, width = 6, height = 4,
-#          device = cairo_pdf)
-# save data_tent and roi_tent
 save(data_tent,roi_tent,figure_roi,file = paste0(params$path, "figures/tent.RData"))
 ```

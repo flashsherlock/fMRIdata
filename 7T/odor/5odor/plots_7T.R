@@ -5,6 +5,7 @@ library(psych)
 library(ggpubr)
 library(ggprism)
 library(patchwork)
+theme_set(theme_prism(base_line_size = 15/64, base_rect_size = 15/64))
 showtext::showtext_auto(enable = F)
 sysfonts::font_add("Helvetica","Helvetica.ttc")
 theme_update(text=element_text(family="Helvetica",face = "plain"))
@@ -37,16 +38,16 @@ boxplot <- function(data, roiselect, dataselect,colors){
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(roi), amount = 0.01))
   # boxplot
   ggplot(data = Violin_data, aes(x = roi)) +
-    geom_hline(yintercept = 20, linetype="dashed", color = "black")+
+    geom_hline(yintercept = 20, linetype="dashed", color = "black", size=15/64)+
     geom_errorbar(
-      data = df, position = position_dodge(pd),
+      data = df, position = position_dodge(pd), size=15/64,
       aes(ymin = y0, ymax = y100, color = roi), linetype = 1, width = 0.2) + # add line to whisker
     geom_boxplot(
-      data = df,
+      data = df, size=15/64,
       aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = roi),
       outlier.shape = NA, fill = "white",width = 0.3, position = position_dodge(pd),
       stat = "identity") +
-    geom_line(aes(x = con, y = Score, group = sub),color = "gray", show.legend = F) +
+    geom_line(aes(x = con, y = Score, group = sub),color = "gray", show.legend = F, size=15/64) +
     scale_color_manual(values = colors)+
     scale_y_continuous(name = "Accuracy", expand = expansion(add = c(0, 0)))
 }
@@ -64,12 +65,12 @@ boxplot4 <- function(data, select, colors){
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(roi), amount = 0.01))
   # boxplot
   ggplot(data = Violin_data, aes(x = roi)) +
-    geom_hline(yintercept = 0, linetype="dashed", color = "black")+
+    geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)+
     geom_errorbar(
-      data = df, position = position_dodge(pd),
+      data = df, position = position_dodge(pd), size=15/64,
       aes(ymin = y0, ymax = y100, color = roi), linetype = 1, width = 0.2) + # add line to whisker
     geom_boxplot(
-      data = df,
+      data = df, size=15/64,
       aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = roi),
       outlier.shape = NA, fill = "white",width = 0.3, position = position_dodge(pd),
       stat = "identity") +
@@ -272,13 +273,13 @@ figure_roi <- ggplot(subset(roi_tent,roi%in%unique(roi_tent$roi)[select]), aes(x
   scale_color_manual(values=concolor)+
   scale_fill_manual(values=concolor)+ 
   scale_x_discrete(expand = c(0,0))+
-  geom_line(position = position_dodge(0.1)) +
-  geom_hline(yintercept=0, linetype="dotted")+
+  geom_line(position = position_dodge(0.1), size=15/64) +
+  geom_hline(yintercept=0, linetype="dotted", size=15/64)+
   # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
   geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = roi),
               alpha = 0.2,linetype=0)+
-  geom_point(position = position_dodge(0.1))
-ggsave(paste0(figure_dir,paste0('time_course.pdf')), accbox, width = 6, height = 4,
+  geom_point(position = position_dodge(0.1),size=0.5)
+ggsave(paste0(figure_dir,paste0('time_course.pdf')), figure_roi, width = 6, height = 4,
        device = cairo_pdf)
 
 # mvpa results
@@ -287,9 +288,10 @@ load(paste0(figure_dir, "mvpa_roi.RData"))
 roi_select <- as.character(unique(acc4odor$roi)[c(1,5)])
 accbox <- boxplot(acc4odor,roi_select,"acc",concolor[c(1,5)])+
   coord_cartesian(ylim = c(10,40))+
-  scale_x_discrete(labels=c("Amygdala","Piriform"))
+  scale_x_discrete(labels=c("Amygdala","Piriform"))+
+  theme(legend.position = "none")
 # ttest
 bruceR::TTEST(reshape2::dcast(acc4odor,sub~roi,value.var = "acc"),
               roi_select,paired = T)
-ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 4, height = 3,
+ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 3, height = 3,
        device = cairo_pdf)

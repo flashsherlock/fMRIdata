@@ -321,5 +321,5 @@ figure_roi <- ggplot(roi_tent, aes(x=time, y=mean,group=roi,color=roi)) +
 # print(figure_4)
 pfigure <- figure_roi + theme_prism(base_line_size = 0.5)
 print(pfigure)
-save(data_tent,roi_tent,figure_roi,file = paste0(params$path, "figures/tent.RData"))
+save(data_tent,roi_tent,file = paste0(params$path, "figures/tent.RData"))
 ```

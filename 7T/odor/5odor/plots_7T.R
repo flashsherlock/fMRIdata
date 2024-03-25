@@ -37,8 +37,7 @@ boxplot <- function(data, roiselect, dataselect,colors){
   pd <- 0.6
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(roi), amount = 0.01))
   # boxplot
-  ggplot(data = Violin_data, aes(x = roi)) +
-    geom_hline(yintercept = 20, linetype="dashed", color = "black", size=15/64)+
+  ggplot(data = Violin_data, aes(x = roi))+
     geom_errorbar(
       data = df, position = position_dodge(pd), size=15/64,
       aes(ymin = y0, ymax = y100, color = roi), linetype = 1, width = 0.2) + # add line to whisker
@@ -64,8 +63,7 @@ boxplot4 <- function(data, select, colors){
   pd <- 0.6
   Violin_data <- transform(Violin_data, con = jitter(as.numeric(roi), amount = 0.01))
   # boxplot
-  ggplot(data = Violin_data, aes(x = roi)) +
-    geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)+
+  ggplot(data = Violin_data, aes(x = roi))+
     geom_errorbar(
       data = df, position = position_dodge(pd), size=15/64,
       aes(ymin = y0, ymax = y100, color = roi), linetype = 1, width = 0.2) + # add line to whisker
@@ -78,7 +76,7 @@ boxplot4 <- function(data, select, colors){
     scale_color_manual(values = colors)+
     scale_y_continuous(name = "Structure-Quality index")
 }
-calmean <- function(results){
+calmean <- function(results,idx = "strnorm"){
   A <- c("La","Ba","Ce","Me","Co","BM","CoT","Para")
   B <- c("La","Ba","BM","Para")
   Ce <- c("Ce","Me")
@@ -91,7 +89,6 @@ calmean <- function(results){
   PPC <- "PPc"
   roilist <- list(Deep=B,Superficial=Su,APC=An,PPC=PPC,Amy=A,CeMe=Ce,Cortical=Co,Pir_old=Po,APC_old=Ao)
   
-  idx <- "strnorm"
   avg <- data.frame(matrix(ncol = 3, nrow = 0))
   for (roi_i in names(roilist)) {
     act <- results[roi %in% roilist[[roi_i]],.SD,.SDcols = c("sub",idx)]
@@ -100,7 +97,7 @@ calmean <- function(results){
     avg <- rbind(avg,act)
   }
   # change column names
-  names(avg) <- c("sub","strnorm","roi")
+  names(avg) <- c("sub",idx,"roi")
   return(avg)
 }
 # function to load txt file
@@ -138,23 +135,32 @@ results$x <- -results$x
 results$y <- -results$y
 # save results to Rdata
 save(results,file = paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
-# 2.2 calculate new values ----------------------------------------------
+# load beta and search data
 t1 <- min(round(qt(1-(0.05/2),27),6),100)
+# beta
 load(paste0(data_dir,"results.RData"))
 betaresults <- results
 betaresults[,betaany:=ifelse(abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,1,0)]
 betaresults[,betaall:=ifelse(abs(`t_lim-car`)>t1 & abs(`t_lim-cit`)>t1,1,0)]
+betaresults[,valbet:=(abs(`m_lim-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/2]
+betaresults[,strnbet:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
+# search
 load(paste0(data_dir,"search_rmbase.RData"))
 searchresults <- results
 searchresults[,mvpaany:=ifelse(`t_lim-car`>t1 | `t_lim-cit`>t1,1,0)]
 searchresults[,mvpaall:=ifelse(`t_lim-car`>t1 & `t_lim-cit`>t1,1,0)]
+searchresults[,valacc:=(`m_lim-tra`+`m_lim-ind`+`m_tra-cit`+`m_cit-ind`)/2]
+searchresults[,strnacc:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
 selectv <- merge(betaresults[,c("x","y","z","betaany","betaall")],
                   searchresults[,c("x","y","z","mvpaany","mvpaall")])
+groupv <- merge(betaresults[,c("sub","x","y","z","roi","betaany","betaall","valbet","strnbet")],
+                searchresults[,c("x","y","z","mvpaany","mvpaall","valacc","strnacc")])
 # load data
 load(paste0(figure_dir, str_remove(txtname,".txt"),".RData"))
 if (txtname=="allvalue_tlrc.txt"){
   results <- merge(results,selectv)
 }
+# 2.2 calculate new values ----------------------------------------------
 # acc below 0 is 0
 results[,`a_lim-tra`:=ifelse(`a_lim-tra`<=0, 0, `a_lim-tra`)]
 results[,`a_lim-car`:=ifelse(`a_lim-car`<=0, 0, `a_lim-car`)]
@@ -171,7 +177,7 @@ results[,strnacc:=(`a_lim-cit`-`a_lim-car`)/(`a_lim-cit`+`a_lim-car`)]
 results[,valacc:=(`a_lim-tra`+`a_lim-ind`+`a_tra-cit`+`a_cit-ind`)/2]
 results[,valbet:=(abs(`m_lim-tra`)+abs(`m_ind-lim`-`m_cit-lim`)+abs(`m_ind-lim`)+abs(`m_lim-tra`+`m_cit-lim`))/2]
 # recode rois
-newlables <- c("Deep","Deep","Super","Super","Super","Deep","Super","Deep","APC","PPC","APn")
+newlables <- c("Deep","Deep","Super","Super","Super","Deep","Super","Deep","APC","PPC","APC")
 results[.(roi = roilabels, to = newlables),on = "roi", roinew := i.to]
 # calculate if abs(t_cit-lim) and abs(t_car-lim) > tvalue
 tvalue <- 1.65
@@ -237,30 +243,31 @@ bruceR::TTEST(dataspss,c("strnbet_APC","strnbet_PPC","strnbet_Super","strnbet_De
                             "val_APC","val_PPC","val_Super","val_Deep",
                             "int_APC","int_PPC","int_Super","int_Deep"),paired = T)
 # 3 group level results ----------------------------------------------
-prefix <- "results"
-prefix <- "search_rmbase"
-load(paste0(data_dir,prefix,".RData"))
-# compute strnorm
-if (ncol(results)<20){
-  results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
-} else{
-  results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
-}
-t1 <- min(round(qt(1-(0.05/2),27),6),100)
-results_select <- results[abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,]
-# check data
-# results_select[.(roi = roilabels, to = newlables),on = "roi", roinew := i.to]
-# test <- results_select[roinew != "APn", .(strnorm=mean(strnorm)),by = list(roinew)]
-results_select <- calmean(results_select)
-strbox <- boxplot4(results_select,c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
-  coord_cartesian(ylim = c(-1,1))
-# save according to input name
-ggsave(paste0(figure_dir,paste0('strnorm', ifelse(str_detect(prefix,"search"),"_search",""), '.pdf')),
+tract <- as.data.table(read.table(paste0(data_dir,"tract.txt")))
+names(tract) <- c("x","y","z","roi","prob","betaval","betaint")
+# reverse xy
+tract$x <- -tract$x
+tract$y <- -tract$y
+tract <- merge(groupv,tract[,-4])
+tract[.(roi = roilabels, to = newlables),on = "roi", roinew := i.to]
+# plot data
+results_select <- tract[betaany==1,]
+strbox <- boxplot4(calmean(results_select,"strnbet"),
+                   c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+          coord_cartesian(ylim = c(-1,1)) +
+          geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)
+ggsave(paste0(figure_dir,paste0('strnbet.pdf')),
+       strbox, width = 4, height = 3, device = cairo_pdf)
+strbox <- boxplot4(calmean(results_select,"valbet"),
+                   c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+          coord_cartesian(ylim = c(0,1))
+ggsave(paste0(figure_dir,paste0('valbet.pdf')),
        strbox, width = 4, height = 3, device = cairo_pdf)
 # ttest
-bruceR::TTEST(results_select[roi%in%c("Superficial","Deep"),],x="roi",y=c("strnorm"))
-bruceR::TTEST(results_select[roi%in%c("APC","PPC"),],x="roi",y=c("strnorm"))
-
+bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("strnbet"))
+bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("strnbet"))
+bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("valbet"))
+bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("valbet"))
 # 4 tent and mvpa results ----------------------------------------------
 # tent results
 load(paste0(figure_dir, "tent.RData"))
@@ -288,10 +295,11 @@ load(paste0(figure_dir, "mvpa_roi.RData"))
 roi_select <- as.character(unique(acc4odor$roi)[c(1,5)])
 accbox <- boxplot(acc4odor,roi_select,"acc",concolor[c(1,5)])+
   coord_cartesian(ylim = c(10,40))+
-  scale_x_discrete(labels=c("Amygdala","Piriform"))+
+  scale_x_discrete(labels=c("Amygdala","Piriform")) +
+  geom_hline(yintercept = 20, linetype="dashed", color = "black", size=15/64)+
   theme(legend.position = "none")
+ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 3, height = 3,
+       device = cairo_pdf)
 # ttest
 bruceR::TTEST(reshape2::dcast(acc4odor,sub~roi,value.var = "acc"),
               roi_select,paired = T)
-ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 3, height = 3,
-       device = cairo_pdf)

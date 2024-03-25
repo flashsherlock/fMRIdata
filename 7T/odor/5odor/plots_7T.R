@@ -74,7 +74,8 @@ boxplot4 <- function(data, select, colors){
       stat = "identity") +
     # geom_point(aes(x = con, y = strnorm, group = roi),color = "gray", show.legend = F) +
     scale_color_manual(values = colors)+
-    scale_y_continuous(name = "Structure-Quality index")
+    labs(y = "Structure-Quality index")+
+    theme(legend.position = "none")
 }
 calmean <- function(results,idx = "strnorm"){
   A <- c("La","Ba","Ce","Me","Co","BM","CoT","Para")
@@ -129,6 +130,7 @@ names(results) <- cnames
 results <- as.data.table(results)
 # add labels to roi
 roilabels <- c("La","Ba","Ce","Me","Co","BM","CoT","Para","APc","PPc","APn")
+newlables <- c("Deep","Deep","Super","Super","Super","Deep","Super","Deep","APC","PPC","APC")
 results[,roi:=factor(roi,levels = sort(unique(results$roi)),labels=roilabels)]
 # reverse xy
 results$x <- -results$x
@@ -142,14 +144,15 @@ load(paste0(data_dir,"results.RData"))
 betaresults <- results
 betaresults[,betaany:=ifelse(abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,1,0)]
 betaresults[,betaall:=ifelse(abs(`t_lim-car`)>t1 & abs(`t_lim-cit`)>t1,1,0)]
-betaresults[,valbet:=(abs(`m_lim-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/2]
+betaresults[,valbet:=(abs(`m_lim-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/4]
+# betaresults[,valbet:=(abs(`m_lim-ind`))]
 betaresults[,strnbet:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
 # search
 load(paste0(data_dir,"search_rmbase.RData"))
 searchresults <- results
 searchresults[,mvpaany:=ifelse(`t_lim-car`>t1 | `t_lim-cit`>t1,1,0)]
 searchresults[,mvpaall:=ifelse(`t_lim-car`>t1 & `t_lim-cit`>t1,1,0)]
-searchresults[,valacc:=(`m_lim-tra`+`m_lim-ind`+`m_tra-cit`+`m_cit-ind`)/2]
+searchresults[,valacc:=(`m_lim-tra`+`m_lim-ind`+`m_tra-cit`+`m_cit-ind`)/4]
 searchresults[,strnacc:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
 selectv <- merge(betaresults[,c("x","y","z","betaany","betaall")],
                   searchresults[,c("x","y","z","mvpaany","mvpaall")])
@@ -177,7 +180,6 @@ results[,strnacc:=(`a_lim-cit`-`a_lim-car`)/(`a_lim-cit`+`a_lim-car`)]
 results[,valacc:=(`a_lim-tra`+`a_lim-ind`+`a_tra-cit`+`a_cit-ind`)/2]
 results[,valbet:=(abs(`m_lim-tra`)+abs(`m_ind-lim`-`m_cit-lim`)+abs(`m_ind-lim`)+abs(`m_lim-tra`+`m_cit-lim`))/2]
 # recode rois
-newlables <- c("Deep","Deep","Super","Super","Super","Deep","Super","Deep","APC","PPC","APC")
 results[.(roi = roilabels, to = newlables),on = "roi", roinew := i.to]
 # calculate if abs(t_cit-lim) and abs(t_car-lim) > tvalue
 tvalue <- 1.65
@@ -250,24 +252,51 @@ tract$x <- -tract$x
 tract$y <- -tract$y
 tract <- merge(groupv,tract[,-4])
 tract[.(roi = roilabels, to = newlables),on = "roi", roinew := i.to]
-# plot data
+tract[,betaval:=abs(betaval)]
+tract[,betaint:=abs(betaint)]
 results_select <- tract[betaany==1,]
+# plot data
 strbox <- boxplot4(calmean(results_select,"strnbet"),
                    c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
           coord_cartesian(ylim = c(-1,1)) +
           geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)
 ggsave(paste0(figure_dir,paste0('strnbet.pdf')),
        strbox, width = 4, height = 3, device = cairo_pdf)
-strbox <- boxplot4(calmean(results_select,"valbet"),
+valbox <- boxplot4(calmean(results_select,"valbet"),
                    c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
-          coord_cartesian(ylim = c(0,1))
+          coord_cartesian(ylim = c(0,0.3),)+
+          labs(y="valence index")
 ggsave(paste0(figure_dir,paste0('valbet.pdf')),
-       strbox, width = 4, height = 3, device = cairo_pdf)
+       valbox, width = 4, height = 3, device = cairo_pdf)
+betavalbox <- boxplot4(calmean(results_select,"betaval"),
+                   c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+          coord_cartesian(ylim = c(0,0.3),)+
+          labs(y="valence beta")
+ggsave(paste0(figure_dir,paste0('betaval.pdf')),
+       betavalbox, width = 4, height = 3, device = cairo_pdf)
+straccbox <- boxplot4(calmean(results_select,"strnacc"),
+                   c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+          coord_cartesian(ylim = c(-1,1),) +
+          geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)+
+          labs(y="Structure-Quality MVPA")
+ggsave(paste0(figure_dir,paste0('strnacc.pdf')),
+       straccbox, width = 4, height = 3, device = cairo_pdf)
 # ttest
 bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("strnbet"))
 bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("strnbet"))
+bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("strnacc"))
+bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("strnacc"))
 bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("valbet"))
 bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("valbet"))
+bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("betaval"))
+bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("betaval"))
+bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("betaint"))
+bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("betaint"))
+# plot data
+results_select <- tract[mvpaany==1,]
+strbox <- boxplot4(calmean(results_select,"strnacc"),
+                   c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+  coord_cartesian(ylim = c(-1,1))
 # 4 tent and mvpa results ----------------------------------------------
 # tent results
 load(paste0(figure_dir, "tent.RData"))

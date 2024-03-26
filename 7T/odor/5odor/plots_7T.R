@@ -25,6 +25,37 @@ boxset <- function(data){
             #y100 = mean(Score)+ci90(Score))
             y100 = quantile(Score, 0.95))
 }
+# separate two groups
+pair_sep_plot <- function(data,vara,varb){
+  after_box_data <- reshape2::melt(data, c("sub"),variable.name = "parameter", value.name = "Score")
+  after_box_data <- mutate(after_box_data, Odor=ifelse(str_detect(parameter,vara[1]),vara[1],vara[2]))
+  after_box_data <- mutate(after_box_data, pair=ifelse(str_detect(parameter,varb[1]),varb[1],varb[2]))
+  
+  after_box_data$Odor <- factor(after_box_data$Odor, levels = vara)
+  after_box_data$pair <- factor(after_box_data$pair, levels = varb)
+  
+  # summarise data 5% and 90% quantile
+  df <- ddply(after_box_data, .(pair,Odor), boxset)
+  
+  # jitter
+  set.seed(111)
+  after_box_data <- transform(after_box_data, con = ifelse(Odor == vara[1], 
+                                                           jitter(as.numeric(pair) - 0.15, 0.3),
+                                                           jitter(as.numeric(pair) + 0.15, 0.3) ))
+  ggplot(data=after_box_data, aes(x=pair)) + 
+    geom_errorbar(data=df, position = position_dodge(0.6), size=15/64,
+                  aes(ymin=y0,ymax=y100,color=Odor),linetype = 1,width = 0.3)+ # add line to whisker
+    geom_boxplot(data=df,
+                 stat = "identity", size=15/64,
+                 aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=Odor),
+                 outlier.shape = NA, fill = "white",width=0.5, position = position_dodge(0.6)) +
+    scale_color_manual(values=c("grey50","black"))+
+    geom_line(aes(x=con, y=Score, group = interaction(sub,pair)), color = "gray", size=15/64)+
+    guides(color = guide_legend(
+      order = 1,override.aes = list(fill = NA)))+
+    labs(y = "fisherz r")+
+    theme(axis.title.x=element_blank())
+}
 boxplot <- function(data, roiselect, dataselect,colors){
   # select data
   Violin_data <- subset(data, roi%in%roiselect,select = c("sub","roi",dataselect))
@@ -48,7 +79,8 @@ boxplot <- function(data, roiselect, dataselect,colors){
       stat = "identity") +
     geom_line(aes(x = con, y = Score, group = sub),color = "gray", show.legend = F, size=15/64) +
     scale_color_manual(values = colors)+
-    scale_y_continuous(name = "Accuracy", expand = expansion(add = c(0, 0)))
+    scale_y_continuous(name = "Accuracy", expand = expansion(add = c(0, 0)))+
+    theme(axis.title.x=element_blank())
 }
 boxplot4 <- function(data, select, colors){
   # select data
@@ -75,7 +107,7 @@ boxplot4 <- function(data, select, colors){
     # geom_point(aes(x = con, y = strnorm, group = roi),color = "gray", show.legend = F) +
     scale_color_manual(values = colors)+
     labs(y = "Structure-Quality index")+
-    theme(legend.position = "none")
+    theme(axis.title.x=element_blank(),legend.position = "none")
 }
 calmean <- function(results,idx = "strnorm"){
   A <- c("La","Ba","Ce","Me","Co","BM","CoT","Para")
@@ -225,6 +257,11 @@ rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APC','PPC','
 names(rsadata) <- c("sub",paste(rep(c("str","qua"),length(rsa_names)),rep(rsa_names,each=2),sep = "_"))
 rsadata$sub <- subs
 rsadata <- as.data.table(rsadata)
+# plot rsa results
+rsa <- pair_sep_plot(rsadata[,c(1,14,15,18,19)], c("str", "qua"), c("APC", "PPC"))
+ggsave(paste0(figure_dir,"rsa_pir.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
+rsa <- pair_sep_plot(rsadata[,c(1,20:23)], c("str", "qua"), c("Super", "Deep"))
+ggsave(paste0(figure_dir,"rsa_amy.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
 # 2.4 decast and export avgresults -------------
 dataspss<- merge(dcast.data.table(avg_results,sub ~ roinew, 
                           value.var = names(avg_results)[c(-1,-2)]),
@@ -365,7 +402,7 @@ accbox <- boxplot(acc4odor,roi_select,"acc",concolor[c(1,5)])+
   scale_x_discrete(labels=c("Amygdala","Piriform")) +
   geom_hline(yintercept = 20, linetype="dashed", color = "black", size=15/64)+
   theme(legend.position = "none")
-ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 3, height = 3,
+ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 3, height = 2.5,
        device = cairo_pdf)
 # ttest
 bruceR::TTEST(reshape2::dcast(acc4odor,sub~roi,value.var = "acc"),

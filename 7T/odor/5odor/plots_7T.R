@@ -262,18 +262,28 @@ strbox <- boxplot4(calmean(results_select,"strnbet"),
           geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)
 ggsave(paste0(figure_dir,paste0('strnbet.pdf')),
        strbox, width = 4, height = 3, device = cairo_pdf)
+#
 valbox <- boxplot4(calmean(results_select,"valbet"),
                    c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
           coord_cartesian(ylim = c(0,0.3),)+
           labs(y="valence index")
 ggsave(paste0(figure_dir,paste0('valbet.pdf')),
        valbox, width = 4, height = 3, device = cairo_pdf)
+#
+valaccbox <- boxplot4(calmean(results_select,"valacc"),
+                   c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+          coord_cartesian(ylim = c(0,4),)+
+          labs(y="valence index")
+ggsave(paste0(figure_dir,paste0('valacc.pdf')),
+       valaccbox, width = 4, height = 3, device = cairo_pdf)
+#
 betavalbox <- boxplot4(calmean(results_select,"betaval"),
                    c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
           coord_cartesian(ylim = c(0,0.3),)+
           labs(y="valence beta")
 ggsave(paste0(figure_dir,paste0('betaval.pdf')),
        betavalbox, width = 4, height = 3, device = cairo_pdf)
+#
 straccbox <- boxplot4(calmean(results_select,"strnacc"),
                    c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
           coord_cartesian(ylim = c(-1,1),) +
@@ -282,21 +292,49 @@ straccbox <- boxplot4(calmean(results_select,"strnacc"),
 ggsave(paste0(figure_dir,paste0('strnacc.pdf')),
        straccbox, width = 4, height = 3, device = cairo_pdf)
 # ttest
-bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("strnbet"))
-bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("strnbet"))
-bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("strnacc"))
-bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("strnacc"))
-bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("valbet"))
-bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("valbet"))
-bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("betaval"))
-bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("betaval"))
-bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",y=c("betaint"))
-bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",y=c("betaint"))
-# plot data
+bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",
+              y=c("strnbet","strnacc","valbet","valacc","betaint","betaval"))
+bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",
+              y=c("strnbet","strnacc","valbet","valacc","betaint","betaval"))
+# select by mvpa
 results_select <- tract[mvpaany==1,]
-strbox <- boxplot4(calmean(results_select,"strnacc"),
+# plot data
+strbox <- boxplot4(calmean(results_select,"strnbet"),
                    c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
-  coord_cartesian(ylim = c(-1,1))
+  coord_cartesian(ylim = c(-1,1)) +
+  geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)
+ggsave(paste0(figure_dir,paste0('acc_strnbet.pdf')),
+       strbox, width = 4, height = 3, device = cairo_pdf)
+valbox <- boxplot4(calmean(results_select,"valbet"),
+                   c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+  coord_cartesian(ylim = c(0,0.3),)+
+  labs(y="valence index")
+ggsave(paste0(figure_dir,paste0('acc_valbet.pdf')),
+       valbox, width = 4, height = 3, device = cairo_pdf)
+betavalbox <- boxplot4(calmean(results_select,"betaval"),
+                       c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+  coord_cartesian(ylim = c(0,0.3),)+
+  labs(y="valence beta")
+ggsave(paste0(figure_dir,paste0('acc_betaval.pdf')),
+       betavalbox, width = 4, height = 3, device = cairo_pdf)
+valaccbox <- boxplot4(calmean(results_select,"valacc"),
+                      c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+             coord_cartesian(ylim = c(0,4),)+
+             labs(y="valence index")
+ggsave(paste0(figure_dir,paste0('acc_valacc.pdf')),
+       valaccbox, width = 4, height = 3, device = cairo_pdf)
+straccbox <- boxplot4(calmean(results_select,"strnacc"),
+                      c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+
+  coord_cartesian(ylim = c(-1,1),) +
+  geom_hline(yintercept = 0, linetype="dashed", color = "black", size=15/64)+
+  labs(y="Structure-Quality MVPA")
+ggsave(paste0(figure_dir,paste0('acc_strnacc.pdf')),
+       straccbox, width = 4, height = 3, device = cairo_pdf)
+# ttest
+bruceR::TTEST(results_select[roinew%in%c("Super","Deep"),],x="roinew",
+              y=c("strnbet","strnacc","valbet","valacc","betaint","betaval"))
+bruceR::TTEST(results_select[roinew%in%c("APC","PPC"),],x="roinew",
+              y=c("strnbet","strnacc","valbet","valacc","betaint","betaval"))
 # 4 tent and mvpa results ----------------------------------------------
 # tent results
 load(paste0(figure_dir, "tent.RData"))

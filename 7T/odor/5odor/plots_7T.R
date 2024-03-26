@@ -262,6 +262,12 @@ rsa <- pair_sep_plot(rsadata[,c(1,14,15,18,19)], c("str", "qua"), c("APC", "PPC"
 ggsave(paste0(figure_dir,"rsa_pir.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
 rsa <- pair_sep_plot(rsadata[,c(1,20:23)], c("str", "qua"), c("Super", "Deep"))
 ggsave(paste0(figure_dir,"rsa_amy.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
+# anova
+bruceR::MANOVA(rsadata[,c(14,15,18,19)], dvs=names(rsadata[,c(14,15,18,19)]),dvs.pattern="(str|qua)_(APCn|PPC)",
+               within=c("odor", "roi"))
+bruceR::MANOVA(rsadata[,c(20:23)], dvs=names(rsadata[,c(20:23)]),dvs.pattern="(str|qua)_(Super|Deep)",
+               within=c("odor", "roi"))
+bruceR::TTEST(rsadata,c(names(rsadata[,c(14,15,18,19)]),names(rsadata[,c(20:23)])),paired = T)
 # 2.4 decast and export avgresults -------------
 dataspss<- merge(dcast.data.table(avg_results,sub ~ roinew, 
                           value.var = names(avg_results)[c(-1,-2)]),

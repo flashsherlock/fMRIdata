@@ -20,7 +20,7 @@ gf_color <- c("#f0803b","#56a2d4","#ECB556","#55b96f","#777DDD")
 
 # read tract xyz is in RAI (diff from results)
 tract <- read.table("tract.txt")
-names(tract) <- c("y","x","z","roi","prob","betaval","betaint")
+names(tract) <- c("x","y","z","roi","prob","betaval","betaint")
 tract <- as.data.table(tract)
 # roi name
 roi_name <- c("Amy","BaLa","CeMe","Cortical",'Pir_new','Pir_old','APC_new','APC_old','PPC')
@@ -190,12 +190,12 @@ server <- function(input, output, ...) {
     # compute strnorm
     if (!str_detect(input$data,"search")){
       results[,strnorm:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
-      results[,val:=(abs(`m_lim-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/2]
+      results[,val:=(abs(`m_liDm-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/4]
       # comparation between pleasant and unpleasant
       # results[,val:=((`m_lim-tra`)+(`m_lim-ind`-`m_lim-cit`)+(`m_lim-ind`)+(`m_lim-tra`-`m_lim-cit`))/2]
     } else{
       results[,strnorm:=(`m_lim-cit`-`m_lim-car`)/(`m_lim-cit`+`m_lim-car`)]
-      results[,val:=(`m_lim-tra`+`m_lim-ind`+`m_tra-cit`+`m_cit-ind`)/2]
+      results[,val:=(`m_lim-tra`+`m_lim-ind`+`m_tra-cit`+`m_cit-ind`)/4]
     }
     if (input$roi == "amy"){
       results <- results[roi %in% c("La","Ba","Ce","Me","Co","BM","CoT","Para"),]

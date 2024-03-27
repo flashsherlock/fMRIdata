@@ -49,7 +49,7 @@ pair_sep_plot <- function(data,vara,varb){
                  stat = "identity", size=15/64,
                  aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100,color=Odor),
                  outlier.shape = NA, fill = "white",width=0.5, position = position_dodge(0.6)) +
-    scale_color_manual(values=c("grey50","black"))+
+    scale_color_manual(values=c("#F03B20","#2C7FB8"))+
     geom_line(aes(x=con, y=Score, group = interaction(sub,pair)), color = "gray", size=15/64)+
     guides(color = guide_legend(
       order = 1,override.aes = list(fill = NA)))+
@@ -177,7 +177,7 @@ betaresults <- results
 betaresults[,betaany:=ifelse(abs(`t_lim-car`)>t1 | abs(`t_lim-cit`)>t1,1,0)]
 betaresults[,betaall:=ifelse(abs(`t_lim-car`)>t1 & abs(`t_lim-cit`)>t1,1,0)]
 betaresults[,valbet:=(abs(`m_lim-tra`)+abs(`m_lim-ind`-`m_lim-cit`)+abs(`m_lim-ind`)+abs(`m_lim-tra`-`m_lim-cit`))/4]
-# betaresults[,valbet:=(abs(`m_lim-ind`))]
+# betaresults[,valbet:=(abs(`m_lim-ind`-`m_lim-cit`))]
 betaresults[,strnbet:=(abs(`m_lim-cit`)-abs(`m_lim-car`))/(abs(`m_lim-cit`)+abs(`m_lim-car`))]
 # search
 load(paste0(data_dir,"search_rmbase.RData"))
@@ -251,6 +251,40 @@ avg_results <- results[roinew != "APn" & mvpaall==1,
 # compute strnorm
 avg_results[,mstrnbet:=(mstrbet-mquabet)/(mstrbet+mquabet)]
 avg_results[,mstrnacc:=(mstracc-mquaacc)/(mstracc+mquaacc)]
+# 2.3 load rsaval data -------------
+rsadata <- extractdata(figure_dir,'./','rsaval_30_at165.txt')
+rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APC','PPC','Super','Deep')
+names(rsadata) <- c("sub",paste(rep(c("str","val"),length(rsa_names)),rep(rsa_names,each=2),sep = "_"))
+rsadata$sub <- subs
+rsadata <- as.data.table(rsadata)
+# plot rsa results
+rsa <- pair_sep_plot(rsadata[,c(1,14,15,18,19)], c("str", "val"), c("APC", "PPC"))
+ggsave(paste0(figure_dir,"rsaval_pir.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
+rsa <- pair_sep_plot(rsadata[,c(1,20:23)], c("str", "val"), c("Super", "Deep"))
+ggsave(paste0(figure_dir,"rsaval_amy.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
+# anova
+bruceR::MANOVA(rsadata[,c(14,15,18,19)], dvs=names(rsadata[,c(14,15,18,19)]),dvs.pattern="(str|val)_(APCn|PPC)",
+               within=c("odor", "roi"))
+bruceR::MANOVA(rsadata[,c(20:23)], dvs=names(rsadata[,c(20:23)]),dvs.pattern="(str|val)_(Super|Deep)",
+               within=c("odor", "roi"))
+bruceR::TTEST(rsadata,c(names(rsadata[,c(14,15,18,19)]),names(rsadata[,c(20:23)])),paired = T)
+# 2.3 load rsa data -------------
+rsadata <- extractdata(figure_dir,'./','rsaint_30_at165.txt')
+rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APC','PPC','Super','Deep')
+names(rsadata) <- c("sub",paste(rep(c("str","int"),length(rsa_names)),rep(rsa_names,each=2),sep = "_"))
+rsadata$sub <- subs
+rsadata <- as.data.table(rsadata)
+# plot rsa results
+rsa <- pair_sep_plot(rsadata[,c(1,14,15,18,19)], c("str", "int"), c("APC", "PPC"))
+ggsave(paste0(figure_dir,"rsaint_pir.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
+rsa <- pair_sep_plot(rsadata[,c(1,20:23)], c("str", "int"), c("Super", "Deep"))
+ggsave(paste0(figure_dir,"rsaint_amy.pdf"),rsa, width = 5, height = 4, device = cairo_pdf)
+# anova
+bruceR::MANOVA(rsadata[,c(14,15,18,19)], dvs=names(rsadata[,c(14,15,18,19)]),dvs.pattern="(str|int)_(APCn|PPC)",
+               within=c("odor", "roi"))
+bruceR::MANOVA(rsadata[,c(20:23)], dvs=names(rsadata[,c(20:23)]),dvs.pattern="(str|int)_(Super|Deep)",
+               within=c("odor", "roi"))
+bruceR::TTEST(rsadata,c(names(rsadata[,c(14,15,18,19)]),names(rsadata[,c(20:23)])),paired = T)
 # 2.3 load rsa data -------------
 rsadata <- extractdata(figure_dir,'./','rsa_30_at165.txt')
 rsa_names <- c("Amy","Cortical","CeMe","BaLa",'Pirn','Piro','APCn','APC','PPC','Super','Deep')

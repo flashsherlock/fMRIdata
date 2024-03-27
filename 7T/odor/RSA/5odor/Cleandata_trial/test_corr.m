@@ -1,10 +1,12 @@
-function [repwide, p]= test_corr(mask, voxelnum, ncon)
+function [repwide, p]= test_corr(mask, voxelnum, ncon, chosen)
 %% load response patterns
 % mask = 'at165';
 % voxelnum = 0.05;
 % reshape to ncon, if not 180
 % ncon = 180;
-chosen = [1 6];
+if nargin < 4
+    chosen = [1 6];
+end
 modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
 datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
 if ~exist([datafolder 'Figures'],'dir')

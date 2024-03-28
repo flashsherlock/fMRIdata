@@ -332,6 +332,10 @@ tract[.(roi = roilabels, to = newlables),on = "roi", roinew := i.to]
 tract[,betaval:=abs(betaval)]
 tract[,betaint:=abs(betaint)]
 results_select <- tract[betaany==1,]
+# results_prob <- tract[roinew %in% c("Super","Deep") & y>=-2,]
+results_prob <- tract[mvpaany==1&roinew %in% c("Super","Deep")&y>=-2&prob>0.04,]
+results_prob <- results_prob[,pro := ifelse(prob>0.2,"h","l")]
+bruceR::TTEST(results_prob,y="strnbet",x="pro")
 # plot data
 strbox <- boxplot4(calmean(results_select,"strnbet"),
                    c("Superficial","Deep","APC","PPC"),concolor[c(3,4,6,7)])+

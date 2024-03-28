@@ -451,3 +451,53 @@ ggsave(paste0(figure_dir,paste0('acc.pdf')), accbox, width = 3, height = 2.5,
 # ttest
 bruceR::TTEST(reshape2::dcast(acc4odor,sub~roi,value.var = "acc"),
               roi_select,paired = T)
+# 5 rating results ----------------------------------------------
+# read mat file
+data <- readMat(paste0(figure_dir,'../rating5odor.mat'))
+avgdata <- as.data.frame(data$rate.avg)
+# add subject number
+snum <- nrow(avgdata)
+row.names(avgdata) <- sprintf("S%02d",c(1:snum))
+avgdata <- cbind(avgdata,row.names(avgdata))
+names(avgdata) <- c(paste("valence",odors,"olfactometer",sep = "_"),
+                    paste("intensity",odors,"olfactometer",sep = "_"),
+                    paste("similarity",pairs,"olfactometer",sep = "_"),
+                    "sub")
+# remove zeros to select 28 subs
+avgdata <- avgdata[rowSums(avgdata==0)==0,]
+avgdata <- as.data.table(avgdata)
+avgdataw <- avgdata
+# melt to long format
+avgdata <- separate(melt(id.vars="sub",avgdata),variable,c("dimension","odor","presentation"),sep = "_")
+# anova
+bruceR::MANOVA(avgdata[dimension=="intensity",],subID = "sub",dv="value",within = "odor")
+bruceR::MANOVA(avgdata[dimension=="intensity"&odor!="ind",],subID = "sub",dv="value",within = "odor")
+avgdataw[,valence_limcar:=abs(valence_lim_olfactometer-valence_car_olfactometer)]
+avgdataw[,valence_limcit:=abs(valence_lim_olfactometer-valence_cit_olfactometer)]
+bruceR::TTEST(avgdataw,y=c("valence_lim_olfactometer","valence_cit_olfactometer"),paired = T)
+bruceR::TTEST(avgdataw,y=c("valence_lim_olfactometer","valence_car_olfactometer"),paired = T)
+bruceR::TTEST(avgdataw,y=c("valence_limcar","valence_limcit"),paired = T)
+#  plot
+gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556","#777DDD")
+for (dim in unique(avgdata$dimension)) {
+  current <- subset(avgdata,dimension==dim)
+  analyze_current <- describeBy(current$value,list(current$presentation,current$odor),mat = TRUE)
+  datachosen <- subset(analyze_current,select = c(group1,group2,mean,se))
+  names(datachosen) <- c("presentation","odor","mean","se")
+  # 箱线图
+  if (dim == "similarity") {
+    current <- mutate(current,odor = factor(odor,pairs))
+  }else{
+    current <- mutate(current,odor = factor(odor,odors))
+  }
+  figure <- ggplot(current,aes(x=odor,y=value,label=sub,
+                               group=interaction(odor,presentation))) + 
+    labs(title = str_to_title(dim) ,x='Odor',y=dim)+
+    scale_y_continuous(expand = c(0,0))+
+    coord_cartesian(ylim=c(1,7)) + 
+    geom_boxplot() +
+    scale_fill_manual(values = gf_color)+
+    geom_point(col=2,pch=16,cex=1)+
+    theme_prism(base_line_size = 0.5)
+  print(figure)
+}

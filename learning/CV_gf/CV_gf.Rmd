@@ -26,23 +26,22 @@ library(vitae)
 library(tibble)
 ```
 
-# Research Interests
-
-Olfaction; amygdala; odor representation; fMRI
-
 # Education
 
 ```{r}
 tribble(
   ~ Degree,
+  ~ Advisor,
   ~ Year,
   ~ Institution,
   ~ Where,
   "PhD Student, Cognitive Neuroscience",
+  "Advisor: Dr. Wen Zhou",
   "09/2019-present",
-  "Institute of Psychology, CAS",
+  "Institute of Psychology, Chinese Academy of Sciences",
   "Beijing, China",
-  "Bachelor of Science, Psychology",
+  "Bachelor of Science, Psychology, Minor in Biology",
+  "Thesis: Implicit Acquisition of Odor Valence",
   "09/2015-07/2019",
   "Beijing Normal University",
   "Beijing, China",
@@ -51,7 +50,8 @@ tribble(
     what = Degree,
     when = Year,
     with = Institution,
-    where = Where
+    where = Where,
+    why = Advisor
   )
 ```
 
@@ -64,8 +64,15 @@ tribble(
   ~ Institution,
   ~ Supp,
   ~ Amount,
-  '2019', "The Academic Scholarship","Faculty of Psychology, Beijing Normal University",NA,'$700',
-  '2016', "Beijing Student Research and Entrepreneurial Action Plan","Beijing Municipal Commission of Education",NA,'$1500',
+  '2020', "Merit Student","Chinese Academy of Sciences",NA,NA,
+  '2019', "Student's Innovation Training Program","Chinese Academy of Sciences",NA,'$1500',
+  '2019', "Beisen Scholarship","Beijing Beisen Cloud Computing Co Ltd",NA,'$150',
+  '2019', "The Academic Scholarship","Beijing Normal University",NA,'$150',
+  '2017,2018', "The Competition Scholarship","Beijing Normal University",NA,'$670',
+  '2018', "Hornorable Mention at The Interdisciplinary Contest in Modeling","The Consortium for Mathematics and its Applications (COMAP)",NA,NA,
+  '2017', "Bronze Medal at the iGEM 2017 Competition","International Genetically Engineered Machine (iGEM) Foundation",NA,NA,
+  '2016', "Beijing Student's Innovation and Entrepreneurship Training Program","Beijing Municipal Education Commission",NA,'$1500',
+  '2016-2018', "Jingshi Scholarship","Beijing Normal University",NA,'$1950',
 ) %>%
   detailed_entries(
     where = Year,
@@ -75,6 +82,10 @@ tribble(
     when = Amount
   ) 
 ```
+
+# Research Interests
+
+Olfaction; amygdala; odor representation; fMRI
 
 # Research outputs
 

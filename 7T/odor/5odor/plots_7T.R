@@ -82,7 +82,7 @@ boxplot <- function(data, roiselect, dataselect,colors){
     scale_y_continuous(name = "Accuracy", expand = expansion(add = c(0, 0)))+
     theme(axis.title.x=element_blank())
 }
-boxplot4 <- function(data, select, colors){
+boxplot4 <- function(data, select, colors,p=0){
   # select data
   Violin_data <- subset(data, roi%in%select)
   Violin_data$roi <- factor(Violin_data$roi,levels = select,labels = select)
@@ -93,9 +93,9 @@ boxplot4 <- function(data, select, colors){
   set.seed(111)
   nodor <- length(unique(Violin_data$roi))
   pd <- 0.6
-  Violin_data <- transform(Violin_data, con = jitter(as.numeric(roi), amount = 0.01))
+  Violin_data <- transform(Violin_data, con = jitter(as.numeric(roi), amount = 0.05))
   # boxplot
-  ggplot(data = Violin_data, aes(x = roi))+
+  figure <- ggplot(data = Violin_data, aes(x = roi))+
     geom_errorbar(
       data = df, position = position_dodge(pd), size=15/64,
       aes(ymin = y0, ymax = y100, color = roi), linetype = 1, width = 0.2) + # add line to whisker
@@ -104,10 +104,13 @@ boxplot4 <- function(data, select, colors){
       aes(ymin = y0, lower = y25, middle = y50, upper = y75, ymax = y100, color = roi),
       outlier.shape = NA, fill = "white",width = 0.3, position = position_dodge(pd),
       stat = "identity") +
-    # geom_point(aes(x = con, y = strnorm, group = roi),color = "gray", show.legend = F) +
     scale_color_manual(values = colors)+
     labs(y = "Structure-Quality index")+
     theme(axis.title.x=element_blank(),legend.position = "none")
+  if (p==1){
+    figure <- figure+geom_point(aes(x = con, y = Score, group = roi),color = "gray", show.legend = F)
+  }
+  return(figure)
 }
 calmean <- function(results,idx = "strnorm"){
   A <- c("La","Ba","Ce","Me","Co","BM","CoT","Para")
@@ -480,24 +483,15 @@ bruceR::TTEST(avgdataw,y=c("valence_limcar","valence_limcit"),paired = T)
 #  plot
 gf_color <- c("#F16913","#41AB5D","#4292C6","#ECB556","#777DDD")
 for (dim in unique(avgdata$dimension)) {
-  current <- subset(avgdata,dimension==dim)
-  analyze_current <- describeBy(current$value,list(current$presentation,current$odor),mat = TRUE)
-  datachosen <- subset(analyze_current,select = c(group1,group2,mean,se))
-  names(datachosen) <- c("presentation","odor","mean","se")
+  current <- subset(avgdata,dimension==dim,select = c("sub","odor","value"))
   # 箱线图
   if (dim == "similarity") {
     current <- mutate(current,odor = factor(odor,pairs))
   }else{
     current <- mutate(current,odor = factor(odor,odors))
   }
-  figure <- ggplot(current,aes(x=odor,y=value,label=sub,
-                               group=interaction(odor,presentation))) + 
-    labs(title = str_to_title(dim) ,x='Odor',y=dim)+
-    scale_y_continuous(expand = c(0,0))+
-    coord_cartesian(ylim=c(1,7)) + 
-    geom_boxplot() +
-    scale_fill_manual(values = gf_color)+
-    geom_point(col=2,pch=16,cex=1)+
-    theme_prism(base_line_size = 0.5)
+  names(current) <- c("sub","roi","value")
+  figure <- boxplot4(current,unique(current$roi),rep("gray30",length(unique(current$roi))),1)+
+    labs(y=dim)
   print(figure)
 }

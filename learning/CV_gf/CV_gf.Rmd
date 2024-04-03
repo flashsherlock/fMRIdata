@@ -66,9 +66,10 @@ tribble(
   ~ Amount,
   '2020', "Merit Student","Chinese Academy of Sciences",NA,NA,
   '2019', "Student's Innovation Training Program","Chinese Academy of Sciences",NA,'$1500',
+  '2019', "Excellent Graduate","Beijing Municipal Education Commission",NA,NA,
   '2019', "Beisen Scholarship","Beijing Beisen Cloud Computing Co Ltd",NA,'$150',
-  '2019', "The Academic Scholarship","Beijing Normal University",NA,'$150',
-  '2017,2018', "The Competition Scholarship","Beijing Normal University",NA,'$670',
+  '2019', "Academic Scholarship","Beijing Normal University",NA,'$150',
+  '2017-2018', "Competition Scholarship","Beijing Normal University",NA,'$670',
   '2018', "Hornorable Mention at The Interdisciplinary Contest in Modeling","The Consortium for Mathematics and its Applications (COMAP)",NA,NA,
   '2017', "Bronze Medal at the iGEM 2017 Competition","International Genetically Engineered Machine (iGEM) Foundation",NA,NA,
   '2016', "Beijing Student's Innovation and Entrepreneurship Training Program","Beijing Municipal Education Commission",NA,'$1500',
@@ -84,19 +85,87 @@ tribble(
 ```
 
 # Research Interests
-
+\vspace{1.5mm}
 Olfaction; amygdala; odor representation; fMRI
 
-# Research outputs
+# Research Experience
 
+```{r}
+tribble(
+  ~ Year,
+  ~ Name,
+  ~ Institution,
+  ~ Supp,
+  ~ Amount,
+  '2019-present', "Doctoral Researcher","Institute of Psychology, Chinese Academy of Sciences",
+  list("Topic: Odor representations in the amygdala","Advisor: Dr. Wen Zhou"),NA,
+  '2017-2018', "Research Assistant","Faculty of Psychology, Beijing Normal University",
+  list("Topic: Child temperament","Advisor: Dr. Xuemei Lei"),NA,
+  '2016-2017', "Research Assistant","Faculty of Psychology, Beijing Normal University",
+  list("Topic: The spatial-numerical association of response codes (SNARC) effect","Advisor: Dr. Ting Jiang"),NA
+) %>%
+  detailed_entries(
+    where = Year,
+    with = Name,
+    what = Institution,
+    why = Supp,
+    when = Amount
+  ) 
+```
+
+# Research Outputs
+\vspace{1.5mm}
 ## Articles
 
 ```{r}
-bibliography_entries("Publication.bib") %>% dplyr::arrange(desc(issued))
+bibliography_entries("Prepare.bib")
+# bibliography_entries("Publication.bib") %>% dplyr::arrange(desc(issued))
+# output one by one to increace line space
+all <- bibliography_entries("Publication.bib") %>% dplyr::arrange(desc(issued))
+all[1,]
+all[2,]
+# for (i in nrow(all)) {
+#   rmarkdown::render(all[i,])
+# }
 ```
 
 ## Presentations
 
 ```{r}
-bibliography_entries("Presentations.bib") %>% dplyr::arrange(desc(issued))
+# bibliography_entries("Presentations.bib") %>% dplyr::arrange(desc(issued))
+pre <- bibliography_entries("Presentations.bib") %>% dplyr::arrange(desc(issued))
+pre[2,]
+pre[3,]
 ```
+
+# Teaching Experience
+
+```{r}
+tribble(
+  ~ Year,
+  ~ Name,
+  ~ Institution,
+  ~ Supp,
+  ~ Amount,
+  '2018', "Cognitive Psychology","Beijing NO.4 High School",NA,NA,
+  '2018', "Introduction to Psychology","Hailin Senior High School",NA,NA
+) %>%
+  detailed_entries(
+    where = Year,
+    with = Name,
+    what = Institution,
+    why = Supp,
+    when = Amount
+  ) 
+```
+
+# Professional Activities
+\vspace{1.5mm}
+## Reviewer
+
+- The Innovation
+- 2023 International Annual Conference on Complex Systems and Intelligent Science
+
+## Membership
+
+- Chinese Psychological Society

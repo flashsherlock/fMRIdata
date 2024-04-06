@@ -17,7 +17,7 @@ output:
   vitae::awesomecv:
     # citation_package: biblatex
     keep_tex: true
-    pandoc_args: ["--lua-filter=lua/strong.lua"]
+    pandoc_args: ["--lua-filter","lua/strong.lua","--lua-filter","lua/replace.lua"]
 ---
 
 ```{r setup, include=FALSE}
@@ -122,11 +122,10 @@ bibliography_entries("Prepare.bib")
 # bibliography_entries("Publication.bib") %>% dplyr::arrange(desc(issued))
 # output one by one to increace line space
 all <- bibliography_entries("Publication.bib") %>% dplyr::arrange(desc(issued))
-all[1,]
-all[2,]
-# for (i in nrow(all)) {
-#   rmarkdown::render(all[i,])
-# }
+all[1,];all[2,]
+# x <- 1:nrow(all)
+# expr <- paste(sprintf("all[%d,]",x),collapse = ';')
+# eval(parse(text=expr))
 ```
 
 ## Presentations

@@ -1,15 +1,18 @@
 ---
 output: html_document
 params:
+    # win_path: "C:/Users/13308/Desktop/dataforR_blind/"
+    # mac_path: "/Volumes/WD_F/gufei/blind/"
     path: "/Volumes/WD_F/gufei/blind/"
     roi: !r c('Amy8_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165','EarlyV_at165','V1_at165','V2_at165','V3_at165')
     roiname: !r c("Amy","Pir_new","Pir_old","APC_new","APC_old","PPC","EarlyV","V1","V2","V3")
-    sub: !r c(sprintf('S%02d',c(2:4,6:14,16)))
+    sub: !r c(sprintf('S%02d',c(2:4,6:14,16:17,19:25,27,29:63,65:69))) #2:4,6:14,16:17,19:25,27,29:63,65:69
     suffix: "_tent_12.txt"
 title: "ROIs"
-author: "Fei"
+author: "Fei&Chen"
 date: "`r Sys.time()`"
 ---
+
 
 <style>
 .html-widget {
@@ -18,7 +21,7 @@ date: "`r Sys.time()`"
 </style>
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(warning = T, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")
+knitr::opts_chunk$set(warning = T, message = F, cache = FALSE,tidy=F,fig.align='center',fig.showtext=TRUE,results="hold",fig.show = "hold")#fig.path = "/Volumes/WD_F/gufei/blind/figs_timecourse"
 library(bruceR)
 library(psych)
 library(ggplot2)
@@ -58,10 +61,11 @@ data <- na.omit(data)
 
 # data1 <- data[c(-3)]
 sub <- strsplit(data$sub,"\\.")
+# 也可以是：sub <- strsplit(data$sub,fixed=T,".")
 sub <- sapply(sub,"[",2)
 data$sub <- sub
 #fixed = T拒绝使用正则表达式
-tp <- strsplit(data$TimePoints,fixed = T,"[")
+tp <- strsplit(data$TimePoints,fixed = T,"[") #如果没有fixed=T，就需要用"\\["
 tp <- strsplit(sapply(tp,"[",2),fixed = T,"_")
 data$TimePoints <- sapply(tp,"[",1)
 data$NZmean <- as.numeric(data$NZmean)
@@ -107,7 +111,8 @@ tc_smooth <- function(data_tent){
   stent <- reshape2::dcast(data_tent,sub+roi+odor~time,value.var = "NZmean")
   # pad the edge (weighted average)
   time_data <- t(stent[,-1:-3])
-  time_data <- zoo::rollapply(rbind(time_data[1,],time_data,time_data[nrow(time_data),]),3,mean)
+  # time_data <- zoo::rollapply(rbind(time_data[1,],time_data,time_data[nrow(time_data),]),3,mean) #fmri扫的TR是多少，时间窗就给多少
+  time_data <- zoo::rollapply(rbind(time_data[1,],time_data),2,mean)#我们盲人实验的TR是2s，所以时间窗选的2。
   stent[,-1:-3] <- t(time_data)
   # use the 2 points at the edge
   # time_data <- rbind(apply(time_data[1:2,], 2, mean),
@@ -145,19 +150,25 @@ row.names(ratedata) <- sprintf("S%02d", ratedata[,1])
 ratedata[,1] <- row.names(ratedata)
 # select subject in params$sub
 # ratedata <- ratedata[rownames(ratedata) %in% params$sub,]
-names(ratedata) <- c("sub","sex","age","aware",
+# names(ratedata) <- c("sub","sex","age","blindCA","blindTP","aware",
+#                     paste(rep(c("va","in","fa"),times = 6),
+#                           rep(c('pin', 'app', 'ros', 'min', 'ind', 'gas'),each = 3),sep = "_"),
+#                     paste("vivid",odors,sep = "_"),
+#                     paste(paste0(rep("run",48),rep(1:6,each = 8)),odors,sep = "_"))#这里的vivid每个run顺序写错了，以下面的代码为准by邢晨
+names(ratedata) <- c("sub","sex","age","blindCA","blindTP","aware",
                     paste(rep(c("va","in","fa"),times = 6),
                           rep(c('pin', 'app', 'ros', 'min', 'ind', 'gas'),each = 3),sep = "_"),
                     paste("vivid",odors,sep = "_"),
-                    paste(paste0(rep("run",48),rep(1:6,each = 8)),odors,sep = "_"))
+                    paste(paste0(rep("run",48),rep(1:6,times = 8)),rep(odors,each = 6),sep = "_"))
 ratedata <- as.data.table(ratedata)
 # export to spss
-bruceR::export(ratedata, file = paste0(path,"ratings.sav"))
+#bruceR::export(ratedata, file = "ratings.sav")
+bruceR::export(ratedata, file = file.path(params$path,"ratings.sav"))
 # melt to long format
-avgdata <- separate(melt(id.vars="sub",ratedata[,c(1,5:30)]),variable,c("dimension","odor"),sep = "_")
-# 建立一个list保存plotyly的结果
+avgdata <- separate(melt(id.vars="sub",ratedata[,c(1,7:32)]),variable,c("dimension","odor"),sep = "_")
+# 建立一个list保存plotly的结果
 plotly_plots <- htmltools::tagList()
-i <- 1
+i <- 1                         
 for (dim in unique(avgdata$dimension)) {
   if (dim=="vivid")
     ymax <- 4
@@ -170,7 +181,7 @@ for (dim in unique(avgdata$dimension)) {
   datachosen <- subset(analyze_current,select = c(group1,mean,se))
   names(datachosen) <- c("odor","mean","se")
   datachosen <- mutate(datachosen,odor = factor(odor,odors))
-    figure <- ggplot(datachosen,aes(x=odor,y=mean,group=odor)) + 
+    figure <- ggplot(datachosen,aes(x=odor,y=mean)) + 
     labs(title = str_to_title(dim) ,x='Odor',y=dim)+#设置坐标轴
     scale_y_continuous(expand = c(0,0))+
     coord_cartesian(ylim=c(1,ymax)) + 
@@ -183,10 +194,11 @@ for (dim in unique(avgdata$dimension)) {
     
     # boxplot
     current <- mutate(current,odor = factor(odor,odors))
-    figure <- ggplot(current,aes(x=odor,y=value,label=sub,
-                                    group=odor)) + 
+    # figure <- ggplot(current,aes(x=odor,y=value,label=sub,
+    #                                 group=odor)) + 
+    figure <- ggplot(current,aes(x=odor,y=value,group=odor)) + 
     labs(title = str_to_title(dim) ,x='Odor',y=dim)+#设置坐标轴
-    scale_y_continuous(expand = c(0,0))+
+    scale_y_continuous(expand = c(0,0))+ 
     coord_cartesian(ylim=c(1,ymax)) + 
     geom_boxplot() +
     scale_fill_manual(values = gf_color)+ #自选颜色
@@ -210,7 +222,7 @@ plotly_plots
 ```{r fig.height=3, fig.width=5}
 # vividness per run
 ratedata <- ratedata[ratedata$sub %in% params$sub,]
-rundata <- separate(melt(id.vars="sub",ratedata[,c(1,31:78)]),variable,c("run","odor"),sep = "_")
+rundata <- separate(melt(id.vars="sub",ratedata[,c(1,33:80)]),variable,c("run","odor"),sep = "_")
 analyze_vivid <- describeBy(rundata$value,list(rundata$run,rundata$odor),mat = TRUE)
 # Intensity
 datachosen <- subset(analyze_vivid,select = c(group1,group2,mean,se))
@@ -246,7 +258,7 @@ ratedata$sex <- factor(ratedata$sex,levels = c(1,2),labels = c("female","male"))
 table(ratedata$sex)
 describe(ratedata$age)
 # average vividness
-ratedata[,vividavg:=rowMeans(.SD),.SDcols=c(23:30)]
+ratedata[,vividavg:=rowMeans(.SD),.SDcols=c(25:32)]
 plot_scatter(ratedata,"aware","vividavg")+
   labs(x="Odor awareness",y="Vividness ratings")
 ```
@@ -263,14 +275,16 @@ for (sub_i in params$sub) {
   name <- file.path(params$path,"stats",sub_i,paste0(params$roi,'_p',params$suffix))
   for (region in 1:length(name)) {
   data_tent <- rbind(data_tent,extractdata(name[region]))
+  #这里需要rbind是跑循环，让每次得到的data都储存到data_tent里面，跑完最后一个循环组成的data_tent就是104个贝塔值*10个roi*62个被试的超级大表格。
   }
 }
 # smooth data
 data_tent <- tc_smooth(data_tent)
+#如果不smooth，time course的图会比较崎岖。
 ```
 
 ## Separate
-```{r echo=TRUE}
+```{r}
 for (sub_i in params$sub) {
   for (region in params$roi) {
   # choose data
@@ -299,10 +313,12 @@ for (sub_i in params$sub) {
 
 ## Average sub
 ```{r}
-for (region in c(params$roi,"All")) {
+for (region in c(params$roi,"Amy+Pir","Amy+Pir+EarlyV")) {
 # choose data
-  if (region =="All")
-    datachosen <- subset(data_tent,roi%in%params$roi[c(1,5)])
+  if (region =="Amy+Pir+EarlyV")
+    datachosen <- subset(data_tent,roi%in%params$roi[c(1,2,7)])#1是杏仁核,2是Pir_new,7是EarlyV
+  else if (region =="Amy+Pir")
+    datachosen <- subset(data_tent,roi%in%params$roi[c(1,2)])
   else
     datachosen <- subset(data_tent,roi==region)
   datachosen <- describeBy(datachosen$NZmean,list(datachosen$odor,datachosen$time),mat = T)
@@ -323,7 +339,7 @@ for (region in c(params$roi,"All")) {
     scale_x_discrete(expand = c(0,0.1))+
     geom_line(position = pd) +
     geom_hline(yintercept=0, linetype="dotted")+
-    # geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
+    #geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.1,position = pd) +
     geom_ribbon(aes(ymin = mean - se, ymax = mean + se, fill = odor), 
                 alpha = 0.2,linetype=0)+
     geom_point(position = pd)

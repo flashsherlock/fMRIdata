@@ -67,10 +67,10 @@ endif
                 -gltsym 'SYM: car -lim'       -glt_label 4 car-lim                              \
                 -gltsym 'SYM: cit -lim'       -glt_label 5 cit-lim                              \
                 -gltsym 'SYM: car -cit'       -glt_label 6 car-cit                              \
-                -gltsym 'SYM: ind -lim'       -glt_label 7 car-cit                              \
-                -gltsym 'SYM: ind -tra'       -glt_label 8 car-cit                              \
-                -gltsym 'SYM: ind -car'       -glt_label 9 car-cit                              \
-                -gltsym 'SYM: ind -cit'       -glt_label 10 car-cit                             \
+                -gltsym 'SYM: ind -lim'       -glt_label 7 ind-lim                              \
+                -gltsym 'SYM: ind -tra'       -glt_label 8 ind-tra                              \
+                -gltsym 'SYM: ind -car'       -glt_label 9 ind-car                              \
+                -gltsym 'SYM: ind -cit'       -glt_label 10 ind-cit                             \
         -regress_motion_per_run                                                                 \
         -regress_censor_motion 0.3                                                              \
         -regress_run_clustsim no

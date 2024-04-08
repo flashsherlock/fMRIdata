@@ -6,6 +6,10 @@ if ( $# > 0 ) then
 set sub = $1
 set datafolder=/Volumes/OlfDisk2/gf/7T_odor/${sub}
 # make folder if not exisit
+if ( -d "${datafolder}" ) then
+        rm -r ${datafolder}
+endif
+# make folder if not exisit
 if ( ! -d "${datafolder}" ) then
         mkdir -p ${datafolder}
 endif
@@ -54,7 +58,7 @@ set analysis=pabiode
         -regress_basis_multi                                                                    \
                 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'BLOCK(2,1)' 'dmBLOCK(1)' 'dmBLOCK(1)'   \
         -regress_opts_3dD                                                                       \
-                -jobs 2                                                                        \
+                -jobs 8                                                                        \
                 -gltsym 'SYM: lim -tra'       -glt_label 1 lim-tra                              \
                 -gltsym 'SYM: car -tra'       -glt_label 2 car-tra                              \
                 -gltsym 'SYM: cit -tra'       -glt_label 3 cit-tra                              \

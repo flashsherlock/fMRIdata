@@ -2,7 +2,7 @@
 title: CV
 name: Fei
 surname: Gu
-position: "Ph.D Student"
+position: "Ph.D. Student"
 address: "Institute of Psychology, Chinese Academy of Sciences"
 www: flashsherlock.github.io
 email: "guf@psych.ac.cn"
@@ -168,3 +168,10 @@ tribble(
 ## Membership
 
 - Chinese Psychological Society
+
+# Relevant Skills
+\vspace{1.5mm}
+- Data collection:\hspace{0.5em} Psychophysics,\hspace{0.3em} fMRI,\hspace{0.3em} iEEG
+- Data analysis:\hspace{0.5em} MATLAB,\hspace{0.3em} AFNI,\hspace{0.3em} Shell,\hspace{0.3em} R,\hspace{0.3em} SPSS
+- Data visualization:\hspace{0.5em} R,\hspace{0.3em} ggplot2,\hspace{0.3em} Shiny,\hspace{0.3em} HTML/CSS
+- Language:\hspace{0.5em} Chinese,\hspace{0.3em} English

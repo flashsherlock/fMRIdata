@@ -10,10 +10,10 @@ cd "${datafolder}"
 set subj = ${sub}.${analysis}
 cd ${subj}.results
 
-rm errts*
-rm fitts*
-rm stats*
-rm X*
+# rm errts*
+# rm fitts*
+# rm stats*
+# rm X*
 
 set filedec = odorVI
 # # convert motion parameters for per-run regression
@@ -65,17 +65,15 @@ set filedec = odorVI
     -gltsym 'SYM: car -cit'                                    \
     -glt_label 6 car-cit                                       \
     -gltsym 'SYM: ind -lim'                                    \
-    -glt_label 7 car-cit                                       \
+    -glt_label 7 ind-lim                                       \
     -gltsym 'SYM: ind -tra'                                    \
-    -glt_label 8 car-cit                                       \
+    -glt_label 8 ind-tra                                       \
     -gltsym 'SYM: ind -car'                                    \
-    -glt_label 9 car-cit                                       \
+    -glt_label 9 ind-car                                       \
     -gltsym 'SYM: ind -cit'                                    \
-    -glt_label 10 car-cit                                      \
+    -glt_label 10 ind-cit                                      \
     -fout -tout -x1D X.xmat.${filedec}.1D -xjpeg X.${filedec}.jpg      \
     -x1D_uncensored X.nocensor.${filedec}.xmat.1D                      \
-    -fitts fitts.${subj}.${filedec}                                    \
-    -errts errts.${subj}.${filedec}                                    \
     -bucket stats.${subj}.${filedec}
 
 else

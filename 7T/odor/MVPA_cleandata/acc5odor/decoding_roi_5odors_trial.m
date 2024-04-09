@@ -53,7 +53,7 @@ for i=1:length(rois)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_select50base_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_odor5va_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -75,9 +75,9 @@ for i=1:length(rois)
         F=cell(1,numtr);
         for subi = 1:numtr
             t=timing(subi,2);
-            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorVI_noblur+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odor_noblur+orig.BRIK,' num2str(t)];
             % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
-            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
+            % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
         end
         cfg.files.name = [cfg.files.name F];
         % and the other two fields if you use a make_design function (e.g. make_design_cv)
@@ -151,12 +151,12 @@ for i=1:length(rois)
        passed_data.data = [passed_data.data tr(:,[3 4])];
     end
     % select voxels
-    voxel_num=50;
-    [passed_data.data, perw] = select_voxel(passed_data.data',voxel_num);
-    passed_data.data = passed_data.data';
-    [~,index]=sort(perw,'ascend');
-    passed_data.mask_index = passed_data.mask_index(index(1:min(voxel_num,length(passed_data.mask_index))));
-    passed_data.mask_each = {passed_data.mask_index};
+    % voxel_num=50;
+    % [passed_data.data, perw] = select_voxel(passed_data.data',voxel_num);
+    % passed_data.data = passed_data.data';
+    % [~,index]=sort(perw,'ascend');
+    % passed_data.mask_index = passed_data.mask_index(index(1:min(voxel_num,length(passed_data.mask_index))));
+    % passed_data.mask_each = {passed_data.mask_index};
     % This creates the leave-one-run-out cross validation design:
     cfg.design = make_design_cv(cfg);     
     % save([cfg.results.dir '/data.mat'],'passed_data','cfg','timing');

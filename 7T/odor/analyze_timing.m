@@ -44,9 +44,11 @@ names={'lim','tra','car','cit','ind'};
 for i=1:times(2)
     % timing for each odor(all runs)
     dlmwrite([datadir filesep names{i} '.txt'],timing(:,:,i),'delimiter',' ');
+    dlmwrite([datadir filesep names{i} '_ext.txt'],timing(:,:,i)-1.5,'delimiter',' ');
     % timing for each odor(each run)
     for runi=1:run
         dlmwrite([datadir filesep names{i} '_run_' num2str(runi) '.txt'],timing(runi,:,i),'delimiter',' ');
+        dlmwrite([datadir filesep names{i} '_run_' num2str(runi) '_ext.txt'],timing(runi,:,i)-1.5,'delimiter',' ');
     end
 end
 end

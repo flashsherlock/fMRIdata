@@ -5,10 +5,6 @@
 This repository stores my codes for fMRI, iEEG, behavior and other data analysis, including Matlab, AFNI, and R scripts.
 
 # fMRI
-The results can be visited here.
-* [Amygdala](AmygdalaBLOCK/plot_Amy.html)
-* [FFA&STS](FFA_STS/plot_FS.html)
-* [PPI](PPI/plot_PPI.html)
 
 ## AmygdalaBlOCK
 The analysis of Amygdala using BlOCK function.

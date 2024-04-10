@@ -13,3 +13,13 @@ end
 parallel -a command.txt
 
 rm command.txt
+
+# for run in 32 33 34
+# do
+#   tcsh proc_fmri2xsmooth.tcsh S${run}
+# done
+
+# for run in 10 11 13 14
+# do
+#   tcsh deconvolve_censor_odorva.tcsh S${run}
+# done

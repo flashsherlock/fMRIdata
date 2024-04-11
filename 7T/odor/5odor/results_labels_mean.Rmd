@@ -84,8 +84,6 @@ readlabel <- function(path,sub,analysis,mvpa_pattern,roi_order) {
   }
   return(data)
 }
-
-
 ```
 
 # Accuracy_align
@@ -242,7 +240,7 @@ acc4odor <- subset(acc_run,run=="run_all"&odor%in%unique(acc_run$odor)[grepl("^4
   }
 plotly_fig
 # save acc_run and acc4odor
-save(acc_run,acc4odor,file = paste0(params$path, "figures/mvpa_roi.RData"))
+# save(acc_run,acc4odor,file = paste0(params$path, "figures/mvpa_roi.RData"))
 ```
 
 ```{r}

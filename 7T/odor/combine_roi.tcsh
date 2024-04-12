@@ -10,35 +10,43 @@ set datafolder=/Volumes/WD_F/gufei/7T_odor/${sub}/
 cd "${datafolder}"
 
 # generate sig masks
-foreach filedec (orig tlrc)
-    # set mask
-    if ($filedec == orig) then
-        set mask = mask/allROI+orig
-    else
-        set mask = ../group/mask/allROI+tlrc
-    endif
-    # set sig
-    foreach sig (165 196)
-    # set the threshold according to sig
-    if ($sig == 165) then
-            set t = 1.65
-    else if ($sig == 196) then
-            set t = 1.96
-    endif
-    # set the data file
-    set data_beta = ${sub}.${analysis}.results/stats.${sub}.${analysis}.odorVI+${filedec}
-    3dcalc  -a ${data_beta}'[2]' \
-            -b ${data_beta}'[5]' \
-            -c ${data_beta}'[8]' \
-            -d ${data_beta}'[11]' \
-            -e ${data_beta}'[14]' \
-            -f ${mask} \
-            -expr "or(astep(a,${t}),astep(b,${t}),astep(c,${t}),astep(d,${t}),astep(e,${t}))*f" \
-            -prefix mask/allsig${sig}
-    end
-end
+# foreach filedec (orig tlrc)
+#     # set mask
+#     if ($filedec == orig) then
+#         set mask = mask/allROI+orig
+#     else
+#         set mask = ../group/mask/allROI+tlrc
+#     endif
+#     # set sig
+#     foreach sig (165 196)
+#     # set the threshold according to sig
+#     if ($sig == 165) then
+#             set t = 1.65
+#     else if ($sig == 196) then
+#             set t = 1.96
+#     endif
+#     # set the data file
+#     set data_beta = ${sub}.${analysis}.results/stats.${sub}.${analysis}.odorVI+${filedec}
+#     3dcalc  -a ${data_beta}'[2]' \
+#             -b ${data_beta}'[5]' \
+#             -c ${data_beta}'[8]' \
+#             -d ${data_beta}'[11]' \
+#             -e ${data_beta}'[14]' \
+#             -f ${mask} \
+#             -expr "or(astep(a,${t}),astep(b,${t}),astep(c,${t}),astep(d,${t}),astep(e,${t}))*f" \
+#             -prefix mask/allsig${sig}
+#     end
+# end
 
-# cd mask
+cd mask
+
+# superfical amygdala
+foreach sig (align at165 at196 at165_p at196_p)
+    3dcalc -a CeMeAmy_${sig}.freesurfer+orig \
+    -b corticalAmy_${sig}.freesurfer+orig \
+    -expr 'a+b' \
+    -prefix superAmy_${sig}.freesurfer+orig
+end
 # # all roi with labels (exclude AA)
 # 3dcalc -a Piriform.seg+orig \
 # -b sAmy.freesurfer+orig \

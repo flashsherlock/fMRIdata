@@ -1,6 +1,6 @@
 #! /bin/csh
 
-foreach ub (`count -dig 2 19 34`)
+foreach ub (`count -dig 2 4 11` 13 14 `count -dig 2 16 29` 31 32 33 34)
 # set sub=S01_yyt
 set sub=S${ub}
 set analysis=pabiode
@@ -11,23 +11,38 @@ cd "${datafolder}"
 
 cd ${sub}.${analysis}.results
 
+# transform occipital mask
+set mask=/Volumes/WD_F/gufei/blind/ProbAtlas_v4/subj_vol_all/maxprob_vol.nii
+# nonlinear warp
+# rm visual_area_nl+*
+3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
+             -source ${mask}                                                                      \
+             -interp NN                                                               \
+             -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
+             -prefix visual_area_nl
+# creat V1-V3
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2)' -prefix ../mask/V1+orig
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,3,4)' -prefix ../mask/V2+orig
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,5,6)' -prefix ../mask/V3+orig
+3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2,3,4,5,6)' -prefix ../mask/EarlyV+orig
+
 # resample Piriform mask
-3dresample  -input COPY_anat_final.${sub}.${analysis}+orig      \
-            -master vr_base_min_outlier+orig               \
-            -rmode NN                                           \
-            -prefix Piriform.seg
-# creat piriform mask and remove voxels in Amy
-3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22,29)*iszero(b)' -prefix ../mask/Pir_new.draw+orig
-# creat old piriform mask
-3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22)*iszero(b)' -prefix ../mask/Pir_old.draw+orig
-# create APC_new
-3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,29)*iszero(b)' -prefix ../mask/APC_new.draw+orig
-# create APC_old
-3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21)*iszero(b)' -prefix ../mask/APC_old.draw+orig
-# creat PPC
-3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,22)*iszero(b)' -prefix ../mask/PPC.draw+orig
-# move Piriform.seg to mask folder
-mv Piriform.seg* ../mask
+# 3dresample  -input COPY_anat_final.${sub}.${analysis}+orig      \
+#             -master vr_base_min_outlier+orig               \
+#             -rmode NN                                           \
+#             -prefix Piriform.seg
+# # creat piriform mask and remove voxels in Amy
+# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22,29)*iszero(b)' -prefix ../mask/Pir_new.draw+orig
+# # creat old piriform mask
+# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,22)*iszero(b)' -prefix ../mask/Pir_old.draw+orig
+# # create APC_new
+# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21,29)*iszero(b)' -prefix ../mask/APC_new.draw+orig
+# # create APC_old
+# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,21)*iszero(b)' -prefix ../mask/APC_old.draw+orig
+# # creat PPC
+# 3dcalc -a Piriform.seg+orig -b Amy.freesurfer+orig -expr 'amongst(a,22)*iszero(b)' -prefix ../mask/PPC.draw+orig
+# # move Piriform.seg to mask folder
+# mv Piriform.seg* ../mask
 
 
 # normalize Anatomical img to mni space

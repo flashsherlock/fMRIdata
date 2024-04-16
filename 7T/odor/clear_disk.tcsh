@@ -22,9 +22,9 @@ cd ${subj}.results
 # rm all_runs*
 # rm pb0[0-${pbvol}]*
 # rm pb0${blurvol}*
-rm NIerrts.${subj}.rmpolortva+orig*
-rm NIerrts.${subj}.onlypolandva+orig*
-rm NIfitts.${subj}.*
+rm NIerrts.${subj}.odorVI_noblur+orig*
+rm NIerrts.${subj}.odorVIva_noblur+orig*
+# rm NIfitts.${subj}.*
 # rm fitts.${subj}+orig*
 # rm errts.${subj}+orig*
 # rm *odorVIv_noblur*
@@ -42,16 +42,16 @@ rm NIfitts.${subj}.*
 #     3dTcat -prefix allrun.volreg.${subj} ${pb}.${subj}.r*.volreg+orig.HEAD
 # endif
 
-# # set filedec = odorVI_noblur
-# # 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 31..66 -prefix NIfittshead.${subj}.${filedec}
-# # with va regressors
-# set filedec = odorVIva_noblur
-# # 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 29..64 -prefix NIfittshead.${subj}.${filedec}
+# set filedec = odorVI_noblur
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 31..66 -prefix NIfittshead.${subj}.${filedec}
+# with va regressors
+set filedec = odor_noblur
+# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select 29..64 -prefix NIfittshead.${subj}.${filedec}
 
-# # synthesize fitts of no interests, use -dry for debug
-# 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort -prefix NIfittsnobs.${subj}.${filedec}
-# # subtract fitts of no interests from all runs
-# 3dcalc -a allrun.volreg.${subj}+orig -b NIfittsnobs.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.onlypolva
+# synthesize fitts of no interests, use -dry for debug
+3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select baseline -prefix NIfitts.${subj}.${filedec}
+# subtract fitts of no interests from all runs
+3dcalc -a allrun.volreg.${subj}+orig -b NIfitt.${subj}.${filedec}+orig -expr 'a-b' -prefix NIerrts.${subj}.odornova_noblur
 # rm NIfitts*
 # # remove polort and odor_va
 # 3dSynthesize -cbucket cbucket.${subj}.${filedec}+orig -matrix X.nocensor.${filedec}.xmat.1D -select polort odor_va -prefix NIfittsnobs.${subj}.${filedec}

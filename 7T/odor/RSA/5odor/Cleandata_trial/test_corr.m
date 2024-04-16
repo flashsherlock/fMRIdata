@@ -7,8 +7,8 @@ function [repwide, p]= test_corr(mask, voxelnum, ncon, chosen)
 if nargin < 4
     chosen = [1 6];
 end
-modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmpolort_trial/';
-datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
+modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
+datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_clean_trial/';
 if ~exist([datafolder 'Figures'],'dir')
     mkdir([datafolder 'Figures'])
 end

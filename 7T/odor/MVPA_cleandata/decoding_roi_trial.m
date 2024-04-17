@@ -13,7 +13,7 @@ function decoding_roi_trial(sub,analysis_all,rois,shift)
 % subn=1;
 % sub='S01_yyt';
 data='/Volumes/WD_F/gufei/7T_odor/';
-datafolder = '/Volumes/OlfDisk2/gf/7T_odor/';
+datafolder = '/Volumes/WD_F/gufei/7T_odor/';
 % analysis_all={'pabiode','paphde','pade'};
 % rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
 % for region=[1 3 5 6 7 8 9 10 15]

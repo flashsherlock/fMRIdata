@@ -24,7 +24,7 @@ subs = [4:11,13,14,16:18,19:29 31:34];
 % %     end
 % end
 % S19-S34
-parfor i = 1:length(subs)
+for i = 1:length(subs)
     sub=sprintf('S%02d',subs(i));
 %     try
     decoding_roi_5odors_trial(sub,analysis_all,rois,shift);    

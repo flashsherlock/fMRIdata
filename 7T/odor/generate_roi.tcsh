@@ -1,5 +1,11 @@
 #! /bin/csh
 
+# precentral mask from AAL
+# 3dcalc \
+# -a /Volumes/WD_F/gufei/3T_cw/aal/aal.nii.gz \
+# -expr 'amongst(a,1,2)' \
+# -prefix /Volumes/WD_F/gufei/3T_cw/aal/pre_aal
+
 foreach ub (`count -dig 2 4 11` 13 14 `count -dig 2 16 29` 31 32 33 34)
 # set sub=S01_yyt
 set sub=S${ub}
@@ -12,19 +18,20 @@ cd "${datafolder}"
 cd ${sub}.${analysis}.results
 
 # transform occipital mask
-set mask=/Volumes/WD_F/gufei/blind/ProbAtlas_v4/subj_vol_all/maxprob_vol.nii
+# set mask=/Volumes/WD_F/gufei/blind/ProbAtlas_v4/subj_vol_all/maxprob_vol.nii
+set mask=/Volumes/WD_F/gufei/3T_cw/aal/pre_aal+tlrc
 # nonlinear warp
 # rm visual_area_nl+*
 3dNwarpApply -nwarp "anatSS.${sub}_al_keep_mat.aff12.1D INV(anatQQ.${sub}.aff12.1D) INV(anatQQ.${sub}_WARP.nii)"   \
              -source ${mask}                                                                      \
              -interp NN                                                               \
              -master pb0?.${sub}.${analysis}.r01.volreg+orig.HEAD    \
-             -prefix visual_area_nl
+             -prefix ../mask/precentral
 # creat V1-V3
-3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2)' -prefix ../mask/V1+orig
-3dcalc -a visual_area_nl+orig -expr 'amongst(a,3,4)' -prefix ../mask/V2+orig
-3dcalc -a visual_area_nl+orig -expr 'amongst(a,5,6)' -prefix ../mask/V3+orig
-3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2,3,4,5,6)' -prefix ../mask/EarlyV+orig
+# 3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2)' -prefix ../mask/V1+orig
+# 3dcalc -a visual_area_nl+orig -expr 'amongst(a,3,4)' -prefix ../mask/V2+orig
+# 3dcalc -a visual_area_nl+orig -expr 'amongst(a,5,6)' -prefix ../mask/V3+orig
+# 3dcalc -a visual_area_nl+orig -expr 'amongst(a,1,2,3,4,5,6)' -prefix ../mask/EarlyV+orig
 
 # resample Piriform mask
 # 3dresample  -input COPY_anat_final.${sub}.${analysis}+orig      \

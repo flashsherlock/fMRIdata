@@ -8,7 +8,7 @@ if nargin < 4
     chosen = [1 6];
 end
 modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
-datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_clean_trial/';
+datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
 if ~exist([datafolder 'Figures'],'dir')
     mkdir([datafolder 'Figures'])
 end
@@ -224,15 +224,24 @@ repwide = permute(represent,[3 1 2]);
 repwide = reshape(repwide,length(subn),[]);
 names = reshape([strcat(fields,'_str') strcat(fields,'_sim')]',[],1);
 % repwide = repwide(idx,:);
+% single ttest
+psingle=zeros(3,4);
+for roi_i = 1:4
+    [h,psingle(1,roi_i),ci,t] = ttest(repwide(:,roi_i+12));
+    [h,psingle(2,roi_i),ci,t] = ttest(repwide(:,roi_i+14));
+    [h,psingle(3,roi_i),ci,t] = ttest(repwide(:,roi_i+18));
+end
 % test interaction
 p=zeros(1,3);
 disp([mask num2str(voxelnum)])
 [h,p(1),ci,t] = ttest((repwide(:,13)-repwide(:,14))-(repwide(:,17)-repwide(:,18)));
 disp(names(13))
+disp(psingle(1,:))
 disp(p(1))
 for roi_i =[15 19]    
     [h,p((roi_i-7)/4),ci,t] = ttest((repwide(:,roi_i)-repwide(:,roi_i+1))-(repwide(:,roi_i+2)-repwide(:,roi_i+3)));
     disp(names(roi_i))
+    disp(psingle((roi_i-7)/4,:))
     disp(p((roi_i-7)/4))
 end
 end

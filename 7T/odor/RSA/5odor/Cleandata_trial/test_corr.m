@@ -8,7 +8,7 @@ if nargin < 4
     chosen = [1 6];
 end
 modelfolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
-datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_rmbase_trial/';
+datafolder = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_cleannova_trial/';
 if ~exist([datafolder 'Figures'],'dir')
     mkdir([datafolder 'Figures'])
 end
@@ -86,6 +86,7 @@ for sub_i = 1:length(subn)
             cur_res = squeeze(mean(cur_res,2)); 
         end               
         % RDM
+        % disp(sub_i)
         cur_res = 1-corr(cur_res);
         % plot        
         if field_i==1 && plotrdm==1

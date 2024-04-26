@@ -4,7 +4,7 @@ userOptions.sessions=1;
 userOptions.conditions=180/userOptions.sessions;
 userOptions.analysisName = 'Cleandata';
 % This is the root directory of the project.
-userOptions.rootPath = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_clean_trial';
+userOptions.rootPath = '/Volumes/WD_F/gufei/7T_odor/results_RSA/5odor_cleannova_trial';
 datafolder = '/Volumes/WD_F/gufei/7T_odor';
 if ~exist(userOptions.rootPath,'dir')
     mkdir(userOptions.rootPath)
@@ -26,7 +26,7 @@ userOptions.maskNames={'Amy8_align','corticalAmy_align','CeMeAmy_align','BaLaAmy
 % userOptions.maskNames={'Amy8_at165','corticalAmy_at165','CeMeAmy_at165','BaLaAmy_at165','Pir_new_at165','Pir_old_at165','APC_new_at165','APC_old_at165','PPC_at165'};
 % userOptions.maskNames={'Amy8_at196','corticalAmy_at196','CeMeAmy_at196','BaLaAmy_at196','Pir_new_at196','Pir_old_at196','APC_new_at196','APC_old_at196','PPC_at196'};
 % prefix and suffix
-userOptions.filename={'NIerrts.','.odor_noblur+orig.BRIK,'};
+userOptions.filename={'NIerrts.','.odornova_noblur+orig.BRIK,'};
 %% Data preparation
 % fullBrainVols = fMRIDataPreparation_afni(betaCorrespondence, userOptions);
 % binaryMasks_nS = fMRIMaskPreparation_afni(userOptions);

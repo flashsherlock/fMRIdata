@@ -22,7 +22,12 @@ function [res_select,perw] = select_voxel( cur_res, voxel_num, actper)
     act = zscore(reshape(cur_res',[],voxn),0,1);
 %     act = zscore(reshape(cur_res',[],odorn,voxn),0,1);
 %     act = reshape(act,[],voxn);
-    outindex = all(abs(act)<=3);
+    cutoff = 3;
+    outindex = all(abs(act)<=cutoff);
+    % if too much zeros in outindex
+    if sum(outindex) < 2
+        outindex = all(abs(act-mean(act,2))<=cutoff);
+    end
     cur_res = cur_res(outindex,:);
     voxn = size(cur_res,1);
     % calculate mean z activity

@@ -18,6 +18,7 @@ library(patchwork)
 library(R.matlab)
 library(psych)
 library(ggradar)
+library(RColorBrewer)
 # ggthemr('fresh',layout = "clean",spacing = 0.5)
 theme_set(theme_prism(base_line_size = 0.5))
 showtext_auto(enable = F)
@@ -249,7 +250,7 @@ df <- data.frame(
 # set colors for each group
 # oranges for the first 6 groups and blues for the last 2
 colors <- c(brewer.pal(9,"YlOrRd")[c(1:6)],brewer.pal(6,"Blues")[c(2,5)])
-ggplot(df, aes(x = "", y = value, fill = Region)) +
+fig_elec <- ggplot(df, aes(x = "", y = value, fill = Region)) +
   geom_col(color = "black") +
   geom_text(aes(label = value),
     position = position_stack(vjust = 0.5)
@@ -257,3 +258,5 @@ ggplot(df, aes(x = "", y = value, fill = Region)) +
   coord_polar(theta = "y") +
   scale_fill_manual(values = colors) +
   theme_void()
+print(fig_elec)
+ggsave(paste0(data_dir2,'elec',".pdf"), width = 5, height = 4, device = cairo_pdf)

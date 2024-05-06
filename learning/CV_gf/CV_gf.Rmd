@@ -168,6 +168,7 @@ tribble(
 ## Membership
 
 - Chinese Psychological Society
+- AChemS
 
 # Relevant Skills
 \vspace{1.5mm}

@@ -4,7 +4,8 @@ rois={'Amy8_align'};
 sub = 's21';
 odors={'lim','tra','car','cit','ind'};
 comb=nchoosek(1:length(odors), 2);
-shift=6;
+% shift=6;
+shift=[-6 -3 6];
 analysis='pabiode';
 for i=1:length(rois)
     roi=rois{i};
@@ -87,6 +88,9 @@ for i=1:length(rois)
     % [~,index]=sort(perw,'ascend');
     % passed_data.mask_index = passed_data.mask_index(index(1:min(voxel_num,length(passed_data.mask_index))));
     % passed_data.mask_each = {passed_data.mask_index};
+%% data
+[results,decfg]=decoding_test_5odors(passed_data,length(odors));
+disp(results.confusion_matrix.output{1});
 %% plot
 % parameters
 colors = {'#F16913','#41AB5D','#4292C6','#ECB556','#777DDD'};  
@@ -127,7 +131,7 @@ for dim_i=1:length(dims)
     end
     xlabel(sprintf('PC1 (%.1f%% of variance)',100*var_exp(1)))
     ylabel(sprintf('PC2 (%.1f%% of variance)',100*var_exp(2)))    
-    title([cur_roi])
+    title([cur_roi],'Interpreter','none')
     legends = odors;
     legend(legends(1:length(unique(label))),'location','eastoutside')
     set(gca,'FontSize',18);

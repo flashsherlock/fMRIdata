@@ -5,7 +5,8 @@ sub = 's21';
 odors={'lim','tra','car','cit','ind'};
 comb=nchoosek(1:length(odors), 2);
 % shift=6;
-shift=[-6 -3 6];
+% shift=[-6 -3 6];
+shift=[-6 -3 0 3 6];
 analysis='pabiode';
 for i=1:length(rois)
     roi=rois{i};
@@ -58,6 +59,19 @@ for i=1:length(rois)
        nsample = size(passed_data.data, 1);
        nvoxel = size(passed_data.data, 2);
        passed_data.data = reshape(passed_data.data,[nsample/length(shift),length(shift),nvoxel]);
+       %%%%%%%%% plot data
+       % shape_data = passed_data.data;
+       shape_data = reshape(passed_data.data,[nsample/length(shift)/length(odors),length(odors),length(shift),nvoxel]);
+       % plot(squeeze(mean(mean(shape_data(:,:,5,:),4),1))')
+       means=squeeze(mean(mean(shape_data(:,:,5,:),4),1))';
+       sum(abs(bsxfun(@minus,means,means')));
+       figure
+       hold on
+       for i=1:2%length(odors)
+        histogram(squeeze(mean(shape_data(:,i,5,:),6)))
+       end
+       mean(reshape(std(squeeze(mean(shape_data2(:,:,5,:),6)),1),[],1));
+        %%%%%%%%% plot data
        % subtract baseline trs
        base = find(shift<0);       
        if ~isempty(base)
@@ -67,6 +81,18 @@ for i=1:length(rois)
        else
            passed_data.data = squeeze(mean(passed_data.data, 2));       
        end
+       %%%%%%%%% plot data
+       shape_data2 = reshape(passed_data.data,[nsample/length(shift)/length(odors),length(odors),nvoxel]);
+       % plot(squeeze(mean(mean(shape_data2(:,:,:),3),1))')
+       means2=squeeze(mean(mean(shape_data2(:,:,:),3),1))';
+       sum(abs(bsxfun(@minus,means2,means2')));
+       figure
+       hold on
+       for i=1:2%length(odors)
+        histogram(squeeze(mean(shape_data2(:,i,:),6)))
+       end
+       mean(reshape(std(squeeze(mean(shape_data2(:,:,:),6)),1),[],1));
+        %%%%%%%%% plot data
        % passed_data.data = [passed_data.data tr(1:nsample/length(shift),[3 4])];
        % change design
        cfg.files.name = cfg.files.name(1:nsample/length(shift));
@@ -82,12 +108,12 @@ for i=1:length(rois)
        passed_data.data = [passed_data.data tr(:,[3 4])];
     end
     % select voxels
-    % voxel_num=50;
-    % [passed_data.data, perw] = select_voxel(passed_data.data',voxel_num);
-    % passed_data.data = passed_data.data';
-    % [~,index]=sort(perw,'ascend');
-    % passed_data.mask_index = passed_data.mask_index(index(1:min(voxel_num,length(passed_data.mask_index))));
-    % passed_data.mask_each = {passed_data.mask_index};
+% voxel_num=50;
+% [passed_data.data, perw] = select_voxel(passed_data.data',voxel_num);
+% passed_data.data = passed_data.data';
+% [~,index]=sort(perw,'ascend');
+% passed_data.mask_index = passed_data.mask_index(index(1:min(voxel_num,length(passed_data.mask_index))));
+% passed_data.mask_each = {passed_data.mask_index};
 %% data
 [results,decfg]=decoding_test_5odors(passed_data,length(odors));
 disp(results.confusion_matrix.output{1});

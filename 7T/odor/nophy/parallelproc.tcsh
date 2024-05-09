@@ -23,3 +23,9 @@ rm command.txt
 # do
 #   tcsh deconvolve_censor_odorva.tcsh S${run}
 # done
+
+# for sub in {04..11} {13..14} {16..29} {31..34}
+# for sub in {05..11} {13..14} {16..29} {31..34}
+# do
+#   tcsh deconvolve_trial.tcsh S${sub}
+# done

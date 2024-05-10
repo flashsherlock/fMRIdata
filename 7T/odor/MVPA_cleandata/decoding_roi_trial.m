@@ -13,7 +13,7 @@ function decoding_roi_trial(sub,analysis_all,rois,shift)
 % subn=1;
 % sub='S01_yyt';
 data='/Volumes/WD_F/gufei/7T_odor/';
-datafolder = '/Volumes/WD_F/gufei/7T_odor/';
+datafolder = '/Volumes/OlfDisk2/gf/7T_odor/';
 % analysis_all={'pabiode','paphde','pade'};
 % rois={'Amy','Piriform','APC','PPC','corticalAmy','Amy9'};
 % for region=[1 3 5 6 7 8 9 10 15]
@@ -57,7 +57,7 @@ parfor i=1:length(comb)
     cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
     % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_odor5nova_' strrep(num2str(shift), ' ', '') '/' test];
+    cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_odorext_' strrep(num2str(shift), ' ', '') '/' test];
     if ~exist(cfg.results.dir,'dir')
         mkdir(cfg.results.dir)
     end
@@ -78,7 +78,7 @@ parfor i=1:length(comb)
         F=cell(1,numtr);
         for subi = 1:numtr
             t=timing(subi,2);
-            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odornova_noblur+orig.BRIK,' num2str(t)];
+            F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.odorext_noblur+orig.BRIK,' num2str(t)];
             % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'NIerrts.' sub '.' analysis '.onlypolva+orig.BRIK,' num2str(t)];
             % F{subi} = [datafolder sub '/' sub '.' analysis '.results/'  'allrun.volreg.' sub '.' analysis '+orig.BRIK,' num2str(t)];
         end

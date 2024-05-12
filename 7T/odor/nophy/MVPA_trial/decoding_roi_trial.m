@@ -58,7 +58,7 @@ function decoding_roi_trial(sub, analysis_all, rois, shift)
                 cfg.searchlight.radius = 3; % use searchlight of radius 3 (by default in voxels), see more details below
 
                 % Set the output directory where data will be saved, e.g. '/misc/data/mystudy'
-                cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_odor5va_' strrep(num2str(shift), ' ', '') '/' test];
+                cfg.results.dir = [datafolder sub '/' sub '.' analysis '.results/mvpa/' cfg.analysis '_ARodor_l1_beta_' strrep(num2str(shift), ' ', '') '/' test];
 
                 if ~exist(cfg.results.dir, 'dir')
                     mkdir(cfg.results.dir)
@@ -124,7 +124,7 @@ function decoding_roi_trial(sub, analysis_all, rois, shift)
                 % This creates the leave-one-run-out cross validation design:
                 cfg.design = make_design_cv(cfg);
                 % overwrite existing results
-                cfg.results.overwrite = 1;
+                cfg.results.overwrite = 0;
                 % Run decoding
                 decoding(cfg, passed_data);
             end

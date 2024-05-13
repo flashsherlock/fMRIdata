@@ -15,7 +15,7 @@ set pb=`ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1`
 
 # rm *odorVIva*
 # no regressor for odors, but add mean valence and intensity
-set filedec = odorext_noblur
+set filedec = odoronly_noblur
 
 # run the regression analysis
 3dDeconvolve -input ${pb}.${subj}.r*.volreg+orig.HEAD                 \
@@ -26,23 +26,19 @@ set filedec = odorext_noblur
     -ortvec mot_demean.r04.1D mot_demean_r04                        \
     -ortvec mot_demean.r05.1D mot_demean_r05                        \
     -ortvec mot_demean.r06.1D mot_demean_r06                        \
-    -polort 2                                                       \
-    -num_stimts 7                                              \
-    -stim_times 1 ${data}/behavior/lim_ext.txt 'BLOCK(3.5,1)'             \
+    -polort 3                                                       \
+    -num_stimts 5                                              \
+    -stim_times 1 ${data}/behavior/lim.txt 'BLOCK(2,1)'             \
     -stim_label 1 lim                                          \
-    -stim_times 2 ${data}/behavior/tra_ext.txt 'BLOCK(3.5,1)'             \
+    -stim_times 2 ${data}/behavior/tra.txt 'BLOCK(2,1)'             \
     -stim_label 2 tra                                          \
-    -stim_times 3 ${data}/behavior/car_ext.txt 'BLOCK(3.5,1)'             \
+    -stim_times 3 ${data}/behavior/car.txt 'BLOCK(2,1)'             \
     -stim_label 3 car                                          \
-    -stim_times 4 ${data}/behavior/cit_ext.txt 'BLOCK(3.5,1)'             \
+    -stim_times 4 ${data}/behavior/cit.txt 'BLOCK(2,1)'             \
     -stim_label 4 cit                                          \
-    -stim_times 5 ${data}/behavior/ind_ext.txt 'BLOCK(3.5,1)'             \
+    -stim_times 5 ${data}/behavior/ind.txt 'BLOCK(2,1)'             \
     -stim_label 5 ind                                          \
-    -stim_times_AM1 6 ${data}/behavior/valence.txt 'dmBLOCK(1)'     \
-    -stim_label 6 val                                          \
-    -stim_times_AM1 7 ${data}/behavior/intensity.txt 'dmBLOCK(1)'   \
-    -stim_label 7 int                                          \
-    -jobs 16                                                        \
+    -jobs 24                                                      \
     -x1D_uncensored X.nocensor.${filedec}.xmat.1D                   \
     -x1D X.xmat.${filedec}.1D -xjpeg X.${filedec}.jpg               \
     -noFDR                                                          \

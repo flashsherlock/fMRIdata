@@ -27,16 +27,18 @@ cd ${subj}.results
 # rm NIerrts.${subj}.odorVI_noblur+orig*
 # rm NIerrts.${subj}.odorVIva_noblur+orig*
 # rm NIfitts.${subj}.*
-rm fitts.${subj}+orig*
-rm errts.${subj}+orig*
+# rm fitts.${subj}+orig*
+# rm errts.${subj}+orig*
 # rm *odorVIv_noblur*
 # rm *odorVIvat_noblur*
 # rm errts.${subj}.odorVI+orig*
 # rm NIerrts*
-rm NIfitts*
+# rm NIfitts*
 # cd mvpa
 # rm -r *br*
 # rm -r *rpt*
+rm -r mvpa/roi_ARodor_l1_odor5va_6/4odors*
+mv mvpa/roi_ARodor_l1_odor5va_6/* mvpa/roi_ARodor_l1_beta_6/
 
 # set pb=`ls pb0?.*.r01.volreg+orig.HEAD | cut -d . -f1`
 # # cat all runs

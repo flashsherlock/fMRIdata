@@ -86,6 +86,9 @@ Get individual level significant clusters in each roi.
 ## indiv_masks_count.bash
 Count number of significant voxels in each roi.
 
+## indiv_absolute.bash
+Absolute beta value and masks of odor_all and three face conditions for tlrc data.
+
 # Analysis
 
 ## group_cluster.bash

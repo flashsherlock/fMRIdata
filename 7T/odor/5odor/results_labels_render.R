@@ -1,9 +1,9 @@
 # default values
 # path <- "/Volumes/WD_E/gufei/7T_odor/"
-path <- "/Volumes/WD_F/gufei/7T_odor/"
-# path <- "/Volumes/OlfDisk2/gf/7T_odor/"
+# path <- "/Volumes/WD_F/gufei/7T_odor/"
+path <- "/Volumes/OlfDisk2/gf/7T_odor/"
 # mp<- c("roi_VIvaodor_l1_label_6")
-mp <- c("roi_ARodor_l1_beta_6")
+mp <- c("roi_ARodor_l1_odoronly_6")
 analysis <- c("pabiode")
 # subs no 12 15 30
 subs <- c(sprintf('S%02d',c(4:11,13,14,16:29,31:34)))
@@ -24,7 +24,7 @@ rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/ratings.Rm
 
 # odor_va results
 # render mean mvpa results
-title <- "Mean_labelbase_beta_6"
+title <- "Mean_labelbase_odoronly_6"
 rmarkdown::render("/Users/mac/Documents/GitHub/fMRIdata/7T/odor/5odor/results_labels_mean.Rmd",
                   output_dir = paste0(path,"results_labels_r"),
                   output_file = paste0(title),

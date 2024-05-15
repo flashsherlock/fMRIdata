@@ -521,13 +521,19 @@ facecon <- c("vis","inv","all")
 # translabel <- c("Invisible Face\nVisible Face","Visible Face\nInvisible Face",
 #                 "Odor\nInvisible Face","Odor\nVisible Face",
 #                 "Invisible Face\nOdor","Visible Face\nOdor")
-transcon <- c("vis_inv","inv_vis","train_vis","test_vis","train_inv","test_inv")
-trans3con <- c("avg_visinv", "avg_visodo", "avg_invodo")
-transconnew <- c("train_visinv","test_visinv","train_visodo","test_visodo","train_invodo","test_invodo")
-translabel <- c("VisFace\nInvFace","InvFace\nVisFace",
-                "VisFace\nOdor","Odor\nVisFace",
+# transcon <- c("vis_inv","inv_vis","train_vis","test_vis","train_inv","test_inv")
+# trans3con <- c("avg_visinv", "avg_visodo", "avg_invodo")
+# transconnew <- c("train_visinv","test_visinv","train_visodo","test_visodo","train_invodo","test_invodo")
+# translabel <- c("VisFace\nInvFace","InvFace\nVisFace",
+#                 "VisFace\nOdor","Odor\nVisFace",
+#                 "InvFace\nOdor","Odor\nInvFace")
+# translabelnew <- c("Visible\nInvisible","Visible\nOlfactory","Invisible\nOlfactory")
+transcon <- c("train_vis","test_vis","train_inv","test_inv")
+trans3con <- c("avg_visodo", "avg_invodo")
+transconnew <- c("train_visodo","test_visodo","train_invodo","test_invodo")
+translabel <- c("VisFace\nOdor","Odor\nVisFace",
                 "InvFace\nOdor","Odor\nInvFace")
-translabelnew <- c("Visible\nInvisible","Visible\nOlfactory","Invisible\nOlfactory")
+translabelnew <- c("Visible\nOlfactory","Invisible\nOlfactory")
 rois <- c("Amy8_align","OFC_AAL","FFV_CA_max3v","p2acc_Amy_inter3","p2acc_OFC_AAL_inter3")
 ffvs <- c("FFV_CA01", "FFV_CA05", "FFV_CA005", "FFV_CA001","FFV_CA_max2v","FFV_CA_max3v", "FFV_CA_max4v", "FFV_CA_max5v", "FFV_CA_max6v")
 
@@ -617,7 +623,7 @@ for (roi in rois[c(1,2,5)]) {
   # decast test
   test <- reshape2::dcast(test, id ~ con, value.var = "acc")
   # average into three conditions
-  test <- mutate(test,avg_visinv = (vis_inv+inv_vis)/2,
+  test <- mutate(test,
                  avg_visodo = (test_vis+train_vis)/2,
                  avg_invodo = (test_inv+train_inv)/2)
   # save test to dresults
@@ -650,7 +656,7 @@ for (roi in rois[c(1,2,5)]) {
   test <- tidyr::separate(test, variable, c("condition","lesion"), sep = "_")
   # convert con and lesion into factor
   test$condition <- factor(test$condition, levels = c("train", "test"), labels = c("train", "test"))
-  test$lesion <- factor(test$lesion, levels = c("visinv", "visodo", "invodo"), labels = c("visinv", "visodo", "invodo"))
+  test$lesion <- factor(test$lesion, levels = c("visodo", "invodo"), labels = c("visodo", "invodo"))
   # summarise data 5% and 90% quantile
   names(test) <- str_replace(names(test),"value","Score")
   df <- ddply(test, .(condition,lesion), boxset)
@@ -678,12 +684,12 @@ for (roi in rois[c(1,2,5)]) {
          device = cairo_pdf)
 }
 ggsave(paste0(figure_dir,"mvpa_transall.pdf"), wrap_plots(acct[[2]],acct[[1]],ncol = 1,guides = 'collect'),
-       width = 5, height = 6, device = cairo_pdf)
+       width = 4, height = 6, device = cairo_pdf)
 # average into three conditions
 ggsave(paste0(figure_dir,"mvpa_avgtransall.pdf"), wrap_plots(acctv[[2]],acctv[[1]],ncol = 1,guides = 'collect'),
-       width = 4, height = 6, device = cairo_pdf)
+       width = 3, height = 6, device = cairo_pdf)
 ggsave(paste0(figure_dir,"mvpa_trans.pdf"), wrap_plots(acctv[[2]],acct[[2]],acctv[[1]],acct[[1]],ncol = 2,guides = 'collect'),
-       width = 9, height = 6, device = cairo_pdf)
+       width = 7, height = 6, device = cairo_pdf)
 
 # results for intersection
 level <- c('p2acc','sm');

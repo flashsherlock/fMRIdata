@@ -235,7 +235,7 @@ boxcp <- function(data, con, select, colors=rep("black",each=length(select))){
                  stat = "identity", size=15/64) +
     scale_color_manual(values = colors)+
     # geom_point(aes(x=con, y=Score), size = 0.5, color = "gray",show.legend = F)+
-    geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#e8e8e8", size = 0.15*0.15/0.32)+
+    geom_line(aes(x=con,y=Score,group = interaction(id)), color = "#cccccc", size = 0.15*0.15/0.32)+
     theme(axis.title.x=element_blank())
 }
 # function for loading mvpa acc
@@ -499,16 +499,20 @@ info$id <- str_remove(info$id," ")
 info <- subset(info,!id%in%c("S01","S02"))
 describe(info$age)
 table(info$gender)
+# convert to 1-100
+rating[,2:5] <- (rating[,2:5]-1)*16.5+1
 # Intensity
 bruceR::TTEST(rating,c("Intensity.Rose","Intensity.Fish"),paired = T)
 ratein <- boxcp(rating,c("Rose","Fish"),c("Intensity.Rose", "Intensity.Fish"),c("#faa61e","#5067b0"))+
-  coord_cartesian(ylim = c(1,7))+
-  scale_y_continuous(name = "Odor intensity",breaks = c(1,seq(from=2, to=7, by=1)))
+  coord_cartesian(ylim = c(0,100))+
+  scale_y_continuous(name = "Odor intensity",expand = c(0,0),breaks = c(1,seq(from=20, to=100, by=20)))
 # Valence
 bruceR::TTEST(rating,c("Valence.Rose","Valence.Fish"),paired = T)
 rateva <- boxcp(rating,c("Rose","Fish"),c("Valence.Rose", "Valence.Fish"),c("#faa61e","#5067b0"))+
-  coord_cartesian(ylim = c(1,7))+
-  scale_y_continuous(name = "Odor pleasantness",breaks = c(1,seq(from=2, to=7, by=1)))
+  coord_cartesian(ylim = c(0,100))+
+  scale_y_continuous(name = "Odor pleasantness",expand = c(0,0),breaks = c(1,seq(from=20, to=100, by=20)))
+ggsave(paste0(figure_dir,"valence.pdf"),rateva, width = 3, height = 3,
+       device = cairo_pdf)
 ratemri <-  wrap_plots(ratein,rateva,ncol = 2)
 print(ratemri)
 ggsave(paste0(figure_dir,"ratings.pdf"),ratemri, width = 4, height = 3,

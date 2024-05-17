@@ -39,4 +39,21 @@ do
       3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[44]" \
             -expr "astep(a,${maskdec_t})" \
             -prefix ${sub}/mask/absmap_odorall_${maskdec_t}
+      # sig map weighted absolute value
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[34]" \
+            -b ${sub}/mask/absmap_faceall_${maskdec_t}+tlrc \
+            -expr 'abs(a)*notzero(b)+a*iszero(b)' \
+            -prefix ${sub}/${subj}.results/absweight_faceall
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[37]" \
+            -b ${sub}/mask/absmap_facevis_${maskdec_t}+tlrc \
+            -expr 'abs(a)*notzero(b)+a*iszero(b)' \
+            -prefix ${sub}/${subj}.results/absweight_facevis
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[40]" \
+            -b ${sub}/mask/absmap_faceinv_${maskdec_t}+tlrc \
+            -expr 'abs(a)*notzero(b)+a*iszero(b)' \
+            -prefix ${sub}/${subj}.results/absweight_faceinv
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[43]" \
+            -b ${sub}/mask/absmap_odorall_${maskdec_t}+tlrc \
+            -expr 'abs(a)*notzero(b)+a*iszero(b)' \
+            -prefix ${sub}/${subj}.results/absweight_odorall
 done

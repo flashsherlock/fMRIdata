@@ -40,4 +40,38 @@ fi
                 25 "S27/S27.de.results/absolute_${brick}+tlrc" \
                 26 "S28/S28.de.results/absolute_${brick}+tlrc" \
                 27 "S29/S29.de.results/absolute_${brick}+tlrc"
+maskdec_t=3.3011
+# if ttest results exists, delete it
+if [ -f  group/absmap_${brick}_${maskdec_t}+tlrc.HEAD ]; then
+      rm  group/absmap_${brick}_${maskdec_t}+tlrc*
+fi
+# calculate percentage for 27 subjects
+3dMean -prefix group/absmap_${brick}_${maskdec_t}  \
+      "S03/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S04/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S05/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S06/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S07/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S08/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S09/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S10/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S11/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S12/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S13/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S14/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S15/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S16/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S17/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S18/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S19/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S20/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S21/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S22/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S23/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S24/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S25/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S26/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S27/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S28/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+      "S29/mask/absmap_${brick}_${maskdec_t}+tlrc"
 done

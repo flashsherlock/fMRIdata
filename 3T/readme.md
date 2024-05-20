@@ -87,7 +87,10 @@ Get individual level significant clusters in each roi.
 Count number of significant voxels in each roi.
 
 ## indiv_absolute.bash
-Absolute beta value and masks of odor_all and three face conditions for tlrc data.
+Absolute beta value and masks, as well as sig map weighted betas of odor_all and three face conditions for tlrc data.
+
+## group_absolute.bash
+Group analysis of absolute beta value and masks.
 
 # Analysis
 

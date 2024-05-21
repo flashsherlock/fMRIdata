@@ -6,7 +6,7 @@ cd "${datafolder}" || exit
 # p=0.01 t=2.5812
 # p=0.05 t=1.9625
 # p=0.1 t=1.6465
-maskdec_t=3.3011
+maskdec_t=1.9625
 # for each sub
 for ub in $(count -dig 2 ${1} ${2})
 do
@@ -43,17 +43,17 @@ do
       3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[34]" \
             -b ${sub}/mask/absmap_faceall_${maskdec_t}+tlrc \
             -expr 'abs(a)*notzero(b)+a*iszero(b)' \
-            -prefix ${sub}/${subj}.results/absweight_faceall
+            -prefix ${sub}/${subj}.results/absweight_faceall_${maskdec_t}
       3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[37]" \
             -b ${sub}/mask/absmap_facevis_${maskdec_t}+tlrc \
             -expr 'abs(a)*notzero(b)+a*iszero(b)' \
-            -prefix ${sub}/${subj}.results/absweight_facevis
+            -prefix ${sub}/${subj}.results/absweight_facevis_${maskdec_t}
       3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[40]" \
             -b ${sub}/mask/absmap_faceinv_${maskdec_t}+tlrc \
             -expr 'abs(a)*notzero(b)+a*iszero(b)' \
-            -prefix ${sub}/${subj}.results/absweight_faceinv
+            -prefix ${sub}/${subj}.results/absweight_faceinv_${maskdec_t}
       3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[43]" \
             -b ${sub}/mask/absmap_odorall_${maskdec_t}+tlrc \
             -expr 'abs(a)*notzero(b)+a*iszero(b)' \
-            -prefix ${sub}/${subj}.results/absweight_odorall
+            -prefix ${sub}/${subj}.results/absweight_odorall_${maskdec_t}
 done

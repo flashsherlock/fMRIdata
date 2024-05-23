@@ -3,14 +3,14 @@
 datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
-
+bmask=group/mask/bmask.nii
 # for each condition odorall faceall facevis faceinv
 for brick in odorall faceall facevis faceinv
 do
-      maskdec_t=1.9625
+      maskdec_t=3.3011
       for pre in absweight #absolute
       do
-      if [ ${pre} = "absweight" ]; then
+      if [ "${pre}" = "absweight" ] && [ "${maskdec_t}" != 3.3011 ]; then
             brickn=${brick}_${maskdec_t}
       else
             brickn=${brick}
@@ -20,7 +20,8 @@ do
             rm  group/ttest_${pre}_${brickn}+tlrc*
       fi
       # 8 conditions
-      3dttest++ -prefix group/ttest_${pre}_${brickn}    -setA all        \
+      3dttest++ -prefix group/ttest_${pre}_${brickn}    \
+                  -mask ${bmask}       -setA all        \
                   01 "S03/S03.de.results/${pre}_${brickn}+tlrc" \
                   02 "S04/S04.de.results/${pre}_${brickn}+tlrc" \
                   03 "S05/S05.de.results/${pre}_${brickn}+tlrc" \
@@ -50,37 +51,41 @@ do
                   27 "S29/S29.de.results/${pre}_${brickn}+tlrc"
       done
       
-      # # if ttest results exists, delete it
-      # if [ -f  group/absmap_${brick}_${maskdec_t}+tlrc.HEAD ]; then
-      #       rm  group/absmap_${brick}_${maskdec_t}+tlrc*
-      # fi
-      # # calculate percentage for 27 subjects
-      # 3dMean -prefix group/absmap_${brick}_${maskdec_t}  \
-      #       "S03/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S04/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S05/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S06/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S07/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S08/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S09/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S10/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S11/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S12/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S13/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S14/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S15/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S16/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S17/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S18/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S19/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S20/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S21/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S22/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S23/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S24/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S25/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S26/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S27/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S28/mask/absmap_${brick}_${maskdec_t}+tlrc" \
-      #       "S29/mask/absmap_${brick}_${maskdec_t}+tlrc"
+      # if ttest results exists, delete it
+      if [ -f  group/absmap_${brick}_${maskdec_t}+tlrc.HEAD ]; then
+            rm  group/absmap*${brick}_${maskdec_t}+tlrc*
+      fi
+      # calculate percentage for 27 subjects
+      3dMean -prefix group/absmap_${brick}_${maskdec_t}  \
+            "S03/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S04/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S05/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S06/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S07/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S08/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S09/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S10/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S11/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S12/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S13/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S14/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S15/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S16/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S17/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S18/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S19/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S20/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S21/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S22/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S23/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S24/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S25/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S26/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S27/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S28/mask/absmap_${brick}_${maskdec_t}+tlrc" \
+            "S29/mask/absmap_${brick}_${maskdec_t}+tlrc"
+      3dcalc -a group/absmap_${brick}_${maskdec_t}+tlrc \
+             -b ${bmask} \
+             -expr "a*b" \
+             -prefix group/absmapb_${brick}_${maskdec_t}
 done

@@ -7,7 +7,7 @@ bmask=group/mask/bmask.nii
 # for each condition odorall faceall facevis faceinv
 for brick in odorall faceall facevis faceinv
 do
-      for maskdec_t in 3.3011
+      for maskdec_t in 2.5812
       do
             for pre in absweight #absolute
             do

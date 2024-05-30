@@ -6,12 +6,12 @@ cd "${datafolder}" || exit
 # open new file
 printf "odorall faceinv facevis faceall\n" > group/absweight_results.txt
 # for each maskdec_t
-for maskdec_t in 3.3011 2.5812 1.9625 1.6465
+for maskdec_t in 1.6465 1.9625 2.5812 3.3011
 do
 # for each pvalue
 for p in 0.001 0.005 0.01 0.05
 do
-    for roi in OFC_AAL Amy fusiformCA
+    for roi in OFC_AAL Amy fusiformCA #FFA_CA FFV FFV005 FFA FFV01 
     do
       if [ "$roi" = "fusiformCA" ]; then
             mask=group/mask/fusiformCA+tlrc
@@ -19,6 +19,21 @@ do
       elif [ "$roi" = "OFC_AAL" ]; then
             mask=group/mask/OFC_AAL+tlrc
             out=OFC_AAL
+      elif [ "$roi" = "FFV" ]; then
+            mask=group/mask/FFV+tlrc
+            out=FFV
+      elif [ "$roi" = "FFV01" ]; then
+            mask=group/mask/FFV01+tlrc
+            out=FFV01
+      elif [ "$roi" = "FFV005" ]; then
+            mask=group/mask/FFV005+tlrc
+            out=FFV005
+      elif [ "$roi" = "FFA_CA" ]; then
+            mask=group/mask/FFA_CA+tlrc
+            out=FFA_CA
+      elif [ "$roi" = "FFA" ]; then
+            mask=group/mask/FFA+tlrc
+            out=FFA
       else
             mask=group/mask/Amy8_align.freesurfer+tlrc
             out=Amy

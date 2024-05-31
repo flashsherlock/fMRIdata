@@ -89,9 +89,6 @@ Count number of significant voxels in each roi.
 ## indiv_absolute.bash
 Absolute beta value and masks, as well as sig map weighted betas of odor_all and three face conditions for tlrc data.
 
-## group_absolute.bash
-Group analysis of absolute beta value and masks.
-
 # Analysis
 
 ## group_cluster.bash
@@ -132,6 +129,12 @@ Get masks for main effects of face and odor. Get masks for significant clusters 
 
 ## group_masks_plot.bash
 Combine and convert searchlight results for plotting.
+
+## group_absolute.bash
+Group analysis of absolute beta value and masks.
+
+## group_masks_abs.bash
+Get masks for weighted absolute beta value.
 
 ## group_percent.bash
 Get percent of significant subjects in each voxel.

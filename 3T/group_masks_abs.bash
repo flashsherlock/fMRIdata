@@ -6,10 +6,10 @@ cd "${datafolder}" || exit
 # open new file
 printf "odorall faceinv facevis faceall\n" > group/absweight_results.txt
 # for each maskdec_t
-for maskdec_t in 1.6465 1.9625 2.5812 3.3011
+for maskdec_t in 1.6465 1.9625 #2.5812 3.3011
 do
 # for each pvalue
-for p in 0.001 0.005 0.01 0.05
+for p in 0.005 #0.001 0.005 0.01 0.05
 do
     for roi in OFC_AAL Amy fusiformCA #FFA_CA FFV FFV005 FFA FFV01 
     do
@@ -44,19 +44,20 @@ do
       #     echo ${nvox}
       #     nvox=10
       results=${roi}_${p}_${maskdec_t}
-      #     for brick in face face_vis face_inv odor
+      # for brick in face face_vis face_inv odor
       for brick in faceall facevis faceinv odorall
       do
-            #   3dClusterize -nosum -1Dformat \
+            # string=$(3dClusterize -nosum -1Dformat \
             #   -inset group/ANOVA_results_wholenew+tlrc \
             #   -mask ${mask} \
             #   -idat "${brick}" -ithr "${brick} t" \
-            #   -NN 2 -clust_nvox ${nvox} -bisided p=${p}
+            #   -NN 2 -clust_nvox ${nvox} -bisided p=${p})
             string=$(3dClusterize -nosum -1Dformat \
             -inset group/ttest_absweight_${brick}_${maskdec_t}+tlrc \
             -mask ${mask} \
             -idat "all_mean" -ithr "all_Tstat" \
-            -NN 2 -clust_nvox ${nvox} -bisided p=${p})
+            -NN 2 -clust_nvox ${nvox} -bisided p=${p}\
+            -pref_map group/absmask/${roi}_${brick}_${p}_${maskdec_t})
             if [[ $string == *"NO CLUSTERS FOUND"* ]]; then
                   results=0_${results}
             else

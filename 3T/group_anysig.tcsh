@@ -139,6 +139,23 @@ rm ./mask/FFV0*
         -b ./mask/FusiformCA+tlrc \
         -expr 'step(a-3.07)*b' \
         -prefix ./mask/FFV005
+# Fusiform from aal atlas
+3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
+        -b ./mask/FusiformAAL+tlrc \
+        -expr 'step(a-1.65)*b' \
+        -prefix ./mask/FFVAAL
+3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
+        -b ./mask/FusiformAAL+tlrc \
+        -expr 'step(a-2.05)*b' \
+        -prefix ./mask/FFVAAL05
+3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
+        -b ./mask/FusiformAAL+tlrc \
+        -expr 'step(a-2.78)*b' \
+        -prefix ./mask/FFVAAL01
+3dcalc  -a "consep/ttest_vis_${outsuffix}+tlrc[1]" \
+        -b ./mask/FusiformAAL+tlrc \
+        -expr 'step(a-3.71)*b' \
+        -prefix ./mask/FFVAAL001
 # generate mask of voxels sig in all conditions
 3dcalc  -a "ttest_${outsuffix}odors+tlrc[1]" \
         -b ./mask/bmask.nii \

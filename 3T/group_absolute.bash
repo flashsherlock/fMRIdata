@@ -5,9 +5,9 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 cd "${datafolder}" || exit
 bmask=group/mask/bmask.nii
 # for each condition odorall faceall facevis faceinv
-for brick in odorall faceall facevis faceinv
+for brick in odorvis odorinv #odorall faceall facevis faceinv
 do
-      for maskdec_t in 2.5812
+      for maskdec_t in 1.9625 1.6465
       do
             for pre in absweight #absolute
             do

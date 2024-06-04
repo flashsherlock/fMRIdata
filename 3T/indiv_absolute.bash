@@ -46,38 +46,47 @@ do
       # 3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[44]" \
       #       -expr "astep(a,${maskdec_t})" \
       #       -prefix ${sub}/mask/absmap_odorall_${maskdec_t}
-      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[47]" \
-            -expr "astep(a,${maskdec_t})" \
-            -prefix ${sub}/mask/absmap_odorvis_${maskdec_t}
-      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[50]" \
-            -expr "astep(a,${maskdec_t})" \
-            -prefix ${sub}/mask/absmap_odorinv_${maskdec_t}
-      # rm ${sub}/${subj}.results/absweight_*[lsv]+tlrc*
-      # rm ${sub}/${subj}.results/absweight_*_${maskdec_t}+tlrc*
+      # 3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[47]" \
+      #       -expr "astep(a,${maskdec_t})" \
+      #       -prefix ${sub}/mask/absmap_odorvis_${maskdec_t}
+      # 3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[50]" \
+      #       -expr "astep(a,${maskdec_t})" \
+      #       -prefix ${sub}/mask/absmap_odorinv_${maskdec_t}
       # sig map weighted absolute value
-      # 3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[34]" \
-      #       -b ${sub}/mask/absmap_faceall_${maskdec_t}+tlrc \
-      #       -expr 'abs(a)*notzero(b)-a*iszero(b)' \
-      #       -prefix ${sub}/${subj}.results/absweight_faceall_${maskdec_t}
-      # 3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[37]" \
-      #       -b ${sub}/mask/absmap_facevis_${maskdec_t}+tlrc \
-      #       -expr 'abs(a)*notzero(b)-a*iszero(b)' \
-      #       -prefix ${sub}/${subj}.results/absweight_facevis_${maskdec_t}
-      # 3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[40]" \
-      #       -b ${sub}/mask/absmap_faceinv_${maskdec_t}+tlrc \
-      #       -expr 'abs(a)*notzero(b)-a*iszero(b)' \
-      #       -prefix ${sub}/${subj}.results/absweight_faceinv_${maskdec_t}
-      # 3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[43]" \
-      #       -b ${sub}/mask/absmap_odorall_${maskdec_t}+tlrc \
-      #       -expr 'abs(a)*notzero(b)-a*iszero(b)' \
-      #       -prefix ${sub}/${subj}.results/absweight_odorall_${maskdec_t}
+      for prefix in absweightrev #absweightrev
+      do
+      # rm ${sub}/${subj}.results/absweight_*[lsv]+tlrc*
+      rm ${sub}/${subj}.results/${prefix}_*_${maskdec_t}+tlrc*
+      # set expr according to prefix
+      if [ "${prefix}" = "absweight" ]; then
+            expr="abs(a)*notzero(b)-a*iszero(b)"
+      else
+            expr="abs(a)*notzero(b)+a*iszero(b)"
+      fi
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[34]" \
+            -b ${sub}/mask/absmap_faceall_${maskdec_t}+tlrc \
+            -expr ${expr} \
+            -prefix ${sub}/${subj}.results/${prefix}_faceall_${maskdec_t}
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[37]" \
+            -b ${sub}/mask/absmap_facevis_${maskdec_t}+tlrc \
+            -expr ${expr} \
+            -prefix ${sub}/${subj}.results/${prefix}_facevis_${maskdec_t}
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[40]" \
+            -b ${sub}/mask/absmap_faceinv_${maskdec_t}+tlrc \
+            -expr ${expr} \
+            -prefix ${sub}/${subj}.results/${prefix}_faceinv_${maskdec_t}
+      3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[43]" \
+            -b ${sub}/mask/absmap_odorall_${maskdec_t}+tlrc \
+            -expr ${expr} \
+            -prefix ${sub}/${subj}.results/${prefix}_odorall_${maskdec_t}
       3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[46]" \
             -b ${sub}/mask/absmap_odorvis_${maskdec_t}+tlrc \
-            -expr 'abs(a)*notzero(b)-a*iszero(b)' \
-            -prefix ${sub}/${subj}.results/absweight_odorvis_${maskdec_t}
+            -expr ${expr} \
+            -prefix ${sub}/${subj}.results/${prefix}_odorvis_${maskdec_t}
       3dcalc  -a "${sub}/${subj}.results/stats.${subj}.new+tlrc[49]" \
             -b ${sub}/mask/absmap_odorinv_${maskdec_t}+tlrc \
-            -expr 'abs(a)*notzero(b)-a*iszero(b)' \
-            -prefix ${sub}/${subj}.results/absweight_odorinv_${maskdec_t}
+            -expr ${expr} \
+            -prefix ${sub}/${subj}.results/${prefix}_odorinv_${maskdec_t}
+      done
 done
 done

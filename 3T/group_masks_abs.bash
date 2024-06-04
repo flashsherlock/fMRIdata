@@ -4,14 +4,14 @@ datafolder=/Volumes/WD_F/gufei/3T_cw
 # datafolder=/Volumes/WD_D/allsub/
 cd "${datafolder}" || exit
 # open new file
-printf "odorall faceinv facevis faceall\n" > group/absweight_results.txt
+printf "odorinv odorvis odorall faceinv facevis faceall\n" > group/absweight_results.txt
 # for each maskdec_t
-for maskdec_t in 1.6465 1.9625 #2.5812 3.3011
+for maskdec_t in 1.6465 #1.9625 #2.5812 3.3011
 do
 # for each pvalue
 for p in 0.005 #0.001 0.005 0.01 0.05
 do
-    for roi in OFC_AAL Amy fusiformCA #FFA_CA FFV FFV005 FFA FFV01 
+    for roi in OFC_AAL Amy fusiformCA
     do
       if [ "$roi" = "fusiformCA" ]; then
             mask=group/mask/fusiformCA+tlrc
@@ -45,7 +45,7 @@ do
       #     nvox=10
       results=${roi}_${p}_${maskdec_t}
       # for brick in face face_vis face_inv odor
-      for brick in faceall facevis faceinv odorall
+      for brick in faceall facevis faceinv odorall odorvis odorinv
       do
             # string=$(3dClusterize -nosum -1Dformat \
             #   -inset group/ANOVA_results_wholenew+tlrc \

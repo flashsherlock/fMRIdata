@@ -9,12 +9,12 @@ for brick in odorvis odorinv odorall faceall facevis faceinv
 do
       for maskdec_t in 1.9625 1.6465
       do
-            for pre in absweightrev #absolute
+            for pre in absweight0 #absweightrev #absolute
             do
-                  if [ "${pre}" = "absweight" ] || [ "${pre}" = "absweightrev" ]; then
-                        brickn=${brick}_${maskdec_t}
-                  else
+                  if [ "${pre}" = "absolute" ]; then
                         brickn=${brick}
+                  else
+                        brickn=${brick}_${maskdec_t}
                   fi
                   # if ttest results exists, delete it
                   if [ -f  group/ttest_${pre}_${brickn}+tlrc.HEAD ]; then

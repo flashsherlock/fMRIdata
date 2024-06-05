@@ -53,13 +53,15 @@ do
       #       -expr "astep(a,${maskdec_t})" \
       #       -prefix ${sub}/mask/absmap_odorinv_${maskdec_t}
       # sig map weighted absolute value
-      for prefix in absweightrev #absweightrev
+      for prefix in absweight0 #absweightrev #absweightrev
       do
       # rm ${sub}/${subj}.results/absweight_*[lsv]+tlrc*
       rm ${sub}/${subj}.results/${prefix}_*_${maskdec_t}+tlrc*
       # set expr according to prefix
       if [ "${prefix}" = "absweight" ]; then
             expr="abs(a)*notzero(b)-a*iszero(b)"
+      elif [ "${prefix}" = "absweight0" ]; then
+            expr="abs(a)*notzero(b)"
       else
             expr="abs(a)*notzero(b)+a*iszero(b)"
       fi

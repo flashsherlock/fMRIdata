@@ -162,6 +162,7 @@ end
 save([pic_dir 'coherence_7s.mat'],'cross_freq_result','cur_level_roi')
 
 %% plot
+cpair = 1;
 label = {'Ind','Iso_l','Iso_h','Peach','Banana','Air','Odor','UnPlea','Plea'};
 for roi_i=1:size(cross_freq_result,1)
     % respiration and theta
@@ -176,6 +177,10 @@ for roi_i=1:size(cross_freq_result,1)
         
         % calculate mean modulation index and plot
         p=cell(odor_num,1);
+        plvair=cross_freq_result{roi_i,low_i,1}.crsspctrm;
+        plv_perair=cross_freq_result{roi_i,low_i,1}.permute;
+        zair = (squeeze(plvair)-mean(plv_perair,3))./std(plv_perair,0,3);
+        zplv_perair = (squeeze(plv_perair)-mean(plv_perair,3))./std(plv_perair,0,3);
         for odor_i=1:odor_num
             % rpt_chan_freqlow_freqhigh
             plv=cross_freq_result{roi_i,low_i,odor_i}.crsspctrm;
@@ -184,6 +189,9 @@ for roi_i=1:size(cross_freq_result,1)
             % p-value percentage of plv_per larger than plv
             p{odor_i} = (sum(bsxfun(@gt, plv_per, squeeze(plv)),3)+1 )./(size(plv_per,3)+1);
             p{odor_i} = squeeze(mean(p{odor_i},1));
+            % problem in all odor condition
+%             pcpair{odor_i} = (sum(bsxfun(@gt, plv_per-plv_perair, squeeze(plv-plvair)),3)+1 )./(size(plv_per,3)+1);
+%             pcpair{odor_i} = squeeze(mean(pcpair{odor_i},1));
 %             plot(freqs,squeeze(mean(mean(plv,1),3)),...
 %                 'Color',hex2rgb(colors{odor_i+5}),'linewidth', line_wid)
         end
@@ -212,12 +220,20 @@ for roi_i=1:size(cross_freq_result,1)
             mean_per = mean(plv_per,3);
             std_per = std(plv_per,0,3);
             zmi = (squeeze(plv)-mean_per)./std_per;
+            zplv_per = (squeeze(plv_per)-mean_per)./std_per;
+            pcpair{odor_i} = (sum(bsxfun(@gt, zplv_per-zplv_perair, squeeze(zmi-zair)),3)+1 )./(size(plv_per,3)+1);
+            pcpair{odor_i} = squeeze(mean(pcpair{odor_i},1));
             % plot zmi (average low freq)
             plot(freqs,mean(zmi),'Color',hex2rgb(colors{odor_i+5}),'linewidth', line_wid)
             % add sig line
             ystart = 2-odor_i*0.5;
-            plotsigx( freqs, p{odor_i}, hex2rgb(colors{odor_i+5}), ystart, line_wid)
-            
+            if cpair == 1
+                if odor_i ~= 1
+                plotsigx( freqs, pcpair{odor_i}, hex2rgb(colors{odor_i+5}), ystart, line_wid)
+                end
+            else
+                plotsigx( freqs, p{odor_i}, hex2rgb(colors{odor_i+5}), ystart, line_wid)
+            end
         end
         set(gca,'xlim',xl);
         set(gca,'XTick',xt);

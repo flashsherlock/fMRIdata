@@ -136,6 +136,9 @@ Group analysis of absolute beta value and masks.
 ## group_masks_abs.bash
 Get masks for weighted absolute beta value.
 
+## group_masks_absplot.bash
+Get masks, t value map, probability map for plot.
+
 ## group_percent.bash
 Get percent of significant subjects in each voxel.
 
@@ -203,6 +206,9 @@ Plot time courses for each roi.
 
 ## plot3t.r
 Plot results for 3T betas data.
+
+## plot_maskabs.py
+Plot significant clusters for absolute valence.
 
 ## plot_mask.py
 Plot intersection area between significant clusters.

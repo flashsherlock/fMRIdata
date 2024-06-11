@@ -12,14 +12,24 @@ gl.overlayloadsmooth(0)
 gl.smooth(0)
 rois = ['Amy', 'OFC_AAL', 'fusiformCA', 'FFV01','whole']
 for roi in rois:
+    # Set mosaic slices 
+    if roi == 'Amy':
+        gl.mosaic("C H 0 V 0 -3")
+    elif roi == 'OFC_AAL':
+        gl.mosaic("A H 0 V 0 -15")
+    elif roi == 'fusiformCA':
+        gl.mosaic("A H 0 V 0 -20")
+    elif roi == 'FFV01':
+        gl.mosaic("A H 0 V 0 -20")
+    elif roi == 'whole':
+        gl.mosaic("A H 0 V 0 -15")
     # Open overlay
     namelist = ['_odorall', '_faceinv',  '_facevis']
     cname = ['3blue', '2green', '1red']
     # get length of namelist
     namelen=len(namelist)
-    gl.overlaycloseall()
     nc=0
-    # for n from 1 to length of namelist
+    gl.overlaycloseall()
     for n in range(namelen):
         print(n)        
         name=namelist[n]
@@ -36,16 +46,25 @@ for roi in rois:
             gl.colorbarposition(0)
             gl.colorbarsize(0.05)
             nc=nc+1
-    # Set mosaic slices 
-    if roi == 'Amy':
-        gl.mosaic("C H 0 V 0 -3")
-    elif roi == 'OFC_AAL':
-        gl.mosaic("A H 0 V 0 -15")
-    elif roi == 'fusiformCA':
-        gl.mosaic("A H 0 V 0 -20")
-    elif roi == 'FFV01':
-        gl.mosaic("A H 0 V 0 -20")
-    elif roi == 'whole':
-        gl.mosaic("A H 0 V 0 -15")
     # Save the image 
     gl.savebmp(data_dir + roi + '_mask.png')
+    
+    # for n from 1 to length of namelist
+    for n in range(namelen):
+        print(n)        
+        name=namelist[n]
+        # tmap
+        gl.overlaycloseall()
+        # array for cutoff
+        cutoff = [0.15, 0.15]
+        ovimage = roi+name+'_t+tlrc'
+        status = gl.overlayload(data_dir + ovimage)
+        # if file exists
+        if status:
+            gl.colorname(1,"4hot")
+            gl.minmax(1, 2.5, 6.5)
+            gl.opacity(1, 100)
+            gl.colorbarposition(0)
+            gl.colorbarsize(0.05)
+            # Save the image 
+            gl.savebmp(data_dir + roi + name + '_t.png')

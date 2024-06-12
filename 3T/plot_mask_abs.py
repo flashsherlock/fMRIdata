@@ -30,6 +30,7 @@ for roi in rois:
     namelen=len(namelist)
     nc=0
     gl.overlaycloseall()
+    # for n from 1 to length of namelist
     for n in range(namelen):
         print(n)        
         name=namelist[n]
@@ -62,9 +63,35 @@ for roi in rois:
         # if file exists
         if status:
             gl.colorname(1,"4hot")
-            gl.minmax(1, 2.5, 6.5)
+            # gl.minmax(1, 1.5, 5.5)
+            # gl.minmax(1, 2.5, 4.5)
+            gl.minmax(1, 1.5, 4.5)
             gl.opacity(1, 100)
             gl.colorbarposition(0)
             gl.colorbarsize(0.05)
             # Save the image 
             gl.savebmp(data_dir + roi + name + '_t.png')
+    
+    # for n from 1 to length of namelist
+    for n in range(namelen):
+        print(n)        
+        name=namelist[n]
+        # tmap
+        gl.overlaycloseall()
+        # array for cutoff
+        cutoff = 0.30
+        ovimage = roi+name+'_prob+tlrc'
+        status = gl.overlayload(data_dir + ovimage)
+        # if file exists
+        if status:
+            gl.generateclusters(1, cutoff, 1, 2, 0)      
+            cname='4hot'
+            gl.colorname(1,cname)
+            gl.minmax(1, cutoff-0.2, cutoff+0.2)
+            gl.opacity(1, 80)
+            gl.zerointensityinvisible(1, 1)
+            # Set the color bar options 
+            gl.colorbarposition(0)
+            gl.colorbarsize(0.05)
+            # Save the image 
+            gl.savebmp(data_dir + roi + name + '_prob.png')

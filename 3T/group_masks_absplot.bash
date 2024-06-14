@@ -17,12 +17,21 @@ do
             -b group/consep/ttest_vis_whole+tlrc[0]    \
             -expr 'bool(a)*ispositive(b)'\
             -prefix group/absplot/${roi}_${brick}_vismask.nii
+            nvox=$(3dBrickStat -count -non-zero group/absplot/${roi}_${brick}_vismask.nii)
+            if [ $nvox -eq 0 ]; then
+                  rm group/absplot/${roi}_${brick}_vismask.nii
+            fi
+            # inv>vis
             rm group/absplot/${roi}_${brick}_invmask*
             3dcalc \
             -a group/absmask/${roi}_${brick}_${p}+tlrc \
             -b group/consep/ttest_vis_whole+tlrc[0]    \
             -expr 'bool(a)*isnegative(b)'\
             -prefix group/absplot/${roi}_${brick}_invmask.nii
+            nvox=$(3dBrickStat -count -non-zero group/absplot/${roi}_${brick}_invmask.nii)
+            if [ $nvox -eq 0 ]; then
+                  rm group/absplot/${roi}_${brick}_invmask.nii
+            fi
             # t map
             rm group/absplot/${roi}_${brick}_t*
             3dcalc \

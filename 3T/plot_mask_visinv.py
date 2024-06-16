@@ -49,3 +49,19 @@ for roi in rois:
             nc=nc+1
     # Save the image 
     gl.savebmp(data_dir + 'vis' + roi + '_mask.png')
+    
+    # tmap
+    gl.overlaycloseall()
+    # array for cutoff
+    ovimage = roi+'_visinv_t.nii'
+    status = gl.overlayload(data_dir + ovimage)
+    # if file exists
+    if status:
+        gl.colorname(1,"blue2red")
+        gl.minmax(1, -2, 2)
+        gl.opacity(1, 100)
+        gl.zerointensityinvisible(1, 1)
+        gl.colorbarposition(1)
+        gl.colorbarsize(0.05)
+        # Save the image 
+        gl.savebmp(data_dir + 'vis' + roi + '_t.png')
